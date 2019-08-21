@@ -4,7 +4,8 @@
  * https://caoyuwu.github.io/gfwlist.pac
  */
 
-var proxy = 'SOCKS5 127.0.0.1:1080';
+var proxy = null;//'SOCKS5 127.0.0.1:1080';
+
 var rules = [
     [
         [],
@@ -5576,10 +5577,29 @@ function testHost(host, index) {
         for (var j = 0; j < rules[index][i].length; j++) {
             lastRule = rules[index][i][j];
             if (host == lastRule || host.endsWith('.' + lastRule))
-                return i % 2 == 0 ? 'DIRECT' : proxy;
+                return i % 2 == 0 ? 'DIRECT' : getProxy();
         }
     }
     lastRule = '';
+}
+
+//var proxy = 'SOCKS5 127.0.0.1:1080';
+//127.0.0.1%3A1080 ?proxy=SOCKS5%20192.168.1.7%3A1080
+function getProxy()
+{
+   if( proxy )
+      return proxy;
+     alert("location="+location);  
+   var s = location.search;
+     alert("s="+s); 
+   if( s && s.startsWith("?proxy=") )
+   {
+       proxy = decodeURIComponent(s.substring(7)).trim;
+   }   
+   alert("s="+s+",proxy="+proxy);
+   if( !proxy || proxy=="" )
+      proxy = 'SOCKS5 127.0.0.1:1080';
+   return proxy;
 }
 
 // REF: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
