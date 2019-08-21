@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+
+<html class="ui-fullpage">
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type='text/javascript' src='./xjslib/xjs-base.js'></script>
+<link rel="icon" href="video-64.png"/>
+
+<title>视频播放</title>
+<script type="text/javascript">
+  /*
+   http://caoyuwu.github.io/VideoPlay0.html
+  
+  */
+  var consolePane ; 
+   var videoPlayer;
+   function consoleLog(s)
+   {
+	   consolePane.addMessage(s);
+   }
+  function onVideoPlayReady(){
+	  window.console.log("onVideoPlayReady...");
+	 // consoleLog("onVideoPlayReady...");
+	  
+  };
+  
+  function on_loadstart()
+  {
+	  consoleLog("on_loadstart..."+videoPlayer.videoWidth+"X"+videoPlayer.videoHeight);
+  }
+  function on_play()
+  {
+	//  consoleLog("on_play..."+videoPlayer.videoWidth+"X"+videoPlayer.videoHeight);
+  }
+  function on_loadedmetadata()
+  {
+	  consoleLog("on_loadedmetadata..."+videoPlayer.videoWidth+"X"+videoPlayer.videoHeight);
+ 	if( videoPlayer.videoWidth>0 ){
+ 		videoPlayer.style.width = videoPlayer.videoWidth+"px";
+ 		videoPlayer.style.height = videoPlayer.videoHeight+"px";
+ 	}
+ 	 
+  }
+  
+  function startVideoPlay(){
+	  document.getElementById("ErrInfo").textContent = ""; 
+	  consolePane.clear();// DOM.remove(consoleDOM); 
+	  var url = document.getElementById("VideoURL").value.trim();
+	  console.log("url=%s",url);
+	  videoPlayer.pause();
+	  videoPlayer.src = url;
+	  var p = videoPlayer.play();
+	  console.log(p);
+	 	 p.then(
+	 		 function(){ console.log("开始播放..."); }
+	 	 ).catch(
+	 		function(ex){
+	 			console.log("播放失败:"+ex); 
+	 			alert("播放失败:"+ex);
+	 		 }
+	 	 );
+  };
+  function stopVideoPlay(){
+	  videoPlayer.pause();
+  };
+   window.onload = function(){
+	   consolePane = new Xjs.ui.MessagePane({dom:document.getElementById("Console")});
+	   videoPlayer = document.getElementById("video-player");
+	  // videoPlayer.onloadstart = on_loadstart;
+	   videoPlayer.onplay = on_play;
+	   videoPlayer.onloadedmetadata = on_loadedmetadata;
+	   document.getElementById("VideoPlayBtn").onclick = startVideoPlay;
+	   document.getElementById("VideoStopBtn").onclick = stopVideoPlay;
+  };
+  
+</script>
+<style type="text/css">
+#ErrInfo { color:red;}
+</style>
+</head>
+
+<body>
+视频地址:<br>
+<textarea id="VideoURL" style="width:1000px;height:50px;border:1px solid blue;">http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8</textarea> <br> 
+ <button id="VideoPlayBtn">播放</button>
+ <button id="VideoStopBtn">停止</button><br>
+ <div>
+ http://localhost:8000/snsoft/touch-demos/oceans.mp4<br>
+ http://localhost/live/test1.flv<br>
+ http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8<br>
+ </div>
+ <div id="ErrInfo"></div>
+ <div id="Console"></div>
+ <video
+    id="video-player"
+    class="video-js"
+    controls
+    preload="auto"
+    poster="../video/oceans.png"
+    >
+    <!-- 
+    webkit-playsinline=”true”
+     <source  type='rtmp/flv'/>
+     <source  type='video/x-flv'/>
+	<source  type="video/mp4">
+  	<source  type="video/ogg">
+	-->
+</video>
+</body>
+</html>

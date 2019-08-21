@@ -1,0 +1,10 @@
+Flv.js:
+  cd /setup/src
+  git clone https://github.com/bilibili/flv.js.git  
+  cd /setup/src/flv.js
+  npm install 
+  sudo npm install -g gulp
+  gulp release 
+ 拷贝:
+   dist 
+  
