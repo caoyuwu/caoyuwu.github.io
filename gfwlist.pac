@@ -5591,9 +5591,12 @@ function getProxy()
    if( proxy )
       return proxy;
   alert("this = "+this);      
+    for(var p in this)
+    {
+       alert(p);  
+    }
      return  'SOCKS5 127.0.0.1:1080';
       /*
-    
      alert("location="+location);  
    var s = location.search;
      alert("s="+s); 
