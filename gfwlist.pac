@@ -2,6 +2,7 @@
  * genpac 2.1.0 https://github.com/JinnLynn/genpac
    下载自: https://raw.githubusercontent.com/petronny/gfwlist2pac/master/gfwlist.pac
  * https://caoyuwu.github.io/gfwlist.pac?proxy=SOCKS5%20192.168.1.7%3A1080
+   https://caoyuwu.github.io/gfwlist.pac?proxy=SOCKS5%20localhost%3A1080
  */
 
 var proxy = null;//'SOCKS5 127.0.0.1:1080';
@@ -5589,8 +5590,10 @@ function getProxy()
 {
    if( proxy )
       return proxy;
-    alert("${GATEWAY}=${GATEWAY}");  
-    alert("${proxy}=${proxy}");  
+  alert("this = "+this);      
+     return  'SOCKS5 127.0.0.1:1080';
+      /*
+    
      alert("location="+location);  
    var s = location.search;
      alert("s="+s); 
@@ -5602,6 +5605,7 @@ function getProxy()
    if( !proxy || proxy=="" )
       proxy = 'SOCKS5 127.0.0.1:1080';
    return proxy;
+    */
 }
 
 // REF: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
