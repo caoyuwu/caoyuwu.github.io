@@ -5589,8 +5589,8 @@ function getProxy()
 {
    if( proxy )
       return proxy;
-    alert("${GATEWAY}="+${GATEWAY})  
-    alert("${proxy}="+${proxy})  
+    alert("${GATEWAY}=${GATEWAY}");  
+    alert("${proxy}=${proxy}");  
      alert("location="+location);  
    var s = location.search;
      alert("s="+s); 
