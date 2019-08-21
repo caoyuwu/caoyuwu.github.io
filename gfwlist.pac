@@ -1,5 +1,6 @@
 /**
  * genpac 2.1.0 https://github.com/JinnLynn/genpac
+   下载自: https://raw.githubusercontent.com/petronny/gfwlist2pac/master/gfwlist.pac
  * https://caoyuwu.github.io/gfwlist.pac
  */
 
