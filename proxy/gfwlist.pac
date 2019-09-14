@@ -5,8 +5,7 @@
    https://caoyuwu.github.io/gfwlist.pac?proxy=SOCKS5%20localhost%3A1080
  */
 
-var proxy = null;//'SOCKS5 127.0.0.1:1080';
-
+var proxy = 'SOCKS5 192.168.1.1:1080';
 var rules = [
     [
         [],
@@ -5564,9 +5563,8 @@ var rules = [
 var lastRule = '';
 
 function FindProxyForURL(url, host) {
-    alert("host="+host+",url="+url);
     for (var i = 0; i < rules.length; i++) {
-        var ret = testHost(host, i);
+        ret = testHost(host, i);
         if (ret != undefined)
             return ret;
     }
@@ -5578,37 +5576,10 @@ function testHost(host, index) {
         for (var j = 0; j < rules[index][i].length; j++) {
             lastRule = rules[index][i][j];
             if (host == lastRule || host.endsWith('.' + lastRule))
-                return i % 2 == 0 ? 'DIRECT' : getProxy();
+                return i % 2 == 0 ? 'DIRECT' : proxy;
         }
     }
     lastRule = '';
-}
-
-//var proxy = 'SOCKS5 127.0.0.1:1080';
-//127.0.0.1%3A1080 ?proxy=SOCKS5%20192.168.1.7%3A1080
-function getProxy()
-{
-   if( proxy )
-      return proxy;
-  alert("this = "+this);      
-    for(var p in this)
-    {
-       alert(p);  
-    }
-     return  'SOCKS5 127.0.0.1:1080';
-      /*
-     alert("location="+location);  
-   var s = location.search;
-     alert("s="+s); 
-   if( s && s.startsWith("?proxy=") )
-   {
-       proxy = decodeURIComponent(s.substring(7)).trim;
-   }   
-   alert("s="+s+",proxy="+proxy);
-   if( !proxy || proxy=="" )
-      proxy = 'SOCKS5 127.0.0.1:1080';
-   return proxy;
-    */
 }
 
 // REF: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
