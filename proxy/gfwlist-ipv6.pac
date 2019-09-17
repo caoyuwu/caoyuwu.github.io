@@ -4,10 +4,10 @@
  * https://caoyuwu.github.io/proxy/gfwlist.pac?proxy=SOCKS5%20192.168.1.7%3A1080
    https://caoyuwu.github.io/proxy/gfwlist.pac?proxy=SOCKS5%20localhost%3A1080
  	http://192.168.1.1/user/gfwlist.pac
- 	http://v2ray.caoyuwu.top/user/gfwlist.pac
+ 	http://v2ray.caoyuwu.top/user/gfwlist-ipv6.pac
  */
 
-var proxy = 'SOCKS5 v2ray.caoyuwu.top:1080';
+var proxy = 'SOCKS5 ipv6-v2ray.caoyuwu.top:1080';
 var rules = [
     [
         [],
