@@ -7,7 +7,7 @@
  	http://v2ray.caoyuwu.top/user/gfwlist.pac.js
  */
 
-var proxy = 'SOCKS5 proxy.caoyuwu.top:1080; DIRECT';
+var proxy = 'SOCKS5 proxy.caoyuwu.top:2080; DIRECT';
 var rules = [
     [
         [],
