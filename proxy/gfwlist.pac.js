@@ -3,11 +3,11 @@
    下载自: https://raw.githubusercontent.com/petronny/gfwlist2pac/master/gfwlist.pac
  * https://caoyuwu.github.io/proxy/gfwlist.pac?proxy=SOCKS5%20192.168.1.7%3A1080
    https://caoyuwu.github.io/proxy/gfwlist.pac?proxy=SOCKS5%20localhost%3A1080
- 	http://192.168.1.1/user/gfwlist.pac
- 	http://v2ray.caoyuwu.top/user/gfwlist.pac
+ 	http://192.168.1.1/user/gfwlist.pac.js
+ 	http://v2ray.caoyuwu.top/user/gfwlist.pac.js
  */
 
-var proxy = 'SOCKS5 v2ray.caoyuwu.top:1080';
+var proxy = 'SOCKS5 proxy.caoyuwu.top:1080; DIRECT';
 var rules = [
     [
         [],
