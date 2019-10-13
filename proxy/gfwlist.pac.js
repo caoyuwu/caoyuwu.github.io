@@ -12,13 +12,13 @@ var proxy = 'SOCKS5 proxy.caoyuwu.top:1080; DIRECT';
 var rules = [
     [
         [],
-        []
-    ],
-    [
         [
         	// 新加的:
         	"arukas.io",
-        	//=======
+        ]
+    ],
+    [
+        [
             "aftygh.gov.tw",
             "aide.gov.tw",
             "aliyun.com",
