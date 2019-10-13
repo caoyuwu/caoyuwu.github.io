@@ -11,10 +11,16 @@
 var proxy = 'SOCKS5 proxy.caoyuwu.top:1080; DIRECT';
 var rules = [
     [
-        [],
+        ["cn"],
         [
         	// 新加的:
         	"arukas.io",
+        	
+        	"youtube.com",
+        	"google.com",
+        	"twitter.com",
+        	"facebook.com",
+        	"telegram.org"
         ]
     ],
     [
