@@ -16,6 +16,9 @@ var rules = [
     ],
     [
         [
+        	// 新加的:
+        	"arukas.io",
+        	//=======
             "aftygh.gov.tw",
             "aide.gov.tw",
             "aliyun.com",
