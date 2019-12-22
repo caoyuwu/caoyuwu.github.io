@@ -6,6 +6,8 @@
  	http://192.168.1.1/user/gfwlist.pac.js
  	https://caoyuwu.github.io/proxy/gfwlist.pac.js
  	http://www.caoyuwu.top/proxy/gfwlist.pac.js
+ 语言参考:
+   http://findproxyforurl.com/pac-functions/	
  */
 
 var proxy = 'SOCKS5 proxy.caoyuwu.top:1080; DIRECT';
