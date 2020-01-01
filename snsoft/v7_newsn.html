@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html manifest="v7_newsn.manifest">
+<head>
+ <title>申请序列号(V7)</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <!-- 全屏显示： -->
+ <meta name="apple-mobile-web-app-capable" content="yes" />
+ <link rel="apple-touch-icon" href="newsn_icon.png"/>
+<style type="text/css">
+ *{font-size:18px;}
+ .noClass {
+   font-size:24px;
+   color:red;
+ }
+</style>
+<script type="text/javascript">
+   // var XAXOR = [0x89,0x70,0x72,0x82,0x13,0x58,0x21,0x11];
+   var yearField,monthField,maxuserField,maxworkspcField, envnoField, spanNO, spanNO2;
+   var Year,Month,Envno,S,S2;
+    function R32Digit(x)
+    {
+       return String.fromCharCode(x<10?0x30+x:0x61+x-10);
+    }
+    function stringHashCode(s)
+    {
+         var n = s.length;
+         var h = 0;
+         for(var j=0;j<n;j++)
+         {
+             h = 31*h + s.charCodeAt(j);
+             h &= 0xffffffff;
+//console.log(s.charCodeAt(j)+",h="+h+","+typeof(h));
+         }
+//console.log("h="+h);
+         return h;
+    }
+	function encodeSerialNumber( number, year, month,maxuser,maxworkspc)
+	{
+//console.log(number+","+year+","+month);
+      if( month<1 || month>12 || isNaN(month) || isNaN(year) || isNaN(number)) 
+          throw new Error();
+       if( maxuser<0 || maxuser>0xffff ) maxuser = 0;
+       if( maxworkspc<0 || maxworkspc>0xffff ) maxworkspc = 0;
+       if( year>2100 ) year = 2100;
+      if(year<2006) year=2006;
+          if( month<1 || month>12 ) throw new Error("month="+month);
+       var  ym = (year-2006)*12+(month-1);
+/*
+        long x = ((long)flags<<(32+16+12))|((long)ym<<(32+16))|((long)limUserNumber<<32)|(long)number&0xffffffffl;
+//System.err.println("x="+Long.toHexString(x));
+        x ^= 0x1121581382727089l;
+        long bx = 0;
+        for(int j=0;j<64;j++)
+        {
+            long b = (long)1<<j;
+            x ^= bx;
+            bx = (x&bx)<<1;
+        }
+*/
+        var X3 = ym^0x1121;
+        var X2 = (maxuser&0xffff)^0x5813;
+        var X1 = ((number>>16)&0xffff)^0x8272;
+        var X0 = (number&0xffff)^0x7089;
+        //    X3          X2        X1     X0
+        //  FY   YY   UU   UU   XX   XX   XX   XX
+//                                        ?  ? ?
+        //   7 6  5  4   3  2  1  1
+        //
+      /*
+        xa[7] = (ym>>8)&0xf;  xa[6] = ym&0xff;
+        xa[5] = (maxuser>>8)&0xff; xa[4] = maxuser&0xff;
+        xa[3] = (number>>24)&0xff; xa[2] = (number>>16)&0xff;
+        xa[1] = (number>>8)&0xff;  xa[0] = (number>>0)&0xff;
+        for(var j=0;j<7;j++) xa[j] ^= XAXOR[j];
+     */
+        var s =
+             R32Digit((X3>>12)&0x1f)
+           + R32Digit((X3>>7)&0x1f) + R32Digit((X3>>2)&0x1f)
+           + R32Digit( ((X3&3)<<3)|((X2>>13)&0x7))
+           + R32Digit((X2>>8)&0x1f)+R32Digit((X2>>3)&0x1f)
+            + R32Digit(((X2&7)<<2)|((X1>>14)&0x3))
+           + R32Digit((X1>>9)&0x1f) + R32Digit((X1>>4)&0x1f)
+           + R32Digit(((X1&0xF)<<1)|((X0>>15)&0x1)) + R32Digit((X0>>10)&0x1f)
+           + R32Digit((X0>>5)&0x1f) + R32Digit(X0&0x1f);
+        var h = "00"+stringHashCode(s);
+//console.log("h="+h);
+        s += h.substring(h.length-2);
+       // 1120qo2e174s4811 : 2008,11,1
+      return s;
+	}
+	function stringHashCode(s)
+	{
+	   var h = 0;
+	   for(var i=0;i<s.length;i++)
+	   {
+		   h = h*31 + s.charCodeAt(i);
+		   h &= -1;//0xffffffff;
+	   }
+	   //if( h<0 )   h = 0x100000000 + h;
+	   return h;//&0xffffffff;
+	}
+	function onChange(e)
+	{
+	    var s = "", s2 = "";
+	    try {
+	     var _year = parseInt(yearField.value);
+	     var _month = parseInt(monthField.value);
+	     var sEnvno = envnoField.value.trim();
+	     var _envno = sEnvno.indexOf("/")>=0 || sEnvno.indexOf(".")>=0 ? stringHashCode(sEnvno) : parseInt(sEnvno);
+	     var _maxuser = parseInt(maxuserField.value)||0;
+	     var _maxworkspc = parseInt(maxworkspcField.value)||0;
+	//console.log("_year="+_year+",_month="+_month+",_envno="+_envno+",_maxuser="+_maxuser+",_maxworkspc="+_maxworkspc);
+	//console.log("year="+Year+",month="+Month+",envno="+Envno);
+	     if( _year!==Year || _month!==Month || _envno!==Envno || _maxuser!==Maxuser || _maxworkspc!==Maxworkspc  )
+	     {
+	         s = S = "1"+encodeSerialNumber(_envno,_year,_month,_maxuser,_maxworkspc);
+	         s2 = S2 = "("+_envno+","+_year+"-"+_month+")";//.toUpperCase();
+	//console.log("1-s="+s);
+	         Year = _year; Month = _month; Envno = _envno;
+	         Maxuser = _maxuser;
+	         Maxworkspc = _maxworkspc;
+	         
+	     } else
+	     {
+	       spanNO.innerHTML = S;
+	       spanNO2.innerHTML = S2;
+	       return;
+	     }
+	    } catch( e )
+	    {
+	//console.log(e);
+	        s = "?"; s2 = "";
+	    }
+	//console.log("2-s="+s);
+	    spanNO.innerHTML = s;
+	    spanNO2.innerHTML = s2;
+	}
+ window.onload = function() {	
+ var curDate = new Date();
+  yearField = document.getElementById('year'); yearField.value = curDate.getFullYear()+1;
+  monthField = document.getElementById('month'); monthField.value = 1+curDate.getMonth();
+  maxuserField = document.getElementById('maxuser');
+  maxworkspcField = document.getElementById('maxworkspc');
+  envnoField = document.getElementById('envno');
+  spanNO = document.getElementById('spanNO');
+  spanNO2 = document.getElementById('spanNO2');
+S = ""; S2 = "";
+envnoField.onkeyup = onChange;
+yearField.onkeyup = onChange;  
+//monthField.onkeyup = onChange;
+monthField.onchange = onChange;
+maxworkspcField.onkeyup = onChange;
+maxuserField.onkeyup = onChange;
+};
+</script>
+
+</head>
+<body>
+<fieldset style="width:auto">
+<legend>申请序列号(V7)</legend>
+<table cellspacing="1" >
+<tr>
+<td nowrap >环境号:</td>
+<td colspan=3><input id="envno" type='text' pattern="\d*" size=25 /></td>
+</tr>
+<tr>
+<td nowrap>年份:</td><td><input id="year" type='text' pattern="\d*"  size=6 /></td>
+<td nowrap>月份:</td><td><select id="month" type='text' pattern="\d*"  >
+ <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+ <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+ <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+ <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+</select>
+</td>
+</tr>
+<tr>
+<td nowrap>用户数:</td><td><input id="maxuser" type='text' pattern="\d*"  size=6 /></td>
+<td nowrap>帐套数:</td><td><input id="maxworkspc" type='text' pattern="\d*"  size=6 /></td>
+</tr>
+<tr>
+<td class="noClass"  nowrap>序列号:</td>
+<td class="noClass" colspan=3><span id='spanNO'></span></td>
+</tr>
+
+<tr>
+<td ></td>
+<td colspan=3><span id='spanNO2'>&nbsp;</span></td>
+</tr>
+
+<tr>
+<td align="center" colspan=4>&nbsp;</td>
+</tr>
+
+</table>
+</fieldset>
+
+</body>
+</html>

@@ -1,0 +1,125 @@
+<html>
+<head>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+ .noClass {
+   font-size:24px;
+   color:red;
+ }
+</style>
+</head>
+<body>
+<fieldset style="width:400px">
+<legend>申请序列号(V6)</legend>
+<table cellspacing="8">
+<tr>
+<td align="center" colspan=2>&nbsp;</td>
+</tr>
+<tr>
+<td nowrap >环境号:</td>
+<td colspan=3><input id="envno" type='text' size=50 /></td>
+</tr>
+<tr>
+<td nowrap>年份:</td><td><input id="year" type='text' size=20 /></td>
+<td nowrap>月份:</td><td><input id="month" type='text' size=20 /></td>
+</tr>
+<tr>
+<td class="noClass"  nowrap>序列号:</td>
+<td class="noClass" colspan=3><span id='spanNO'></span></td>
+</tr>
+<tr>
+<td ></td>
+<td ><span id='spanNO2'></span></td>
+</tr>
+<tr>
+<td align="center" colspan=2>&nbsp;</td>
+</tr>
+
+</table>
+</fieldset>
+
+</body>
+</html>
+<script type="text/javascript">
+	function encodeSerialNumber( number, year, month)
+	{
+		var ym = 0;
+//console.log(number+","+year+","+month);
+      if( month<1 || month>12 || isNaN(month) || isNaN(year) || isNaN(number)) throw new Error();
+		if( year!=0 && month!=0 )
+		{
+		    if(year<2002) year=2002;
+           if( year>2050 ) throw new Error();
+		    ym = (year-2002)*12+(month-1);
+		}
+		if( ym>255 ) ym = 255;
+		//  ym1 N15    N14      N13      N12  ym3 N11 ym5  N10      N9     N8  ym4
+		//      N7     N6  ym6  N5  ym2  N4       N3       N2  ym7  N1     N0  ym0
+		number ^=  (ym|(ym<<8)|(ym<<16)|(ym<<24))^0x11215813; // 0xffffffff^0x11215813 =
+//System.out.println("Number="+Integer.toHexString(number));
+		var  x = (ym&1)|((number&1)<<1);
+		var bitIdx = [ 0,0,1,-7,2,3,14,-2,5,-6,6,12,-4,8,9,10,-5,11,-3,7,13,4,15,-1 ];
+		for(var j=2;j<bitIdx.length;j++)
+		{
+			x |= (((bitIdx[j]<0?(ym>>-bitIdx[j]):number>>bitIdx[j])&1))<<j;
+//System.out.println("x"+j+"="+Long.toHexString(((long)((bitIdx[j]<0?(ym>>-bitIdx[j]):number>>bitIdx[j])&1))<<j));
+		}
+//console.log(x+":"+x.toString(2));
+        //var s6 = (x&0xffffff).toString(16);
+        var x1 = x | (((number>>16)&1)<<(16+8));   // 25 位
+        var x2 = (number>>17)&0x7fff;
+        var s1 = x1.toString(32), s2 = x2.toString(32);
+        if( s1.length<5 ) s1 = "00000".substring(0,5-s1.length);
+        return s2+s1;
+       // 123459094 ,2008,8 :  B4QS89N5
+		x |=  ((number>>16)&0xffff)<<(16+8);  // (long)
+        //var x2 = (number>>16)&0xffff;   // 24/5 ?  5*8
+        //var s2 = x2.toString(32), s1 = x1.toString(32);
+       // if( s1.length<
+//if( console )
+//console.log(x+":"+number+","+year+","+month);
+//console.log(x+":"+x.toString(2));  //101101011010110101000000011101
+//System.out.println("x="+Long.toHexString(x));
+          // SerialNumberRadix = 32;
+        return x.toString(32).toUpperCase();
+//		return Long.toString(x,SerialNumberRadix).toUpperCase();
+	}
+
+ var curDate = new Date();
+ var yearField = document.getElementById('year'); yearField.value = curDate.getFullYear();
+ var monthField = document.getElementById('month'); monthField.value = 1+curDate.getMonth();
+ var envnoField = document.getElementById('envno');
+ var spanNO = document.getElementById('spanNO');
+ var Year,Month,Envno,S;
+ function onChange(e)
+{
+    var s = "";
+    try {
+     var _year = parseInt(yearField.value);
+     var _month = parseInt(monthField.value);
+     var _envno = parseInt(envnoField.value);
+//console.log("_year="+_year+",_month="+_month+",_envno="+_envno);
+//console.log("year="+Year+",month="+Month+",envno="+Envno);
+     if( _year!==Year || _month!==Month || _envno!==Envno )
+     {
+         s = S = encodeSerialNumber(_envno,_year,_month).toUpperCase();
+//console.log("1-s="+s);
+         Year = _year; Month = _month; Envno = _envno;
+     } else
+     {
+       spanNO.innerHTML = S;
+       return;
+     }
+    } catch( e )
+    {
+//console.log(e);
+        s = "?"
+    }
+//console.log("2-s="+s);
+    spanNO.innerHTML = s;
+}
+S = "";
+envnoField.onkeyup = onChange;
+yearField.onkeyup = onChange;   monthField.onkeyup = onChange;
+
+</script>
