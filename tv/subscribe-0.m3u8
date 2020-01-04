@@ -1,0 +1,16 @@
+#EXTM3U
+#EXTINF:-1 group-title="国内",BestTV 4K
+http://117.148.187.37/PLTV/88888888/224/3221226718/index.m3u8
+#EXTINF:-1 group-title="CCTV",CCTV-01
+http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8
+#EXTINF:-1 group-title="CCTV",CCTV-15
+http://ivi.bupt.edu.cn/hls/cctv15.m3u8
+
+#EXTINF:-1 group-title="X直播",mitvHAPPY幸福
+mitv://51.79.41.138:18912/5c18f8fe000ca53ec074293d6d01287b.ts.ts
+#EXTINF:-1 group-title="X直播",1 ON 1 SEX
+p9p://192.95.32.107:9906/59222d0e0007d49c4e052e4a57ce514b&link=
+#EXTINF:-1 group-title="X直播",IBIZA巨乳控頻道幸福
+http://sywly.xyz/19hd.php?id=1
+
+
