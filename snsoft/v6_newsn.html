@@ -45,14 +45,15 @@
 	{
 		var ym = 0;
 //console.log(number+","+year+","+month);
-      if( month<1 || month>12 || isNaN(month) || isNaN(year) || isNaN(number)) throw new Error();
+      if( month<1 || month>12 || isNaN(month) || isNaN(year) || isNaN(number))
+    	  throw new Error();
 		if( year!=0 && month!=0 )
 		{
 		    if(year<2002) year=2002;
            if( year>2050 ) throw new Error();
 		    ym = (year-2002)*12+(month-1);
 		}
-		if( ym>255 ) ym = 255;
+	//	if( ym>255 ) ym = 255; // 2020-03-30 去掉
 		//  ym1 N15    N14      N13      N12  ym3 N11 ym5  N10      N9     N8  ym4
 		//      N7     N6  ym6  N5  ym2  N4       N3       N2  ym7  N1     N0  ym0
 		number ^=  (ym|(ym<<8)|(ym<<16)|(ym<<24))^0x11215813; // 0xffffffff^0x11215813 =
