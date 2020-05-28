@@ -6,7 +6,7 @@
      "host":"${INBOUND_HOST?0.0.0.0}",
      "port":${INBOUND_PORT?80},
      "package":"${INBOUND_PACKAGE?}",
-     "encodeKey":"${INBOUND_ENCODEKEY?IYVSAw49tbpEsnQHKrk+YbtjksxqZsVAPPU0ifqp5yUeVkx10uopN02OBexteLfln89yaCjO7uZ2kPMN0Tp9JpMacAvpgtkJ+VVXPzXYR5bkesqnYiO8g++jWb4ZG8et9rAgRavaNjvyeREwSf5dwDiEqBIxWMS/3vFCqp0M3aCzHNtrMvtT3BBsc6XijHwuAKGef6ZQgJfB/Us5AvB3r5SY0LYXIntIFOCIZ5G4w9UvyKLjitbNxmRaYCy9gdNPadQrZY8ErOv4FrTf6ML/AR1uXBgPJBWVcUEn9BOuRl+LLVsfTobhfoebsQgGM8lU141vpAqa/ErLme1DXpz3UQ==}"
+     "encodeKey":"${INBOUND_ENCODEKEY?default}"
   }
 
 
