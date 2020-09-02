@@ -1,0 +1,5 @@
+---
+applications:
+ - name: esocks
+   random-route: true
+   memory: 128M
