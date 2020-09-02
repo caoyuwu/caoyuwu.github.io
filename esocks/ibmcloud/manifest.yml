@@ -1,5 +1,7 @@
 ---
 applications:
  - name: esocks
+   buildpack: https://github.com/caoyuwu/buildpack-0
+   command: ./esocks -DINBOUND_PORT=$PORT -DINBOUND_PACKAGE=wsheader 
    random-route: true
    memory: 128M
