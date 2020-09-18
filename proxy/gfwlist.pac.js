@@ -21,6 +21,8 @@ var hostGrps = function(){
 		"googleusercontent.com",
 		//"googleadservices.com",
 		"googleapis.com",
+		"google",
+		"google.com.hk",
 
 		"youtube.com",
 		"ggpht.com",
