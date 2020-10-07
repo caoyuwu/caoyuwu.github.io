@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+<title>Docs</title>
+<script type='text/javascript'>
+  function onCopyBtnClick(e){
+	  var btn = e.srcElement || e.target;
+	  var txtDOM = btn.previousSibling;
+	  var range = document.createRange();// : document.createTextRange()  ;
+		range.selectNode(txtDOM); // table
+		var s = window.getSelection();
+		s.removeAllRanges();
+		s.addRange(range);
+		document.execCommand("Copy", false, false);
+  }
+  window.onload = function(){
+	  var btns = document.querySelectorAll("button#CopyBtn");
+	  for(var i=0;i<btns.length;i++){
+		  var btn = btns[i];
+		  btn.onclick = onCopyBtnClick;
+	  }
+  }
+</script> 
+</head>
+<body>
+
+<h3>常用命令</h3>
+<span>curl --socks5-hostname 192.168.1.1:1080 http://ipv4.icanhazip.com</span><button id='CopyBtn'>Copy..</button><br>
+<span>curl --socks5-hostname 127.0.0.1:1080 http://ipv4.icanhazip.com</span><button id='CopyBtn'>Copy..</button><br>
+</body>
+</html>
