@@ -375,17 +375,17 @@
          ]},
          
   {id:"卫视中文台",urls:[
-     "tvbus,tvbus://6b7sWQXkuKumRbpqkoGxkW4cKZXXnW93KDY1tnVQq5CneNeZAEQduCLST2xKW",
+     "tvbus,tvbus://6b7sWQXkuKumRbpqkoGxkW4cKZXXnW93KDY1tnVQq5CneNeZAEQduCLST2xKW"
    //	"http://cloud-play.hhalloy.com/live/a08a123b4af3aebb4e19b82f64952c9e.flv",
   ]},	
  "卫视合家欢|http://cloud-play.hhalloy.com/live/277056149034cc5fb133537bc411c2c9.flv",
  
   {id:"三立台湾",urls:[
-     "tvbus,tvbus://5bs16MgndrbAVgewPk3FnyB65GFG34CUgswUfMxVirdmUUJxnuv7Rx2Ly7CqF",
+     "tvbus,tvbus://5bs16MgndrbAVgewPk3FnyB65GFG34CUgswUfMxVirdmUUJxnuv7Rx2Ly7CqF"
   //http://cloud-play.hhalloy.com/live/e71635b53bb874a085b2a469802bbc81.flv",
   ]},
  {id:"中视新闻",urls:[
-     "tvbus|tvbus://5R9W8Pyu2dnVpue6Jsfx74SJwa1Vn2VtWxuDHCWihBMMFkrCMeMr7Wz1hdFdQ",
+     "tvbus|tvbus://5R9W8Pyu2dnVpue6Jsfx74SJwa1Vn2VtWxuDHCWihBMMFkrCMeMr7Wz1hdFdQ"
     //"mrw.so|http://mrw.so/4RFEAk?DsjTV&ZhongShi/apk.m3u8",
    // "hhalloy.com|http://cloud-play.hhalloy.com/live/75249ac8b464466a9c41c669bd27260a.flv"
    ]},
@@ -410,12 +410,12 @@
  "壹综合|http://cloud-play.hhalloy.com/live/3cec0560564363facfd892d88b741c62.flv",
  {id:"TVBS新闻台",urls:[
     "p2p,p2p://147.135.39.171:9906/5ea4852100052c6fd83d1a840a5e74b2.ts",
-    "http://seb.sason.top/sc/tvbsxw_fhd.m3u8",
-   // "hongxin123,http://hls.hongxin123.com/918867252917/600fa100755d4eb0aee2e37db9b0630b.flv" // forbidden
+    "http://seb.sason.top/sc/tvbsxw_fhd.m3u8"
+   // ,"hongxin123,http://hls.hongxin123.com/918867252917/600fa100755d4eb0aee2e37db9b0630b.flv" // forbidden
    ]}, 
  "TVBS精彩|http://cloud-play.hhalloy.com/live/15379cc75ee0fb41ab2fb3a11f3d909f.flv",
  { id:"TVBS欢乐台",urls:[
-  		"tvbus,tvbus://5iuZdrPxQDmVpNk2RvS5p7U9UMSk1r7CrcjvpP1yzBQjMe6GytF3bDqbiF1vo",
+  		"tvbus,tvbus://5iuZdrPxQDmVpNk2RvS5p7U9UMSk1r7CrcjvpP1yzBQjMe6GytF3bDqbiF1vo"
  ]},
  "TVBS HD|http://hls.hongxin123.com/918867252917/1162df8a92a04a8ea8e3bcb7981e15ac.flv",
 "台视综合|http://cloud-play.hhalloy.com/live/a8905b7e88b656b83c0f5d8bf5771430.flv", 
@@ -580,7 +580,7 @@
  "靖天资讯|http://cloud-play.hhalloy.com/live/e81342a5e0ecde1ee634f19b50fab501.flv",
 "靖天综合|http://cloud-play.hhalloy.com/live/7a7b662db65f478451144355efa0f02b.flv",
 {id:"纬来综合",urls:[
-  "tvbus,tvbus://5vv8ngW7EBMnpjCvuYFLbNN9nfaYptrEiTXZ79tBQd4VQgArPtThhrd16ZYe7",
+  "tvbus,tvbus://5vv8ngW7EBMnpjCvuYFLbNN9nfaYptrEiTXZ79tBQd4VQgArPtThhrd16ZYe7"
 ]},
 "纬来电影|http://cloud-play.hhalloy.com/live/4f10b67646969a422a5490deaaabbc69.flv",
  
@@ -588,7 +588,7 @@
              "http://hls-ott-zhibo.wasu.tv/live/202/index.m3u8"
          ]},
  {id:"JET综合",urls:[
- 	"tvbus,tvbus://5U1W3wwHj8CaXbN9pHyGxavr3cDQrh8Z8VXTRHLKB4XCLCKE2kSk8pd93goqv",
+ 	"tvbus,tvbus://5U1W3wwHj8CaXbN9pHyGxavr3cDQrh8Z8VXTRHLKB4XCLCKE2kSk8pd93goqv"
  ]},        
 
   {id:"CHC高清电影",url:"http://ivi.bupt.edu.cn/hls/chchd.m3u8"}, 
@@ -601,7 +601,7 @@
    		]},
 
  {id:"八大综合",urls:[
-    "tvbus,tvbus://5L5N1QrvtKfN1R2rZVrXewcP5EJuRcXFqaYanE6GrqfaGvZoQDvxF89bQc55Q",
+    "tvbus,tvbus://5L5N1QrvtKfN1R2rZVrXewcP5EJuRcXFqaYanE6GrqfaGvZoQDvxF89bQc55Q"
  ]},
 
 "东森超视,tvbus|tvbus://6UY92VSrRoTTi43hYRfCNiyDCzFTA2sgqF22Cea8KQ1SjkMfPanUBCAak2CtH",
@@ -734,9 +734,9 @@
             "周星驰","周星驰2",
             "怀旧经典",
             "赌博电影","林正英","女神港片","女神系列","洪金宝","搞笑港片",
-            "五福星系列","开心鬼",
-            //"铁齿铜牙纪晓岚",
-            //"雍正王朝"
+            "五福星系列","开心鬼"
+            //,"铁齿铜牙纪晓岚",
+            //,"雍正王朝"
             //,"山西卫视",
             //,"本港台",
             //,"黄百鸣"
