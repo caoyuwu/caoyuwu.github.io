@@ -1,0 +1,813 @@
+/*
+ ln -s /snsoft90/snadk-srcx/docs/cao/tv/VLive-Channel0.json /temp/channel.json 
+ http://192.168.1.19:8803
+*/
+{
+  label:"直播", groupIdx:0,
+ 
+  channels :[
+   //
+  {id:"CCTV-01",num:"01",urls:[
+                                "[bupt高清]http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8",
+                               // "[CNTV]cntv://cctv1",
+                               // "MIGU5|migu5://cctv1hd",
+                               "wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv1_2/index.m3u8",
+  								"[bupt标清]http://ivi.bupt.edu.cn/hls/cctv1.m3u8",
+  								"[sau高清]http://tv.sau.edu.cn/cctv1hd.m3u8",
+  								"[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV1-HD_2000.m3u8"
+  								]},
+  {id:"CCTV-02",num:"02",urls:[
+            			"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv2_2/index.m3u8",
+                           //"MIGU5|migu5://cctv2hd",
+  							//	"[CNTV]cntv://cctv2",
+  								"[标清]http://ivi.bupt.edu.cn/hls/cctv2.m3u8",
+                               "[?高清]http://ivi.bupt.edu.cn/hls/cctv2hd.m3u8"]},
+  {id:"CCTV-03",num:"03",urls:[ 
+                            "[bupt高清]http://ivi.bupt.edu.cn/hls/cctv3hd.m3u8",
+                            "wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv3_2/index.m3u8",
+                           // "MIGU5|migu5://cctv3",
+                           // "[CNTV]cntv://cctv3",
+                           "[标清]http://ivi.bupt.edu.cn/hls/cctv3.m3u8",
+                           "gansuyunshi|http://live.gansuyunshi.com:9090/live/CCTV3-HD_2000.m3u8"
+                           ]},
+  {id:"CCTV-04",num:"04",urls:[
+                               "[高清]http://ivi.bupt.edu.cn/hls/cctv4hd.m3u8",
+                               "wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv4_2/index.m3u8",
+                              // "MIGU5|migu5://cctv4",
+                             //  "[CNTV]cntv://cctv4",
+                              "[标清]http://ivi.bupt.edu.cn/hls/cctv4.m3u8"]}, 
+  {id:"CCTV-05",num:"05",urls:[ 
+                                "mitv|mitv://147.135.39.171:9906/5defdaa20006951f6ea06d5b0b04771d.ts",
+                                "[bj.chinamobile]http://ywotttv.bj.chinamobile.com/PLTV/88888888/224/3221226256/1.m3u8",
+ 			 					"[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV5-HD_2000.m3u8",
+                                "http://223.110.241.204:6610/cntv/live1/cctv-5/cctv-5",
+                 				"[sau高清]http://tv.sau.edu.cn/cctv5hd.m3u8",
+                               "http://ivi.bupt.edu.cn/hls/cctv5hd.m3u8",
+                                "MIGU5|migu5://cctv5",
+                               "[CNTV]cntv://cctv5"
+                               ]}, 
+  {id:"CCTV-06",num:"06",urls:[
+  								"[高清]http://ivi.bupt.edu.cn/hls/cctv6hd.m3u8",
+  								"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv6_2/index.m3u8",
+  								//"[CNTV]cntv://cctv6",
+  								//"MIGU5|migu5://cctv6",
+                                "[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV6-HD_2000.m3u8",
+   								"[标清]http://ivi.bupt.edu.cn/hls/cctv6.m3u8"
+   								]}, 
+  {id:"CCTV-07",num:"07",urls:[
+  						"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv7_2/index.m3u8",
+  						//"[CNTV]cntv://cctv7",
+  							//	"MIGU5|migu5://cctv7",
+  								"[标清]http://ivi.bupt.edu.cn/hls/cctv7.m3u8"
+  								]}, 
+  {id:"CCTV-08",num:"08",urls:[
+  								"[高清]http://ivi.bupt.edu.cn/hls/cctv8hd.m3u8",
+  								"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv8_2/index.m3u8",
+  								//"MIGU5|migu5://cctv8",
+  								//"[CNTV]cntv://cctv8",
+                                "[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV8-HD_2000.m3u8",
+                                "[标清]http://ivi.bupt.edu.cn/hls/cctv8.m3u8"
+                                ]}, 
+  {id:"CCTV-09",num:"09",urls:[
+  						"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctvjilu_2/index.m3u8",
+ 								 "[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV9-HD_2000.m3u8",
+  								//"MIGU5|migu5://cctv9",
+  								//"[CNTV]cntv://cctv9",	
+  							"[bupt]http://ivi.bupt.edu.cn/hls/cctv9.m3u8"
+  								]}, 
+  {id:"CCTV-10",num:"10",urls:[
+                         "wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv10_2/index.m3u8",
+  						//"[CNTV]cntv://cctv10",
+  						//	"MIGU5|migu5://cctv10hd",
+  								"[标清]http://ivi.bupt.edu.cn/hls/cctv10.m3u8"]}, 
+  {id:"CCTV-11",num:"11",urls:[
+  						"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv11_2/index.m3u8",
+  							"[CNTV]cntv://cctv11",
+                              "MIGU5|migu5://cctv11",
+  							"[标清]http://ivi.bupt.edu.cn/hls/cctv11.m3u8"]}, 
+  {id:"CCTV-12",num:"12",urls:[
+  					"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv12_2/index.m3u8",
+  					//"[CNTV]cntv://cctv12",
+                      //          "MIGU5|migu5://cctv12",
+  							"[标清]http://ivi.bupt.edu.cn/hls/cctv12.m3u8"
+  							]}, 
+  {id:"CCTV-13",num:"13",urls:[
+                    "[bupt]http://ivi.bupt.edu.cn/hls/cctv13.m3u8",
+                    "wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv13_2/index.m3u8",
+                   "ifeng.com|http://liveali.ifeng.com/live/CCTV.m3u8",
+		  		"[CNTV]cntv://cctv13",
+  					"MIGU5|migu5://cctv13",
+                    "[sau]http://tv.sau.edu.cn/cctv13.m3u8",
+                   "hn0746.com|http://live.hn0746.com/xw/sd/live.m3u8"
+                 ]},  
+  {id:"CCTV-14",num:"14",urls:[
+  					"[标清]http://ivi.bupt.edu.cn/hls/cctv14.m3u8",
+  						"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctvchild_2/index.m3u8",
+  							"MIGU5|migu5://cctv14hd",
+  								"[CNTV]cntv://cctv14"
+  								]},  
+  {id:"CCTV-15",num:"15",urls:[
+  				"[bupt]http://ivi.bupt.edu.cn/hls/cctv15.m3u8",
+  				"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv15_2/index.m3u8",
+  				//"MIGU5|migu5://cctv15",
+  			//		"[CNTV]cntv://cctv15",
+  				"[sau]http://tv.sau.edu.cn/cctv15.m3u8",
+               "tv.cctv.com|http://cctvtxyw.liveplay.myqcloud.com/live/cctv15_1_md.m3u8" 
+  				]}, 
+  {id:"CCTV5+", num:"17",urls:["[高清]http://ivi.bupt.edu.cn/hls/cctv5phd.m3u8",
+  							"MIGU5|migu5://cctv5plus"
+  									]},
+  	{id:"CETV1",num:"18",urls:[
+  						"bupt|http://ivi.bupt.edu.cn/hls/cetv1.m3u8",
+  						"http://ywotttv.bj.chinamobile.com/PLTV/88888888/224/3221225905/1.m3u8",
+  						"CETV|cetv://cetv1",
+  	                     "MIGU5|migu5://649531772",
+  						"rtmp://ivi.bupt.edu.cn:1935/livetv/chcatv",
+ 					 	"http://tv.sau.edu.cn/cetv1.m3u8"
+  						]},
+  	{id:"CETV2",num:"19",urls:[
+  	               "CETV|cetv://cetv2","MIGU5|migu5://649532169"
+  	               	]},					
+  	{id:"CETV3",num:"20",urls:[
+  						"bupt|http://ivi.bupt.edu.cn/hls/cetv3.m3u8",	
+  	                     "CETV|cetv://cetv3",
+  	                      "MIGU5|migu5://649531756",
+  						"http://tv.sau.edu.cn/cetv3.m3u8"]},
+  	{id:"CETV4",num:"21",urls:[
+  						"bupt|http://ivi.bupt.edu.cn/hls/cetv4.m3u8",	
+  						"CETV|cetv://cetv4",
+  						"MIGU5|migu5://649531725",
+  						"http://tv.sau.edu.cn/cetv4.m3u8"]},
+  
+  
+  {id:"凤凰卫视",num:"22",urls:[
+          //"[hongxin123.com]http://hls.hongxin123.com/918867252917/cd4c02ad25b84e3c8e492978704b63dc.flv",
+          "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/fhzw",
+          "dszbdq.cn|http://hls111.dszbdq.cn/fhshow.php?id=2",
+          "[qingk.cn]http://24tl.qingk.cn/live/fhws.flv",
+         // "[bj.chinamobile高清]http://ywotttv.bj.chinamobile.com/PLTV/88888888/224/3221225942/1.m3u8",
+          //"ifeng.com|http://liveali.ifeng.com/live/FHZW.m3u8",
+          "[58.200.131.2]rtmp://58.200.131.2:1935/livetv/fhzw",
+         "凤凰秀|http://live.fengshows.com/live/PCC_500k/index.m3u8"  // 
+         ]},
+  {id:"凤凰资讯",num:"23",urls:[
+       // "[hongxin123.com]http://hls.hongxin123.com/918867252917/4766210c5dc142dab7d8faf95f2a6c41.flv",
+        "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/fhzx",
+        "dszbdq.cn|http://hls111.dszbdq.cn/fhshow.php?id=1",
+        "[qingk.cn]http://24tl.qingk.cn/live/fhzx.flv",
+       //"[bj.chinamobile高清]http://ywotttv.bj.chinamobile.com/PLTV/88888888/224/3221225949/1.m3u8",
+       // "ifeng.com|http://liveali.ifeng.com/live/FHZX.m3u8",
+        "58.200.131.2|rtmp://58.200.131.2:1935/livetv/fhzx"
+        
+       // "http://ott.fj.chinamobile.com/PLTV/88888888/224/3221225901/index.m3u8",
+	//	"http://ott.js.chinamobile.com/PLTV/3/224/3221226923/index.m3u8",
+	//	"p2p://tb_dHZidXM6Ly8xYTc1WERtQVhnWGRKTjJrZHJHWURrWEZOeWdYc2FuTVlVUG9TN3dXM2JXZVVZZUV1ZQ=="
+      ]},
+  {id:"凤凰电影",num:"24",urls:[
+          "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/fhdy",
+          "http://tv.sau.edu.cn/fhdy.m3u8",
+          "rtmp://58.200.131.2:1935/livetv/fhdy"
+    ]},
+   {id:"星空卫视",num:"25",urls:[
+          "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/startv",
+          "http://218.202.220.2:5000/nn_live.ts?id=STARTV"
+    ]},
+    
+  {id:"VOA",num:30,urls:[
+           "https://voa-lh.akamaihd.net/i/voa_mpls_tvmc8@326847/master.m3u8"
+  		//,"https://voa-lh.akamaihd.net/i/voa_tvmc2@317693/master.m3u8"
+  		]
+  		},
+  { id:"BBC",urls:[
+     "http://92.43.140.249/s24/04.m3u8?fluxustv.m3u8"
+   ]},
+   { id:"CNN",urls:[
+    	"cnnindonesia.com|https://live.cnnindonesia.com/livecnn/smil:cnntv.smil/chunklist_w1705215623_b280000_sleng.m3u8",
+    	"ucom.am|http://ott-cdn.ucom.am/s27/index.m3u8"
+ //     "http://hls.hongxin123.com/918867252917/4bf28ef4c1304b4cb43060600cb46e83.flv",
+    	]
+  },
+    {id:"VOA音频",urls:[
+  			"https://95.101.90.191/7/317/322023/v1/ibb.akacast.akamaistream.net/voa-11.mp3",
+  			"https://voa-11.akacast.akamaistream.net/7/317/322023/v1/ibb.akacast.akamaistream.net/voa-11.mp3"
+  			]},  
+  {	id:"NHK",url:"http://hls.hongxin123.com/918867252917/4c7cbfbc18e944eca9266b586ab75408.flv"
+    },
+    // CCTV 数字频道
+   {id:"CCTV-发现之旅",num:40,urls:[
+         "chinamobile,http://dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226235/index.m3u8",  
+         "MIGU5|migu5://624878970",
+         "rtmp://58.200.131.2/livetv/fxzltv"]
+         },
+   {id:"CCTV-怀旧剧场",urls:["rtmp://58.200.131.2/livetv/hjjctv"]},
+   {id:"CCTV-老故事",urls:[
+   		"MIGU5|migu5://657441158","rtmp://58.200.131.2/livetv/lgstv"]},
+    {id:"CCTV-风云音乐",urls:[
+    	"125.210.152.18|http://125.210.152.18:9090/live/FYYY.m3u8",
+    	"paymigu|http://player.paymigu.com/migu.php?id=618954956"
+    		]},
+    "CCTV-风云剧场|rtmp://58.200.131.2/livetv/fyjctv",
+     "CCTV-天元围棋|rtmp://58.200.131.2/livetv/tywqtv",
+  "中国天气|http://hls.weathertv.cn/tslslive/qCFIfHB/hls/live_sd.m3u8",
+  
+  
+  // end 49
+  // 卫视
+	{id:"北京卫视",num:"50",urls:["[bupt]http://ivi.bupt.edu.cn/hls/btv1hd.m3u8",
+	                             "MIGU5|migu5://beijingws",
+	                             "[sau]http://tv.sau.edu.cn/btv1hd.m3u8"
+	                             ]},
+	{id:"东方卫视",num:"51",url:"http://ivi.bupt.edu.cn/hls/dfhd.m3u8"},
+	{id:"江苏卫视",num:"52",urls:["[bupt]http://ivi.bupt.edu.cn/hls/jshd.m3u8",
+	                              "MIGU5|migu5://jiangsuws",
+	                             "[sau]http://tv.sau.edu.cn/jshd.m3u8"
+	                                 ]},
+	{id:"广东卫视",num:"53",url:"http://ivi.bupt.edu.cn/hls/gdhd.m3u8"},
+	{id:"辽宁卫视",num:"54",url:"http://ivi.bupt.edu.cn/hls/lnhd.m3u8"},
+	{id:"湖南卫视",num:"55",urls:["http://ivi.bupt.edu.cn/hls/hunanhd.m3u8",
+								"MIGU5|migu5://hunanws",
+								 "rtmp://58.200.131.2:1935/livetv/hunantv"
+	 					   ]},
+	{id:"浙江卫视",num:"56",url:"http://ivi.bupt.edu.cn/hls/zjhd.m3u8"},
+	{id:"天津卫视",num:"57",url:"http://ivi.bupt.edu.cn/hls/tjhd.m3u8"},
+	{id:"深圳卫视",num:"60",url:"http://ivi.bupt.edu.cn/hls/szhd.m3u8"},
+	{id:"安徽卫视",num:"61",urls:["http://ivi.bupt.edu.cn/hls/ahhd.m3u8",
+									"MIGU5|migu5://anhuiwshd"
+								]},
+	{id:"重庆卫视",num:"700",url:"http://ivi.bupt.edu.cn/hls/cqhd.m3u8"},
+  	{id:"山西卫视",urls:["bupt|http://ivi.bupt.edu.cn/hls/sxrtv.m3u8",
+  					"sxrtv.com|http://live1.sxrtv.com/flvss?bitrate=512000&channel=Shan1XiTV"
+  			]},
+	{id:"湖北卫视",url:"http://ivi.bupt.edu.cn/hls/hbhd.m3u8"},
+	{id:"黑龙江卫视",url:"http://ivi.bupt.edu.cn/hls/hljhd.m3u8"},
+	{id:"山东卫视",url:"http://ivi.bupt.edu.cn/hls/sdhd.m3u8"},
+  	{id:"河南卫视",url:"http://ivi.bupt.edu.cn/hls/hntv.m3u8"},
+  	{id:"陕西卫视",url:"http://ivi.bupt.edu.cn/hls/sxtv.m3u8"},
+  	{id:"吉林卫视",url:"http://ivi.bupt.edu.cn/hls/jltv.m3u8"},
+  	{id:"广西卫视",url:"http://ivi.bupt.edu.cn/hls/gxtv.m3u8"},
+  	{id:"河北卫视",urls:["hebtv.com|http://weblive.hebtv.com/live/hbws_bq/index.m3u8",
+  						"MIGU5|migu5://hebeiws",
+  						"bupt|http://ivi.bupt.edu.cn/hls/hebtv.m3u8"
+  						]},
+  	{id:"四川卫视",urls:["bupt|http://ivi.bupt.edu.cn/hls/sctv.m3u8",
+  					"sctv.com|http://scgctvshow.sctv.com/scgc/sctv1deu5453w/3.m3u8"
+  				]},
+  	{id:"东南卫视",url:"http://ivi.bupt.edu.cn/hls/dntv.m3u8"},
+  	{id:"厦门卫视",url:"http://ivi.bupt.edu.cn/hls/xmtv.m3u8"},
+  	{id:"云南卫视",urls:["bupt|http://ivi.bupt.edu.cn/hls/yntv.m3u8",
+  					   "yntv.cn|http://edge1.yntv.cn/channels/yntv/ynws/m3u8:sd/live"
+  					   ]},
+  	{id:"江西卫视",urls:["jxtvcn.com.cn|http://live02.jxtvcn.com.cn/live-jxtvcn/jxtv01.m3u8",
+  				"bupt|http://ivi.bupt.edu.cn/hls/jxtv.m3u8"
+  				]},
+  	{id:"贵州卫视",urls:["http://ivi.bupt.edu.cn/hls/gztv.m3u8",
+  					"MIGU5|migu5://guizhouws"
+  					]},
+  	{id:"内蒙古卫视",url:"http://ivi.bupt.edu.cn/hls/nmtv.m3u8"},
+  	{id:"青海卫视",url:"http://ivi.bupt.edu.cn/hls/qhtv.m3u8"},
+  	{id:"宁夏卫视",urls:["http://ivi.bupt.edu.cn/hls/nxtv.m3u8",
+  				 "MIGU5|migu5://ningxiaws"
+  				]},
+  	{id:"甘肃卫视",urls:["http://ivi.bupt.edu.cn/hls/gstv.m3u8",
+  						"MIGU5|migu5://gansuws"
+  					]},
+  	{id:"新疆卫视",url:"http://ivi.bupt.edu.cn/hls/xjtv.m3u8"},
+  	{id:"西藏卫视",url:"http://ivi.bupt.edu.cn/hls/xztv.m3u8"},
+  	{id:"兵团卫视",url:"http://ivi.bupt.edu.cn/hls/bttv.m3u8"},
+  	{id:"海南卫视",urls:["http://ivi.bupt.edu.cn/hls/lytv.m3u8",
+  				"MIGU5|migu5://lvyouws"
+  				]}, //旅游卫视
+  
+  
+  // 730-749 : 地方频道	
+    {id:"BTV文艺",num:"730",url:"http://ivi.bupt.edu.cn/hls/btv2hd.m3u8"},
+	{id:"BTV科教",url:"http://ivi.bupt.edu.cn/hls/btv3.m3u8"},
+	{id:"BTV影视",url:"http://ivi.bupt.edu.cn/hls/btv4.m3u8"},
+	{id:"BTV财经",url:"http://ivi.bupt.edu.cn/hls/btv5.m3u8"},
+	{id:"BTV体育",url:"http://ivi.bupt.edu.cn/hls/btv6.m3u8"},
+	{id:"BTV生活",url:"http://ivi.bupt.edu.cn/hls/btv7.m3u8"},
+	{id:"BTV青年",url:"http://ivi.bupt.edu.cn/hls/btv8.m3u8"},
+	{id:"BTV新闻",url:"http://ivi.bupt.edu.cn/hls/btv9.m3u8"},
+	{id:"BTV少儿",url:"http://ivi.bupt.edu.cn/hls/btv10.m3u8"},
+	{id:"BTV纪实",url:"http://ivi.bupt.edu.cn/hls/btv11hd.m3u8"},
+	//{id:"BTV国际",url:""},
+	"上视纪实|migu5://617289997",
+	"金鹰纪实|migu5://623604663",
+	
+  // 750-799: 港台电视 HKS
+  {id:"CNBC新闻",num:"750",urls:[
+  		"CNBC官方源|https://cnbctv18-lh.akamaihd.net/i/cnbctv18_1@174868/index_5_av-p.m3u8?sd=10"
+  ]},
+ {id:"香港卫视",urls:[
+                        "http://zhibo.hkstv.tv/livestream/mutfysrq/playlist.m3u8", 
+                         "rtmp://live.hkstv.hk.lxdns.com/live/hks1",
+						"rtmp://live.hkstv.hk.lxdns.com/live/hks2",
+                          "rtmp://zhibo.hkstv.tv/livestream/zb2yhapo",
+ 					    "http://zhibo.hkstv.tv/livestream/zb2yhapo/playlist.m3u8"
+ 					   ]}, 
+    //翡翠台普通话 					   
+ 	"本港台|http://dlhls.cdn.zhanqi.tv/zqlive/123407_XhQs9.m3u8",
+ 	
+  {id:"翡翠台",urls:[
+ 		"hhalloy|http://cloud-play.hhalloy.com/live/b3a93cbbd1908e81783879747bb3090a.flv",
+ 		"http://116.199.5.51:8114/index.m3u8?Fsv_chan_hls_se_idx=188&FvSeid=0&Fsv_ctype=LIVES&Fsv_otype=1&Provider_id=&Pcontent_id=.m3u8"
+ 					    ]},
+ 	"TVB星河|http://cloud-play.hhalloy.com/live/e70f35708baededbbd1d0963f76981a1.flv",	     
+ {id:"人间卫视",urls:["http://61.222.191.53/live/Kevz6sWDy06HZgkD/index.m3u8?token=sU48S46uYNVcX5RC8hMjlg&time=1556463752192"
+ 					    ]}, 
+  {id:"ChannelV",urls:[ "bupt|rtmp://ivi.bupt.edu.cn:1935/livetv/channelv",
+                         "rtmp://58.200.131.2:1935/livetv/channelv"
+                     ]},
+  {id:"澳门卫视",urls:["http://stream.mastvnet.com/MSTV/SD/live.m3u8"
+ 				      	]}, 
+
+  {id:"香港开电视", //"奇妙台"
+  		urls:[
+  		 "http://hls.hongxin123.com/918867252917/5c85f37801c245a2a731a8abd1e0a79b.flv",
+         "http://media.fantv.hk/m3u8/archive/channel2.m3u8",
+         "http://media.fantv.hk/m3u8/archive/channel2_stream1.m3u8"
+         ]},       
+
+ 
+  {id:"环球电视台",urls:["http://live-cdn.xzxwhcb.com/hls/r86am856.m3u8",
+  					    "http://live-cdn.xzxwhcb.com/hls/sn88wrar.m3u8"
+  		]},
+  {id:"HBO",url:"http://218.202.220.2:5000/nn_live.ts?id=HBO"},
+   { id:"香港J2",url:"http://hls.hongxin123.com/918867252917/17977a3e8ec4406e898ca3a64fe2f155.flv" },
+ 	"NOW直播台|http://hls.hongxin123.com/918867252917/e9f818c6d3474d45882cdb8d388cf6f4.flv",
+ 	"NOW新闻|http://hls.hongxin123.com/918867252917/18ede6a29b124be6805ab9f153c75c6b.flv",
+   "凤凰香港|http://hls.hongxin123.com/918867252917/7ce0bcab02564ee0b6a649c6224a51b3.flv",
+ //  "有线新闻|http://hls.hongxin123.com/918867252917/267897c73a3d4cd0aafdbff518ed9bfc.flv",
+  // "有线603|http://hls.hongxin123.com/918867252917/a336a6d51c5f4516961ef3a32c08a06b.flv",
+ 	// SkyNews
+
+   "寰宇综合|http://cloud-play.hhalloy.com/live/82b78befe54a601876654e1db3e3741a.flv",
+  
+  {id:"寰宇新闻台",urls:[
+     "tvbus|tvbus://6JKuKpFKftPN5faMaHje6597pVufZ44XiP8oC8uGCmw12E2XX1VNho9cNnR2c" 
+  ]
+  }, 
+  
+  {id:"东森新闻",urls:[
+            "mrw.so|http://mrw.so/5l0lHo?DsjTV&DS_News/apk.m3u8",
+            "http://hls.hongxin123.com/918867252917/5cd1b2c9adb346a2a236b14726534019.flv", 
+            "http://cloud-play.hhalloy.com/live/b237f97b0e9e21e88e0bdaae40730332.flv", 
+  			"http://dibo.live:8080/live/pk10291/579365/206264.m3u8"
+ 				      	]}, 
+
+  		// 美亚电影
+  {id:"台湾星卫电影",urls:[
+  					"http://cloud-play.hhalloy.com/live/41e05f3849c21412aa8b347f18adb3f6.flv"
+  					//,"http://dlhls.cdn.zhanqi.tv/zqlive/35349_iXsXw.m3u8"
+                     
+ 				      	]}, 	
+ "星卫娱乐|http://cloud-play.hhalloy.com/live/4c3c2a7fe5ffc33e45bca04f983f02b0.flv",
+ 				      	
+ {id:"龙华电影",urls:[
+             "http://cloud-play.hhalloy.com/live/0e5dee9e8021ce3b9ec9bb78e9710555.flv"
+         ]},	
+  "龙华经典|http://cloud-play.hhalloy.com/live/669a67f26ad4b9f68664bfcaefc9553e.flv",
+         
+  {id:"东森电影",urls:[
+             "mrw.so|http://mrw.so/5dynsF?DsjTV&DS_DianYing/apk.m3u8",
+              "http://cloud-play.hhalloy.com/live/d2325cfdfd53364263d307573f78e3ce.flv", 
+             "http://122.146.68.116:4035/VideoInput/play.ts"
+         ]},
+         
+  {id:"卫视中文台",urls:[
+     "tvbus,tvbus://6b7sWQXkuKumRbpqkoGxkW4cKZXXnW93KDY1tnVQq5CneNeZAEQduCLST2xKW",
+   //	"http://cloud-play.hhalloy.com/live/a08a123b4af3aebb4e19b82f64952c9e.flv",
+  ]},	
+ "卫视合家欢|http://cloud-play.hhalloy.com/live/277056149034cc5fb133537bc411c2c9.flv",
+ 
+  {id:"三立台湾",urls:[
+     "tvbus,tvbus://5bs16MgndrbAVgewPk3FnyB65GFG34CUgswUfMxVirdmUUJxnuv7Rx2Ly7CqF",
+  //http://cloud-play.hhalloy.com/live/e71635b53bb874a085b2a469802bbc81.flv",
+  ]},
+ {id:"中视新闻",urls:[
+     "tvbus|tvbus://5R9W8Pyu2dnVpue6Jsfx74SJwa1Vn2VtWxuDHCWihBMMFkrCMeMr7Wz1hdFdQ",
+    //"mrw.so|http://mrw.so/4RFEAk?DsjTV&ZhongShi/apk.m3u8",
+   // "hhalloy.com|http://cloud-play.hhalloy.com/live/75249ac8b464466a9c41c669bd27260a.flv"
+   ]},
+{id:"中天综合",urls:[
+    "tvbus,tvbus://5rgD9pjmXsTKdWcJnpJuJyrvUnaBotkNk8Yr38KkcZVUyNRcCTu2bhPnMFfMN",
+    "mrw.so|http://mrw.so/4RFEMq?DsjTV&ZT_ZongHe/apk.m3u8",
+   "http://cloud-play.hhalloy.com/live/64ce4daa355bd6784904e72fabb7fa3e.flv"
+   ]},
+{id:"中天新闻",urls:[
+   "mrw.so|http://mrw.so/4v7rHt?DsjTV&ZT_News/apk.m3u8",
+   "hhalloy.com|http://cloud-play.hhalloy.com/live/e1a397539e76f45bbbf39d1467024aa3.flv"
+   ]},
+ {id:"中天娱乐",urls:[
+     "tvbus|tvbus://6XFa2kYAStDvecKtn6Zy8h93kvFaWY3eSKt7BP9phpGywAc1PJFkGfHw5qo6R", 
+     "mrw.so|http://mrw.so/4K9uFh?DsjTV&ZT_YuLe/apk.m3u8",
+    "http://61.216.10.122:4007/VideoInput/play.ts"
+    ]},
+ {id:"中天亚洲台",url:"http://pull-l3-xg.ixigua.com/live/ch0002.m3u8"},		
+ {id:"壹新闻",urls:[
+              "https://usb.bozztv.com/ssh101/NEXTTVHD/NEXTTVHD/playlist.m3u8"
+      ]},
+ "壹综合|http://cloud-play.hhalloy.com/live/3cec0560564363facfd892d88b741c62.flv",
+ {id:"TVBS新闻台",urls:[
+    "p2p,p2p://147.135.39.171:9906/5ea4852100052c6fd83d1a840a5e74b2.ts",
+    "http://seb.sason.top/sc/tvbsxw_fhd.m3u8",
+   // "hongxin123,http://hls.hongxin123.com/918867252917/600fa100755d4eb0aee2e37db9b0630b.flv" // forbidden
+   ]}, 
+ "TVBS精彩|http://cloud-play.hhalloy.com/live/15379cc75ee0fb41ab2fb3a11f3d909f.flv",
+ { id:"TVBS欢乐台",urls:[
+  		"tvbus,tvbus://5iuZdrPxQDmVpNk2RvS5p7U9UMSk1r7CrcjvpP1yzBQjMe6GytF3bDqbiF1vo",
+ ]},
+ "TVBS HD|http://hls.hongxin123.com/918867252917/1162df8a92a04a8ea8e3bcb7981e15ac.flv",
+"台视综合|http://cloud-play.hhalloy.com/live/a8905b7e88b656b83c0f5d8bf5771430.flv", 
+"台视|http://cloud-play.hhalloy.com/live/bec346d29d4c665d04db41d28a4e033f.flv",
+
+{id:"华视",urls:[
+   "mrw.so|http://mrw.so/4nBeqc?DsjTV&HuaShi/apk.m3u8",
+   "http://cloud-play.hhalloy.com/live/0bdf94d7f68fe3ece32048144cbf9a23.flv"
+   ]
+  }, 
+{id:"民视新闻台",urls:[
+     "xuite.net|http://6.mms.vlog.xuite.net/hls/ftvtv/index.m3u8" // 需要翻墙
+  ]
+  },
+ 
+  
+
+
+/*
+  其余 转到 9700-9750
+*/
+ 
+ // end of 799
+ 
+  // 电台: 800 - 850
+  {id:"中国之声",num:800,urls:["http://rtmpcnr001.cnr.cn/live26/zgzs/playlist.m3u8",
+  								"http://ngcdn001.cnr.cn/live/zgzs/index.m3u8"
+  						]}, 
+  "音乐之声|http://rtmpcnr003.cnr.cn/live28/yyzs/playlist.m3u8#http://ngcdn003.cnr.cn/live/yyzs/index.m3u8",
+  "北京怀旧金曲|http://123.56.16.201:1935/live/fm1075/96K/tzwj_video.m3u8",
+  "北京古典音乐|http://audiolive.rbc.cn:1935/live/fm986/96K/tzwj_video.m3u8",
+  "北京交通广播|http://audiolive.rbc.cn:1935/live/fm1039/96K/tzwj_video.m3u8",
+  "北京文艺广播|http://123.56.16.201:1935/live/fm876/96K/tzwj_video.m3u8",
+  "北京城市广播|http://audiolive.rbc.cn:1935/live/fm1073/96K/tzwj_video.m3u8",
+  "经济之声|http://rtmpcnr002.cnr.cn/live28/jjzs/playlist.m3u8",
+  "经典音乐之声|http://ngcdn004.cnr.cn/live/dszs/index.m3u8",
+  "文艺之声|http://rtmpcnr010.cnr.cn/live26/wyzs/playlist.m3u8",
+  "娱乐广播|http://rtmpcnr014.cnr.cn/live26/ylgb/playlist.m3u8",
+  "都市之声|http://rtmpcnr004.cnr.cn/live/dszs/playlist.m3u8",
+  "华夏之声电台|http://ngcdn007.cnr.cn/live/hxzs/index.m3u8",
+  "厦门音乐之声|http://ls.qingting.fm/live/1739/24k.m3u8?deviceid=76ee7f7e-db58-30e2-914f-b4e9c4c5a7de",
+  "浙江音乐电台|http://yf.m.l.cztv.com/channels/lantian/audio01/128k.m3u8",
+  "广东音乐之声|http://satellitepull.cnr.cn/live/wxgdyyzs/playlist.m3u8",
+  "中国民乐频道|http://rtmpcnr021.cnr.cn/live26/zgmy/playlist.m3u8",
+  "古典音乐频道|http://rtmpcnr022.cnr.cn/live26/gdyy/playlist.m3u8",
+  "经典评书频道|http://rtmpcnr024.cnr.cn/live28/cplb/playlist.m3u8",
+  "相声小品频道|http://rtmpcnr023.cnr.cn/live28/xsxp/playlist.m3u8",
+  "北京欢乐时光|http://123.56.16.201:1935/live/fm1065/96K/tzwj_video.m3u8",
+  "CRI英语广播|http://sk.cri.cn/am1008.m3u8",
+ 
+  // end 849 电台
+  // 其他 : 850 - 889
+  {id:"CGTN-新闻",num:850,urls:["http://livedoc.cgtn.com/1000/prog_index.m3u8","MIGU5|migu5://cgtnxinwen"]},
+  {id:"CGTN-记录",urls:["http://livedoc.cgtn.com/1000d/prog_index.m3u8","MIGU5|migu5://cgtnjilu"]},
+   "女性时尚|http://223.110.245.153/ott.js.chinamobile.com/PLTV/3/224/3221227026/index.m3u8",  
+  "直播中国|http://gcalic.v.myalicdn.com/gc/wgw05_1/index.m3u8",
+  
+  // 境外频道:
+    "英国天空新闻|http://skydvn-nowtv-atv-prod.skydvn.com/atv/skynews/1404/live/06.m3u8",
+  	{id:"探索频道", //Discovery
+  	    urls:[
+  	        "P8P|p8p://user3.shusongw.mobi:16871/5f2e56190004729f1d7980176b355250",
+  	            //"[hongxin123.com]http://hls.hongxin123.com/918867252917/a7d6567ab3414a4e9e027930f9d3990c.flv",
+  	               "[hhalloy.com]http://cloud-play.hhalloy.com/live/ef2748398207873cae12b151ae78b0af.flv",
+  								"[tv.sau.edu.cn]http://tv.sau.edu.cn/discovery.m3u8",
+  								"[bupt.edu.cn]http://ivi.bupt.edu.cn/hls/discovery.m3u8",
+  							"MIGU5|migu5://615809560"
+  					]},
+    					
+  	{id:"国家地理",urls:[
+  	    "P8P|p8p://user3.shusongw.mobi:16871/5f34ca1f000a502236aeb9084d9c2802",
+  	              //  "[hongxin123.com]http://hls.hongxin123.com/918867252917/6c470488089c40d6a9fc39aaa8620f1f.flv",
+  						"[sau.edu.cn]http://tv.sau.edu.cn/natlgeo.m3u8",
+  						"[bupt.edu.cn]http://ivi.bupt.edu.cn/hls/natlgeo.m3u8",
+  						"http://122.146.68.116:4020/VideoInput/play.ts"
+  									]},
+  	//探索频道,rtmp://ivi.bupt.edu.cn:1935/livetv/discovery
+      //国家地理,rtmp://ivi.bupt.edu.cn:1935/livetv/natlgeo
+  
+  
+   // 8=859      
+  // end 899    
+  
+  "setChannelNum=9000",
+ // {id:"周星驰",num:9000,url:"http://aldirect.hls.huya.com/huyalive/94525224-2460685313-10568562945082523648-2789274524-10057-A-0-1_1200.m3u8"},
+  {id:"周星驰",urls:[
+          "http://aldirect.hls.huya.com/huyalive/94525224-2460685313-10568562945082523648-2789274524-10057-A-0-1_1200.m3u8",
+          "http://tx.hls.huya.com/huyalive/94525224-2460685313-10568562945082523648-2789274524-10057-A-0-1_1200.m3u8",
+          "http://js.hls.huya.com/huyalive/94525224-2460685313-10568562945082523648-2789274524-10057-A-0-1_1200.m3u8"
+        ]},
+   "周星驰2|http://520574.xyz/dl/youku.php?id=8021901",
+  {id:"赌博电影",urls:[
+                "http://js.hls.huya.com/huyalive/29106097-2689446042-11551082794746642432-2789253870-10057-A-0-1_1200.m3u8",
+                "http://tx.hls.huya.com/huyalive/29106097-2689446042-11551082794746642432-2789253870-10057-A-0-1.m3u8"  
+                ]},
+  {id:"科幻电影",urls:[
+  		"http://aldirect.hls.huya.com/huyalive/28466698-2689656864-11551988268341919744-2847699194-10057-A-0-1_1200.m3u8",
+  		"http://tx.hls.huya.com/huyalive/30765679-2499070088-10733424298371842048-2789274548-10057-A-1521102596-1.m3u8"
+  		]},       	        			      				      					
+   {id:"林正英",urls:[
+     "huya|http://tx.hls.huya.com/huyalive/94525224-2460686034-10568566041753944064-2789274542-10057-A-0-1_1200.m3u8"
+   //  "http://js.hls.huya.com/huyalive/94525224-2460686034-10568566041753944064-2789274542-10057-A-0-1_1200.m3u8"
+     ]},
+
+ "女神港片|http://tx.hls.huya.com/huyalive/30765679-2484192476-10669525441389264896-2789274564-10057-A-0-1.m3u8",
+ "女神系列|https://aldirect.hls.huya.com/huyalive/94525224-2472147404-10617792251071299584-2777026638-10057-A-0-1_1200.m3u8",
+   
+"搞笑港片|https://aldirect.rtmp.huya.com/backsrc/30765679-2480413542-10653295043445522432-3048959596-10057-A-0-1_2500.m3u8",
+   
+  {id:"王晶导演(粤语)",urls:["http://aldirect.hls.huya.com/huyalive/94525224-2579683592-11079656661667807232-2847687574-10057-A-0-1_1200.m3u8",
+  					  "http://tx.hls.huya.com/huyalive/94525224-2579683592-11079656661667807232-2847687574-10057-A-0-1.m3u8"
+         ]},
+{id:"五福星系列",urls:[
+	"http://aldirect.hls.huya.com/backsrc/29169025-2686220040-11537227221659811840-2713685416-10057-A-0-1.m3u8"
+	]},
+  {id:"开心鬼",urls:[
+  	"http://aldirect.hls.huya.com/huyalive/1448686638-1448686638-6222061732362190848-2789253842-10057-A-0-1.m3u8"
+  	]},      
+  	 
+  {id:"徐克导演",url:"http://tx.hls.huya.com/huyalive/29106097-2689447148-11551087544980471808-2789253872-10057-A-1525420294-1.m3u8"},
+ {id:"洪金宝",urls:["http://tx.hls.huya.com/huyalive/29106097-2689406282-11550912026846953472-2789274558-10057-A-0-1_1200.m3u8",
+ 				    "http://tx.hls.huya.com/huyalive/29106097-2689406282-11550912026846953472-2789274558-10057-A-0-1.m3u8"
+ 				  ]},
+  {id:"黄百鸣",url:"http://ws4.streamhls.huya.com/huyalive/29169025-2686220062-11537227316149092352-2777037828-10057-A-1524041857-1_1200/playlist.m3u8"},
+  "周润发|http://tx.hls.huya.com/huyalive/94525224-2460685774-10568564925062447104-2789253840-10057-A-0-1.m3u8",
+  {id:"古天乐",url:"http://aldirect.hls.huya.com/huyalive/28466698-2689658976-11551997339312848896-2789274534-10057-A-0-1_1200.m3u8"},
+
+  "怀旧经典|https://dlhls-cdn-mp.zhanqi.tv/zqlive/295519_JkFS8.m3u8",
+ 
+ // 不常用电影
+  {id:"陈翔六点半",num:9100,url:"http://tx.hls.huya.com/huyalive/94525224-2655537474-11405446604132450304-2704233350-10057-A-0-1.m3u8"},
+{id:"古惑仔电影",url:"http://tx.hls.huya.com/huyalive/30765679-2523417522-10837995731143360512-2777068634-10057-A-0-1.m3u8"},
+                  //http://tx.hls.huya.com/huyalive/30765679-2523417522-10837995731143360512-2777068634-10057-A-0-1_1200.m3u8
+{id:"斯坦森电影",url:"http://tx.hls.huya.com/huyalive/30765679-2554414705-10971127618396487680-3048991636-10057-A-0-1.m3u8"},
+{id:"真实改编",url:"http://tx.hls.huya.com/huyalive/30765679-2554414680-10971127511022305280-3048991634-10057-A-0-1.m3u8"},
+  "NewTV-爱情喜剧|http://121.31.30.90:8085/ysten-business/live/aiqingxj/yst.m3u8",
+ "NewTV-古装剧场|http://121.31.30.90:8085/ysten-business/live/guzhuangjc/yst.m3u8",
+ 
+ 
+ // end 不常看电影 9199
+// 电视剧 9200-9299
+   "setChannelNum=9200",
+    "爱奇艺tvbus,tvbus://66FRpocmtD6gMwzcvdFBh66GfamAqyNA5s1b9FrEKnuUnjQXsQn7zs6YAR55g",
+ 
+ // end 电视剧  9299
+ 
+ 
+ 
+     // 相声 9300-9399
+ 
+ // end 相声 9399
+ 
+ // 境外: 9700-9750
+ {id:"美国中文电视",num:"9700",urls:[
+                "rtmp://media3.sinovision.net:1935/live/livestream",
+  				"http://media3.sinovision.net:1935/live/livestream/playlist.m3u8",
+  				"http://ec.sinovision.net/video/ts/lv.m3u8"
+  				]},
+ 
+ "非凡新闻|http://cloud-play.hhalloy.com/live/408a2834f703f2162d0d5b5789344c39.flv",
+
+ "靖天资讯|http://cloud-play.hhalloy.com/live/e81342a5e0ecde1ee634f19b50fab501.flv",
+"靖天综合|http://cloud-play.hhalloy.com/live/7a7b662db65f478451144355efa0f02b.flv",
+{id:"纬来综合",urls:[
+  "tvbus,tvbus://5vv8ngW7EBMnpjCvuYFLbNN9nfaYptrEiTXZ79tBQd4VQgArPtThhrd16ZYe7",
+]},
+"纬来电影|http://cloud-play.hhalloy.com/live/4f10b67646969a422a5490deaaabbc69.flv",
+ 
+ {id:"TVB电影",urls:[
+             "http://hls-ott-zhibo.wasu.tv/live/202/index.m3u8"
+         ]},
+ {id:"JET综合",urls:[
+ 	"tvbus,tvbus://5U1W3wwHj8CaXbN9pHyGxavr3cDQrh8Z8VXTRHLKB4XCLCKE2kSk8pd93goqv",
+ ]},        
+
+  {id:"CHC高清电影",url:"http://ivi.bupt.edu.cn/hls/chchd.m3u8"}, 
+ {id:"CHC动作电影",url:"rtmp://ivi.bupt.edu.cn:1935/livetv/chcatv"},
+ 
+ 
+ {id:"CHC华诚影视",urls:[
+ 		"http://by4.nty.tv189.cn/live/tm-cridyty-512k.m3u8",
+   		"http://live1.nty.tv189.com/tm-cridyty-800k.m3u8"
+   		]},
+
+ {id:"八大综合",urls:[
+    "tvbus,tvbus://5L5N1QrvtKfN1R2rZVrXewcP5EJuRcXFqaYanE6GrqfaGvZoQDvxF89bQc55Q",
+ ]},
+
+"东森超视,tvbus|tvbus://6UY92VSrRoTTi43hYRfCNiyDCzFTA2sgqF22Cea8KQ1SjkMfPanUBCAak2CtH",
+
+
+ 
+ //"CHC家庭影院|http://ad.live.tvmining.com/approve/live?type=ipsd&channel=CHCFM&suffix=m3u8&access_token=c9ded3ae2f985989c99a99cdd7ed09fe",
+   				
+  // "BBC-2|http://bbcwshdlive01-lh.akamaihd.net/i/atv_1@61433/master.m3u8",
+// "Discovery独家|migu5://639528386",	
+"探索科学|http://cloud-play.hhalloy.com/live/f82bcb85f1a67e5b4754f7be0661dc72.flv",
+"探索频道dmax|http://cloud-play.hhalloy.com/live/41a76576ae78436eb0951f2aee0c9bda.flv",
+"亚美卫视|https://dcunilive30-lh.akamaihd.net/i/dclive_1@535522/master.m3u8",
+
+"eltv生活英语|http://cloud-play.hhalloy.com/live/094cb0c295f8bde2de59d5f421230dbd.flv",
+"smart知识台|http://cloud-play.hhalloy.com/live/641befebabe286484103e2980e05694d.flv",
+ 
+  "GoodTV-01|http://live.streamingfast.net/osmflivech1.m3u8",
+  "GoodTV-02|http://live.streamingfast.net/osmflivech2.m3u8",
+ 
+{id:"MiamiTV",urls:["http://hlsdpi-cdn-as3.totalstream.net/dpilive/miamitv/mia/miamitv1/playlist.m3u8?auth=&uid=fp_caa877e246379b8d26f7382dbd32d326&appid=miamitv",
+					"http://usaserver.miamitvchannel.com/miamitv/smil:miamitv/playlist.m3u8"
+               ]},
+{id:"JASMIN",url:"http://109.71.162.112:1935/live/sd.jasminchannel.stream/playlist.m3u8"},	
+  {id:"VISIT-X",url:"http://stream.visit-x.tv/vxtv/live_360p/chunklist.m3u8"},
+ "WGN9 Chicago|http://wgntribune-lh.akamaihd.net/i/WGNPrimary_1@304622/master.m3u8",
+  "美国DENVER电视|http://granicusliveus8-a.akamaihd.net/denver/G0080_002/chunklist.m3u8",
+  "美国综艺电视|https://teleqmmd.mmdlive.lldns.net/teleqmmd/f386e3b206814e1f8c8c1c71c0f8e748/chunklist_b2592000.m3u8",
+ //"WAU|http://nn2.joj.sk/hls/wau-540.m3u8",
+ //"JOJFAMILY|http://nn2.joj.sk/hls/family-540.m3u8"
+  "The Florida Channel|http://wowzaprod4-i.akamaihd.net/hls/live/254057/6380fec3/playlist.m3u8",
+  "英国Three|http://mediaworks-i.akamaihd.net/hls/live/220435/3812193411001/3news_live/master.m3u8",
+ "FTV4k节目|http://lb.streaming.sk/fashiontv/stream/chunklist_w546046477.m3u8",
+  "FTV-1|http://fash1043.cloudycdn.services/vod/_definst_/43/00/11/102218/1o2_dm_x3oqree.smil/playlist.m3u8",
+  "FTV PARIS|http://fash1043.cloudycdn.services/slive/_definst_/ftv_paris_adaptive.smil/chunklist_b680000_t64MzYwcA==.m3u8",
+ "FTV MIDNITE|http://fash1043.cloudycdn.services/slive/_definst_/ftv_ftv_midnite_k1y_27049_midnite_secr_108_hls.smil/media.m3u8",
+ //"FTV WEEKS|http://fash1043.cloudycdn.services/slive/_definst_/ftv_fashion_weeks_adaptive.smil/chunklist_b900000_t64MzYwcA==.m3u8",
+ "Bloomberg|http://cdn-videos.akamaized.net/btv/desktop/akamai/europe/live/primary.m3u8",
+ "卡塔尔半岛台|http://aljazeera-doc-apple-live.adaptive.level3.net/apple/aljazeera/hq-doc/800kStream.m3u8",
+ //"韩国GoodTV|rtmp://mobliestream.c3tv.com:554/live/goodtv.sdp",
+ "韩国朝鲜日报|rtmp://live.chosun.gscdn.com/live/tvchosun1.stream",
+ "韩国EBS1|http://ebsonair.ebs.co.kr/groundwavefamilypc/familypc1m/playlist.m3u8",
+ "日本NHK|https://nhkworld.webcdn.stream.ne.jp/www11/nhkworld-tv/global/263941/live_high2_s.m3u8",
+ "韩国-1|http://tx.hls.huya.com/huyalive/29359996-2689613128-11551800423652261888-2847687548-10057-A-0-1.m3u8",
+ "番薯TV|http://210.209.3.1/live/C02DD98E-593E-47A8-905C-3B101183A555?fmt=x264_500K_ts&cpid=admin&size=720X480&toflv=1&start=0",
+ "韩国娱乐|http://cloud-play.hhalloy.com/live/8ae61414f7e2972598956105e2e9969d.flv",
+ 
+ // end  境外9750
+  
+// 临时  99400
+"setChannelNum=99400",
+"TBV|http://520574.xyz/dl/tvb.php?id=inewshd",
+// end  99599 
+
+
+// 境外2 99600
+"setChannelNum=99600",
+ // 下来+频道需要翻墙
+
+ // end  境外99799
+
+  //测试:
+   {id:"192.168.1.8/test1",num:"99800",url:"rtmp://192.168.1.8/live/test1"},
+   {id:"苹果测试源",url:"http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear2/prog_index.m3u8"},
+   "oceans.mp4}http://o.snsoft.com.cn/demo/video/oceans.mp4",
+   //{id:"oceans.mp4",url:"/sdcard/temp/oceans.mp4"},
+   "360x240_1.mp4|http://o.snsoft.com.cn/demo/video/SampleVideo_360x240_1.mp4",
+   {id:"局域网oceans.mp4",url:"http://192.168.137.1:8000/snsoft/touch-demos/oceans.mp4"},
+    "tvbus-CCTV1,tvbus://8bQsn6pTCh3bitB9Q65tMZ9Cab93f7REd2GS3mnp5hoeb8qRUR",
+    "tvbus-中视新闻HD|tvbus://5R9W8Pyu2dnVpue6Jsfx74SJwa1Vn2VtWxuDHCWihBMMFkrCMeMr7Wz1hdFdQ",
+   "p8p-卫视中文,p8p://user3.shusongw.mobi:16871/5f2e5c380006bb4b1d9169c58f9b4abe.ts",
+   "p8p-亚洲美食,p8p://user3.shusongw.mobi:16871/5f37db930000c98242aae3b8829cb3c8",
+    "mitv-愛奇藝,mitv://147.135.39.171:9906/5e57755e00054af53132b22041d007fa.ts",
+    "mitv-ELEVEN體育,mitv://147.135.39.171:9906/5eb29942000375f80f3bccc20a8f53e8.ts",
+   "vjms-发现科学,vjms://153.99.180.75:8500:5021/live/cid=457",
+   "?msc-TVB星河台,msc://CXHMovie", 
+   "寰宇新聞台tvbus|tvbus://6JKuKpFKftPN5faMaHje6597pVufZ44XiP8oC8uGCmw12E2XX1VNho9cNnR2c",
+  "天津台tvbus|tvbus://6vVQiTasHnXiWkHVw1N5t5FR3wE2jdfdcndVeDQCk4WHhd4ozf",
+  "MOMO親子tvbus|tvbus://5X5Hd9WdA5SySjWsbASTc8rbcxfcYewnPnvy59KegMAhWFrA16sHebm9L8Xqn",
+  "東森幼幼tvbus|tvbus://6QCZY2EVkFP5ebQcSLx9Bn1GJ95zvxkQDW1ia3fy6gQZETKgvBh1yXLtYaZnd",
+    
+    "?TVBS新聞-P2P,p2p://0198.02686.cc:16871/5db05ca40003699da50b30c835589bf5.ts",
+//    "TVBus-1|tvbus://1R8Rw3uqyfdkci7b9VWm7N17ynqv259h1Bo7i2uyi9bmq513uX",
+//    "TVBus-2|tvbus://12MGYHm2fp2wtTjiGpDsbD1odpShZDSn5ub2y74ok1HX5WB6wk",
+//    "TVBus-3|tvbus://1CA1abneBv2mhnLyEzjh42Fg3ehAuL1vQcbPUygwh7CXz5dejb",  				
+//    "TVBus-4|tvbus://12VFuSR8upLqpWEdDXipjrq1rci3sv8rzfDn8c1c7xymtEk8vwt",
+//    "TVBus-X|tvbus://12LeSgDioVBoEhqojnrZwksGCgEJZdTove5ArEHzLBoZB1FTgY4",
+    "CNTV-CCTV13|cntv://cctv13",
+    "CNTV-CCTV1|cntv://cctv1",
+    "CNTV-CCTV2|cntv://cctv2",
+    "CNTV-CCTV3|cntv://cctv3",
+    "CNTV-CCTV15|cntv://cctv15",
+    "CETV-CETV1|cetv://cetv1",
+    "CETV-CETV3|cetv://cetv3",
+    "MIGU3-CCTV1|migu3://cctv1hd",
+    "MIGU5-CCTV1|migu5://cctv1hd",
+    "QQLIVE-?|qqlive://100104000",
+    {id:"ERR_02",urls:["http://1",
+   				"http://2",
+   				"[OCEANS]http://o.snsoft.com.cn/demo/video/oceans.mp4",
+   				"[360x240_1]http://o.snsoft.com.cn/demo/video/SampleVideo_360x240_1.mp4",
+   				"http://3"
+   				]},
+  // end 测试: 99899 
+    
+    {id:"ERR_01",url:"http://"},
+    "ERR_03|[OCEANS]http://o.snsoft.com.cn/demo/video/oceans.mp4#[360x240_1]http://o.snsoft.com.cn/demo/video/SampleVideo_360x240_1.mp4",
+      
+      // 无效 99901-99999
+   
+   
+    "??|http://"
+  ], // end of channels
+  
+  menus:[
+    {label:"常看频道1",items:["CCTV-15","CCTV-03",
+    			"凤凰卫视","凤凰资讯"
+    			,"星空卫视","CCTV-09",
+    			"VOA",
+    			
+    			//
+    			"CCTV-风云音乐","CCTV-发现之旅"
+    			//"BBC","CNN","ChannelV","VOA音频"
+    		]},
+     {label:"常看频道2",items:[
+            "东方卫视","江苏卫视","广东卫视","安徽卫视",
+            "TVBS新闻台",
+            "民视新闻台","中视新闻","寰宇新闻台",
+            "中天综合","JET综合","纬来综合",
+            "周星驰","周星驰2",
+            "怀旧经典",
+            "赌博电影","林正英","女神港片","女神系列","洪金宝","搞笑港片",
+            "五福星系列","开心鬼",
+            //"铁齿铜牙纪晓岚",
+            //"雍正王朝"
+            //,"山西卫视",
+            //,"本港台",
+            //,"黄百鸣"
+         ]},		
+    {label:"央视频道",items: [/*"CCTV-01","CCTV-02","CCTV-03","CCTV-04","CCTV-05","CCTV-06",
+    						"CCTV-07","CCTV-08","CCTV-09","CCTV-10","CCTV-11",
+                          "CCTV-12","CCTV-13","CCTV-14","CCTV-15","CCTV5+",
+                          "CETV1","CETV2","CETV3","CETV4",
+                         */ 
+                          "[01-21]","[40-49]","[850-899]"
+                          ]},
+    
+    {label:"卫视频道",items:[
+/*     		     "北京卫视","东方卫视","江苏卫视","广东卫视","辽宁卫视","湖南卫视","浙江卫视","天津卫视",
+			"深圳卫视","安徽卫视","重庆卫视","山西卫视","湖北卫视","黑龙江卫视","山东卫视",
+			"河南卫视","陕西卫视","吉林卫视","广西卫视","河北卫视","四川卫视","东南卫视",
+			"厦门卫视","云南卫视","江西卫视","贵州卫视","内蒙古卫视","青海卫视",
+			"宁夏卫视","甘肃卫视","新疆卫视","西藏卫视","兵团卫视","海南卫视"
+ */ 
+ 			"[50-69]","[700-729]"             
+                ]},                      
+    {label:"地方频道",items:["[730-749]"
+    				//"北京卫视","BTV文艺","BTV科教","BTV影视","BTV财经",
+                      //    "BTV体育","BTV生活","BTV青年",
+                        //  "BTV新闻","BTV少儿","BTV纪实","BTV国际"
+    						]},
+   // {label:"数字频道",items:["[35-49]","[850-899]"]},
+    {label:"电影频道",
+       items:[{label:"1", items:["CHC高清电影","CHC动作电影",
+    				"台湾星卫电影","TVB电影","龙华电影"
+   				 ,"东森电影",
+     				"[9000-9099]"
+     				] 
+              },
+      		 {label:"2",items:[
+        			"[9100-9199]"        
+        			]
+         	 }
+          ]      
+     }, 
+                              
+     {label:"电视剧",items:[
+          "[9200-9299]"
+       ]}, 
+    {label:"相声/小品/娱乐",items:[
+         "[9300-9399]"
+       ]},   
+    {label:"电台",items:["[800-849]","VOA音频"]},
+    
+     {label:"境外频道",items:["凤凰卫视","凤凰资讯","凤凰电影","星空卫视",
+                  "[30-39]",
+           		  "探索频道","国家地理",
+           		  "[750-799]",
+           		  "[9700-9750]"
+           		  ]},
+    {label:"其他",
+        items:[
+             {label:"临时",items:["[99400-99599]"]}, 
+             {label:"境外-",locked:1,items:["[99600-99799]"]}, 
+        	 {label:"无效频道",items:["[99901-99999]"]},
+        	 {label:"测试",items:["[99800-99899]"
+        ]
+     }
+ //   {label:"所有频道",items:[] } ,
+ //      {label:"其他频道",items:[]},
+ 
+    
+     //"苹果测试源","oceans.mp4","360x240_1.mp4",
+       //   "局域网oceans.mp4",
+        // "ERR_01","ERR_02"
+            ]}
+          
+  ]	
+}
