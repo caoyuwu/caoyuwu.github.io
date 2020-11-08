@@ -23,6 +23,7 @@ var hostGrps = function(){
 		"googleapis.com",
 		"google",
 		"google.com.hk",
+		"goo.gl",
 
 		"youtube.com",
 		"ggpht.com",
