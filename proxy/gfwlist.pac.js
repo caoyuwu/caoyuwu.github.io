@@ -7,6 +7,7 @@
  * genpac 2.1.0 https://github.com/JinnLynn/genpac
 
  *     https://raw.githubusercontent.com/petronny/gfwlist2pac/master/gfwlist.pac
+ *     https://github.com/gfwlist/gfwlist 
  *  语言参考:
    http://findproxyforurl.com/pac-functions/
  */
