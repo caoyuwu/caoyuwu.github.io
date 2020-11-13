@@ -9,8 +9,13 @@
 	  var anchors = document.querySelectorAll("a");
 	  for(var i=0;i<anchors.length;i++){
 		  var a = anchors[i];
-		  if( a.textContent=="" ) {
+		  var s = a.textContent; 
+		  if( s=="" ) {
 			  a.textContent = a.href;
+		  } else{
+			  var p = s.indexOf("${url}");
+			  if( p>=0 )
+				  a.textContent = s.substring(0,p)+a.href+s.substring(p+6);
 		  }
 	  }
   }
@@ -23,7 +28,7 @@
 <a href="https://homenet6.github.io/nj.txt"></a><br>
 <a href="https://myernestlu.github.io/zby.txt"></a><br>
 <hr>
-<a href="https://github.com/iptv-org/iptv">8000+全球直播源:https://github.com/iptv-org/iptv</a><br>
-
+<a href="https://github.com/iptv-org/iptv">8000+全球直播源(${url})</a><br>
+<a href="https://iptv-org.github.io/iptv/countries/tw.m3u">台湾源(${url})</a>
 </body>
 </html>
