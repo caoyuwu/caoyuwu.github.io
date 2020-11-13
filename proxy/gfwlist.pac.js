@@ -46,7 +46,7 @@ var hostGrps = function(){
 		"t.me",
 
 		"wikipedia.org"
-		//arukas.io	
+		,"utvlive.top"	
 		/*
 		,"arukas.io",	
 		"io",
