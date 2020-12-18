@@ -56,6 +56,8 @@ var hostGrps = function(){
 		,"ask.com" // 搜索引擎
 		,"duckduckgo.com" // 搜索引擎
 		,"yahoo.com"
+		 // 代理工具等
+		,"free-proxy.cz"
   ];
   var rootGrps = {};	
 		for (var i = 0; i < proxyHosts.length; i++){
