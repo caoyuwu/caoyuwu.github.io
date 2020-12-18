@@ -54,6 +54,8 @@ var hostGrps = function(){
 		"www.arukas.io",
 		*/
 		,"ask.com" // 搜索引擎
+		,"duckduckgo.com" // 搜索引擎
+		,"yahoo.com"
   ];
   var rootGrps = {};	
 		for (var i = 0; i < proxyHosts.length; i++){
