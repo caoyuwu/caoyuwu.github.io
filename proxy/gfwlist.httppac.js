@@ -27,6 +27,7 @@ var hostGrps = function(){
 		"google.com.hk",
 		"goo.gl",
 		"g.co",
+		"googlesource.com",
 
 		"youtube.com",
 		"ggpht.com",
