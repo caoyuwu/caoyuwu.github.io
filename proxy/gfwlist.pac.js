@@ -52,6 +52,7 @@ var hostGrps = function(){
 		,"medium.com"
 		,"v2ray.com"
 		,"pincong.rocks"
+		,"githubusercontent.com"
 		/*
 		,"arukas.io",	
 		"io",
