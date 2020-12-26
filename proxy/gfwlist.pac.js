@@ -53,6 +53,7 @@ var hostGrps = function(){
 		,"v2ray.com"
 		,"pincong.rocks"
 		,"githubusercontent.com"
+		,"chinagfw.org"
 		/*
 		,"arukas.io",	
 		"io",
