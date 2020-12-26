@@ -49,6 +49,7 @@ var hostGrps = function(){
 
 		"wikipedia.org"
 		,"utvlive.top"	
+		,"medium.com"
 		/*
 		,"arukas.io",	
 		"io",
