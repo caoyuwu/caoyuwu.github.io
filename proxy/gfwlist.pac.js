@@ -54,6 +54,7 @@ var hostGrps = function(){
 		,"pincong.rocks"
 		,"githubusercontent.com"
 		,"chinagfw.org"
+		,"telegra.ph"
 		/*
 		,"arukas.io",	
 		"io",
