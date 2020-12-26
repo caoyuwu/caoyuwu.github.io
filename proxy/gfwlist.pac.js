@@ -51,6 +51,7 @@ var hostGrps = function(){
 		,"utvlive.top"	
 		,"medium.com"
 		,"v2ray.com"
+		,"pincong.rocks"
 		/*
 		,"arukas.io",	
 		"io",
