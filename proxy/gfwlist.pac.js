@@ -55,6 +55,7 @@ var hostGrps = function(){
 		,"githubusercontent.com"
 		,"chinagfw.org"
 		,"telegra.ph"
+		,"githubusercontent.com"
 		/*
 		,"arukas.io",	
 		"io",
