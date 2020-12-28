@@ -47,25 +47,28 @@ var hostGrps = function(){
 		"telegram.dog",
 		"t.me",
 
-		"wikipedia.org"
-		,"utvlive.top"	
-		,"medium.com"
-		,"v2ray.com"
-		,"pincong.rocks"
-		,"githubusercontent.com"
-		,"chinagfw.org"
-		,"telegra.ph"
-		,"githubusercontent.com"
+		"wikipedia.org",
+		"utvlive.top",	
+		"medium.com",
+		"v2ray.com",
+		"pincong.rocks",
+		"githubusercontent.com",
+		"chinagfw.org",
+		"telegra.ph",
+		"githubusercontent.com",
 		/*
 		,"arukas.io",	
 		"io",
 		"www.arukas.io",
 		*/
-		,"ask.com" // 搜索引擎
-		,"duckduckgo.com" // 搜索引擎
-		,"yahoo.com"
+		"ask.com", // 搜索引擎
+		"duckduckgo.com", // 搜索引擎
+		"yahoo.com",
 		 // 代理工具等
-		,"free-proxy.cz"
+		"free-proxy.cz",
+		"wallmama.com",
+		"lncn.org"
+		
   ];
   var rootGrps = {};	
 		for (var i = 0; i < proxyHosts.length; i++){
