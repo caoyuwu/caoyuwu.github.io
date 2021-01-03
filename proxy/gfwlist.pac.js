@@ -56,6 +56,7 @@ var hostGrps = function(){
 		"chinagfw.org",
 		"telegra.ph",
 		"githubusercontent.com",
+		"apkpure.com",
 		/*
 		,"arukas.io",	
 		"io",
