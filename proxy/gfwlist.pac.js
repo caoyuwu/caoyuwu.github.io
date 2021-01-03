@@ -46,6 +46,8 @@ var hostGrps = function(){
 		"telegram.me",
 		"telegram.dog",
 		"t.me",
+		
+		"netflix.com",
 
 		"wikipedia.org",
 		"utvlive.top",	
