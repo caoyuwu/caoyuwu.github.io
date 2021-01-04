@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <script type='text/javascript' charset="utf-8" src='gfwpac.pac.js'></script>
+  <title>测试PAC</title>
+  <link rel="icon" href="../favicon.ico"/>
+  <script type="text/javascript">
+	// http://www.caoyuwu.top/proxy/TestPac.html
+	function doTest()
+  {
+	 var url = document.getElementById("URL").value.trim();
+	 var p1 = url.indexOf("://");
+	 if( p1<0 ) {
+		 url = "https://"+url;
+		 p1 = 5;
+  	}
+	 var p2 = url.indexOf("/",p1+4);
+	 var host = p2<0 ? url.substring(p1+3) : url.substring(p1+3,p2);
+	 //FindProxyForURL
+	 var proxy = window.FindProxyForURL(url,host);
+	 document.getElementById("Result").innerHTML = 
+		  url+"<br>"+host+"<br>"+proxy;
+  } 
+	window.onload = function(){
+		 document.getElementById('TestBtn').onclick = doTest;
+	};
+	
+
+</script>
+</head>
+<body>
+<textarea rows="5" cols="120" id="URL"></textarea>
+<br>
+<button id="TestBtn">测试</button>
+<hr>
+<div id="Result"></div>
+</body>
