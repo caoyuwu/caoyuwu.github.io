@@ -70,8 +70,8 @@ var hostGrps = function(){
 		 // 代理工具等
 		"free-proxy.cz",
 		"wallmama.com",
-		"lncn.org"
-		
+		"lncn.org",
+		"fanqiangdang.com"
   ];
   var rootGrps = {};	
 		for (var i = 0; i < proxyHosts.length; i++){
