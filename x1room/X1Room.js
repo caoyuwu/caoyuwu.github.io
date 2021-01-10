@@ -527,8 +527,12 @@ Xjs.apply(snsoftx.x1room.X1Room.prototype,{
         setTimeout(this._doRefresh.createDelegate(this,[refresh],true),1);
     },
     /*snsoftx.x1room.X1Room.onRoomListLoaded*/
-    onRoomListLoaded:function(roomList)
+    onRoomListLoaded:function(roomList,status)
     {
+        if(status < 200 || status >= 300)
+        {
+            alert("Http请求异常:返回=" + status);
+        }
         this.roomList = roomList;
         this.renderRooms(0);
         if(this.curTimeTagDom)
@@ -826,7 +830,7 @@ Xjs.extend(snsoftx.x1room.X1Room1,snsoftx.x1room.X1Room,{
     /*snsoftx.x1room.X1Room1.loadRooms*/
     loadRooms:function(serverSite,refresh)
     {
-        this.onRoomListLoaded(this.service.listRooms(serverSite,refresh));
+        this.onRoomListLoaded(this.service.listRooms(serverSite,refresh),200);
     },
     /*snsoftx.x1room.X1Room1.getWebsocketURL*/
     getWebsocketURL:function()
@@ -905,7 +909,13 @@ snsoftx.x1room.X1Room2=Xjs.extend(snsoftx.x1room.X1Room,{
     /*snsoftx.x1room.X1Room2.ajaxInvoke*/
     ajaxInvoke:function(method,url,params,onSuccess)
     {
-        Xjs.Ajax.invoke(url,null,params,method,16,new Xjs.FuncCall(onSuccess,this),new Xjs.FuncCall(this.onAjaxFail,this));
+        try
+        {
+            Xjs.Ajax.invoke(url,null,params,method,16,new Xjs.FuncCall(onSuccess,this),new Xjs.FuncCall(this.onAjaxFail,this));
+        }catch(ex)
+        {
+            alert(ex.message);
+        }
     },
     /*snsoftx.x1room.X1Room2.onAjaxFail*/
     onAjaxFail:function(ex)
@@ -924,8 +934,12 @@ snsoftx.x1room.X1Room2=Xjs.extend(snsoftx.x1room.X1Room,{
         this.ajaxGET(url,null,this.onAjaxRoomLoadSuccess);
     },
     /*snsoftx.x1room.X1Room2.onAjaxRoomLoadSuccess*/
-    onAjaxRoomLoadSuccess:function(v)
+    onAjaxRoomLoadSuccess:function(v,status)
     {
+        if(status < 200 || status >= 300)
+        {
+            alert("Http请求异常:返回=" + status);
+        }
         if(v.status != 1)
         {
             alert(v.msg);
