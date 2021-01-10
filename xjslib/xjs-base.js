@@ -1,6 +1,6 @@
 /*xjs/core/Xjs.java*/
 Xjs = {
-    version:'2.0.210108',
+    version:'2.0.210110',
     loadedXjs:[],
     objectTypes:{'regexp':RegExp,'array':Array,'date':Date,'error':Error},
     ROOTPATH:"",
@@ -10227,7 +10227,7 @@ Xjs.apply(Xjs.Ajax.prototype,{
     responseIsSuccess:function()
     {
         var status = this.conn.status;
-        return status === undefined || status == 0 || status >= 200 && status < 300;
+        return status === undefined || status >= 200 && status < 300;
     },
     /*xjs.core.Ajax.responseStatus*/
     responseStatus:function()
@@ -10303,12 +10303,14 @@ Xjs.apply(Xjs.Ajax.prototype,{
             {
                 if(ct != "application/json")
                 {
+                    if(this.conn.status == 0)
+                    {
+                        throw new Error("调用失败:ResponseStatus=" + this.conn.status);
+                    }
                     ex = new Error(s);
                 } else 
                 {
-                    if((s = s.trim()).length > 2 && s.charCodeAt(0) == 0x7b && s.charCodeAt(s.length - 1) == 0x7d)
-                        s = "(" + s + ")";
-                    var v = eval(s);
+                    var v = eval("(" + s + ")");
                     if(v instanceof Error)
                         ex = v;
                     else if(typeof(v) != "object")
