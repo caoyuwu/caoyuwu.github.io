@@ -1,6 +1,6 @@
 /*xjs/core/Xjs.java*/
 Xjs = {
-    version:'2.0.190821',
+    version:'2.0.210108',
     loadedXjs:[],
     objectTypes:{'regexp':RegExp,'array':Array,'date':Date,'error':Error},
     ROOTPATH:"",
@@ -68,7 +68,7 @@ Xjs = {
             {
                 var f = Xjs._readyList[0];
                 Xjs._readyList.splice(0,1);
-                f.func.apply(f.scorp || window,f.args || []);
+                f.call();
             }
         }
     },
@@ -81,7 +81,7 @@ Xjs = {
             {
                 f.apply(scorp || window,args || []);
             } else 
-                Xjs._readyList.push({func:f,scorp:scorp,args:args});
+                Xjs._readyList.push(new Xjs.FuncCall(f,scorp,args));
         }
     },
     /*xjs.core.Xjs._doScrollCheck*/
@@ -170,6 +170,21 @@ Xjs = {
                     o = o[d[j]];
                 }
             }
+    },
+    /*xjs.core.Xjs.getHTMLHead*/
+    getHTMLHead:function()
+    {
+        return document.getElementsByTagName("head")[0];
+    },
+    /*xjs.core.Xjs.getIEVersion*/
+    getIEVersion:function(ua)
+    {
+        var ieInfo = ua.match(/msie [\d.]+;/gi);
+        if(!ieInfo)
+        {
+            ieInfo = ua.match(/rv:[\d.]+/);
+        }
+        return ieInfo && ieInfo.length > 0 ? parseInt((ieInfo[0]).replace(/[^0-9.]/ig,"")) : 0;
     },
     /*xjs.core.Xjs.extend*/
     extend:function(sb,_sp,overrides)
@@ -404,7 +419,36 @@ Xjs = {
         {
             return Xjs.ROOTPATH + url.substring(2);
         }
-        return m != 1 && url.indexOf("://") < 0 && !url.startsWith("/") && !url.startsWith("data:") ? Xjs.ROOTPATH + url : url;
+        if(url.indexOf("://") < 0 && !url.startsWith("/") && !url.startsWith("data:"))
+        {
+            for(;url.startsWith("./");)
+                url = url.substring(2);
+            switch(m || 0)
+            {
+            case 0:
+                return Xjs.ROOTPATH + url;
+            case 2:
+                {
+                    var base = window.location.href,
+                        s = url,
+                        p = base.lastIndexOf('/');
+                    for(;;)
+                    {
+                        if(p < 0)
+                            break;
+                        if(!s.startsWith("../"))
+                        {
+                            return base.substring(0,p + 1) + s;
+                        }
+                        s = s.substring(3);
+                        base = base.substring(0,p);
+                        p = base.lastIndexOf('/');
+                    }
+                    break;
+                }
+            }
+        }
+        return url;
     },
     /*xjs.core.Xjs.loadUrlRES*/
     loadUrlRES:function(url,cache)
@@ -497,14 +541,33 @@ Xjs = {
             }
             if(window._debug_)
             {
-                if(ex.stack && window.console)
-                {
-                    window.console.log(ex.stack);
-                }
-                ex.dummy = true;
-                throw ex;
+                window.console.trace(ex);
             }
         }
+    },
+    /*xjs.core.Xjs.promiseCommit*/
+    promiseCommit:function(a,v,reject)
+    {
+        if(a)
+            for(var i=0;i < a.length;i++)
+            {
+                if(reject)
+                    a[i].reject(v);
+                else 
+                    a[i].resolve(v);
+            }
+    },
+    /*xjs.core.Xjs.joinPromiseCommit*/
+    joinPromiseCommit:function(o,name)
+    {
+        var k = name || "_promiseCommits";
+        return new Promise(function(resolve,reject){
+            var r = {resolve:resolve,reject:reject};
+            if(o[k])
+                (o[k]).push(r);
+            else 
+                o[k] = [r];
+        });
     },
     /*xjs.core.Xjs.getTheme*/
     getTheme:function()
@@ -679,11 +742,20 @@ Xjs = {
     {
         document.cookie = n + "=" + v;
     },
+    /*xjs.core.Xjs.getSessionID*/
+    getSessionID:function()
+    {
+        return Xjs.RInvoke.rsvInvoke("snsoft.bas.ui.service.homepage.LoginService.getSessionID");
+    },
     /*xjs.core.Xjs.newRSSOURL*/
     newRSSOURL:function(nmSID,root,path)
     {
         var url = (root || Xjs.ROOTPATH) + path,
             key = Xjs.getCookie(nmSID || "RSESSIONID");
+        if(!key || key == "")
+        {
+            key = Xjs.getSessionID();
+        }
         if(key == null)
         {
             return url;
@@ -748,8 +820,7 @@ Xjs = {
             for(var i=0;i < Xjs.onWDocResized.length;i++)
             {
                 var f = Xjs.onWDocResized[i];
-                f.args[0] = Xjs._lastWDocSize;
-                f.func.apply(f.scorp || window,f.args);
+                f.call(Xjs._lastWDocSize);
             }
         return true;
     },
@@ -760,7 +831,7 @@ Xjs = {
             Xjs.onWDocResized = [];
         if(!args || args.length == 0)
             args = new Array(1);
-        Xjs.onWDocResized.push({func:f,scorp:scorp,args:args});
+        Xjs.onWDocResized.push(new Xjs.FuncCall(f,scorp,args));
     },
     /*xjs.core.Xjs.rlog*/
     rlog:function(level,logName,logText)
@@ -798,11 +869,6 @@ Xjs = {
                 up.path = "/" + up.path;
         }
         return up;
-    },
-    /*xjs.core.Xjs.call*/
-    call:function(f)
-    {
-        return f.func.apply(f.scorp || window,f.args || []);
     },
     /*xjs.core.Xjs.rconsoleLog*/
     rconsoleLog:function(s)
@@ -851,7 +917,7 @@ Xjs = {
         Xjs.TouchDev = 11;
     if(new RegExp("webkit|khtml").test(ua) && !Xjs.isChrome)
         Xjs.isSafari = true;
-    if(!Xjs.isOpera && (p = ua.indexOf("msie")) > -1)
+    if(!Xjs.isOpera && (p = ua.indexOf("msie")) > -1 || 'ActiveXObject' in window)
         Xjs.isIE = true;
     if(ua.indexOf("trident") > 0)
         Xjs.isTrident = true;
@@ -863,9 +929,7 @@ Xjs = {
         Xjs.isFirefox = true;
     if(Xjs.isIE && !Xjs.isStrict)
         Xjs.isBorderBox = true;
-    Xjs.$browserVer = Xjs.isIE ? parseInt(ua.substring(p + 5,p + 9)) : 0;
-    if(Xjs.isIE && Xjs.$browserVer < 7)
-        Xjs.isIE6 = true;
+    Xjs.$browserVer = Xjs.isIE ? Xjs.getIEVersion(ua) : 0;
     if(ua.indexOf("x11; u; linux") >= 0 || ua.indexOf("ucbrowser") >= 0)
         Xjs.isUC = true;
     if(ua.indexOf("micromessenger") >= 0)
@@ -895,6 +959,14 @@ Xjs = {
             Xjs.ROOTPATH = src.substring(0,p + 1);
             break;
         }
+    }
+    if(Xjs.isIE)
+    {
+        var s = document.createElement("script");
+        s.type = "text/javascript";
+        s.async = false;
+        s.src = Xjs.ROOTPATH + "jslib/ie/ie-polyfill.min.js";
+        Xjs.getHTMLHead().appendChild(s);
     }
     if(!Function.prototype.bind)
     {
@@ -947,7 +1019,7 @@ Xjs.apply(Function,{
                 if(Xjs.alertErr)
                 {
                     if(forcus && forcus . focusLatter && !ex.onClosing)
-                        ex.onClosing = {func:forcus.focusLatter,scorp:forcus};
+                        ex.onClosing = new Xjs.FuncCall(forcus.focusLatter,forcus);
                     Xjs.alertErr(ex);
                 } else 
                 {
@@ -1161,8 +1233,10 @@ Xjs.apply(Array,{
                     low = mid + 1;
                 else if(midVal > key)
                     high = mid - 1;
-                else 
+                else if(midVal == key)
                     return mid;
+                else if(!key)
+                    high = mid - 1;
             }
             return -(low + 1);
         }
@@ -1466,6 +1540,10 @@ Xjs.apply(Number,{
 Xjs.Object=function(cfg){
     this.__init();
     Xjs.apply(this,cfg);
+    if(cfg && cfg.__$thisCfg)
+    {
+        this.__$thisCfg = cfg;
+    }
 };
 Xjs.apply(Xjs.Object.prototype,{
     /*xjs.core.XjsObject.__init*/
@@ -1511,7 +1589,7 @@ Xjs.extend(Xjs.Observable,Xjs.Object,{
             var evName = arguments[0];
             if(byFunc)
             {
-                fn = {func:fn,scorp:arguments[2] || this};
+                fn = new Xjs.FuncCall(fn,arguments[2] || this);
             }
             var a = this.EventFN[evName];
             if(a != null)
@@ -1587,43 +1665,29 @@ Xjs.extend(Xjs.Observable,Xjs.Object,{
             arguments[0] = this;
             for(var i=0;i < ls.length;i++)
             {
-                var args;
-                switch(ls[i].argMode || 0)
-                {
-                case 1:
-                    args = ls[i].args;
-                    break;
-                case 2:
-                    {
-                        var a;
-                        if(a = ls[i].args)
-                        {
-                            args = [];
-                            for(var j=0;j < a.length;j++)
-                            {
-                                args.push(a[j]);
-                            }
-                            for(var j=0;j < arguments.length;j++)
-                            {
-                                args.push(arguments[j]);
-                            }
-                            break;
-                        }
-                    }
-                default:
-                    args = arguments;
-                    break;
-                }
-                ls[i].func.apply(ls[i].scorp || this,args);
+                ls[i].apply(arguments);
             }
         }
     },
     /*xjs.core.Observable.fireEventV*/
     fireEventV:function()
     {
-        var args = Array.prototype.slice.call(arguments,1),
-            evName = args[0],
-            n = this.listeners ? this.listeners.length : 0;
+        var args = Array.prototype.slice.call(arguments,1);
+        return this._fireEventV(arguments[0],args[0],args);
+    },
+    /*xjs.core.Observable.fireEventV2*/
+    fireEventV2:function(_mode,evName,args)
+    {
+        var a2 = new Array(args == null ? 1 : 1 + args.length);
+        if(args)
+            for(var j=0;j < args.length;j++)
+                a2[1 + j] = args[j];
+        return this._fireEventV(_mode,evName,a2);
+    },
+    /*xjs.core.Observable._fireEventV*/
+    _fireEventV:function(_mode,evName,args)
+    {
+        var n = this.listeners ? this.listeners.length : 0;
         if(n > 0)
         {
             args[0] = this;
@@ -1644,7 +1708,7 @@ Xjs.extend(Xjs.Observable,Xjs.Object,{
             args[0] = this;
             for(var i=0;i < ls.length;i++)
             {
-                var v = ls[i].func.apply(ls[i].scorp || this,args);
+                var v = ls[i].apply(args);
                 if(v !== undefined)
                     return v;
             }
@@ -1654,9 +1718,7 @@ Xjs.extend(Xjs.Observable,Xjs.Object,{
     /*xjs.core.Observable.hasListenerMethod*/
     hasListenerMethod:function(method)
     {
-        if(this.listeners == null)
-            return false;
-        var n = this.listeners.length;
+        var n = this.listeners ? this.listeners.length : 0;
         for(var i=0;i < n;i++)
         {
             var l = this.listeners[i],
@@ -1664,10 +1726,14 @@ Xjs.extend(Xjs.Observable,Xjs.Object,{
             if((f = l[method]) && f != Xjs.emptyFn)
                 return true;
         }
+        if(this.EventFN && this.EventFN[method] && this.EventFN[method].length)
+        {
+            return true;
+        }
         return false;
     },
     /*xjs.core.Observable.fireEventE*/
-    fireEventE:function(evName,parameter)
+    fireEventE:function()
     {
         try
         {
@@ -1682,6 +1748,11 @@ Xjs.extend(Xjs.Observable,Xjs.Object,{
 Xjs.namespace("Xjs.ui");
 Xjs.ui.Component=function(cfg){
     Xjs.ui.Component.superclass.constructor.call(this,cfg);
+    if(this.fitSizeOnWinResize)
+    {
+        this._fitParentSize = new Xjs.ui.layout.FitParentSize(this,this.fitSizeOnWinResize);
+        delete this.fitSizeOnWinResize;
+    }
     if(this.uiConfigOnPrtPreview)
     {
         if(window.EnvParameter.forPrint > 0)
@@ -1810,8 +1881,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
             {
                 for(var i=0;i < this.fnOnDomCreated.length;i++)
                 {
-                    var f = this.fnOnDomCreated[i];
-                    f.func.apply(f.scorp || this,f.args || []);
+                    this.fnOnDomCreated[i].call();
                 }
                 delete this.fnOnDomCreated;
             }
@@ -1826,7 +1896,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
             f.apply(scorp || this,args || []);
         } else 
         {
-            var v = {func:f,scorp:scorp,args:args};
+            var v = new Xjs.FuncCall(f,scorp,args);
             if(!this.fnOnDomCreated)
                 this.fnOnDomCreated = [v];
             else 
@@ -1944,6 +2014,13 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
         else 
             this.height = height;
         this._updateDomSize();
+    },
+    /*xjs.ui.Component.setFitParentHeight*/
+    setFitParentHeight:function(h,oh)
+    {
+        if(oh)
+            h -= oh;
+        this.setHeight(h >= 0 ? h : 0);
     },
     /*xjs.ui.Component._updateDomSize*/
     _updateDomSize:function()
@@ -2230,7 +2307,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     {
         var tipText;
         if(this.fn$TipText)
-            tipText = this.fn$TipText.func.apply(this.fn$TipText.scorp || this,this.fn$TipText.args || []);
+            tipText = this.fn$TipText.call();
         else 
             tipText = this.tipText;
         this.showTipText(tipText,null);
@@ -2308,49 +2385,14 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     /*xjs.ui.Component.addPopupMenu*/
     addPopupMenu:function(command,text,node)
     {
-        node = Xjs.apply({},node);
-        if(command != null)
-            node.command = command;
-        if(text != null)
-            node.text = text;
-        if(!this.popupMenu)
+        var to;
+        if(!(to = this.popupMenu))
         {
-            this.popupMenu = new Xjs.ui.PopupMenu();
-            this.popupMenu.addListener(this);
-            this.popupMenu.focusCompOnHide = this;
+            this.popupMenu = to = new Xjs.ui.PopupMenu();
+            to.addListener(this);
+            to.focusCompOnHide = this;
         }
-        var cmdPath = (node.command || "").split("|"),
-            p = this.popupMenu;
-        node.command = cmdPath[cmdPath.length - 1];
-        for(var i=0;i < cmdPath.length;i++)
-        {
-            var cmd = cmdPath[i];
-            if(cmd.length == 0)
-                cmd = null;
-            if(!p.nodes)
-                p.nodes = [];
-            var n = p.nodes.length,
-                j;
-            if(cmd != null)
-            {
-                for(j = 0;j < n;j++)
-                {
-                    if(p.nodes[j].command == cmd)
-                        break;
-                }
-            } else 
-            {
-                j = n;
-            }
-            if(j >= n)
-            {
-                p.nodes.push(node.command == "-" ? "-" : node);
-            } else if(i == cmdPath.length - 1)
-            {
-                Xjs.apply(p.nodes[j],node);
-            }
-            p = p.nodes[j];
-        }
+        to.addMenuNode(command,text,node);
     },
     /*xjs.ui.Component.addPopupMenus*/
     addPopupMenus:function()
@@ -2369,16 +2411,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     /*xjs.ui.Component.onContextMenu*/
     onContextMenu:function(e)
     {
-        var tn;
-        if(!this.popupMenu || ((tn = (e.srcElement || e.target).tagName) == "INPUT" || tn == "TEXTAREA") && document.activeElement == (e.srcElement || e.target))
-            return true;
-        var ctrlKey = Xjs.Event.isCmdKey(e);
-        if(window.xjsConfig && window.xjsConfig.ctrlkeyCtxMenu ? !ctrlKey : ctrlKey)
-            return true;
-        var p = Xjs.Event.getXY(e,document.body);
-        Xjs.Event.cancelEvent(e,true);
-        this.popupMenu.showAtXY(p.x,p.y);
-        return false;
+        return Xjs.ui.Component.showCtxPopupMenu(this.popupMenu,e);
     },
     /*xjs.ui.Component.showPopupMenu*/
     showPopupMenu:function(dom,x,y)
@@ -2393,7 +2426,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
         this.fireEvent.call(this,"beforecmd_" + cmd,ra);
         if(ra.length > 0)
         {
-            (new Xjs.util.ConfirmPerform(null,ra,{func:this.doPerformCmd,scorp:this,args:[src,cmd]})).confirmPerform();
+            (new Xjs.util.ConfirmPerform(null,ra,new Xjs.FuncCall(this.doPerformCmd,this,[src,cmd]))).confirmPerform();
             return;
         }
         this.doPerformCmd(src,cmd);
@@ -2417,16 +2450,29 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
         {
             if(!this.valStoreDlg)
             {
-                Xjs.JsLoad.loadJsLibsOfVar("Xjs.ui.tools.PaneValueStore");
-                this.valStoreDlg = new Xjs.ui.tools.PaneValueStore(this);
+                var c = this;
+                Xjs.JsLoad.asynLoadJsLibsOfVar("Xjs.ui.tools.PaneValueStore").then(function(v){
+            c.valStoreDlg = new Xjs.ui.tools.PaneValueStore(c);
+            c.valStoreDlg.showDialog(cmd == "savevalue");
+        });
+            } else 
+            {
+                this.valStoreDlg.showDialog(cmd == "savevalue");
             }
-            this.valStoreDlg.showDialog(cmd == "savevalue");
         } else if(cmd == "uidefinition")
         {
             var rootUIID = this.uidefRootUIID != null ? this.uidefRootUIID : this.getRootComponentMID();
             if(rootUIID != null)
             {
                 var url = Xjs.RInvoke.buildUIInvokeURL(null,"90.UI.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                window.open(url,"_blank");
+            }
+        } else if(cmd == "uidefforcuicode")
+        {
+            var rootUIID = this.uidefRootUIID != null ? this.uidefRootUIID : this.getRootComponentMID();
+            if(rootUIID != null)
+            {
+                var url = Xjs.RInvoke.buildUIInvokeURL(null,"90.ui.CMUI.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
                 window.open(url,"_blank");
             }
         } else if(cmd == "uidefxml")
@@ -2445,6 +2491,10 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                 var url = Xjs.ROOTPATH + "ui/uixml?muiid=" + rootUIID;
                 window.open(url,"_blank");
             }
+        } else if(cmd == "uideuistatic")
+        {
+            var muiid = this.uidefRootUIID != null ? this.uidefRootUIID : this.getRootComponentMID();
+            Xjs.RInvoke.rmInvoke("snsoft.cmc.uidef.UITableDefListener.buildStaticHTML",muiid,window.EnvParameter.lang,Xjs.getTheme());
         } else if(cmd.indexOf("openDef_") == 0)
         {
             var node = src.getMenuNode(cmd);
@@ -2463,6 +2513,14 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
             this.fireEvent.apply(this,args);
             this.fireEvent.call(this,"oncmd_" + cmd);
         }
+    },
+    /*xjs.ui.Component.asynUIInvoke*/
+    asynUIInvoke:function(method)
+    {
+        var args = Array.prototype.slice.call(arguments);
+        args[0] = null;
+        var rootUiid = this.rootUiid || this.getRootComponentMID();
+        return Xjs.RInvoke._asynInvoke(rootUiid + "." + this.name + "." + method,"ui",args);
     },
     /*xjs.ui.Component.uiInvoke*/
     uiInvoke:function(m)
@@ -2513,34 +2571,21 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                 return;
             }
         }
-        var a = icks[nm],
-            cs = [];
-        for(var i=0;i < a.length;i++)
+        var a = icks[nm];
+        if(!a || a.length == 0)
+            return;
+        if(!c.validChecks)
+            c.validChecks = a;
+        else 
         {
-            var o = a[i],
-                className = o.className.toString();
-            switch(className)
+            var cs;
+            if(!(cs = c.validChecks))
+                cs = c.validChecks = [];
+            for(var i=0;i < a.length;i++)
             {
-            case "length":
-                cs.push(new Xjs.table.check.LengthValidCheck(o));
-                break;
-            case "size":
-                cs.push(new Xjs.table.check.SizeValidCheck(o));
-                break;
-            case "range":
-                cs.push(new Xjs.table.check.RangeValidCheck(o));
-                break;
-            case "pattern":
-                cs.push(new Xjs.table.check.PatternValidCheck(o));
-                break;
-            case "digits":
-                cs.push(new Xjs.table.check.DigitsValidCheck(o));
-                break;
-            default:
-                cs.push(Xjs.JsLoad.newObject(className,o));
+                cs.push(a[i]);
             }
         }
-        c.validChecks = cs;
     },
     /*xjs.ui.Component.initComponent*/
     initComponent:function(values)
@@ -2638,7 +2683,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                 if(f.scorp == "${this}")
                     f.scorp = this;
                 Xjs.deepReplace(f.args,"${this}",this);
-                f.func.apply(f.scorp || window,f.args || []);
+                f.func(f.args[0],f.args[1]);
             }
         }
         this.__addDialogItems();
@@ -2756,6 +2801,9 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                     v = null;
                 }
             }
+        } else if(this.initOpVal)
+        {
+            values.set(this.name + ".[op]",this.initOpVal);
         }
         if(v != null || (options & 1) == 0)
         {
@@ -2797,7 +2845,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     /*xjs.ui.Component._findComps*/
     _findComps:function(a,t,caseThis)
     {
-        if(caseThis && t.func.apply(t.scorp,(t.args || []).concat(this)))
+        if(caseThis && t.call(this))
         {
             a.push(this);
         }
@@ -2848,7 +2896,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
         return text;
     },
     /*xjs.ui.Component.getCloseRequest*/
-    getCloseRequest:function()
+    getCloseRequest:function(opts,tit)
     {
         var r = null;
         if(this.items != null)
@@ -2856,7 +2904,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
             {
                 if(this.items[i].mainUI)
                 {
-                    var r2 = this.items[i].getCloseRequest();
+                    var r2 = this.items[i].getCloseRequest(opts,tit);
                     if(!r2)
                         continue;
                     if(!r)
@@ -2967,7 +3015,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
         return false;
     },
     /*xjs.ui.Component.processAccKey*/
-    processAccKey:function(ev,caseParent)
+    processAccKey:function(ev)
     {
         if(this.accKeys)
             for(var i=0;i < this.accKeys.length;i++)
@@ -2979,12 +3027,9 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                     if(f = k.call)
                     {
                         var a = [];
-                        if(f.args)
-                            for(var j=0;j < f.args.length;j++)
-                                a.push(f.args[j]);
                         a.push(ev);
                         a.push(k.cmd || null);
-                        f.func.apply(f.scorp || window,a);
+                        f.apply(a);
                     } else 
                     {
                         this.performCommand(ev,k.cmd);
@@ -2992,8 +3037,33 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                     return true;
                 }
             }
-        if(this.parent && caseParent)
-            return this.parent.processAccKey(ev,true);
+        return false;
+    },
+    /*xjs.ui.Component._processAccKey*/
+    _processAccKey:function(proced,ev,caseParent,caseItems)
+    {
+        if(proced.indexOf(this) < 0)
+        {
+            proced.push(this);
+            if(this.processAccKey(ev))
+            {
+                return true;
+            }
+        }
+        if(this.parent && caseParent && this.parent._processAccKey(proced,ev,true,false))
+        {
+            return true;
+        }
+        if(this.items && caseItems)
+        {
+            for(var i=0;i < this.items.length;i++)
+            {
+                if(this.items[i].mainUI & 3 && this.items[i]._processAccKey(proced,ev,false,true))
+                {
+                    return true;
+                }
+            }
+        }
         return false;
     },
     /*xjs.ui.Component.getDefaultAccKeyProcssComp*/
@@ -3015,21 +3085,22 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     /*xjs.ui.Component.fireProcessAccKey*/
     fireProcessAccKey:function(ev)
     {
-        var c = this.getActiveMainComponent();
+        var proced = [],
+            c = this.getActiveMainComponent();
         if(c)
         {
-            var r = c.processAccKey(ev,true);
+            var r = c._processAccKey(proced,ev,true,false);
             if(r)
                 return true;
         }
         c = this.getDefaultAccKeyProcssComp();
         if(c)
         {
-            var r = c.processAccKey(ev,false);
+            var r = c._processAccKey(proced,ev,false,false);
             if(r)
                 return true;
         }
-        return this.processAccKey(ev,true);
+        return this._processAccKey(proced,ev,false,true);
     },
     /*xjs.ui.Component._isActiveElementIn*/
     _isActiveElementIn:function()
@@ -3041,13 +3112,22 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     {
         if(this.helpURL)
         {
-            window.open(Xjs.toFullURL(this.helpURL,0),"_blank");
+            window.open(Xjs.toFullURL(this.helpURL,this.helpURL.startsWith("../") ? 2 : 0),"_blank");
             return true;
         }
         if(this.helpFile)
         {
-            window.open(Xjs.ROOTPATH + "help.html?helpFile=" + encodeURIComponent(this.helpFile),"_blank");
+            window.open(Xjs.ROOTPATH + "help.html?helpFile=" + this.helpFile,"_blank");
             return true;
+        }
+        if(this.mid)
+        {
+            this.helpURL = Xjs.RInvoke.rsvInvoke("SN-UI.HelpURLRemoteLoadService.loadHelpURL",this.mid);
+            if(this.helpURL)
+            {
+                window.open(Xjs.toFullURL(this.helpURL,this.helpURL.startsWith("../") ? 2 : 0),"_blank");
+                return true;
+            }
         }
         if(this.parent && caseParent)
             return this.parent.onHelpContext(true);
@@ -3086,8 +3166,9 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     /*xjs.ui.Component.oncmd_calculator*/
     oncmd_calculator:function()
     {
-        Xjs.JsLoad.loadJsLibsOfVar("Xjs.ui.tools.CalcDialogListener");
-        Xjs.ui.tools.CalcDialogListener.invokeCalc(null);
+        Xjs.JsLoad.asynLoadJsLibsOfVar("Xjs.ui.tools.CalcDialogListener").then(function(){
+            Xjs.ui.tools.CalcDialogListener.invokeCalc(null);
+        });
     },
     /*xjs.ui.Component.newDftOpComp*/
     newDftOpComp:function(id,type)
@@ -3108,7 +3189,9 @@ Xjs.apply(Xjs.ui.Component,{
                 p2 = p1 < 0 ? -1 : html.indexOf("</uiconfig>",p1 + 10);
             if(p2 > 0)
             {
-                Xjs.applyIf(obj,eval(html.substring(p1 + 10,p2).trim()));
+                var cfg = html.substring(p1 + 10,p2).trim();
+                cfg = String.macroReplace(cfg,macro,"${","}");
+                Xjs.applyIf(obj,eval(cfg));
                 html = html.substring(p2 + 11);
             }
         }
@@ -3123,6 +3206,26 @@ Xjs.apply(Xjs.ui.Component,{
         }
         htmlE.innerHTML = s;
         return htmlE.childNodes.length == 1 ? htmlE.childNodes[0] : htmlE;
+    },
+    /*xjs.ui.Component.showCtxPopupMenu*/
+    showCtxPopupMenu:function(popupMenu,e)
+    {
+        var tn,
+            ctrlKey = Xjs.Event.isCmdKey(e);
+        if(!popupMenu)
+            return true;
+        var dftSysM = window.xjsConfig && window.xjsConfig.ctrlkeyCtxMenu,
+            sysMenu = dftSysM ? !ctrlKey : ctrlKey;
+        if(((tn = (e.srcElement || e.target).tagName) == "INPUT" || tn == "TEXTAREA") && document.activeElement == (e.srcElement || e.target) && !dftSysM)
+        {
+            sysMenu = !sysMenu;
+        }
+        if(sysMenu)
+            return true;
+        var p = Xjs.Event.getXY(e,document.body);
+        Xjs.Event.cancelEvent(e,true);
+        popupMenu.showAtXY(p.x,p.y);
+        return false;
     },
     /*xjs.ui.Component._getMainComponentByName*/
     _getMainComponentByName:function(items,name)
@@ -3139,7 +3242,7 @@ Xjs.apply(Xjs.ui.Component,{
     /*xjs.ui.Component._getMainComponentById*/
     _getMainComponentById:function(items,id)
     {
-        if(items != null)
+        if(items)
             for(var i=0;i < items.length;i++)
             {
                 var c = items[i].mainUI ? items[i].getMainComponentById(id) : null;
@@ -3303,11 +3406,14 @@ Xjs.apply(Xjs.ui.Component,{
         return name == c.name ? c : c.getSubCompByName(name);
     },
     /*xjs.ui.Component.getCheckValues*/
-    getCheckValues:function(dom,options)
+    getCheckValues:function(inputDoms,options)
     {
-        var inputDoms = dom.getElementsByTagName("input");
         if(!inputDoms)
             return null;
+        if(inputDoms instanceof HTMLElement)
+        {
+            inputDoms = inputDoms.getElementsByTagName("input");
+        }
         var multiple = (options & 1) != 0,
             intValue = (options & 2) != 0,
             caseOrder = (options & 4) != 0,
@@ -3414,6 +3520,8 @@ Xjs.apply(Xjs.ui.Component,{
     _afterInitComponents:function(comp)
     {
         comp.fireEvent("afterInitComponent");
+        if(comp . afterInitComponent)
+            comp.afterInitComponent();
         if(comp.items)
             for(var i=0;i < comp.items.length;i++)
             {
@@ -3430,54 +3538,77 @@ Xjs.apply(Xjs.ui.Component,{
             }
     },
     /*xjs.ui.Component._initComponents*/
-    _initComponents:function(comp,values,initVals,pm,_loadUiOpts)
+    _initComponents:function(comp,vals,initVals,pm,_loadUiOpts)
     {
-        var first;
-        if(first = values == null)
+        Xjs.ui.Component._initComps(comp,initVals,pm,_loadUiOpts);
+    },
+    /*xjs.ui.Component._initComps*/
+    _initComps:function(comp,initVals,pm,_loadUiOpts)
+    {
+        var values;
+        if(Xjs.isDebugMode)
         {
-            var params = {};
-            if(!(_loadUiOpts & 8))
-            {
-                Xjs.apply(params,window.EnvParameter.ReqParameter);
-                if(window.EnvParameter.forPrint)
-                    params._ForPrint_ = window.EnvParameter.forPrint;
-            }
-            if(pm)
-                Xjs.apply(params,pm);
-            Xjs.ui.Component._prepareInitComponents(comp,params);
-            if(!comp.disableServerInit)
-            {
-                values = comp.uiInvoke("!init",params);
-                if(values == null)
-                    values = {};
-            } else 
-            {
-                values = {};
-            }
-            if(initVals)
-                for(var n in initVals)
-                {
-                    var c = comp.getMainComponentByName(n);
-                    if(c == null)
-                        throw new Error("未定义界面：" + n);
-                    var o = values["UI." + c.name];
-                    if(!o)
-                    {
-                        values["UI." + c.name] = o = {};
-                    }
-                    var v = o.initValues;
-                    if(v)
-                        Xjs.apply(v,initVals[n]);
-                    else 
-                        o.initValues = initVals[n];
-                }
-            if(values.EnvParameter)
-            {
-                if(!window.EnvParameter)
-                    window.EnvParameter = {};
-                Xjs.apply(window.EnvParameter,values.EnvParameter);
-            }
+            Xjs.diag.Diag.startTrace("初始化(_initComps)",comp.name);
         }
+        var params = {};
+        if(!(_loadUiOpts & 8))
+        {
+            Xjs.apply(params,window.EnvParameter.ReqParameter);
+            if(window.EnvParameter.forPrint)
+                params._ForPrint_ = window.EnvParameter.forPrint;
+        }
+        if(pm)
+            Xjs.apply(params,pm);
+        Xjs.ui.Component._prepareInitComponents(comp,params);
+        if(!comp.disableServerInit)
+        {
+            if(Xjs.isDebugMode)
+            {
+                Xjs.diag.Diag.timeTrace("初始化(uiInvoke)",comp.name);
+            }
+            var retV = comp.uiInvoke("!init",params);
+            if(Xjs.isDebugMode)
+            {
+                Xjs.diag.Diag.timeTrace("初始化(uiInvoke)",comp.name);
+            }
+            values = retV || {};
+        } else 
+        {
+            values = {};
+        }
+        if(initVals)
+            for(var n in initVals)
+            {
+                var c = comp.getMainComponentByName(n);
+                if(c == null)
+                    throw new Error("未定义界面：" + n);
+                var o = values["UI." + c.name];
+                if(!o)
+                {
+                    values["UI." + c.name] = o = {};
+                }
+                var v = o.initValues;
+                if(v)
+                    Xjs.apply(v,initVals[n]);
+                else 
+                    o.initValues = initVals[n];
+            }
+        if(values.EnvParameter)
+        {
+            if(!window.EnvParameter)
+                window.EnvParameter = {};
+            Xjs.apply(window.EnvParameter,values.EnvParameter);
+        }
+        Xjs.ui.Component._fireInitComp(comp,values,_loadUiOpts);
+        Xjs.ui.Component._afterInitComponents(comp);
+        if(Xjs.isDebugMode)
+        {
+            Xjs.diag.Diag.endTrace("初始化(_initComps)",comp.name);
+        }
+    },
+    /*xjs.ui.Component._fireInitComp*/
+    _fireInitComp:function(comp,values,_loadUiOpts)
+    {
         var o = values["UI." + comp.name] || {};
         o._loadUIOpts = _loadUiOpts;
         comp.initComponent(o);
@@ -3486,19 +3617,15 @@ Xjs.apply(Xjs.ui.Component,{
             {
                 var c = comp.items[i];
                 if(c.mainUI)
-                    Xjs.ui.Component._initComponents(c,values,initVals,null,_loadUiOpts);
+                    Xjs.ui.Component._fireInitComp(c,values,_loadUiOpts);
             }
         if(comp.items2)
             for(var i=0;i < comp.items2.length;i++)
             {
                 var c = comp.items2[i];
                 if(c.mainUI)
-                    Xjs.ui.Component._initComponents(c,values,initVals,null,_loadUiOpts);
+                    Xjs.ui.Component._fireInitComp(c,values,_loadUiOpts);
             }
-        if(first)
-        {
-            Xjs.ui.Component._afterInitComponents(comp);
-        }
     },
     /*xjs.ui.Component.toComponent*/
     toComponent:function(c,defaultType)
@@ -3534,7 +3661,18 @@ Xjs.apply(Xjs.ui.Component,{
     {
         try
         {
+            if(btn instanceof Xjs.Observable)
+            {
+                btn.fireEvent("beforeMouseClick");
+            }
             comp.performCommand(btn || (e.srcElement || e.target),cmd);
+            var _mnode;
+            if(btn && (_mnode = btn._menuNode))
+            {
+                var menuNode = comp.getMenuNode(cmd);
+                if(menuNode)
+                    menuNode.menu.showPopupMenu(_mnode);
+            }
         }catch(ex)
         {
             Xjs.alertErr(ex);
@@ -3621,6 +3759,9 @@ Xjs.apply(Xjs.ui.Component,{
                             if(c = Xjs.ui.Layer._topLayer.component)
                             {
                                 r = c.fireProcessAccKey(ev);
+                                if(!r)
+                                {
+                                }
                             }
                             if(layer._modal)
                             {
@@ -3633,6 +3774,9 @@ Xjs.apply(Xjs.ui.Component,{
                         if(!r && (c = window._MainUI) && caseMUI)
                         {
                             r = c.fireProcessAccKey(ev);
+                            if(!r)
+                            {
+                            }
                         }
                         if(r)
                         {
@@ -3711,8 +3855,11 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
     {
         if(!n)
             return;
-        var e = this.getAttachedElementById("UI_" + this.name + "_btn_" + (n.attachName || n.command));
-        if(e != null && n.attachedDom != e)
+        var nm = n.attachName || n.command;
+        if(!nm)
+            return;
+        var e = this.getAttachedElementById("UI_" + this.name + "_btn_" + nm);
+        if(e && n.attachedDom != e)
         {
             n.attachedDom = e;
             if(n.nodes && p)
@@ -3816,6 +3963,23 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
             this.dialogItems[j].addListener(this);
         }
     },
+    /*xjs.ui.Container.updateAllItemsSize*/
+    updateAllItemsSize:function()
+    {
+        this._updateDomSize();
+        if(this.items)
+            for(var j=0;j < this.items.length;j++)
+            {
+                var c = this.items[j];
+                if(c instanceof Xjs.ui.Container)
+                {
+                    c.updateAllItemsSize();
+                } else 
+                {
+                    c._updateDomSize();
+                }
+            }
+    },
     /*xjs.ui.Container.beforeDomCreate*/
     beforeDomCreate:Xjs.emptyFn,
     /*xjs.ui.Container._newItemsComponent*/
@@ -3846,13 +4010,15 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
     /*xjs.ui.Container.layoutItems*/
     layoutItems:function(indom,root)
     {
-        if(!this.items || this.itemsLayout && this.itemsLayout.attachItemDoms(this,indom,root))
+        if(this.itemsLayout && this.itemsLayout.attachItemDoms(this,indom,root))
             return;
         this.attachCells(this.items,root);
     },
     /*xjs.ui.Container.attachCells*/
     attachCells:function(cells,root)
     {
+        if(!cells)
+            return;
         var mc = this.getMainParentComponent(),
             li = {};
         li.nmPrefix = "UI_" + mc.name + "_";
@@ -3875,11 +4041,25 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
                 if(lb)
                 {
                     c.labelDOM = lb;
-                    if(c.lbTipIfOvflow && lb.parentNode)
+                    if(lb.parentNode)
                     {
-                        var clb = new Xjs.ui.Component({dom:lb.parentNode,tipTextCls:"x-tiptext td_label"});
-                        clb.fn$TipText = {func:clb.getTipContentIfOvflow,scorp:clb};
-                        clb._addShowTipTextMouseListener();
+                        var tip = c.lbTipIfOvflow;
+                        if(!tip)
+                        {
+                            var w = c.labelTDMaxWidth;
+                            if(w === undefined && window.xjsConfig && window.xjsConfig.glayoutOpts)
+                            {
+                                w = window.xjsConfig.glayoutOpts.labelTDMaxWidth;
+                            }
+                            if(w > 0)
+                                tip = true;
+                        }
+                        if(tip)
+                        {
+                            var clb = new Xjs.ui.Component({dom:lb.parentNode,tipTextCls:"x-tiptext td_label"});
+                            clb.fn$TipText = new Xjs.FuncCall(clb.getTipContentIfOvflow,clb);
+                            clb._addShowTipTextMouseListener();
+                        }
                     }
                 }
                 var d = c.getDOM(root);
@@ -4045,10 +4225,11 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
     /*xjs.ui.Container.getItemByName*/
     getItemByName:function(name)
     {
-        if(this["item$" + name] !== undefined)
-            return this["item$" + name];
+        var k;
+        if(this[k = "item$" + name] !== undefined)
+            return this[k];
         var c = Xjs.ui.Component.getItemByName(this,name);
-        return this["item$" + name] = c;
+        return this[k] = c;
     },
     /*xjs.ui.Container.getItemValue*/
     getItemValue:function(name)
@@ -4075,7 +4256,7 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
     {
         if(this._$backInitValues)
         {
-            this.setItemValues(this._$backInitValues,8);
+            this.setItemValues(this._$backInitValues,8 | 16);
             this.fireEvent("onRestortInitValues",this._$backInitValues);
         } else if(!this.backInitValues && window.console)
         {
@@ -4252,7 +4433,619 @@ Xjs.apply(Xjs.ui.Container,{
 });
 {
     Xjs.UITYPES.container = Xjs.ui.Container;
-}/*xjs/ui/Panel.java*/
+}/*xjs/ui/Layer.java*/
+Xjs.ui.Layer=function(config){
+    Xjs.ui.Layer.superclass.constructor.call(this,config);
+    if(window.xjsConfig && window.xjsConfig.layerOpts)
+    {
+        Xjs.applyIf(this,window.xjsConfig.layerOpts);
+    }
+};
+Xjs.extend(Xjs.ui.Layer,Xjs.Observable,{
+  _js$className_:"Xjs.ui.Layer",
+    ClickEvent:"mousedown",
+    /*xjs.ui.Layer.setParentComponent*/
+    setParentComponent:function(p)
+    {
+        this.parent = p;
+    },
+    /*xjs.ui.Layer.onDomAttached*/
+    onDomAttached:function()
+    {
+        this._registerMEnter();
+    },
+    /*xjs.ui.Layer.attachDOM*/
+    attachDOM:function(dom,addToDom)
+    {
+        if(typeof(dom) == "string")
+            dom = document.getElementById(dom);
+        if(this.dom && this.fnOnMouseOut)
+            Xjs.DOM.removeListener(this.dom,"mouseout",this.fnOnMouseOut,false);
+        this.dom = dom;
+        if(this.hideIfOutclick && !this.fnOnclick)
+        {
+            this.fnOnclick = Function.bindAsEventListener(this._onClick,this);
+            this.fnOnContextMenu = Function.bindAsEventListener(this._onContextMenu,this);
+        }
+        if(this.hideIfMouseOut && !this.fnOnMouseOut)
+        {
+            this.fnOnMouseOut = Function.bindAsEventListener(this.onMouseOut,this);
+        }
+        if(this.dom && this.fnOnMouseOut)
+            Xjs.DOM.addListener(this.dom,"mouseout",this.fnOnMouseOut,false);
+        dom.style.position = "absolute";
+        dom.style.visibility = "hidden";
+        dom.style.left = "-10000px";
+        dom.style.top = "-10000px";
+        Xjs.DOM.addClass(dom,"ui-layer-frame");
+        if(!addToDom && this.className)
+        {
+            Xjs.DOM.updateClass(dom,this.className,null);
+        }
+        this.parentDOM = addToDom || document.body;
+        this.onDomAttached();
+    },
+    /*xjs.ui.Layer.getDOM*/
+    getDOM:function()
+    {
+        return this.dom;
+    },
+    /*xjs.ui.Layer.hide*/
+    hide:function()
+    {
+        this._removeFromStack();
+        this._hide();
+    },
+    /*xjs.ui.Layer._hide*/
+    _hide:function()
+    {
+        try
+        {
+            if(this.maskDOM && this.maskDOM.parentNode)
+                this.maskDOM.parentNode.removeChild(this.maskDOM);
+        }catch(ex)
+        {
+        }
+        if(!this.dom)
+            return;
+        Xjs.ui.Panel.inShowingZIndex.remove(this.zindex,true);
+        this.zindex = 0;
+        this.dom.style.zIndex = 0;
+        this.dom.style.visibility = "hidden";
+        this.dom.style.left = "-10000px";
+        this.dom.style.top = "-10000px";
+        if(this.parentDOM)
+            try
+            {
+                this.parentDOM.removeChild(this.dom);
+            }catch(e)
+            {
+            }
+        if(this.fnOnclick)
+        {
+            Xjs.DOM.removeListener(document.body,this.ClickEvent,this.fnOnclick,true);
+            Xjs.DOM.removeListener(document.body,"contextmenu",this.fnOnContextMenu,true);
+        }
+        this.onLayerHidden();
+        if(Xjs.onWDocResized)
+            Xjs.checkWDocResized();
+    },
+    /*xjs.ui.Layer.addMaskDOM*/
+    addMaskDOM:function(zIdx)
+    {
+        if(!this.maskDOM)
+        {
+            this.maskDOM = document.createElement("div");
+            this.maskDOM.className = "ui-mask";
+            this.maskDOM.disabled = true;
+            this.maskDOM.id = "LayerMask";
+        }
+        this.maskDOM.style.zIndex = zIdx;
+        if(document.body != this.maskDOM.parentNode)
+            document.body.appendChild(this.maskDOM);
+    },
+    /*xjs.ui.Layer.getMaskDOM*/
+    getMaskDOM:function()
+    {
+        return this.maskDOM;
+    },
+    /*xjs.ui.Layer.onLayerHidden*/
+    onLayerHidden:Xjs.emptyFn,
+    /*xjs.ui.Layer.hideAndFocusParent*/
+    hideAndFocusParent:function()
+    {
+        this.hide();
+        if(this.parent)
+            this.parent.focus();
+    },
+    /*xjs.ui.Layer.isInShowing*/
+    isInShowing:function()
+    {
+        return this.dom && this.dom.style.visibility != "hidden";
+    },
+    /*xjs.ui.Layer.prepareShowing*/
+    prepareShowing:Xjs.emptyFn,
+    /*xjs.ui.Layer.alignShow*/
+    alignShow:function(parent,position,fitSize)
+    {
+        this.prepareShowing();
+        if(!this.dom)
+            return;
+        if(parent === undefined)
+        {
+            parent = this.dftParent;
+        }
+        if(position === undefined)
+            position = this.dftPosition || 3;
+        if(fitSize === undefined)
+            fitSize = this.dftFitSize || 0;
+        if(this.parentDOM && this.dom.parentNode != this.parentDOM)
+            this.parentDOM.appendChild(this.dom);
+        var clientR = null;
+        if(parent)
+        {
+            if(parent instanceof Xjs.ui.ClientRectangle)
+                clientR = parent;
+            else if(parent.dom)
+            {
+                clientR = new Xjs.ui.ClientRectangle();
+                clientR.dom = parent.dom;
+            }
+        }
+        var size = this.getPrefSize ? this.getPrefSize(clientR) : null,
+            setWidth = false,
+            setHeight = false;
+        if(!size)
+        {
+            size = {width:0,height:0};
+        }
+        {
+            var domSize = Xjs.DOM.getSize(this.dom);
+            if(size.width <= 0)
+                size.width = domSize.width;
+            else 
+                setWidth = true;
+            if(size.height <= 0)
+                size.height = domSize.height;
+            else 
+                setHeight = true;
+        }
+        var bodyScroll = Xjs.DOM.getScroll(),
+            viewRect = Xjs.DOM.getVisRect(null,3),
+            vw = viewRect.x + viewRect.width,
+            vh = viewRect.y + viewRect.height,
+            x,
+            y;
+        if(clientR)
+        {
+            var xy;
+            xy = clientR.getClientXY();
+            {
+                var bodyPos = Xjs.DOM.getStyle(document.body,"position");
+                if(bodyPos == "absolute" || bodyPos == "relative")
+                {
+                    xy.x -= Xjs.DOM.getMargins(document.body,"l");
+                    xy.y -= Xjs.DOM.getMargins(document.body,"t");
+                }
+            }
+            if(position == 3 || position == 1)
+            {
+                var bottom = xy.y + clientR.getClientHeight(),
+                    ty = xy.y - bodyScroll.y,
+                    by = bottom - bodyScroll.y,
+                    tH0 = ty - 4,
+                    bH = vh - by - 4,
+                    tH = ty - 4;
+                if(position == 3 && bH < size.height && tH > bH && tH0 >= size.height)
+                {
+                    position = 1;
+                }
+                x = xy.x;
+                if(position == 3)
+                {
+                    y = bottom;
+                    if((fitSize & 1) != 0 && size.height > bH)
+                    {
+                        size.height = bH;
+                    }
+                } else 
+                {
+                    if((fitSize & 1) != 0 && size.height > tH)
+                    {
+                        size.height = tH;
+                    }
+                    y = xy.y - size.height;
+                }
+                var dx = Xjs.DOM.hasVerticalScroll() ? 18 : 0;
+                if(x + size.width > vw + bodyScroll.x - dx)
+                {
+                    x = vw + bodyScroll.x - dx - size.width;
+                    if(x < bodyScroll.x)
+                        x = bodyScroll.x;
+                }
+            } else 
+            {
+                var right = xy.x + clientR.getClientWidth(),
+                    rx = right - bodyScroll.x,
+                    lx = xy.x - bodyScroll.x,
+                    rW = vw - rx - 4,
+                    lW = lx - 4;
+                if(position == 2)
+                {
+                    if(rW < size.width && lW > rW)
+                        position = 4;
+                }
+                if(position == 2)
+                {
+                    x = right;
+                } else 
+                {
+                    x = xy.x - size.width;
+                }
+                y = xy.y;
+                if(y + size.height > vh + bodyScroll.y)
+                {
+                    y = vh + bodyScroll.y - size.height;
+                }
+                if(y < bodyScroll.y)
+                    y = bodyScroll.y;
+            }
+        } else 
+        {
+            x = position[0];
+            y = position[1];
+            if(x + size.width > vw + bodyScroll.x)
+                x = vw + bodyScroll.x - size.width;
+            if(x < bodyScroll.x)
+                x = bodyScroll.x;
+            if(y + size.height > vh + bodyScroll.y)
+                y = vh + bodyScroll.y - size.height;
+            if(y < bodyScroll.y)
+                y = bodyScroll.y;
+        }
+        if((fitSize & 4) != 0)
+        {
+            if(position == 3)
+                y--;
+            else if(position == 1)
+                y++;
+            else if(position == 2)
+                x++;
+            else if(position == 4)
+                x--;
+        }
+        if(this.parentDOM && this.parentDOM != document.body)
+        {
+            var xy0 = Xjs.DOM.getXY(this.parentDOM,true);
+            x -= xy0.x;
+            y -= xy0.y;
+        }
+        if(setWidth && size.width > 0)
+            this.dom.style.width = size.width + "px";
+        if(setHeight && size.height > 0)
+            this.dom.style.height = size.height + "px";
+        this._inShowingPos = position;
+        this.showLayer(x + (this.alignOffsetX || 0),y + (this.alignOffsetY || 0));
+    },
+    /*xjs.ui.Layer.showLayer*/
+    showLayer:function(x,y)
+    {
+        this.dom.style.left = x + "px";
+        this.dom.style.top = y + "px";
+        if(this.zindex > 0)
+        {
+            Xjs.ui.Panel.inShowingZIndex.remove(this.zindex,true);
+            this.zindex = 0;
+        }
+        {
+            this.dom.style.zIndex = this.zindex = Xjs.ui.Panel.nextZIndex();
+            if(Xjs.ui.Panel.inShowingZIndex.indexOf(this.zindex) < 0)
+                Xjs.ui.Panel.inShowingZIndex.push(this.zindex);
+        }
+        this.dom.style.visibility = "visible";
+        if(this.fnOnclick)
+            this.bindBodyClick();
+        this._addToStack();
+        if(Xjs.onWDocResized)
+            Xjs.checkWDocResized();
+    },
+    /*xjs.ui.Layer._addToStack*/
+    _addToStack:function()
+    {
+        if(Xjs.ui.Layer._topLayer != this)
+        {
+            this._parentLayer = Xjs.ui.Layer._topLayer || null;
+            Xjs.ui.Layer._topLayer = this;
+            if(this.updateHtlCls)
+                this._updatedCls = Xjs.ui.UIUtil.addHtmCls(this.updateHtlCls);
+        }
+    },
+    /*xjs.ui.Layer._removeFromStack*/
+    _removeFromStack:function()
+    {
+        var p = null;
+        for(;;)
+        {
+            var n = p == null ? Xjs.ui.Layer._topLayer : p._parentLayer;
+            if(n == null)
+                break;
+            if(n == this)
+            {
+                if(p == null)
+                    Xjs.ui.Layer._topLayer = n._parentLayer;
+                else 
+                    p._parentLayer = n._parentLayer;
+                n._parentLayer = null;
+                if(this._updatedCls)
+                {
+                    Xjs.ui.UIUtil.updateHtmlCls(this._updatedCls,true);
+                    this._updatedCls = null;
+                }
+                continue;
+            }
+            p = n;
+        }
+    },
+    /*xjs.ui.Layer._close*/
+    _close:function()
+    {
+        if(this.component && this.component.closeModal)
+        {
+            this.component.closeModal();
+        } else 
+        {
+            this.hide();
+        }
+    },
+    /*xjs.ui.Layer.bindBodyClick*/
+    bindBodyClick:function()
+    {
+        if(!this.dom || this.dom.style.visibility == "hidden")
+            return;
+        Xjs.DOM.addListener(document.body,this.ClickEvent,this.fnOnclick,true);
+        Xjs.DOM.addListener(document.body,"contextmenu",this.fnOnContextMenu,true);
+    },
+    /*xjs.ui.Layer.locateCenter*/
+    locateCenter:function(opts)
+    {
+        this.prepareShowing();
+        var ifrmPath = opts & 1 ? [] : Xjs.DOM.getIFramePath(),
+            w = ifrmPath.length ? ifrmPath[0].contentWindow.parent : window,
+            vw = Xjs.DOM.getViewportWidth(w),
+            vh = Xjs.DOM.getViewportHeight(w),
+            size = Xjs.DOM.getSize(this.dom),
+            newSize = null;
+        if(this.component && this.component . _resetPrefSize)
+        {
+            newSize = this.component._resetPrefSize(size);
+        }
+        if(newSize != null)
+        {
+            if(newSize.width != size.width)
+                Xjs.DOM.setWidth(this.dom,newSize.width);
+            if(newSize.height != size.height)
+                Xjs.DOM.setHeight(this.dom,newSize.height);
+            size = Xjs.DOM.getSize(this.dom);
+        }
+        var x = (vw - size.width) / 2,
+            y = (vh - size.height) / 2;
+        for(var i=0;i < ifrmPath.length;i++)
+        {
+            var oxy = Xjs.DOM.getXY(ifrmPath[i],true);
+            x -= oxy.x;
+            y -= oxy.y;
+        }
+        if(x < 0)
+            x = 0;
+        if(y < 0)
+            y = 0;
+        var bodyScroll = Xjs.DOM.getScroll(null);
+        this.dom.style.left = x + bodyScroll.x + "px";
+        this.dom.style.top = y + bodyScroll.y + "px";
+        if(Xjs.onWDocResized)
+            Xjs.checkWDocResized();
+    },
+    /*xjs.ui.Layer._onClick*/
+    _onClick:function(e)
+    {
+        if(this.hideIfOutclick && !Xjs.DOM.contains(this.dom,e.srcElement || e.target))
+        {
+            if(this.parent && this.parent . hideAidinputerIfOutclick && !this.parent.hideAidinputerIfOutclick(this,e) || Xjs.ui.Panel.maxZIndex() > this.zindex)
+            {
+                return;
+            }
+            var v = this.fireEventV(0,"checkHideLayerOnClick",e);
+            if(v === false)
+                return;
+            this.hide();
+        }
+    },
+    /*xjs.ui.Layer.onMouseOut*/
+    onMouseOut:function(e)
+    {
+        if(this.hideIfMouseOut && !Xjs.Event.inDOM(e,this.dom,0))
+            this.hide();
+    },
+    /*xjs.ui.Layer._onContextMenu*/
+    _onContextMenu:function(e)
+    {
+        if(this.hideIfOutclick)
+        {
+            if(this.parent != null && this.parent . hideAidinputerIfOutclick && !this.parent.hideAidinputerIfOutclick(this))
+            {
+                return true;
+            }
+            var v = this.fireEventV(0,"checkHideLayerOnClick",e);
+            if(v === false)
+            {
+                return false;
+            }
+            this.hide();
+        }
+        return true;
+    },
+    /*xjs.ui.Layer.setDftParent*/
+    setDftParent:function(p)
+    {
+        this.dftParent = p;
+    },
+    /*xjs.ui.Layer._registerMEnter*/
+    _registerMEnter:function()
+    {
+        if(this.dom && this._fn$HoverShowMouseEnter)
+        {
+            Xjs.DOM.addListener(this.dom,"mouseenter",this._fn$HoverShowMouseEnter);
+            Xjs.DOM.addListener(this.dom,"mouseleave",this._fn$HoverShowMouseLeave);
+        }
+    },
+    /*xjs.ui.Layer.addShowOnHover*/
+    addShowOnHover:function(dom)
+    {
+        if(!dom)
+            return;
+        if(!this._fn$HoverShowMouseEnter)
+        {
+            this._fn$HoverShowMouseEnter = Function.bindAsEventListener(this._onHoverShowMouseEnter,this);
+            this._fn$HoverShowMouseLeave = Function.bindAsEventListener(this._onHoverShowMouseLeave,this);
+            this._HoverDoms = [];
+        }
+        if(!this.hoverShowDoms)
+        {
+            this.hoverShowDoms = [dom];
+            this._registerMEnter();
+        } else 
+        {
+            if(this.hoverShowDoms.indexOf(dom) >= 0)
+                return;
+            this.hoverShowDoms.push(dom);
+        }
+        Xjs.DOM.addListener(dom,"mouseenter",this._fn$HoverShowMouseEnter);
+        Xjs.DOM.addListener(dom,"mouseleave",this._fn$HoverShowMouseLeave);
+    },
+    /*xjs.ui.Layer._onHoverShowMouseEnter*/
+    _onHoverShowMouseEnter:function(ev)
+    {
+        var dom = ev.srcElement || ev.target;
+        if(this._HoverDoms && this._HoverDoms.indexOf(dom) < 0)
+        {
+            this._HoverDoms.push(dom);
+        }
+        if(!this.isInShowing())
+        {
+            this.alignShow();
+        }
+        if(this._ivHideLayer)
+        {
+            clearTimeout(this._ivHideLayer);
+            delete this._ivHideLayer;
+        }
+    },
+    /*xjs.ui.Layer._hideIfAllMouseOut*/
+    _hideIfAllMouseOut:function()
+    {
+        if(!this._HoverDoms || this._HoverDoms.length == 0)
+            this.hide();
+    },
+    /*xjs.ui.Layer._onHoverShowMouseLeave*/
+    _onHoverShowMouseLeave:function(ev)
+    {
+        var dom = ev.srcElement || ev.target;
+        if(this._HoverDoms)
+        {
+            var j;
+            if((j = this._HoverDoms.indexOf(dom)) >= 0)
+            {
+                this._HoverDoms.splice(j,1);
+            }
+            if(this._ivHideLayer)
+            {
+                clearTimeout(this._ivHideLayer);
+                delete this._ivHideLayer;
+            }
+            if(this._HoverDoms.length == 0)
+            {
+                if(!this._fn$Hide)
+                    this._fn$Hide = this._hideIfAllMouseOut.createDelegate(this);
+                this._ivHideLayer = setTimeout(this._fn$Hide,100);
+            }
+        }
+    }
+});
+Xjs.apply(Xjs.ui.Layer,{
+    /*xjs.ui.Layer.closeTop*/
+    closeTop:function()
+    {
+        if(Xjs.ui.Layer._topLayer)
+        {
+            Xjs.ui.Layer._topLayer._close();
+        }
+    },
+    /*xjs.ui.Layer.getMaskDOM*/
+    getMaskDOM:function(dom)
+    {
+        for(;dom && dom.parentNode != document.body;dom = dom.parentNode)
+            ;
+        if(!dom)
+            return null;
+        var e1 = null,
+            e2 = null;
+        for(var e=dom;e;e = e.previousElementSibling)
+        {
+            if(e.id == "LayerMask")
+            {
+                e1 = e;
+                break;
+            }
+        }
+        for(var e=dom;e;e = e.nextElementSibling)
+        {
+            if(e.id == "LayerMask")
+            {
+                e2 = e;
+                break;
+            }
+        }
+        return [e1,e2];
+    },
+    /*xjs.ui.Layer.getFixedDomPos*/
+    getFixedDomPos:function(dom,selector,pos)
+    {
+        var v = 0,
+            maskDom = Xjs.ui.Layer.getMaskDOM(dom);
+        if(maskDom)
+        {
+            var a = Xjs.DOM.findAll(selector,null);
+            if(a)
+                for(var j=0;j < a.length;j++)
+                {
+                    var e = a[j];
+                    if(maskDom[0] && e.compareDocumentPosition(maskDom[0]) == 4 || maskDom[1] && e.compareDocumentPosition(maskDom[1]) == 2)
+                        continue;
+                    var x,
+                        b = e.getBoundingClientRect();
+                    switch(pos)
+                    {
+                    case 2:
+                        x = b.right;
+                        break;
+                    case 4:
+                        x = Xjs.DOM.getViewportWidth() - b.left;
+                        break;
+                    case 3:
+                        x = Xjs.DOM.getViewportHeight() - b.top;
+                        break;
+                    default:
+                        x = b.bottom;
+                        break;
+                    }
+                    if(v < x)
+                        v = x;
+                }
+        }
+        return v;
+    }
+});
+/*xjs/ui/Panel.java*/
 Xjs.ui.Panel=function(config){
     Xjs.ui.Panel.superclass.constructor.call(this,config);
 };
@@ -4295,13 +5088,13 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         if(this.valuesSaveable && btnsDOM)
         {
             var res = Xjs.ResBundle.getRes("UI"),
-                b = new Xjs.ui.Button({domStyle:domStyle,command:"savevalue",id:this.id + "_btn_savevalue",text:res.get("Param.Save"),className:null}),
+                b = new Xjs.ui.Button({domStyle:domStyle,command:"savevalue",id:this.id + "_btn_savevalue",text:res.get("Param.Save"),className:"btn"}),
                 e = b.getDOM(root);
             if(!e.parentNode)
                 btnsDOM.appendChild(b.getDOM(root));
             b.addListener(this);
             this.okButtons = Array.addElement(this.okButtons,b);
-            b = new Xjs.ui.Button({domStyle:domStyle,command:"loadvalue",id:this.id + "_btn_loadvalue",text:res.get("Param.Load"),className:null});
+            b = new Xjs.ui.Button({domStyle:domStyle,command:"loadvalue",id:this.id + "_btn_loadvalue",text:res.get("Param.Load"),className:"btn"});
             e = b.getDOM(root);
             if(!e.parentNode)
                 btnsDOM.appendChild(b.getDOM(root));
@@ -4354,6 +5147,16 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
                     this.bindOnCmdClickPerform(e,"close");
                 this.bindWBtns(["resetitemvals","togglecollapse","refreshtbls"]);
             }
+            setTimeout(this.firstFixhByContent.createDelegate(this),100);
+        }
+    },
+    /*xjs.ui.Panel.firstFixhByContent*/
+    firstFixhByContent:function()
+    {
+        if(this.fixhByContent == 1 && this.bodyDOM && this.bodyDOM.style.minHeight == "")
+        {
+            var minH = Xjs.DOM.getHeight(this.bodyDOM) - Xjs.DOM.getPadding(this.bodyDOM,"tb");
+            this.bodyDOM.style.minHeight = minH + "px";
         }
     },
     /*xjs.ui.Panel.bindWBtns*/
@@ -4453,6 +5256,7 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         }
         if(!btnsDom)
             btnsDom = Xjs.DOM.findById(this.bottomsDomID,dom);
+        this.bottomsDOM = btnsDom;
         if(this.buttons)
         {
             this._createButtonsDomTo(null,btnsDom,dom);
@@ -4475,7 +5279,7 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
             Xjs.apply(dom.style,this.domStyle);
         if(this.customSbar && this.bodyDOM)
         {
-            this._bodySbar = new Xjs.ui.util.CustomScrollbar(this.bodyDOM,this.customSbar,null);
+            this._bodySbar = new Xjs.ui.util.CustomScrollbar(this.name + ".SBar",this.bodyDOM,this.customSbar,null,null,null);
         }
         return dom;
     },
@@ -4783,7 +5587,7 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         {
             var p = paneItems[i];
             if(p . setCommandVisible)
-                p.setCommandVisible(cmd,visivle);
+                p.setCommandVisible(cmd,visivle,opts);
         }
     },
     /*xjs.ui.Panel.getMenuNode*/
@@ -4810,14 +5614,15 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
     getMenuNodes:function()
     {
         var paneItems = this._getToolbarPanes();
-        if(paneItems == null)
+        if(!paneItems)
             return null;
         var a = [];
         for(var i=0;i < paneItems.length;i++)
         {
             var p = paneItems[i];
-            for(var j=0;j < p.nodes.length;j++)
-                a.push(new Xjs.ui.MenuPaneNode(p,p.nodes[j]));
+            if(p.nodes)
+                for(var j=0;j < p.nodes.length;j++)
+                    a.push(new Xjs.ui.MenuPaneNode(p,p.nodes[j]));
         }
         return a;
     },
@@ -4906,6 +5711,10 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         {
             this.layer = new Xjs.ui.Layer({hideIfOutclick:!modal});
             this.layer.className = this.layerClassName;
+            if(this.layerUpdateHtmlCls)
+                this.layer.updateHtlCls = this.layerUpdateHtmlCls;
+            else if(modal && this.layerUpdateHtmlCls === undefined && Xjs._uiInited)
+                this.layer.updateHtlCls = ["~ui-fullpage"];
             this.layer.attachDOM(this.dom,null);
             this.layer.component = this;
         }
@@ -4915,20 +5724,11 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         this.beforeShowing();
         this._zIndex = Xjs.ui.Panel.nextZIndex();
         this.dom.style.zIndex = this._zIndex + 100;
-        document.body.appendChild(this.dom);
         if(modal)
         {
-            if(!this.maskDOM)
-            {
-                this.maskDOM = document.createElement("div");
-                this.maskDOM.className = "ui-mask";
-                this.maskDOM.disabled = true;
-            }
-            this.maskDOM.style.zIndex = this._zIndex;
-            document.body.appendChild(this.maskDOM);
+            this.layer.addMaskDOM(this._zIndex);
         }
-        if(Xjs.table.Table)
-            Xjs.table.Table.imRenderLatter();
+        document.body.appendChild(this.dom);
         if(modal)
         {
             this.layer.locateCenter(this.locateCenterOpts || 0);
@@ -4945,6 +5745,7 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         {
             this.addAccKey({cmd:"close",keyCode:0x1b});
         }
+        this.updateAllItemsSize();
         var firstFocus = new Array(1);
         try
         {
@@ -4976,6 +5777,33 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
             this._bodySbar.updateValue();
         this.onShowing();
         this.fireEvent("onShowing");
+        if(this.isFixBtnsOnScr())
+        {
+            setTimeout(this.initBtnsFixedOnScroll.createDelegate(this),1);
+        }
+    },
+    /*xjs.ui.Panel.isFixBtnsOnScr*/
+    isFixBtnsOnScr:function()
+    {
+        return this.fixBtnsOnScroll !== false;
+    },
+    /*xjs.ui.Panel.initBtnsFixedOnScroll*/
+    initBtnsFixedOnScroll:function()
+    {
+        if(this.btnsFixedOnScroll)
+        {
+            this.btnsFixedOnScroll.dispose();
+            this.btnsFixedOnScroll = null;
+        }
+        if(this.isFixBtnsOnScr() && this.dom && this.layer && this.layer.isInShowing())
+        {
+            var e = this.bottomsDOM;
+            if(e)
+            {
+                var s = this.btnsFixedOnScroll = new Xjs.ui.util.FixedOnScroll2(null,null,e,this.bodyDOM,3);
+                setTimeout(s.checkFixed.createDelegate(s),1000);
+            }
+        }
     },
     /*xjs.ui.Panel.oncmd_close*/
     oncmd_close:function()
@@ -5006,17 +5834,16 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         }catch(ex)
         {
         }
-        try
-        {
-            if(this.maskDOM)
-                document.body.removeChild(this.maskDOM);
-        }catch(ex)
-        {
-        }
         Xjs.ui.Panel.inShowingZIndex.remove(this._zIndex,true);
         this._zIndex = 0;
         this.onClosed();
         this.fireEvent("onClosed",cmd);
+        if(this.btnsFixedOnScroll)
+        {
+            this.btnsFixedOnScroll.dispose();
+            this.btnsFixedOnScroll = null;
+        }
+        this.checkHidden();
     },
     /*xjs.ui.Panel.onClosed*/
     onClosed:Xjs.emptyFn,
@@ -5040,10 +5867,11 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         var targetDOM = e.srcElement || e.target,
             inBorder = this.resizeable !== false ? Xjs.Event.inDomBorder(e,this.dom,8) : 0;
         this._mouseFlags = inBorder;
-        if(this.toolBar && inBorder == 0)
+        var tbar = this.toolBar || this.titleBar;
+        if(tbar && inBorder == 0)
         {
-            var inToobar = this.toolBar.dom == targetDOM || Xjs.DOM.contains(this.toolBar.dom,targetDOM);
-            if(inToobar && !this.toolBar.isDomInToolbarCloseIcon(targetDOM))
+            var inToobar = tbar.dom == targetDOM || Xjs.DOM.contains(tbar.dom,targetDOM);
+            if(inToobar && !tbar.isDomInToolbarCloseIcon(targetDOM))
             {
                 this._mouseFlags = 0xf;
             }
@@ -5053,6 +5881,21 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
                 this.moveBarDOM = Xjs.DOM.find(this.moveBarDOM,this.dom);
             if(Xjs.DOM.contains(this.moveBarDOM,targetDOM))
                 this._mouseFlags = 0xf;
+        }
+        delete this._custSBars;
+        if(Xjs.ui.GridTable)
+        {
+            var a = this.getMainComponents(Xjs.ui.GridTable);
+            if(a)
+                for(var i=0;i < a.length;i++)
+                {
+                    if(a[i].customSBar)
+                    {
+                        if(!this._custSBars)
+                            this._custSBars = [];
+                        this._custSBars.push(a[i].customSBar);
+                    }
+                }
         }
     },
     /*xjs.ui.Panel.onComponentMoved*/
@@ -5066,9 +5909,6 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
     {
         if(this._movingW)
         {
-            this._movingW.mouseMoveTo(e);
-            if(this._movingW.moveMode == 0xf)
-                this.doMoveOrResize(this._movingW.initRect,this._movingW.currentRect);
             return;
         }
         if(this._mouseFlags & 0xf)
@@ -5145,6 +5985,13 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
                     h = minHeight;
                 this.setSize(w,h);
             }
+            if(this.btnsFixedOnScroll)
+                this.btnsFixedOnScroll.checkFixed();
+            if(this._custSBars)
+                for(var j=0;j < this._custSBars.length;j++)
+                {
+                    this._custSBars[j].checkFix();
+                }
         }
     },
     /*xjs.ui.Panel._onWMouseUp*/
@@ -5158,6 +6005,7 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
             this._movingW = null;
             this.doMoveOrResize(initRect,rect);
         }
+        delete this._custSBars;
     },
     /*xjs.ui.Panel.attachToHTML*/
     attachToHTML:function(html,opts)
@@ -5179,6 +6027,106 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
     isAidInputerInShowing:function()
     {
         return this.layer && this.layer.isInShowing();
+    },
+    /*xjs.ui.Panel.addAttachBtnGroup*/
+    addAttachBtnGroup:function(tbName,btnGroup,idx)
+    {
+        var tbComp = Xjs.ui.Component.getItemByName(this.getRootComponent(),tbName),
+            mNode = this.addToolbarButton(btnGroup.command || "null",btnGroup.title);
+        if(tbComp)
+        {
+            tbComp.callOnDomCreated(this,this._doAddAttachBtnGroupOn,[tbComp,btnGroup,mNode,idx]);
+        }
+        return mNode;
+    },
+    /*xjs.ui.Panel._doAddAttachBtnGroupOn*/
+    _doAddAttachBtnGroupOn:function(tbComp,btnGrp,mNode,idx)
+    {
+        var pdom = tbComp.getDOM(),
+            items = btnGrp.items,
+            dom = btnGrp.getDOM(pdom);
+        mNode.sdom = Xjs.DOM.findById("btn_text",mNode.dom = dom.firstChild);
+        if(items)
+        {
+            var fnClock = null;
+            for(var i=0;i < items.length;i++)
+            {
+                var c = items[i];
+                if(c instanceof Xjs.ui.ToolbarBtn)
+                {
+                    var b = c;
+                    if(btnGrp.popupMenuCls)
+                    {
+                        if(!fnClock)
+                        {
+                            fnClock = new Xjs.FuncCall(function(_c,d,cls){
+            Xjs.DOM.removeClass(d,cls);
+        },null,[dom,btnGrp.popupMenuCls]);
+                        }
+                        b.addListener("beforeMouseClick",fnClock);
+                    }
+                    c.getDOM().onclick = this.getBtnClickDelegate(b.command,b);
+                    if(!mNode.nodes)
+                        mNode.nodes = [];
+                    var n = {command:b.command,text:b.text,attachedDom:c.getDOM()},
+                        xprops = null;
+                    if(xprops = c.xprops)
+                        n.xprops = xprops;
+                    mNode.nodes.push(n);
+                }
+            }
+        }
+        if(pdom.contains(dom.parentNode))
+            return;
+        if(typeof(idx) == "number" && idx < pdom.children.length)
+        {
+            if(idx < 0)
+                idx = 0;
+            pdom.insertBefore(dom,pdom.children[idx]);
+        } else 
+        {
+            pdom.appendChild(dom);
+        }
+    },
+    /*xjs.ui.Panel.addAttachBtn*/
+    addAttachBtn:function(tbName,btn,btnGrpName,idx)
+    {
+        var tbComp = Xjs.ui.Component.getItemByName(this.getRootComponent(),tbName);
+        if(tbComp)
+        {
+            tbComp.callOnDomCreated(this,this._doAddAttachBtn,[tbComp,btn,btnGrpName,idx]);
+        }
+    },
+    /*xjs.ui.Panel._doAddAttachBtn*/
+    _doAddAttachBtn:function(tbComp,btn,btnGrpName,idx)
+    {
+        var pdom = tbComp.getDOM(),
+            dom = btn.getDOM();
+        if(btn)
+        {
+            var mNode = btn._menuNode = this.addToolbarButton(btn.command || "null",btn.text);
+            dom.onclick = this.getBtnClickDelegate(btn.command,btn);
+            mNode.attachedDom = mNode.dom = dom;
+            var xprops = null;
+            if(xprops = btn.xprops)
+                mNode.xprops = xprops;
+        }
+        if(btnGrpName)
+        {
+            var btnGrpDom = Xjs.DOM.findById("UIA_" + tbComp.name + "_" + btnGrpName,pdom);
+            if(btnGrpDom)
+                pdom = Xjs.DOM.findById("btn_list",btnGrpDom);
+        }
+        if(pdom)
+        {
+            if(idx >= 0 && idx < pdom.children.length)
+            {
+                pdom.insertBefore(dom,pdom.children[idx]);
+            } else 
+            {
+                pdom.appendChild(dom);
+            }
+        }
     },
     /*xjs.ui.Panel.listToolbarButtons*/
     listToolbarButtons:function()
@@ -5300,29 +6248,32 @@ Xjs.extend(Xjs.ui.DialogPane,Xjs.ui.Panel,{
     onDomCreated:function(root)
     {
         Xjs.ui.DialogPane.superclass.onDomCreated.call(this,root);
-        if(this.dom && this.dom.tabIndex !== undefined)
+        if(this.dom && this.okKeyMode > 0)
         {
-            Xjs.DOM.addListener(this.dom,"keyup",Function.bindAsEventListener(this._onDlgPaneKeyUp,this,0,true));
+            Xjs.DOM.addListener(this.dom,"keyup",Function.bindAsEventListener(this.onKeyUp,this,0,true));
         }
         var e = Xjs.DOM.findById("UIWIN_TITLE",root);
         if(e != null)
             Xjs.DOM.setTextContent(e,this.title == null ? "" : this.title);
     },
-    /*xjs.ui.DialogPane._onDlgPaneKeyUp*/
-    _onDlgPaneKeyUp:function(e)
+    /*xjs.ui.DialogPane.focusLost*/
+    focusLost:function(_thisCell)
     {
-        if(e.keyCode == 13 && (this.fireOkBtnOnEnterKey || this.fireOkBtnOnCtrlEnterKey && e.ctrlKey) && this.buttons && this.buttons.length > 0 && this.buttons[0].command)
+        if(_thisCell.sqlType == 91 || _thisCell.sqlType == 93)
         {
-            var tag = (e.srcElement || e.target).tagName;
-            if(tag != "TEXTAREA" && this.isAllValid())
-            {
-                Xjs.Event.cancelEvent(e,true);
-                this.performCommand(this.buttons[0],this.buttons[0].command);
-                return false;
-            }
+            _thisCell.setValue(_thisCell.getValue());
         }
-        if(e.keyCode == 13)
+    },
+    /*xjs.ui.DialogPane.onKeyUp*/
+    onKeyUp:function(e)
+    {
+        if(e.keyCode == 13 && (e.ctrlKey && this.okKeyMode == 1 || this.okKeyMode == 2))
         {
+            var b = this.getOkButton();
+            if(b)
+            {
+                this.performCommand(b,b.command);
+            }
         }
         return;
     },
@@ -5342,12 +6293,18 @@ Xjs.extend(Xjs.ui.DialogPane,Xjs.ui.Panel,{
     {
         Xjs.ui.DialogPane.superclass.initComponent.call(this,values);
         var res = Xjs.ResBundle.getRes("UI");
-        if((window.EnvParameter.WADMIN & 3) != 0)
+        if((window.EnvParameter.WADMIN & 3) != 0 || Xjs.isDebugMode)
         {
             this.addPopupMenus(["uidef",res.get("Def_UI")]);
             this.addPopupMenus(["uidef|uidefinition",res.get("Def_UIDB")]);
+            this.addPopupMenus(["uidef|uidefforcuicode",res.get("Def_UIDBForCuicode")]);
             this.addPopupMenus(["uidef|uidefxml",res.get("Def_UIXML")]);
             this.addPopupMenus(["uidef|uidefxmlfile",res.get("Def_UIXMLFile")]);
+            this.addPopupMenus(["uidef|uideuistatic",res.get("Def_UISTATIC")]);
+            this.addPopupMenus(["chche",res.get("CACHE")]);
+            this.addPopupMenus(["chche|removeallcache",res.get("CACHE_RemoveAllCache")]);
+            this.addPopupMenus(["chche|removelocalcache",res.get("CACHE_RemoveLocalCache")]);
+            this.addPopupMenus(["chche|removezkcache",res.get("CACHE_RemoveZKCache")]);
         }
         {
             this.addPopupMenus(["resetitemvals",res.get("ResetItemVal")]);
@@ -5358,445 +6315,33 @@ Xjs.extend(Xjs.ui.DialogPane,Xjs.ui.Panel,{
                 this._$backInitValues = {};
             }
         }
+    },
+    /*xjs.ui.DialogPane.oncmd_removeallcache*/
+    oncmd_removeallcache:function()
+    {
+        var res = Xjs.ResBundle.getRes("UI");
+        Xjs.RInvoke._rinvoke("SN-CMC.QueryCacheUIService.removeAllCaches","sv",null);
+        Xjs.RInvoke._rinvoke("SN-CMC.QueryCacheUIService.removezkcache","sv",null);
+        Xjs.ui.UIUtil.showInfoDialog(res.get("CACHE_RemoveAllCache"),res.get("CACHE_RemoveAllCache.InfoContent"));
+    },
+    /*xjs.ui.DialogPane.oncmd_removelocalcache*/
+    oncmd_removelocalcache:function()
+    {
+        var res = Xjs.ResBundle.getRes("UI");
+        Xjs.RInvoke._rinvoke("SN-CMC.QueryCacheUIService.removeAllCaches","sv",null);
+        Xjs.ui.UIUtil.showInfoDialog(res.get("CACHE_RemoveLocalCache"),res.get("CACHE_RemoveLocalCache.InfoContent"));
+    },
+    /*xjs.ui.DialogPane.oncmd_removezkcache*/
+    oncmd_removezkcache:function()
+    {
+        var res = Xjs.ResBundle.getRes("UI");
+        Xjs.RInvoke._rinvoke("SN-CMC.QueryCacheUIService.removezkcache","sv",null);
+        Xjs.ui.UIUtil.showInfoDialog(res.get("CACHE_RemoveZKCache"),res.get("CACHE_RemoveZKCache.InfoContent"));
     }
 });
 {
     Xjs.UITYPES.dialogpane = Xjs.ui.DialogPane;
-}/*xjs/ui/Layer.java*/
-Xjs.ui.Layer=function(config){
-    Xjs.ui.Layer.superclass.constructor.call(this,config);
-    if(window.xjsConfig && window.xjsConfig.layerOpts)
-    {
-        Xjs.applyIf(this,window.xjsConfig.layerOpts);
-    }
-};
-Xjs.extend(Xjs.ui.Layer,Xjs.Observable,{
-  _js$className_:"Xjs.ui.Layer",
-    ClickEvent:"mousedown",
-    /*xjs.ui.Layer.setParentComponent*/
-    setParentComponent:function(p)
-    {
-        this.parent = p;
-    },
-    /*xjs.ui.Layer.onDomAttached*/
-    onDomAttached:Xjs.emptyFn,
-    /*xjs.ui.Layer.attachDOM*/
-    attachDOM:function(dom,addToDom)
-    {
-        if(typeof(dom) == "string")
-            dom = document.getElementById(dom);
-        if(this.dom && this.fnOnMouseOut)
-            Xjs.DOM.removeListener(this.dom,"mouseout",this.fnOnMouseOut,false);
-        this.dom = dom;
-        if(this.hideIfOutclick && !this.fnOnclick)
-        {
-            this.fnOnclick = Function.bindAsEventListener(this._onClick,this);
-            this.fnOnContextMenu = Function.bindAsEventListener(this._onContextMenu,this);
-        }
-        if(this.hideIfMouseOut && !this.fnOnMouseOut)
-        {
-            this.fnOnMouseOut = Function.bindAsEventListener(this.onMouseOut,this);
-        }
-        if(this.dom && this.fnOnMouseOut)
-            Xjs.DOM.addListener(this.dom,"mouseout",this.fnOnMouseOut,false);
-        dom.style.position = "absolute";
-        dom.style.visibility = "hidden";
-        dom.style.left = "-10000px";
-        dom.style.top = "-10000px";
-        Xjs.DOM.addClass(dom,"ui-layer-frame");
-        if(!addToDom && this.className)
-        {
-            Xjs.DOM.updateClass(dom,this.className,null);
-        }
-        this.parentDOM = addToDom || document.body;
-        this.onDomAttached();
-    },
-    /*xjs.ui.Layer.getDOM*/
-    getDOM:function()
-    {
-        return this.dom;
-    },
-    /*xjs.ui.Layer.hide*/
-    hide:function()
-    {
-        this._removeFromStack();
-        this._hide();
-    },
-    /*xjs.ui.Layer._hide*/
-    _hide:function()
-    {
-        if(!this.dom)
-            return;
-        Xjs.ui.Panel.inShowingZIndex.remove(this.zindex,true);
-        this.zindex = 0;
-        this.dom.style.zIndex = 0;
-        this.dom.style.visibility = "hidden";
-        this.dom.style.left = "-10000px";
-        this.dom.style.top = "-10000px";
-        if(this.parentDOM)
-            try
-            {
-                this.parentDOM.removeChild(this.dom);
-            }catch(e)
-            {
-            }
-        if(this.fnOnclick)
-        {
-            Xjs.DOM.removeListener(document.body,this.ClickEvent,this.fnOnclick,true);
-            Xjs.DOM.removeListener(document.body,"contextmenu",this.fnOnContextMenu,true);
-        }
-        this.onLayerHidden();
-        if(Xjs.onWDocResized)
-            Xjs.checkWDocResized();
-    },
-    /*xjs.ui.Layer.onLayerHidden*/
-    onLayerHidden:Xjs.emptyFn,
-    /*xjs.ui.Layer.hideAndFocusParent*/
-    hideAndFocusParent:function()
-    {
-        this.hide();
-        if(this.parent)
-            this.parent.focus();
-    },
-    /*xjs.ui.Layer.isInShowing*/
-    isInShowing:function()
-    {
-        return this.dom && this.dom.style.visibility != "hidden";
-    },
-    /*xjs.ui.Layer.alignShow*/
-    alignShow:function(parent,position,fitSize)
-    {
-        if(!this.dom)
-            return;
-        if(position === undefined)
-            position = this.dftPosition || 3;
-        if(fitSize === undefined)
-            fitSize = this.dftFitSize || 0;
-        if(this.parentDOM && this.dom.parentNode != this.parentDOM)
-            this.parentDOM.appendChild(this.dom);
-        var clientR = null;
-        if(parent)
-        {
-            if(parent instanceof Xjs.ui.ClientRectangle)
-                clientR = parent;
-            else if(parent.dom)
-            {
-                clientR = new Xjs.ui.ClientRectangle();
-                clientR.dom = parent.dom;
-            }
-        }
-        var size = this.getPrefSize ? this.getPrefSize(clientR) : null,
-            setWidth = false,
-            setHeight = false;
-        if(!size)
-        {
-            size = {width:0,height:0};
-        }
-        {
-            var domSize = Xjs.DOM.getSize(this.dom);
-            if(size.width <= 0)
-                size.width = domSize.width;
-            else 
-                setWidth = true;
-            if(size.height <= 0)
-                size.height = domSize.height;
-            else 
-                setHeight = true;
-        }
-        var ifrmPath = Xjs.DOM.getIFramePath(),
-            w = ifrmPath.length == 0 ? window : ifrmPath[0].contentWindow.parent,
-            bodyScroll = Xjs.DOM.getScroll(),
-            vh = Xjs.DOM.getViewportHeight(w),
-            vw = Math.min(Xjs.DOM.getViewportWidth(w),Xjs.DOM.getViewportWidth(window));
-        ;
-        var x,
-            y;
-        if(clientR)
-        {
-            var xy;
-            xy = clientR.getClientXY();
-            {
-                var bodyPos = Xjs.DOM.getStyle(document.body,"position");
-                if(bodyPos == "absolute" || bodyPos == "relative")
-                {
-                    xy.x -= Xjs.DOM.getMargins(document.body,"l");
-                    xy.y -= Xjs.DOM.getMargins(document.body,"t");
-                }
-            }
-            if(position == 3 || position == 1)
-            {
-                var bottom = xy.y + clientR.getClientHeight(),
-                    ty = xy.y - bodyScroll.y,
-                    by = bottom - bodyScroll.y,
-                    tH0 = ty - 4;
-                if(ifrmPath.length > 0)
-                    for(var i=0;i < ifrmPath.length;i++)
-                    {
-                        var oxy = Xjs.DOM.getXY(ifrmPath[i],true);
-                        ty += oxy.y;
-                        by += oxy.y;
-                    }
-                var bH = vh - by - 4,
-                    tH = ty - 4;
-                if(position == 3 && bH < size.height && tH > bH && tH0 >= size.height)
-                {
-                    position = 1;
-                }
-                x = xy.x;
-                if(position == 3)
-                {
-                    y = bottom;
-                    if((fitSize & 1) != 0 && size.height > bH)
-                    {
-                        size.height = bH;
-                    }
-                } else 
-                {
-                    if((fitSize & 1) != 0 && size.height > tH)
-                    {
-                        size.height = tH;
-                    }
-                    y = xy.y - size.height;
-                }
-                var dx = Xjs.DOM.hasVerticalScroll() ? 18 : 0;
-                if(x + size.width > vw + bodyScroll.x - dx)
-                {
-                    x = vw + bodyScroll.x - dx - size.width;
-                    if(x < bodyScroll.x)
-                        x = bodyScroll.x;
-                }
-            } else 
-            {
-                var right = xy.x + clientR.getClientWidth(),
-                    rx = right - bodyScroll.x,
-                    lx = xy.x - bodyScroll.x,
-                    rW = vw - rx - 4,
-                    lW = lx - 4;
-                if(ifrmPath.length > 0)
-                    for(var i=0;i < ifrmPath.length;i++)
-                    {
-                        var oxy = Xjs.DOM.getXY(ifrmPath[i],true);
-                        lx += oxy.x;
-                        rx += oxy.x;
-                    }
-                if(position == 2)
-                {
-                    if(rW < size.width && lW > rW)
-                        position = 4;
-                }
-                if(position == 2)
-                {
-                    x = right;
-                } else 
-                {
-                    x = xy.x - size.width;
-                }
-                y = xy.y;
-                if(y + size.height > vh + bodyScroll.y)
-                {
-                    y = vh + bodyScroll.y - size.height;
-                }
-                if(y < bodyScroll.y)
-                    y = bodyScroll.y;
-            }
-        } else 
-        {
-            x = position[0];
-            y = position[1];
-            if(x + size.width > vw + bodyScroll.x)
-                x = vw + bodyScroll.x - size.width;
-            if(x < bodyScroll.x)
-                x = bodyScroll.x;
-            if(y + size.height > vh + bodyScroll.y)
-                y = vh + bodyScroll.y - size.height;
-            if(y < bodyScroll.y)
-                y = bodyScroll.y;
-        }
-        if((fitSize & 4) != 0)
-        {
-            if(position == 3)
-                y--;
-            else if(position == 1)
-                y++;
-            else if(position == 2)
-                x++;
-            else if(position == 4)
-                x--;
-        }
-        if(this.parentDOM && this.parentDOM != document.body)
-        {
-            var xy0 = Xjs.DOM.getXY(this.parentDOM,true);
-            x -= xy0.x;
-            y -= xy0.y;
-        }
-        if(setWidth && size.width > 0)
-            this.dom.style.width = size.width + "px";
-        if(setHeight && size.height > 0)
-            this.dom.style.height = size.height + "px";
-        this._inShowingPos = position;
-        this.showLayer(x + (this.alignOffsetX || 0),y + (this.alignOffsetY || 0));
-    },
-    /*xjs.ui.Layer.showLayer*/
-    showLayer:function(x,y)
-    {
-        this.dom.style.left = x + "px";
-        this.dom.style.top = y + "px";
-        if(this.zindex > 0)
-        {
-            Xjs.ui.Panel.inShowingZIndex.remove(this.zindex,true);
-            this.zindex = 0;
-        }
-        {
-            this.dom.style.zIndex = this.zindex = Xjs.ui.Panel.nextZIndex();
-            if(Xjs.ui.Panel.inShowingZIndex.indexOf(this.zindex) < 0)
-                Xjs.ui.Panel.inShowingZIndex.push(this.zindex);
-        }
-        this.dom.style.visibility = "visible";
-        if(this.fnOnclick)
-            this.bindBodyClick();
-        this._addToStack();
-        if(Xjs.onWDocResized)
-            Xjs.checkWDocResized();
-    },
-    /*xjs.ui.Layer._addToStack*/
-    _addToStack:function()
-    {
-        if(Xjs.ui.Layer._topLayer != this)
-        {
-            this._parentLayer = Xjs.ui.Layer._topLayer || null;
-            Xjs.ui.Layer._topLayer = this;
-        }
-    },
-    /*xjs.ui.Layer._removeFromStack*/
-    _removeFromStack:function()
-    {
-        var p = null;
-        for(;;)
-        {
-            var n = p == null ? Xjs.ui.Layer._topLayer : p._parentLayer;
-            if(n == null)
-                break;
-            if(n == this)
-            {
-                if(p == null)
-                    Xjs.ui.Layer._topLayer = n._parentLayer;
-                else 
-                    p._parentLayer = n._parentLayer;
-                n._parentLayer = null;
-                continue;
-            }
-            p = n;
-        }
-    },
-    /*xjs.ui.Layer._close*/
-    _close:function()
-    {
-        if(this.component && this.component.closeModal)
-        {
-            this.component.closeModal();
-        } else 
-        {
-            this.hide();
-        }
-    },
-    /*xjs.ui.Layer.bindBodyClick*/
-    bindBodyClick:function()
-    {
-        if(!this.dom || this.dom.style.visibility == "hidden")
-            return;
-        Xjs.DOM.addListener(document.body,this.ClickEvent,this.fnOnclick,true);
-        Xjs.DOM.addListener(document.body,"contextmenu",this.fnOnContextMenu,true);
-    },
-    /*xjs.ui.Layer.locateCenter*/
-    locateCenter:function(opts)
-    {
-        var ifrmPath = opts & 1 ? [] : Xjs.DOM.getIFramePath(),
-            w = ifrmPath.length ? ifrmPath[0].contentWindow.parent : window,
-            vw = Xjs.DOM.getViewportWidth(w),
-            vh = Xjs.DOM.getViewportHeight(w),
-            size = Xjs.DOM.getSize(this.dom),
-            newSize = null;
-        if(this.component && this.component . _resetPrefSize)
-        {
-            newSize = this.component._resetPrefSize(size);
-        }
-        if(newSize != null)
-        {
-            if(newSize.width != size.width)
-                Xjs.DOM.setWidth(this.dom,newSize.width);
-            if(newSize.height != size.height)
-                Xjs.DOM.setHeight(this.dom,newSize.height);
-            size = Xjs.DOM.getSize(this.dom);
-        }
-        var x = (vw - size.width) / 2,
-            y = (vh - size.height) / 2;
-        for(var i=0;i < ifrmPath.length;i++)
-        {
-            var oxy = Xjs.DOM.getXY(ifrmPath[i],true);
-            x -= oxy.x;
-            y -= oxy.y;
-        }
-        if(x < 0)
-            x = 0;
-        if(y < 0)
-            y = 0;
-        var bodyScroll = Xjs.DOM.getScroll(null);
-        this.dom.style.left = x + bodyScroll.x + "px";
-        this.dom.style.top = y + bodyScroll.y + "px";
-        if(Xjs.onWDocResized)
-            Xjs.checkWDocResized();
-    },
-    /*xjs.ui.Layer._onClick*/
-    _onClick:function(e)
-    {
-        if(this.hideIfOutclick && !Xjs.DOM.contains(this.dom,e.srcElement || e.target))
-        {
-            if(this.parent && this.parent . hideAidinputerIfOutclick && !this.parent.hideAidinputerIfOutclick(this,e) || Xjs.ui.Panel.maxZIndex() > this.zindex)
-            {
-                return;
-            }
-            var v = this.fireEventV(0,"checkHideLayerOnClick",e);
-            if(v === false)
-                return;
-            this.hide();
-        }
-    },
-    /*xjs.ui.Layer.onMouseOut*/
-    onMouseOut:function(e)
-    {
-        if(this.hideIfMouseOut && !Xjs.Event.inDOM(e,this.dom,0))
-            this.hide();
-    },
-    /*xjs.ui.Layer._onContextMenu*/
-    _onContextMenu:function(e)
-    {
-        if(this.hideIfOutclick)
-        {
-            if(this.parent != null && this.parent . hideAidinputerIfOutclick && !this.parent.hideAidinputerIfOutclick(this))
-            {
-                return true;
-            }
-            var v = this.fireEventV(0,"checkHideLayerOnClick",e);
-            if(v === false)
-            {
-                return false;
-            }
-            this.hide();
-        }
-        return true;
-    }
-});
-Xjs.apply(Xjs.ui.Layer,{
-    /*xjs.ui.Layer.closeTop*/
-    closeTop:function()
-    {
-        if(Xjs.ui.Layer._topLayer)
-        {
-            Xjs.ui.Layer._topLayer._close();
-        }
-    }
-});
-/*xjs/ui/LayerAidInputer.java*/
+}/*xjs/ui/LayerAidInputer.java*/
 Xjs.ui.LayerAidInputer=function(config){
     Xjs.ui.LayerAidInputer.superclass.constructor.call(this,config);
 };
@@ -5804,7 +6349,10 @@ Xjs.extend(Xjs.ui.LayerAidInputer,Xjs.ui.Layer,{
   _js$className_:"Xjs.ui.LayerAidInputer",
     hideIfOutclick:true,
     /*xjs.ui.LayerAidInputer._createDOM*/
-    _createDOM:Xjs.emptyFn,
+    _createDOM:function()
+    {
+        return Xjs.ui.Component.createDomFromRes(this.htmlRes,this,true,Xjs.ResBundle.getRes("UI"));
+    },
     /*xjs.ui.LayerAidInputer.beforeExpandShow*/
     beforeExpandShow:Xjs.emptyFn,
     /*xjs.ui.LayerAidInputer.afterExpandShow*/
@@ -5887,8 +6435,11 @@ Xjs.extend(Xjs.ui.LayerAidInputer,Xjs.ui.Layer,{
             {
                 this.bk$fnGetFilter = this.fnGetFilter || null;
                 this.fnGetFilter = ev.fnSearchFilter;
-            } else 
+            } else if(this.bk$fnGetFilter !== undefined)
+            {
+                this.fnGetFilter = this.bk$fnGetFilter;
                 delete this.bk$fnGetFilter;
+            }
             this.setInitValue(this.toCodeValue(value));
             if(this.aopts & 2)
             {
@@ -5940,6 +6491,22 @@ Xjs.extend(Xjs.ui.LayerAidInputer,Xjs.ui.Layer,{
         {
             this.filters.remove(f,true);
         }
+    },
+    /*xjs.ui.LayerAidInputer._adjSearchboxOvPos*/
+    _adjSearchboxOvPos:function(box,inputField)
+    {
+        if(!box.offsetParent)
+            return;
+        var s = box.style,
+            xy = Xjs.DOM.getRelativeXY(box.offsetParent,this.parent.dom);
+        s.left = -xy.x + "px";
+        s.top = -xy.y - 2 + "px";
+        Xjs.DOM.setWidth(box,Xjs.DOM.getWidth(this.parent.dom));
+        Xjs.DOM.setHeight(box,Xjs.DOM.getHeight(this.parent.dom));
+        if(inputField)
+        {
+            inputField.focus();
+        }
     }
 });
 Xjs.apply(Xjs.ui.LayerAidInputer,{
@@ -5963,19 +6530,821 @@ Xjs.apply(Xjs.ui.LayerAidInputer,{
         return a;
     }
 });
+/*xjs/ui/ComboAidInputerA.java*/
+Xjs.ui.ComboAidInputerA=function(config){
+    Xjs.ui.ComboAidInputerA.superclass.constructor.call(this,config);
+    if(window.xjsConfig && window.xjsConfig.comboInputWinOpts)
+    {
+        Xjs.applyIf(this,window.xjsConfig.comboInputWinOpts);
+    }
+    this.inSelectingValues = new Xjs.util.SortedArray(null);
+    this.valueList = new Xjs.ui.ValueList(null);
+    this.valueList.addListener(this);
+    if(this.valueOpts > 0)
+        this.valueList.valueOpts = this.valueOpts;
+};
+Xjs.extend(Xjs.ui.ComboAidInputerA,Xjs.ui.LayerAidInputer,{
+  _js$className_:"Xjs.ui.ComboAidInputerA",
+    minWidth:true,
+    lvColumn:0,
+    codeColumn:0,
+    textColumn:1,
+    filterIgnoreCase:true,
+    curPage:0,
+    clearInitFilter:true,
+    /*xjs.ui.ComboAidInputerA.isMidLevlSelectable*/
+    isMidLevlSelectable:function(value)
+    {
+        return (this.selOptions & 2) != 0;
+    },
+    /*xjs.ui.ComboAidInputerA.__init*/
+    __init:function()
+    {
+        Xjs.ui.ComboAidInputerA.superclass.__init.call(this);
+        if(this.selOptions == null)
+            this.selOptions = 0;
+        this.fitSizeOnAlign = 1;
+    },
+    /*xjs.ui.ComboAidInputerA.loadSelectOptions*/
+    loadSelectOptions:function()
+    {
+        if(this.pgNavPane === undefined)
+            this.initPgNavPane();
+        var selectOpts,
+            codeData;
+        if(this.disableUseParentCodeData)
+        {
+            selectOpts = null;
+            codeData = this.defaultCodeData;
+        } else 
+        {
+            codeData = this.parent.selectOptions;
+            if((this.selOptions & 1) == 0 && codeData && codeData.getData)
+            {
+                selectOpts = codeData.getData(codeData.keyParamNames,null,2,0);
+                this.lvColumn = codeData.lvColumn;
+                if(this.lvColumn > 0)
+                {
+                    selectOpts.sort(Array.createCmp1([this.lvColumn]));
+                }
+            } else 
+            {
+                selectOpts = this.parent.getSelectOptions(2);
+            }
+            if(codeData instanceof Xjs.dx.CodeData)
+            {
+                this.lvColumn = codeData.lvColumn;
+                this.codeColumn = codeData.keyCount - 1;
+                this.textColumn = codeData.keyCount;
+            } else 
+            {
+            }
+        }
+        if(!selectOpts && this.defaultCodeData)
+        {
+            selectOpts = this.defaultCodeData.getData(null,null,2,0);
+            this.lvColumn = this.defaultCodeData.lvColumn || 0;
+            if(this.lvColumn > 0)
+                selectOpts.sort(Array.createCmp1([this.lvColumn]));
+        }
+        if(this.emptyText !== undefined)
+        {
+            var old = selectOpts,
+                v = this.emptyValue || "";
+            selectOpts = [];
+            selectOpts[0] = [v,this.emptyText];
+            for(var i=0;i < old.length;i++)
+                selectOpts.push(old[i]);
+        }
+        if(this.filters)
+            selectOpts = Xjs.ui.LayerAidInputer.filterValues(this.filters,selectOpts);
+        if(codeData && codeData.pgRowCount && this.pgNavPane)
+        {
+            this.pgRowCount = codeData.pgRowCount;
+            var nr = selectOpts.length;
+            this.pgNavPane.setPageInfo(nr,Math.ceil(nr / this.pgRowCount),0,this.pgRowCount);
+            this.pgNavPane.dom.style.display = this.pgNavPane.totalPages > 1 ? "" : "none";
+        }
+        return selectOpts;
+    },
+    /*xjs.ui.ComboAidInputerA.getSortedSelOpts*/
+    getSortedSelOpts:function()
+    {
+        if(!this.sortedSelOpts)
+        {
+            if(this.lvColumn == 0)
+            {
+                this.lvColCmp = this.lvCol0Cmp = Array.createCmp1([0]);
+                this.sortedSelOpts = this.selectOptions;
+                return;
+            }
+            this.sortedSelOpts = new Array(this.selectOptions.length);
+            for(var j=0;j < this.sortedSelOpts.length;j++)
+                this.sortedSelOpts[j] = this.selectOptions[j];
+            this.sortedSelOpts.sort(this.lvColCmp = Array.createCmp1([this.lvColumn]));
+        }
+    },
+    /*xjs.ui.ComboAidInputerA.isLastLevlCode*/
+    isLastLevlCode:function(code)
+    {
+        if(typeof(code) != "string" || (this.selOptions & 1) != 0 || this.selectOptions == null)
+            return true;
+        this.getSortedSelOpts();
+        if(this.ulastLevlCodes == null)
+        {
+            this.ulastLevlCodes = new Xjs.util.SortedArray(null);
+            for(var i=0;i < this.sortedSelOpts.length - 1;i++)
+            {
+                if(this.sortedSelOpts[i + 1][this.lvColumn].startsWith(this.sortedSelOpts[i][this.lvColumn]))
+                    this.ulastLevlCodes.add(this.sortedSelOpts[i][0]);
+            }
+        }
+        return this.ulastLevlCodes.indexOf(code) < 0;
+    },
+    /*xjs.ui.ComboAidInputerA.getCodeLevel*/
+    getCodeLevel:function(code)
+    {
+        this.getSortedSelOpts();
+        var a = new Array(this.lvColumn + 1);
+        if(!this.lvCol0Cmp)
+            this.lvCol0Cmp = Array.createCmp1([this.codeColumn]);
+        a[this.codeColumn] = code;
+        var p = Array.binarySearch(this.selectOptions,a,this.lvCol0Cmp);
+        if(p < 0)
+            return 0;
+        code = this.selectOptions[p][this.lvColumn];
+        var lv = 0;
+        for(;code.length > 1;)
+        {
+            a[this.lvColumn] = code = code.substring(0,code.length - 1);
+            if(Array.binarySearch(this.sortedSelOpts,a,this.lvColCmp) >= 0)
+                lv++;
+        }
+        return lv;
+    },
+    /*xjs.ui.ComboAidInputerA.isSelectable*/
+    isSelectable:function(value)
+    {
+        return this.selOptions & 3 || this.isLastLevlCode(value);
+    },
+    /*xjs.ui.ComboAidInputerA.getRowByValue*/
+    getRowByValue:function(value)
+    {
+        var cmp = Array.createCmp1([0]),
+            p = Array.binarySearch(this.selectOptions,[value],cmp);
+        return p >= 0 ? this.selectOptions[p] : null;
+    },
+    /*xjs.ui.ComboAidInputerA.isSelectOptsChanged*/
+    isSelectOptsChanged:function(selectOptions)
+    {
+        return !Xjs.ui.List.isSelectOptsEQ(selectOptions,this.selectOptions);
+    },
+    /*xjs.ui.ComboAidInputerA.getSearchableCols*/
+    getSearchableCols:function()
+    {
+        if(!this._searchableCols)
+        {
+            if(this.searchableCols)
+            {
+                return this._searchableCols = this.searchableCols;
+            }
+            this._searchableCols = [];
+            if(this.parent && this.parent.selectOptions && this.parent.selectOptions . getColumns)
+            {
+                var columns = this.parent.selectOptions.getColumns();
+                if(columns)
+                    for(var i=0;i < columns.length;i++)
+                    {
+                        if(columns[i].flags & 0x4000)
+                        {
+                            this._searchableCols.push(i);
+                        }
+                    }
+                if(this._searchableCols.length == 0 && this.cellTextFmt)
+                {
+                    if(columns)
+                        for(var i=0;i < columns.length;i++)
+                        {
+                            this._searchableCols.push(i);
+                        }
+                }
+            }
+        }
+        return this._searchableCols;
+    },
+    /*xjs.ui.ComboAidInputerA.getSelectValueText*/
+    getSelectValueText:function(value)
+    {
+        var s;
+        if(this.parent.selectOptions instanceof Xjs.dx.CodeData && this.parent.selectOptions.keyCount > 1)
+        {
+            var keyCount = this.parent.selectOptions.keyCount,
+                key = new Array(keyCount);
+            key[keyCount - 1] = value;
+            var p = Array.binarySearch(this.selectOptions,key,Array.createCmp1([keyCount - 1]));
+            if(p >= 0)
+                return this.selectOptions[p].length > keyCount ? this.selectOptions[p][keyCount] : value;
+        }
+        if(this.selectOptions)
+        {
+            var p = Array.binarySearch(this.selectOptions,[value],Array.arrayCmp0);
+            if(p >= 0)
+                return this.selectOptions[p].length > 1 ? this.selectOptions[p][1] : value;
+            s = this._getValueText(value,this.selectOptions);
+            if(s != null)
+                return s;
+        }
+        s = this._getValueText(value,this.loadSelectOptions());
+        return s == null ? value : s;
+    },
+    /*xjs.ui.ComboAidInputerA._getValueText*/
+    _getValueText:function(value,selectOpts)
+    {
+        if(selectOpts)
+            for(var i=0;i < selectOpts.length;i++)
+            {
+                if(value == selectOpts[i][0])
+                {
+                    return selectOpts[i].length > 1 ? selectOpts[i][1] : value;
+                }
+            }
+        return null;
+    },
+    /*xjs.ui.ComboAidInputerA.oncmd_query*/
+    oncmd_query:function()
+    {
+        this.doQuery(false);
+    },
+    /*xjs.ui.ComboAidInputerA.doQuery*/
+    doQuery:function(force)
+    {
+        var selectOpts = this.loadSelectOptions();
+        if(!force && !this.isSelectOptsChanged(selectOpts))
+            return;
+        this.selectOptions = selectOpts;
+        this.sortedSelOpts = null;
+        this.valueList.setSelectOptions(this.selectOptions);
+        this.ulastLevlCodes = null;
+        this._searchableCols = null;
+        this.refilter(true,0);
+    },
+    /*xjs.ui.ComboAidInputerA.setInputOvParent*/
+    setInputOvParent:function(o)
+    {
+        this.inputOvParent = o;
+    },
+    /*xjs.ui.ComboAidInputerA.getAidInputerInfo*/
+    getAidInputerInfo:function(t,p)
+    {
+        switch(t)
+        {
+        case 1:
+            return true;
+        case 2:
+            return this.aopts;
+        }
+        return;
+    },
+    /*xjs.ui.ComboAidInputerA.getFilterText*/
+    getFilterText:function()
+    {
+        var filter = this.fnGetFilter ? this.fnGetFilter.call(this) : (this.inputField ? this.inputField.value : null);
+        if(filter == null || (filter = filter.trim()).length == 0)
+            return null;
+        return this.filterIgnoreCase ? filter.toLowerCase() : filter;
+    },
+    /*xjs.ui.ComboAidInputerA.refilter*/
+    refilter:function(forece,toPage)
+    {
+        var filter = this.getFilterText();
+        if(toPage === undefined)
+            toPage = this.curFilter == filter && this.pgRowCount ? this.pgNavPane.currPage : 0;
+        else if(this.curFilter != filter)
+            toPage = 0;
+        if(this.curFilter == filter && this.curPage == toPage && !forece)
+            return;
+        this.curFilter = filter;
+        this.curPage = toPage;
+        if(this.pgRowCount)
+            this.pgNavPane.setCurrPage(this.curPage);
+        this._addOptions();
+    },
+    /*xjs.ui.ComboAidInputerA.onBtnClick*/
+    onBtnClick:function(ev)
+    {
+        if(Xjs.DOM.isShowing(this.inputField))
+            this.inputField.focus();
+        var e = ev.srcElement || ev.target;
+        for(;e != null && e._command == null;e = e.parentNode)
+            ;
+        if(e._command != null)
+        {
+            var fn = "oncmd_" + e._command;
+            if(this[fn])
+            {
+                try
+                {
+                    this[fn]();
+                    return;
+                }finally
+                {
+                }
+            }
+        }
+    },
+    /*xjs.ui.ComboAidInputerA.onDomAttached*/
+    onDomAttached:function()
+    {
+        var btnCommands = ["select","all","clear","addnew","close","refresh"];
+        if(this._onBtnClick == null)
+        {
+            this._onBtnClick = Function.bindAsEventListener(this.onBtnClick,this);
+        }
+        for(var i=0;i < btnCommands.length;i++)
+        {
+            var cmd = btnCommands[i],
+                b = Xjs.DOM.findById("Btn_" + cmd,this.dom);
+            if(b != null)
+            {
+                this[cmd + "$Btn"] = b;
+                b.onclick = this._onBtnClick;
+                b._command = cmd;
+                if(cmd == "addnew" && this.addCodeUID == null)
+                    b.style.display = "none";
+            }
+        }
+    },
+    /*xjs.ui.ComboAidInputerA.getMatchMode*/
+    getMatchMode:function()
+    {
+        return this.matchMode === undefined ? 1 : this.matchMode;
+    },
+    /*xjs.ui.ComboAidInputerA._addOptions*/
+    _addOptions:Xjs.emptyFn,
+    /*xjs.ui.ComboAidInputerA.hasParentCode*/
+    hasParentCode:function(code,values)
+    {
+        for(var j=values.length - 1;j >= 0;j--)
+        {
+            if(code.startsWith(values[j]))
+                return true;
+        }
+        return false;
+    },
+    /*xjs.ui.ComboAidInputerA.getCodeByName*/
+    getCodeByName:function(n)
+    {
+        var a = this.selectOptions || this.parent.getSelectOptions();
+        if(!a)
+            return null;
+        for(var i=0;i < a.length;i++)
+        {
+            if(n == a[i][1])
+                return a[i][0];
+        }
+        return null;
+    },
+    /*xjs.ui.ComboAidInputerA.filterValues*/
+    filterValues:function(opts,allVals)
+    {
+        var casePage = this.pgRowCount && ((opts || 0) & 1) == 0,
+            idxStart,
+            idxEnd;
+        if(casePage)
+        {
+            idxStart = this.pgNavPane.currPage * this.pgRowCount;
+            idxEnd = idxStart + this.pgRowCount;
+        } else 
+        {
+            idxStart = 0;
+            idxEnd = 0x7fffffff;
+        }
+        delete this._firstFilterMachedVal;
+        if(this.fnFilterVals)
+        {
+            return this.fnFilterVals.call(this,this.curFilter);
+        }
+        var optData = this.selectOptions,
+            filterP = this.curFilter,
+            pendingVals = (this.selOptions & 1) == 0 ? [] : null;
+        this.getSearchableCols();
+        var matchMode = this.getMatchMode(),
+            values = [],
+            matchedLvVals = (this.selOptions & 1) == 0 ? [] : null,
+            nr = 0;
+        if(optData != null)
+            for(var i=0;i < optData.length;i++)
+            {
+                var a;
+                if(!Xjs.isArray(optData[i]))
+                    a = [optData[i]];
+                else 
+                    a = optData[i];
+                var v = a[0],
+                    lvV = a[this.lvColumn] || "";
+                if(matchedLvVals)
+                    for(;matchedLvVals.length > 0 && !lvV.startsWith(matchedLvVals[matchedLvVals.length - 1]);matchedLvVals.pop())
+                        ;
+                var matched;
+                if((matched = (filterP == null || this.matched(matchMode,filterP,a)) && (!this.valueFilter || this.valueFilter.filterAccept(a))) || matchedLvVals && this.hasParentCode(lvV,matchedLvVals))
+                {
+                    if(pendingVals)
+                    {
+                        for(var j=0;j < pendingVals.length;j++)
+                        {
+                            var pa = pendingVals[j];
+                            if(lvV.startsWith(pa[this.lvColumn]))
+                            {
+                                if(nr >= idxStart && nr < idxEnd)
+                                    values.push(pa);
+                                nr++;
+                            }
+                        }
+                        pendingVals.clear();
+                    }
+                    if(nr >= idxStart && nr < idxEnd)
+                        values.push(a);
+                    if(!this._firstFilterMachedVal && this.isSelectable(a[0]))
+                    {
+                        this._firstFilterMachedVal = a[0];
+                    }
+                    if(matchedLvVals && matched)
+                        matchedLvVals.push(lvV);
+                    if(allVals)
+                        allVals.add(a[0]);
+                    nr++;
+                } else if(pendingVals && !this.isLastLevlCode(v))
+                {
+                    for(;pendingVals.length > 0;pendingVals.pop())
+                    {
+                        if(lvV.startsWith(pendingVals[pendingVals.length - 1][this.lvColumn]))
+                            break;
+                    }
+                    pendingVals.push(a);
+                    continue;
+                }
+            }
+        if(casePage)
+        {
+            this.pgNavPane.setPageInfo(nr,Math.ceil(nr / this.pgRowCount),this.pgNavPane.currPage,this.pgRowCount);
+            this.pgNavPane.dom.style.display = this.pgNavPane.totalPages > 1 ? "" : "none";
+        }
+        return values;
+    },
+    /*xjs.ui.ComboAidInputerA.matched*/
+    matched:function(matchMode,filterP,a)
+    {
+        if(this._searchableCols.length == 0)
+        {
+            var v = a[0],
+                text = a.length < 2 ? v : (this.showCode && v != a[1] ? v + ":" + a[1] : a[1]);
+            if(text == null)
+                return false;
+            var p = (this.filterIgnoreCase ? text.toString().toLowerCase() : text.toString()).indexOf(filterP);
+            return matchMode == 1 ? p >= 0 : p == 0;
+        }
+        for(var i=0;i < this._searchableCols.length;i++)
+        {
+            var j = this._searchableCols[i];
+            if(j >= a.length || a[j] == null)
+                continue;
+            var s = a[j].toString(),
+                p = (this.filterIgnoreCase ? s.toLowerCase() : s).indexOf(filterP);
+            if(matchMode == 1 ? p >= 0 : p == 0)
+                return true;
+        }
+        return false;
+    },
+    /*xjs.ui.ComboAidInputerA.onListClick*/
+    onListClick:function(e)
+    {
+        this.onSelectClickRow(Xjs.DOM.getParentForTag(e.srcElement || e.target,this.liRowTag || "LI"));
+    },
+    /*xjs.ui.ComboAidInputerA.onSelectClickRow*/
+    onSelectClickRow:function(rowDom)
+    {
+        if(rowDom == null)
+            return;
+        if(this.isMultiSelectable() && this.valueList.indexOfItem(rowDom._value) >= 0)
+            this.onDeselectValue(rowDom._value);
+        else 
+            this.onSelectValue(rowDom._value);
+    },
+    /*xjs.ui.ComboAidInputerA.onSelectValue*/
+    onSelectValue:function(value)
+    {
+        if((this.selOptions & 1) == 0 && !this.isLastLevlCode(value) && !this.isMidLevlSelectable(value))
+        {
+            return;
+        }
+        var multiple = this.isMultiSelectable();
+        setValue:{
+            if(this.valueList.getItemCount() == 0 || !multiple)
+            {
+                this.valueList.setValue(value);
+            } else 
+            {
+                if(this.valueList.indexOfItem(value) >= 0)
+                    break setValue;
+                this.valueList.addItem(value,true);
+            }
+        }
+        if(!multiple)
+            this.endAidInputer(true);
+    },
+    /*xjs.ui.ComboAidInputerA.endAidInputer*/
+    endAidInputer:function(setParentValue)
+    {
+        try
+        {
+            this.parent.focus();
+        }catch(ex)
+        {
+        }
+        if(setParentValue)
+        {
+            this.setParentValue(this.valueList.getValue());
+            this.fireEvent("setComoParentValue",this.valueList.getValue());
+        }
+        this.hideAndFocusParent();
+    },
+    /*xjs.ui.ComboAidInputerA.toCodeValue*/
+    toCodeValue:function(value)
+    {
+        if(value == null)
+        {
+            return null;
+        }
+        if((this.selOptions & 4) != 0)
+        {
+            var t = typeof(value);
+            if(t == "string")
+            {
+                var del = this.getMutiValueDelim();
+                return value.split(del);
+            }
+        }
+        return value;
+    },
+    /*xjs.ui.ComboAidInputerA.setParentValue*/
+    setParentValue:function(value)
+    {
+        var text = null;
+        if(value != null && value.toString().length > 0)
+        {
+            if((this.selOptions & 4) != 0)
+            {
+                var t = typeof(value),
+                    del = this.getMutiValueDelim();
+                if(t == "string")
+                {
+                    var a = value.split(","),
+                        v = null;
+                    for(var j=0;j < a.length;j++)
+                    {
+                        var s = this.getSelectValueText(a[j]);
+                        text = text == null ? s : text + del + s;
+                        v = v == null ? a[j] : v + del + a[j];
+                    }
+                    value = v;
+                } else if(t == "number")
+                {
+                    for(var j=0;j < 32;j++)
+                    {
+                        var b = 1 << j;
+                        if(value & b)
+                        {
+                            var s = this.getSelectValueText(b);
+                            text = text == null ? s : text + del + s;
+                        }
+                    }
+                }
+            } else 
+            {
+                text = this.getSelectValueText(value);
+            }
+        } else if(this.emptyText != null || this.emptyValText != null)
+        {
+            text = this.emptyValText != null ? this.emptyValText : this.emptyText;
+        }
+        if((this.selOptions & 0x50) == 0x50)
+        {
+            this.parent.setValue(text,text,4);
+        } else 
+        {
+            this.parent.setValue(value,text,4);
+        }
+        var rowVals;
+        if(this.copyMap && (rowVals = this.getRowByValue(value)))
+        {
+            var columns = this.parent.selectOptions.getColumns();
+            if(this.parent.table)
+            {
+                var ds = this.parent.table.getDataSet();
+                if(columns)
+                    for(var n in this.copyMap)
+                    {
+                        var cn = this.copyMap[n];
+                        for(var j=0;j < columns.length;j++)
+                        {
+                            if(columns[j].name == cn)
+                            {
+                                var x = rowVals[j];
+                                if(x !== undefined)
+                                    ds.setValue(n,x);
+                                break;
+                            }
+                        }
+                    }
+            } else if(this.parent.parent && this.parent.parent instanceof Xjs.ui.DialogPane)
+            {
+                var pane = this.parent.parent;
+                for(var n in this.copyMap)
+                {
+                    var cn = this.copyMap[n];
+                    for(var j=0;j < columns.length;j++)
+                    {
+                        if(columns[j].name == cn)
+                        {
+                            var x = rowVals[j];
+                            if(x !== undefined)
+                                pane.setItemValue(n,x);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    },
+    /*xjs.ui.ComboAidInputerA.getMutiValueDelim*/
+    getMutiValueDelim:function()
+    {
+        return this.parent.mutiValueDelim || ",";
+    },
+    /*xjs.ui.ComboAidInputerA.onDeselectValue*/
+    onDeselectValue:function(v)
+    {
+        this.valueList.removeItem(v,true);
+    },
+    /*xjs.ui.ComboAidInputerA.onReturnBtnClick*/
+    onReturnBtnClick:function()
+    {
+        this.endAidInputer(true);
+    },
+    /*xjs.ui.ComboAidInputerA.oncmd_select*/
+    oncmd_select:function()
+    {
+        this.endAidInputer(true);
+    },
+    /*xjs.ui.ComboAidInputerA.oncmd_close*/
+    oncmd_close:function()
+    {
+        this.endAidInputer(false);
+    },
+    /*xjs.ui.ComboAidInputerA.oncmd_clear*/
+    oncmd_clear:function()
+    {
+        this.valueList.setValue(null);
+    },
+    /*xjs.ui.ComboAidInputerA.oncmd_addnew*/
+    oncmd_addnew:function()
+    {
+        if(this.addnewDialog == null)
+        {
+            if(this.addCodeUID == null)
+                return;
+            var p = this.addCodeUID.indexOf("({"),
+                uiid,
+                config;
+            if(p > 0)
+            {
+                uiid = this.addCodeUID.substring(0,p).trim();
+                config = eval(this.addCodeUID.substring(p));
+            } else 
+            {
+                uiid = this.addCodeUID;
+                config = null;
+            }
+            this.addnewDialog = Xjs.ui.UIUtil.loadDialog(uiid,2,null,null,config);
+            this.addnewDialog.addListener("onOk",this.onAddNewCodeOK,this);
+            this.addnewDialog.addListener("onClosed",this.onAddNewCodeClosed,this);
+            var tbls = this.addnewDialog.getMainComponents(Xjs.table.Table);
+            this.addnewDlgMTable = tbls != null && tbls.length > 0 ? tbls[0] : null;
+        }
+        if(this.addnewDlgMTable == null)
+            return;
+        this.addnewDlgMTable.refreshTable();
+        this.backHideIfOutclick = this.hideIfOutclick;
+        this.hideIfOutclick = false;
+        this.addnewDialog.showModal();
+        this.addnewDlgMTable.focusLatter();
+    },
+    /*xjs.ui.ComboAidInputerA.onAddNewCodeOK*/
+    onAddNewCodeOK:function()
+    {
+        this.addnewDlgMTable.saveChanges();
+        this.oncmd_refresh();
+    },
+    /*xjs.ui.ComboAidInputerA.onAddNewCodeClosed*/
+    onAddNewCodeClosed:function()
+    {
+        if(this.backHideIfOutclick !== undefined)
+        {
+            this.hideIfOutclick = this.backHideIfOutclick;
+        }
+    },
+    /*xjs.ui.ComboAidInputerA.oncmd_refresh*/
+    oncmd_refresh:function()
+    {
+        if(this.parent == null)
+            return;
+        var codeData = this.parent.selectOptions;
+        codeData.clearBuffered();
+        codeData.disableBrowserCache = true;
+        this.oncmd_query();
+    },
+    /*xjs.ui.ComboAidInputerA.initPgNavPane*/
+    initPgNavPane:function()
+    {
+        if(this.pgNavPane === undefined)
+        {
+            this.pgNavPane = null;
+            var pdnavDOM = Xjs.DOM.findById("PageNav",this.dom);
+            if(!pdnavDOM)
+                return;
+            var codeData = this.parent.selectOptions;
+            if(codeData && codeData.pgRowCount || this.forcePgNavPane)
+            {
+                this.pgNavPane = new Xjs.ui.PageNavPane({dom:pdnavDOM});
+                this.pgNavPane.onAttachDOM();
+                this.pgNavPane.addListener(this);
+            }
+        }
+    },
+    /*xjs.ui.ComboAidInputerA.beforeExpandShow*/
+    beforeExpandShow:function(newDom)
+    {
+        var selectOpts = this.loadSelectOptions(),
+            refilter = false;
+        if(newDom || this.refilterOpts & 1 || this.isSelectOptsChanged(selectOpts))
+        {
+            this.selectOptions = selectOpts;
+            this.sortedSelOpts = null;
+            this.valueList.setSelectOptions(this.selectOptions);
+            this.ulastLevlCodes = null;
+            this._searchableCols = null;
+            refilter = true;
+        }
+        this.valueList.setShowCode(this.showCode);
+        if(this.inputField && this.clearInitFilter)
+            this.inputField.value = "";
+        this.valueList.setValue(this.initValue == "" ? null : this.initValue);
+        this.refilter(refilter,0);
+    },
+    /*xjs.ui.ComboAidInputerA.performCommand*/
+    performCommand:function(source,command)
+    {
+        if(command.startsWith("gotoPage:"))
+        {
+            this.refilter(false,parseInt(command.substring(9)));
+        }
+    },
+    /*xjs.ui.ComboAidInputerA.forEnterKey*/
+    forEnterKey:Xjs.emptyFn,
+    /*xjs.ui.ComboAidInputerA.doParentCompSearchBoxKeyUp*/
+    doParentCompSearchBoxKeyUp:function(e)
+    {
+        var k = e.keyCode;
+        if(k == 13 || k == 40 || k == 38 || k == 27)
+        {
+            if(k == 13)
+            {
+                this.forEnterKey(e);
+            }
+            Xjs.Event.cancelEvent(e,true);
+            return true;
+        }
+        return false;
+    }
+});
 /*xjs/ui/Window.java*/
 Xjs.ui.Window=function(config){
     Xjs.ui.Window.superclass.constructor.call(this,config);
+    var opts;
+    if(window.xjsConfig && (opts = window.xjsConfig.windowOpts))
+    {
+        Xjs.applyIf(this,opts);
+    }
     if(!this.buttons)
         this.buttons = Xjs.ui.Panel.newDefaultButtons();
 };
 Xjs.extend(Xjs.ui.Window,Xjs.ui.DialogPane,{
   _js$className_:"Xjs.ui.Window",
-    okKeyMode:1,
     /*xjs.ui.Window.__init*/
     __init:function()
     {
         Xjs.ui.Window.superclass.__init.call(this);
+        this.okKeyMode = 1;
         this.disableCollapse = true;
         this.toolbarClassName = "ui-wtitlebar";
         this.closeable = true;
@@ -5993,18 +7362,6 @@ Xjs.extend(Xjs.ui.Window,Xjs.ui.DialogPane,{
     onDomCreated:function(root)
     {
         Xjs.ui.Window.superclass.onDomCreated.call(this,root);
-        Xjs.DOM.addListener(this.dom,"keyup",Function.bindAsEventListener(this.onKeyUp,this,0,true));
-    },
-    /*xjs.ui.Window.onKeyUp*/
-    onKeyUp:function(e)
-    {
-        if(e.keyCode == 13 && (e.ctrlKey && this.okKeyMode == 1 || this.okKeyMode == 2))
-        {
-            var b = this.getOkButton();
-            if(b)
-                this.performCommand(b,b.command);
-        }
-        return;
     },
     /*xjs.ui.Window.loadContentUI*/
     loadContentUI:function(uiid,wboxHtml)
@@ -6037,6 +7394,8 @@ Xjs.apply(Xjs.table.DefaultTableListener.prototype,{
     },
     /*xjs.table.DefaultTableListener.afterInitComponent*/
     afterInitComponent:Xjs.emptyFn,
+    /*xjs.table.DefaultTableListener.onLazyLoaded*/
+    onLazyLoaded:Xjs.emptyFn,
     /*xjs.table.DefaultTableListener.addTableNotify*/
     addTableNotify:Xjs.emptyFn,
     /*xjs.table.DefaultTableListener.beforeConfigColumns*/
@@ -6101,6 +7460,8 @@ Xjs.apply(Xjs.table.DefaultTableListener.prototype,{
     beforePopupEditClosing:Xjs.emptyFn,
     /*xjs.table.DefaultTableListener.onPopupEditClosing*/
     onPopupEditClosing:Xjs.emptyFn,
+    /*xjs.table.DefaultTableListener.onPopupEditClosed*/
+    onPopupEditClosed:Xjs.emptyFn,
     /*xjs.table.DefaultTableListener.isRowSelectable*/
     isRowSelectable:Xjs.emptyFn,
     /*xjs.table.DefaultTableListener.onShowing*/
@@ -6169,6 +7530,8 @@ Xjs.apply(Xjs.table.DefaultTableListener.prototype,{
     onTableUpdateSaveable:Xjs.emptyFn,
     /*xjs.table.DefaultTableListener.onChkingRowNonBlank*/
     onChkingRowNonBlank:Xjs.emptyFn,
+    /*xjs.table.DefaultTableListener.getRGridRecordParentDOM*/
+    getRGridRecordParentDOM:Xjs.emptyFn,
     /*xjs.table.DefaultTableListener.round*/
     round:function(v,deci)
     {
@@ -6249,7 +7612,7 @@ Xjs.extend(Xjs.ui.AidInputerWindow,Xjs.ui.Window,{
             var t = typeof(value);
             if(t == "string")
             {
-                var del = this.forInput.mutiValueDelim;
+                var del = String.obj2str(this.forInput.mutiValueDelim,",");
                 return value.split(del);
             }
         }
@@ -6274,6 +7637,10 @@ Xjs.extend(Xjs.ui.AidInputerWindow,Xjs.ui.Window,{
     /*xjs.ui.AidInputerWindow.setParentInputValue*/
     setParentInputValue:function(v,s)
     {
+        if(this.forInput.toUpper && typeof(v) == "string")
+        {
+            v = v.toUpperCase();
+        }
         if(s == null)
             this.forInput.setValue(v,undefined,4);
         else 
@@ -6486,780 +7853,887 @@ Xjs.apply(Xjs.ui.Button,{
 });
 {
     Xjs.UITYPES.button = Xjs.ui.Button;
-}/*xjs/ui/ComboAidInputerA.java*/
-Xjs.ui.ComboAidInputerA=function(config){
-    Xjs.ui.ComboAidInputerA.superclass.constructor.call(this,config);
-    if(window.xjsConfig && window.xjsConfig.comboInputWinOpts)
-    {
-        Xjs.applyIf(this,window.xjsConfig.comboInputWinOpts);
-    }
-    this.inSelectingValues = new Xjs.util.SortedArray(null);
-    this.valueList = new Xjs.ui.ValueList(null);
-    this.valueList.addListener(this);
-    if(this.valueOpts > 0)
-        this.valueList.valueOpts = this.valueOpts;
+}/*xjs/ui/ComboAidInputer.java*/
+Xjs.ui.ComboAidInputer=function(config){
+    Xjs.ui.ComboAidInputer.superclass.constructor.call(this,config);
+    this.entryKeyLock = 0;
 };
-Xjs.extend(Xjs.ui.ComboAidInputerA,Xjs.ui.LayerAidInputer,{
-  _js$className_:"Xjs.ui.ComboAidInputerA",
-    minWidth:true,
-    lvColumn:0,
-    codeColumn:0,
-    textColumn:1,
-    filterIgnoreCase:true,
-    curPage:0,
-    clearInitFilter:true,
-    /*xjs.ui.ComboAidInputerA._createDOM*/
-    _createDOM:function()
-    {
-        return Xjs.ui.Component.createDomFromRes(this.htmlRes,this,true,Xjs.ResBundle.getRes("UI"));
-    },
-    /*xjs.ui.ComboAidInputerA.isMidLevlSelectable*/
-    isMidLevlSelectable:function(value)
-    {
-        return (this.selOptions & 2) != 0;
-    },
-    /*xjs.ui.ComboAidInputerA.__init*/
+Xjs.extend(Xjs.ui.ComboAidInputer,Xjs.ui.ComboAidInputerA,{
+  _js$className_:"Xjs.ui.ComboAidInputer",
+    fitListHeight:true,
+    /*xjs.ui.ComboAidInputer.__init*/
     __init:function()
     {
-        Xjs.ui.ComboAidInputerA.superclass.__init.call(this);
-        if(this.selOptions == null)
-            this.selOptions = 0;
-        this.fitSizeOnAlign = 1;
+        Xjs.ui.ComboAidInputer.superclass.__init.call(this);
+        if(this.htmlRes == null)
+        {
+            this.htmlRes = "@" + Xjs.getDefResPath() + "/combo1.html";
+        }
     },
-    /*xjs.ui.ComboAidInputerA.loadSelectOptions*/
-    loadSelectOptions:function()
+    /*xjs.ui.ComboAidInputer.adjSearchboxOvPos*/
+    adjSearchboxOvPos:function()
     {
-        if(this.pgNavPane === undefined)
-            this.initPgNavPane();
-        var selectOpts,
-            codeData;
-        if(this.disableUseParentCodeData)
-        {
-            selectOpts = null;
-            codeData = this.defaultCodeData;
-        } else 
-        {
-            codeData = this.parent.selectOptions;
-            if((this.selOptions & 1) == 0 && codeData && codeData.getData)
-            {
-                selectOpts = codeData.getData(codeData.keyParamNames,null,2,0);
-                this.lvColumn = codeData.lvColumn;
-                if(this.lvColumn > 0)
-                {
-                    selectOpts.sort(Array.createCmp1([this.lvColumn]));
-                }
-            } else 
-            {
-                selectOpts = this.parent.getSelectOptions(2);
-            }
-            if(codeData instanceof Xjs.dx.CodeData)
-            {
-                this.lvColumn = codeData.lvColumn;
-                this.codeColumn = codeData.keyCount - 1;
-                this.textColumn = codeData.keyCount;
-            } else 
-            {
-                this.lvColumn = this.codeColumn = 0;
-                this.textColumn = 1;
-            }
-        }
-        if(!selectOpts && this.defaultCodeData)
-        {
-            selectOpts = this.defaultCodeData.getData(null,null,2,0);
-            this.lvColumn = this.defaultCodeData.lvColumn || 0;
-            if(this.lvColumn > 0)
-                selectOpts.sort(Array.createCmp1([this.lvColumn]));
-        }
-        if(this.emptyText !== undefined)
-        {
-            var old = selectOpts,
-                v = this.emptyValue || "";
-            selectOpts = [];
-            selectOpts[0] = [v,this.emptyText];
-            for(var i=0;i < old.length;i++)
-                selectOpts.push(old[i]);
-        }
-        if(this.filters)
-            selectOpts = Xjs.ui.LayerAidInputer.filterValues(this.filters,selectOpts);
-        if(codeData && codeData.pgRowCount && this.pgNavPane)
-        {
-            this.pgRowCount = codeData.pgRowCount;
-            var nr = selectOpts.length;
-            this.pgNavPane.setPageInfo(nr,Math.ceil(nr / this.pgRowCount),0,this.pgRowCount);
-            this.pgNavPane.dom.style.display = this.pgNavPane.totalPages > 1 ? "" : "none";
-        }
-        return selectOpts;
+        this._adjSearchboxOvPos(this.searchBoxDOM,this.inputField);
     },
-    /*xjs.ui.ComboAidInputerA.getSortedSelOpts*/
-    getSortedSelOpts:function()
+    /*xjs.ui.ComboAidInputer.adjSearchboxOvPosL*/
+    adjSearchboxOvPosL:function()
     {
-        if(!this.sortedSelOpts)
+        if(this.inputOvParent)
         {
-            if(this.lvColumn == 0)
+            this.adjSearchboxOvPos();
+            if(!this.fn$adjSearchboxOvPos)
+                this.fn$adjSearchboxOvPos = this.adjSearchboxOvPos.createDelegate(this);
+            setTimeout(this.fn$adjSearchboxOvPos,50);
+        }
+    },
+    /*xjs.ui.ComboAidInputer.updateListScrollVal*/
+    updateListScrollVal:function()
+    {
+        if(this.listScrollbar)
+        {
+            var s = this.listScrollbar;
+            setTimeout(function(){
+            s.updateValue();
+            s.resetBarPos();
+        },1);
+        }
+    },
+    /*xjs.ui.ComboAidInputer.afterExpandShow*/
+    afterExpandShow:function(newDom)
+    {
+        if(this.fitListHeight)
+        {
+            this._fitListHeight();
+            this.reAlignShow();
+        }
+        this.updateListScrollVal();
+        var ib = this.searchBoxDOM || this.inputField;
+        if(ib && !(this.selOptions & 0x10000))
+        {
+            if(this.aopts & 4)
             {
-                this.lvColCmp = this.lvCol0Cmp = Array.createCmp1([0]);
-                this.sortedSelOpts = this.selectOptions;
+                ib.style.visibility = "hidden";
                 return;
-            }
-            this.sortedSelOpts = new Array(this.selectOptions.length);
-            for(var j=0;j < this.sortedSelOpts.length;j++)
-                this.sortedSelOpts[j] = this.selectOptions[j];
-            this.sortedSelOpts.sort(this.lvColCmp = Array.createCmp1([this.lvColumn]));
+            } else 
+                ib.style.visibility = "";
         }
-    },
-    /*xjs.ui.ComboAidInputerA.isLastLevlCode*/
-    isLastLevlCode:function(code)
-    {
-        if(typeof(code) != "string" || (this.selOptions & 1) != 0 || this.selectOptions == null)
-            return true;
-        this.getSortedSelOpts();
-        if(this.ulastLevlCodes == null)
+        if(Xjs.DOM.isShowing(this.inputField))
         {
-            this.ulastLevlCodes = new Xjs.util.SortedArray(null);
-            for(var i=0;i < this.sortedSelOpts.length - 1;i++)
+            this.inputField.focus();
+            this.setCurKeyFocused(0,1,null);
+            if(this.enterChar || this.enterText)
             {
-                if(this.sortedSelOpts[i + 1][this.lvColumn].startsWith(this.sortedSelOpts[i][this.lvColumn]))
-                    this.ulastLevlCodes.add(this.sortedSelOpts[i][0]);
+                this.inputField.value = this.enterText || String.fromCharCode(this.enterChar);
+                var l = this.inputField.value.length;
+                Xjs.DOM.setInputSelectionRange(this.inputField,l,l);
+                this.refilter(false,0);
             }
-        }
-        return this.ulastLevlCodes.indexOf(code) < 0;
-    },
-    /*xjs.ui.ComboAidInputerA.getCodeLevel*/
-    getCodeLevel:function(code)
-    {
-        this.getSortedSelOpts();
-        var a = new Array(this.lvColumn + 1);
-        if(!this.lvCol0Cmp)
-            this.lvCol0Cmp = Array.createCmp1([this.codeColumn]);
-        a[this.codeColumn] = code;
-        var p = Array.binarySearch(this.selectOptions,a,this.lvCol0Cmp);
-        if(p < 0)
-            return 0;
-        code = this.selectOptions[p][this.lvColumn];
-        var lv = 0;
-        for(;code.length > 1;)
-        {
-            a[this.lvColumn] = code = code.substring(0,code.length - 1);
-            if(Array.binarySearch(this.sortedSelOpts,a,this.lvColCmp) >= 0)
-                lv++;
-        }
-        return lv;
-    },
-    /*xjs.ui.ComboAidInputerA.isSelectable*/
-    isSelectable:function(value)
-    {
-        return this.selOptions & 3 || this.isLastLevlCode(value);
-    },
-    /*xjs.ui.ComboAidInputerA.getRowByValue*/
-    getRowByValue:function(value)
-    {
-        var cmp = Array.createCmp1([0]),
-            p = Array.binarySearch(this.selectOptions,[value],cmp);
-        return p >= 0 ? this.selectOptions[p] : null;
-    },
-    /*xjs.ui.ComboAidInputerA.isSelectOptsChanged*/
-    isSelectOptsChanged:function(selectOptions)
-    {
-        return !Xjs.ui.List.isSelectOptsEQ(selectOptions,this.selectOptions);
-    },
-    /*xjs.ui.ComboAidInputerA.getSearchableCols*/
-    getSearchableCols:function()
-    {
-        if(!this._searchableCols)
-        {
-            if(this.searchableCols)
-                return this._searchableCols = this.searchableCols;
-            this._searchableCols = [];
-            if(this.parent && this.parent.selectOptions && this.parent.selectOptions . getColumns)
+            if(this.inputOvParent)
             {
-                var columns = this.parent.selectOptions.getColumns();
-                if(columns)
-                    for(var i=0;i < columns.length;i++)
-                    {
-                        if(columns[i].flags & 0x4000)
-                        {
-                            this._searchableCols.push(i);
-                        }
-                    }
-                if(this._searchableCols.length == 0 && this.cellTextFmt)
-                    if(columns)
-                        for(var i=0;i < columns.length;i++)
-                        {
-                            this._searchableCols.push(i);
-                        }
+                this.adjSearchboxOvPosL();
             }
-        }
-        return this._searchableCols;
-    },
-    /*xjs.ui.ComboAidInputerA.getSelectValueText*/
-    getSelectValueText:function(value)
-    {
-        var s;
-        if(this.selectOptions)
+        } else if(!this.disListFocus)
         {
-            var p = Array.binarySearch(this.selectOptions,[value],Array.arrayCmp0);
-            if(p >= 0)
-                return this.selectOptions[p].length > 1 ? this.selectOptions[p][1] : value;
-            s = this._getValueText(value,this.selectOptions);
-            if(s != null)
-                return s;
+            this.listDOM.focus();
+            this.setCurKeyFocused(0,1,null);
         }
-        s = this._getValueText(value,this.loadSelectOptions());
-        return s == null ? value : s;
+        this.fireEvent("onComboAidInputerExpandShow",newDom);
     },
-    /*xjs.ui.ComboAidInputerA._getValueText*/
-    _getValueText:function(value,selectOpts)
+    /*xjs.ui.ComboAidInputer._fitListHeight*/
+    _fitListHeight:function()
     {
-        if(selectOpts)
-            for(var i=0;i < selectOpts.length;i++)
+        if(!this.listHeight)
+        {
+            var usableHeight = 0,
+                totalHeight = Xjs.DOM.getViewportScrollHeight();
+            if(this.parent)
             {
-                if(value == selectOpts[i][0])
-                {
-                    return selectOpts[i].length > 1 ? selectOpts[i][1] : value;
-                }
+                var point = Xjs.DOM.getXY(this.parent.getDOM());
+                usableHeight = point.y > totalHeight / 2 ? point.y : totalHeight - point.y - this.parent.getHeight();
             }
+            var _listDOM = this.listBox || this.listDOMX;
+            _listDOM.style.height = "";
+            var oldListHeight = Xjs.DOM.getHeight(_listDOM),
+                height = usableHeight;
+            if(usableHeight > 0)
+            {
+                if(this.searchBoxDOM && !this.inputOvParent)
+                    height -= Xjs.DOM.getHeight(this.searchBoxDOM);
+                if(this.infoDOM)
+                    height -= Xjs.DOM.getHeight(this.infoDOM) + Xjs.DOM.getMargins(this.infoDOM,"tb");
+                if(this.btnGroupDOM)
+                    height -= Xjs.DOM.getHeight(this.btnGroupDOM) + Xjs.DOM.getMargins(this.btnGroupDOM,"tb");
+                if(this.infoDOM2)
+                    height -= Xjs.DOM.getHeight(this.infoDOM2) + Xjs.DOM.getMargins(this.infoDOM2,"tb");
+            }
+            if(height > 0 && height < oldListHeight)
+                _listDOM.style.height = height + "px";
+        }
+    },
+    /*xjs.ui.ComboAidInputer.getPrefSize*/
+    getPrefSize:function(clientR)
+    {
+        var alignDOM = clientR.dom;
+        if(this.minWidth != null)
+        {
+            if(this.minWidth === true)
+                this.dom.style.minWidth = Xjs.DOM.getWidth(alignDOM) + 2 + "px";
+            else if(typeof(this.minWidth) == "number")
+                this.dom.style.minWidth = this.minWidth + "px";
+        }
+        if(this.width > 0)
+            return {width:this.width,height:0};
+        var fitWidth = this.fitWidth;
+        if(fitWidth === undefined && (this.selOptions & 0x10000) != 0)
+        {
+            if(this.minWidth === true)
+            {
+                return null;
+            }
+            fitWidth = 2;
+        }
+        if(fitWidth != null)
+        {
+            return {width:Xjs.DOM.getWidth(alignDOM) + fitWidth,height:0};
+        }
         return null;
     },
-    /*xjs.ui.ComboAidInputerA.oncmd_query*/
-    oncmd_query:function()
+    /*xjs.ui.ComboAidInputer.valueChanged*/
+    valueChanged:function(c,e,bySetValue)
     {
-        this.doQuery(false);
-    },
-    /*xjs.ui.ComboAidInputerA.doQuery*/
-    doQuery:function(force)
-    {
-        var selectOpts = this.loadSelectOptions();
-        if(!force && !this.isSelectOptsChanged(selectOpts))
-            return;
-        this.selectOptions = selectOpts;
-        this.sortedSelOpts = null;
-        this.valueList.setSelectOptions(this.selectOptions);
-        this.ulastLevlCodes = null;
-        this._searchableCols = null;
-        this.refilter(true,0);
-    },
-    /*xjs.ui.ComboAidInputerA.setInputOvParent*/
-    setInputOvParent:function(o)
-    {
-        this.inputOvParent = o;
-    },
-    /*xjs.ui.ComboAidInputerA.isInputOvParent*/
-    isInputOvParent:function()
-    {
-        return this.inputOvParent || !!(this.selOptions2 & 24);
-    },
-    /*xjs.ui.ComboAidInputerA.getAidInputerInfo*/
-    getAidInputerInfo:function(t,p)
-    {
-        switch(t)
+        if(c == this.valueList)
         {
-        case 1:
-            return this.inputOvParent == 2 || (this.selOptions2 & 24) != 0;
-        case 2:
-            return this.aopts;
-        }
-        return;
-    },
-    /*xjs.ui.ComboAidInputerA.getFilterText*/
-    getFilterText:function()
-    {
-        var filter = this.fnGetFilter ? this.fnGetFilter.func.apply(this.fnGetFilter.scorp || this,[this]) : (this.inputField ? this.inputField.value : null);
-        if(filter == null || (filter = filter.trim()).length == 0)
-            return null;
-        return this.filterIgnoreCase ? filter.toLowerCase() : filter;
-    },
-    /*xjs.ui.ComboAidInputerA.refilter*/
-    refilter:function(forece,toPage)
-    {
-        var filter = this.getFilterText();
-        if(toPage === undefined)
-            toPage = this.curFilter == filter && this.pgRowCount ? this.pgNavPane.currPage : 0;
-        else if(this.curFilter != filter)
-            toPage = 0;
-        if(this.curFilter == filter && this.curPage == toPage && !forece)
-            return;
-        this.curFilter = filter;
-        this.curPage = toPage;
-        if(this.pgRowCount)
-            this.pgNavPane.setCurrPage(this.curPage);
-        this._addOptions();
-    },
-    /*xjs.ui.ComboAidInputerA.onBtnClick*/
-    onBtnClick:function(ev)
-    {
-        if(Xjs.DOM.isShowing(this.inputField))
-            this.inputField.focus();
-        var e = ev.srcElement || ev.target;
-        for(;e != null && e._command == null;e = e.parentNode)
-            ;
-        if(e._command != null)
-        {
-            var fn = "oncmd_" + e._command;
-            if(this[fn])
-            {
-                try
-                {
-                    this[fn]();
-                    return;
-                }finally
-                {
-                }
-            }
+            this.updateRowDOMClass();
+            if((this.selOptions & 4) == 0 && !bySetValue)
+                this.endAidInputer(true);
         }
     },
-    /*xjs.ui.ComboAidInputerA.onDomAttached*/
+    /*xjs.ui.ComboAidInputer.onDomAttached*/
     onDomAttached:function()
     {
-        var btnCommands = ["select","all","clear","addnew","close","refresh"];
-        if(this._onBtnClick == null)
+        Xjs.DOM.addOrRemoveClass(this.dom,"ui-muti-select",this.selOptions & 4);
+        this.searchBoxDOM = Xjs.DOM.findById("SearchBOX",this.dom);
+        if(this.selOptions2 & (8 | 0x10) && this.searchBoxDOM)
         {
-            this._onBtnClick = Function.bindAsEventListener(this.onBtnClick,this);
+            this.setInputOvParent(2);
+            this.dom.style.overflow = "visible";
+            this.searchBoxDOM.style.position = "absolute";
+            Xjs.DOM.addClass(this.dom,"x-combolist-searchboxa");
         }
-        for(var i=0;i < btnCommands.length;i++)
+        this.setInputField(Xjs.DOM.findById("SearchInput",this.dom));
+        if(this.inputBgLabel && this.inputField)
         {
-            var cmd = btnCommands[i],
-                b = Xjs.DOM.findById("Btn_" + cmd,this.dom);
-            if(b != null)
+            this.inputField.placeholder = this.inputBgLabel;
+        }
+        this.listBox = Xjs.DOM.findById("LISTBOX",this.dom);
+        this.listDOM = Xjs.DOM.findById("LIST",this.dom);
+        var tblMode = this.listDOM.tagName == "TBODY";
+        this.listDOMX = this.listDOM.tagName == "TBODY" ? this.listDOM.parentNode : this.listDOM;
+        if(this.listHeight)
+            (this.listBox || this.listDOMX).style.height = this.listHeight + "px";
+        if(this.disListFocus)
+            this.listDOM.tabIndex = "";
+        this.listDOM.onkeydown = Function.bindAsEventListener(this.onListKeydown,this);
+        this.listDOM.onkeyup = Function.bindAsEventListener(this.onListKeyup,this);
+        this.listDOM.onclick = Function.bindAsEventListener(this.onListClick,this);
+        this.listScrollbar = new Xjs.ui.util.CustomScrollbar("Combo.SBar",tblMode ? this.listBox : this.listDOM,1 | 4 | 8,null,null,null);
+        var valuesDOM;
+        this.valueList.ulDOM = valuesDOM = Xjs.DOM.find("#SeledtedVals ul",this.dom);
+        this.infoDOM = Xjs.DOM.findById("InfoPropmpt",this.dom);
+        this.infoDOM2 = Xjs.DOM.findById("MultiSelPrompt",this.dom);
+        this.returnIcon = Xjs.DOM.findById("IconUP",this.dom);
+        if(this.returnIcon)
+        {
+            this.returnIcon.onclick = Function.bindAsEventListener(this.onReturnBtnClick,this);
+        }
+        if(valuesDOM && valuesDOM.childNodes.length > 0)
+        {
+            var li = Xjs.DOM.find("li",valuesDOM);
+            if(li != null)
             {
-                this[cmd + "$Btn"] = b;
-                b.onclick = this._onBtnClick;
-                b._command = cmd;
-                if(cmd == "addnew" && this.addCodeUID == null)
-                    b.style.display = "none";
+                this.valueList.liHTML = li.innerHTML;
+                valuesDOM.removeChild(li);
             }
         }
-    },
-    /*xjs.ui.ComboAidInputerA.getMatchMode*/
-    getMatchMode:function()
-    {
-        return this.matchMode === undefined ? 1 : this.matchMode;
-    },
-    /*xjs.ui.ComboAidInputerA._addOptions*/
-    _addOptions:Xjs.emptyFn,
-    /*xjs.ui.ComboAidInputerA.hasParentCode*/
-    hasParentCode:function(code,values)
-    {
-        for(var j=values.length - 1;j >= 0;j--)
+        Xjs.DOM.removeAllChild(valuesDOM);
+        this.searchDelDOM = Xjs.DOM.findById("SearchDelete",this.dom);
+        if(this.searchDelDOM)
         {
-            if(code.startsWith(values[j]))
-                return true;
+            this.searchDelDOM.onclick = Function.bindAsEventListener(this.onSearchDelBtnClick,this);
         }
-        return false;
+        this.btnGroupDOM = Xjs.DOM.findById("BtnGroup",this.dom);
+        var hiddenSearchBox = false;
+        if(this.selOptions & 0x10000)
+        {
+            if(this.searchBoxDOM)
+            {
+                this.searchBoxDOM.style.width = "120px";
+                this.searchBoxDOM.style.display = "none";
+                hiddenSearchBox = true;
+            }
+            if(this.infoDOM)
+                this.infoDOM.style.display = "none";
+            if(this.infoDOM2)
+            {
+                this.infoDOM2.style.display = "none";
+            }
+        }
+        if(this.selOptions & 0x80000000 || this.selOptions2 & 0x40)
+        {
+            if(this.infoDOM)
+            {
+                this.infoDOM.style.display = "none";
+            }
+            if(this.infoDOM2)
+            {
+                this.infoDOM2.style.display = "none";
+            }
+        }
+        if(!(this.selOptions & 4))
+        {
+            if(this.searchBoxDOM)
+                this.searchBoxDOM.style.width = "100%";
+            if(this.btnGroupDOM)
+            {
+                this.btnGroupDOM.style.display = "none";
+                if(hiddenSearchBox && this.searchBoxDOM)
+                    this.searchBoxDOM.style.display = "none";
+            }
+        }
+        if(this.selOptions & 0x20000000)
+        {
+            if(valuesDOM != null)
+                valuesDOM.style.display = "none";
+            if(this.returnIcon != null)
+                this.returnIcon.style.display = "none";
+        }
+        Xjs.ui.ComboAidInputer.superclass.onDomAttached.call(this);
     },
-    /*xjs.ui.ComboAidInputerA.getCodeByName*/
-    getCodeByName:function(n)
+    /*xjs.ui.ComboAidInputer.setInputField*/
+    setInputField:function(i)
     {
-        var a = this.selectOptions || this.parent.getSelectOptions();
-        if(!a)
+        this.inputField = i;
+        if(i)
+        {
+            i["oninput" in this.inputField ? "oninput" : "onpropertychange"] = Xjs.ui.InputField.asOnInputListener(i,this.onInputFieldChanged,this);
+            i.onkeydown = Function.bindAsEventListener(this.onInputFieldKeydown,this);
+            i.onkeyup = Function.bindAsEventListener(this.onInputFieldKeyup,this);
+        }
+    },
+    /*xjs.ui.ComboAidInputer.getLIClass*/
+    getLIClass:function(value)
+    {
+        var cls = null;
+        if(this.valueList.indexOfItem(value) >= 0)
+            cls = "selected";
+        if((this.selOptions & 1) == 0)
+        {
+            if(!this.isLastLevlCode(value))
+            {
+                cls = cls == null ? "ulastlevel" : cls + " ulastlevel";
+                if(!this.isMidLevlSelectable(value))
+                    cls += " unselectable";
+            } else 
+            {
+                cls = cls == null ? "lastlevel" : cls + " lastlevel";
+            }
+            var lv = this.getCodeLevel(value);
+            cls = cls == null ? "level" + lv : cls + " level" + lv;
+        }
+        return cls;
+    },
+    /*xjs.ui.ComboAidInputer.createRowDOM*/
+    createRowDOM:function(value,text,boldText,levl)
+    {
+        var li = document.createElement("li"),
+            cls;
+        if(cls = this.getLIClass(value))
+            li.className = cls;
+        if(levl > 0)
+            li.style.paddingLeft = levl * 12 + "px";
+        if(this.liStylesByVal)
+            Xjs.apply(li.style,this.liStylesByVal[value]);
+        var d = Xjs.DOM.createChild(li,"div","label");
+        this.appendRowText(d,text,boldText,true);
+        li._value = value;
+        return li;
+    },
+    /*xjs.ui.ComboAidInputer.appendRowText*/
+    appendRowText:function(d,text,boldText,addIcon)
+    {
+        if(addIcon)
+        {
+            Xjs.DOM.createChild(d,"span","icon1");
+        }
+        var p = boldText != null && boldText.length > 0 ? text.toLowerCase().indexOf(boldText) : -1;
+        if(p > 0)
+        {
+            var e = Xjs.DOM.createChild(d,"span");
+            Xjs.DOM.setTextContent(e,text.substring(0,p));
+            text = text.substring(p);
+            p = 0;
+        }
+        if(p == 0)
+        {
+            var e1 = Xjs.DOM.createChild(d,"span","bold");
+            Xjs.DOM.setTextContent(e1,text.substring(0,boldText.length));
+            text = text.substring(boldText.length);
+        }
+        var e2 = Xjs.DOM.createChild(d,"span");
+        Xjs.DOM.setTextContent(e2,text);
+        if(addIcon)
+            Xjs.DOM.createChild(d,"i","icon2");
+    },
+    /*xjs.ui.ComboAidInputer.formatCellText*/
+    formatCellText:function(fmt,values,columns)
+    {
+        if(!columns)
             return null;
-        for(var i=0;i < a.length;i++)
-        {
-            if(n == a[i][1])
-                return a[i][0];
-        }
-        return null;
+        return fmt.replace(/\$\{\w+(\?\w+\:\w+)?\}/g,function($0){
+            var id = $0.substring(2,$0.length - 1),
+                j;
+            for(j = 0;j < columns.length;j++)
+            {
+                if(id == columns[j].name)
+                    break;
+            }
+            var v = values[j];
+            return v == null ? "" : (v instanceof Date ? v.format(0) : v.toString());
+        });
     },
-    /*xjs.ui.ComboAidInputerA.filterValues*/
-    filterValues:function(opts,allVals)
+    /*xjs.ui.ComboAidInputer.createTRowDOM*/
+    createTRowDOM:function(value,values,boldText,levl)
     {
-        var casePage = this.pgRowCount && ((opts || 0) & 1) == 0,
-            idxStart,
-            idxEnd;
-        if(casePage)
+        var row = document.createElement("TR"),
+            cls;
+        if(cls = this.getLIClass(value))
+            row.className = cls;
+        var codeData = this.parent.selectOptions,
+            columns = codeData.getColumns();
+        if(this.cellTextFmt)
         {
-            idxStart = this.pgNavPane.currPage * this.pgRowCount;
-            idxEnd = idxStart + this.pgRowCount;
+            for(var i=0;i < this.cellTextFmt.length;i++)
+            {
+                var fmt = this.cellTextFmt[i],
+                    s = columns ? this.formatCellText(fmt,values,columns) : (values[i] == null ? "" : values[i].toString()),
+                    td = Xjs.DOM.createChild(row,"td",null);
+                td.noWrap = true;
+                this.appendRowText(td,s,boldText,i == 0);
+            }
         } else 
         {
-            idxStart = 0;
-            idxEnd = 0x7fffffff;
+            var i = 0;
+            for(var j=0;j < columns.length;j++)
+            {
+                if(columns[j].displayFlags & 0x10)
+                    continue;
+                var v = values[j],
+                    s = v == null ? "" : (v instanceof Date ? v.format(0) : v.toString()),
+                    td = Xjs.DOM.createChild(row,"td",null);
+                this.appendRowText(td,s,boldText,i++ == 0);
+            }
         }
-        delete this._firstFilterMachedVal;
-        var optData = this.selectOptions,
-            filterP = this.curFilter,
-            pendingVals = (this.selOptions & 1) == 0 ? [] : null;
-        this.getSearchableCols();
-        var matchMode = this.getMatchMode(),
-            values = [],
-            matchedLvVals = (this.selOptions & 1) == 0 ? [] : null,
-            nr = 0;
+        row._value = value;
+        return row;
+    },
+    /*xjs.ui.ComboAidInputer.updateRowDOMClass*/
+    updateRowDOMClass:function()
+    {
+        var a = this.getLIDoms();
+        for(var i=0;i < a.length;i++)
+        {
+            if(a[i]._value == null)
+                continue;
+            if(this.valueList.indexOfItem(a[i]._value) >= 0)
+                Xjs.DOM.addClass(a[i],"selected");
+            else 
+                Xjs.DOM.removeClass(a[i],"selected");
+        }
+    },
+    /*xjs.ui.ComboAidInputer._addOptions*/
+    _addOptions:function()
+    {
+        if(!this.listDOM)
+            return;
+        Xjs.DOM.removeAllChild(this.listDOM);
+        this.inSelectingValues.clear();
+        delete this._bakLiDims;
+        this.keyFocusedRow = null;
+        var optData = this.filterValues(0,null),
+            levels = this.findLevels(optData),
+            tbody = this.listDOM.tagName == "TBODY" ? this.listDOM : null;
+        if(tbody)
+            this.liRowTag = "TR";
+        var focusR = -1,
+            firstSeledRow = -1;
         if(optData != null)
             for(var i=0;i < optData.length;i++)
             {
-                var a;
-                if(!Xjs.isArray(optData[i]))
-                    a = [optData[i]];
-                else 
-                    a = optData[i];
-                var v = a[0],
-                    lvV = a[this.lvColumn] || "";
-                if(matchedLvVals)
-                    for(;matchedLvVals.length > 0 && !lvV.startsWith(matchedLvVals[matchedLvVals.length - 1]);matchedLvVals.pop())
-                        ;
-                var matched;
-                if((matched = (filterP == null || this.matched(matchMode,filterP,a)) && (!this.valueFilter || this.valueFilter.filterAccept(a))) || matchedLvVals && this.hasParentCode(lvV,matchedLvVals))
+                var a = optData[i],
+                    value = a[this.codeColumn];
+                if(tbody)
                 {
-                    if(pendingVals)
-                    {
-                        for(var j=0;j < pendingVals.length;j++)
-                        {
-                            var pa = pendingVals[j];
-                            if(lvV.startsWith(pa[this.lvColumn]))
-                            {
-                                if(nr >= idxStart && nr < idxEnd)
-                                    values.push(pa);
-                                nr++;
-                            }
-                        }
-                        pendingVals.clear();
-                    }
-                    if(nr >= idxStart && nr < idxEnd)
-                        values.push(a);
-                    if(!this._firstFilterMachedVal && this.isSelectable(a[0]))
-                    {
-                        this._firstFilterMachedVal = a[0];
-                    }
-                    if(matchedLvVals && matched)
-                        matchedLvVals.push(lvV);
-                    if(allVals)
-                        allVals.add(a[0]);
-                    nr++;
-                } else if(pendingVals && !this.isLastLevlCode(v))
+                    tbody.appendChild(this.createTRowDOM(value,a,this.curFilter,levels == null ? 0 : levels[i]));
+                } else 
                 {
-                    for(;pendingVals.length > 0;pendingVals.pop())
+                    var text;
+                    if(this.cellTextFmt && this.cellTextFmt.length > 0)
                     {
-                        if(lvV.startsWith(pendingVals[pendingVals.length - 1][this.lvColumn]))
-                            break;
+                        var codeData = this.parent.selectOptions;
+                        text = this.formatCellText(this.cellTextFmt[0],a,codeData.getColumns());
+                    } else 
+                    {
+                        var nm = a[this.textColumn];
+                        if(nm == null)
+                            nm = value.toString();
+                        text = a.length < 2 || (this.selOptions & 0x8000000) != 0 ? value : (this.showCode && value != nm ? value + ":" + nm : nm);
                     }
-                    pendingVals.push(a);
-                    continue;
+                    this.listDOM.appendChild(this.createRowDOM(value,text.toString(),this.curFilter,levels == null ? 0 : levels[i]));
+                }
+                if(this._firstFilterMachedVal && this._firstFilterMachedVal == value)
+                    focusR = i;
+                if(firstSeledRow == -1 && this.valueList && this.valueList.indexOfItem(value) >= 0)
+                {
+                    firstSeledRow = i;
+                }
+                this.inSelectingValues.add(value);
+            }
+        if(focusR < 0)
+            focusR = firstSeledRow >= 0 ? firstSeledRow : 0;
+        delete this._firstFilterMachedVal;
+        if(this.inputOvParent)
+            this.setKeyFocused(focusR,1,null);
+        if(this.infoDOM)
+        {
+            Xjs.DOM.setTextContent(this.infoDOM,optData.length > 0 || this.infoNoMatch == null ? this.getPromptInfo() : this.getNoMatchPromptInfo());
+        }
+        if(this.domHTMLByID)
+            for(var id in this.domHTMLByID)
+            {
+                var e = Xjs.DOM.findById(id,this.dom);
+                if(e)
+                {
+                    var s = this.domHTMLByID[id],
+                        p = s.indexOf("${title}");
+                    if(p >= 0)
+                        s = s.substring(0,p) + this.parent.title + s.substring(p + 8);
+                    e.innerHTML = s;
                 }
             }
-        if(casePage)
+        var raOn = this.realignOn || 1;
+        if(raOn == 1 && this._inShowingPos == 1)
         {
-            this.pgNavPane.setPageInfo(nr,Math.ceil(nr / this.pgRowCount),this.pgNavPane.currPage,this.pgRowCount);
-            this.pgNavPane.dom.style.display = this.pgNavPane.totalPages > 1 ? "" : "none";
+            this.reAlignShow();
+            this.adjSearchboxOvPosL();
         }
-        return values;
-    },
-    /*xjs.ui.ComboAidInputerA.matched*/
-    matched:function(matchMode,filterP,a)
-    {
-        if(this._searchableCols.length == 0)
-        {
-            var v = a[0],
-                text = a.length < 2 ? v : (this.showCode && v != a[1] ? v + ":" + a[1] : a[1]);
-            if(text == null)
-                return false;
-            var p = (this.filterIgnoreCase ? text.toLowerCase() : text).indexOf(filterP);
-            return matchMode == 1 ? p >= 0 : p == 0;
-        }
-        for(var i=0;i < this._searchableCols.length;i++)
-        {
-            var j = this._searchableCols[i];
-            if(j >= a.length || a[j] == null)
-                continue;
-            var s = a[j].toString(),
-                p = (this.filterIgnoreCase ? s.toLowerCase() : s).indexOf(filterP);
-            if(matchMode == 1 ? p >= 0 : p == 0)
-                return true;
-        }
-        return false;
-    },
-    /*xjs.ui.ComboAidInputerA.onListClick*/
-    onListClick:function(e)
-    {
-        this.onSelectClickRow(Xjs.DOM.getParentForTag(e.srcElement || e.target,this.liRowTag || "LI"));
-    },
-    /*xjs.ui.ComboAidInputerA.onSelectClickRow*/
-    onSelectClickRow:function(rowDom)
-    {
-        if(rowDom == null)
-            return;
-        if(this.isMultiSelectable() && this.valueList.indexOfItem(rowDom._value) >= 0)
-            this.onDeselectValue(rowDom._value);
-        else 
-            this.onSelectValue(rowDom._value);
-    },
-    /*xjs.ui.ComboAidInputerA.onSelectValue*/
-    onSelectValue:function(value)
-    {
-        if((this.selOptions & 1) == 0 && !this.isLastLevlCode(value) && !this.isMidLevlSelectable(value))
-        {
-            return;
-        }
-        var multiple = this.isMultiSelectable();
-        setValue:{
-            if(this.valueList.getItemCount() == 0 || !multiple)
-            {
-                this.valueList.setValue(value);
-            } else 
-            {
-                if(this.valueList.indexOfItem(value) >= 0)
-                    break setValue;
-                this.valueList.addItem(value,true);
-            }
-        }
-        if(!multiple)
-            this.endAidInputer(true);
-    },
-    /*xjs.ui.ComboAidInputerA.endAidInputer*/
-    endAidInputer:function(setParentValue)
-    {
         try
         {
-            this.parent.focus();
+            this.listDOM.scrollTop = 0;
+            this.listDOM.scrollTo(0,0);
         }catch(ex)
         {
         }
-        if(setParentValue)
+        if(this.listScrollbar)
         {
-            this.setParentValue(this.valueList.getValue());
+            this.listDOM.appendChild(this.listScrollbar.vbar);
+            this.updateListScrollVal();
         }
-        this.hideAndFocusParent();
     },
-    /*xjs.ui.ComboAidInputerA.toCodeValue*/
-    toCodeValue:function(value)
+    /*xjs.ui.ComboAidInputer.getNoMatchPromptInfo*/
+    getNoMatchPromptInfo:function()
     {
-        if(value == null)
+        return (this.selectOptions == null || this.selectOptions.length == 0) && this.infoNoSelect ? this.infoNoSelect : this.infoNoMatch;
+    },
+    /*xjs.ui.ComboAidInputer.getPromptInfo*/
+    getPromptInfo:function()
+    {
+        if(this.promptInfo == null)
         {
+            this.promptInfo = "";
+            if(this.promptInfoFmt)
+            {
+                var p = this.promptInfoFmt.indexOf("${title}");
+                this.promptInfo = p >= 0 ? this.promptInfoFmt.substring(0,p) + this.parent.title + this.promptInfoFmt.substring(p + 8) : this.promptInfoFmt;
+            }
+        }
+        return this.promptInfo;
+    },
+    /*xjs.ui.ComboAidInputer.findLevels*/
+    findLevels:function(codes)
+    {
+        if((this.selOptions & 1) != 0)
             return null;
-        }
-        if((this.selOptions & 4) != 0)
-        {
-            var t = typeof(value);
-            if(t == "string")
-            {
-                var del = this.getMutiValueDelim();
-                return value.split(del);
-            }
-        }
-        return value;
+        var levels = new Array(codes.length);
+        this.findLevels1(codes,"",0,levels,0);
+        return levels;
     },
-    /*xjs.ui.ComboAidInputerA.setParentValue*/
-    setParentValue:function(value)
+    /*xjs.ui.ComboAidInputer.findLevels1*/
+    findLevels1:function(codes,pcode,i,levels,levl)
     {
-        var text = null;
-        if(value != null && value.toString().length > 0)
+        for(;i < codes.length && codes[i][this.lvColumn].startsWith(pcode);)
         {
-            if((this.selOptions & 4) != 0)
-            {
-                var t = typeof(value),
-                    del = this.getMutiValueDelim();
-                if(t == "string")
-                {
-                    var a = value.split(","),
-                        v = null;
-                    for(var j=0;j < a.length;j++)
-                    {
-                        var s = this.getSelectValueText(a[j]);
-                        text = text == null ? s : text + del + s;
-                        v = v == null ? a[j] : v + del + a[j];
-                    }
-                    value = v;
-                } else if(t == "number")
-                {
-                    for(var j=0;j < 32;j++)
-                    {
-                        var b = 1 << j;
-                        if(value & b)
-                        {
-                            var s = this.getSelectValueText(b);
-                            text = text == null ? s : text + del + s;
-                        }
-                    }
-                }
-            } else 
-            {
-                text = this.getSelectValueText(value);
-            }
-        } else if(this.emptyText != null || this.emptyValText != null)
-        {
-            text = this.emptyValText != null ? this.emptyValText : this.emptyText;
+            levels[i] = levl;
+            i = this.findLevels1(codes,codes[i][this.lvColumn],i + 1,levels,levl + 1);
         }
-        if((this.selOptions & 0x50) == 0x50)
+        return i;
+    },
+    /*xjs.ui.ComboAidInputer.checkInputComplete*/
+    checkInputComplete:function()
+    {
+        if(this.selOptions & 0x400000 && this.inputField)
         {
-            this.parent.setValue(text,null,4);
-        } else 
-        {
-            this.parent.setValue(value,text,4);
-        }
-        var rowVals;
-        if(this.copyMap && (rowVals = this.getRowByValue(value)))
-        {
-            var columns = this.parent.selectOptions.getColumns();
-            if(this.parent.table)
+            var v = this.inputField.value;
+            if(v && (v = v.trim()).length > 0 && this.inSelectingValues.size() == 1 && this.inSelectingValues.get(0) == v)
             {
-                var ds = this.parent.table.getDataSet();
-                for(var n in this.copyMap)
-                {
-                    var cn = this.copyMap[n],
-                        j = Xjs.dx.DataSet.indexOfColumn(columns,cn);
-                    if(j < 0)
-                        continue;
-                    var x = rowVals[j];
-                    if(x !== undefined)
-                        ds.setValue(n,x);
-                }
-            } else if(this.parent.parent && this.parent.parent instanceof Xjs.ui.DialogPane)
-            {
-                var pane = this.parent.parent;
-                for(var n in this.copyMap)
-                {
-                    var cn = this.copyMap[n],
-                        j = Xjs.dx.DataSet.indexOfColumn(columns,cn);
-                    if(j < 0)
-                        continue;
-                    var x = rowVals[j];
-                    if(x !== undefined)
-                        pane.setItemValue(n,x);
-                }
+                this.onSelectValue(v);
             }
         }
     },
-    /*xjs.ui.ComboAidInputerA.getMutiValueDelim*/
-    getMutiValueDelim:function()
+    /*xjs.ui.ComboAidInputer.onInputFieldChanged*/
+    onInputFieldChanged:function(e)
     {
-        return this.parent.mutiValueDelim || ",";
+        this.refilter(false);
+        this.checkInputComplete();
     },
-    /*xjs.ui.ComboAidInputerA.onDeselectValue*/
-    onDeselectValue:function(v)
+    /*xjs.ui.ComboAidInputer.getLIDoms*/
+    getLIDoms:function()
     {
-        this.valueList.removeItem(v,true);
-    },
-    /*xjs.ui.ComboAidInputerA.onReturnBtnClick*/
-    onReturnBtnClick:function()
-    {
-        this.endAidInputer(true);
-    },
-    /*xjs.ui.ComboAidInputerA.oncmd_select*/
-    oncmd_select:function()
-    {
-        this.endAidInputer(true);
-    },
-    /*xjs.ui.ComboAidInputerA.oncmd_close*/
-    oncmd_close:function()
-    {
-        this.endAidInputer(false);
-    },
-    /*xjs.ui.ComboAidInputerA.oncmd_clear*/
-    oncmd_clear:function()
-    {
-        this.valueList.setValue(null);
-    },
-    /*xjs.ui.ComboAidInputerA.oncmd_addnew*/
-    oncmd_addnew:function()
-    {
-        if(this.addnewDialog == null)
+        if(this._bakLiDims)
+            return this._bakLiDims;
+        var a = [];
+        for(var j=0;j < this.listDOM.childNodes.length;j++)
         {
-            if(this.addCodeUID == null)
+            var li = this.listDOM.childNodes[j];
+            if(Xjs.DOM.hasClass(li,"scroll-bar"))
+                continue;
+            a.push(li);
+        }
+        return this._bakLiDims = a;
+    },
+    /*xjs.ui.ComboAidInputer.forEnterKey*/
+    forEnterKey:function(e)
+    {
+        var liDoms = this.getLIDoms(),
+            selectIdx = -1;
+        if(this.listDOM != null && liDoms.length == 1)
+        {
+            selectIdx = 0;
+        } else if(this.keyFocusedRow)
+        {
+            selectIdx = Xjs.DOM.indexOf(liDoms,this.keyFocusedRow);
+        }
+        if(selectIdx >= 0)
+        {
+            if(e.ctrlKey && this.isMultiSelectable())
+            {
+                this.endAidInputer(true);
                 return;
-            var p = this.addCodeUID.indexOf("({"),
-                uiid,
-                config;
-            if(p > 0)
-            {
-                uiid = this.addCodeUID.substring(0,p).trim();
-                config = eval(this.addCodeUID.substring(p));
-            } else 
-            {
-                uiid = this.addCodeUID;
-                config = null;
             }
-            this.addnewDialog = Xjs.ui.UIUtil.loadDialog(uiid,2,null,null,config);
-            this.addnewDialog.addListener("onOk",this.onAddNewCodeOK,this);
-            this.addnewDialog.addListener("onClosed",this.onAddNewCodeClosed,this);
-            var tbls = this.addnewDialog.getMainComponents(Xjs.table.Table);
-            this.addnewDlgMTable = tbls != null && tbls.length > 0 ? tbls[0] : null;
-        }
-        if(this.addnewDlgMTable == null)
-            return;
-        this.addnewDlgMTable.refreshTable();
-        this.backHideIfOutclick = this.hideIfOutclick;
-        this.hideIfOutclick = false;
-        this.addnewDialog.showModal();
-        this.addnewDlgMTable.focusLatter();
-    },
-    /*xjs.ui.ComboAidInputerA.onAddNewCodeOK*/
-    onAddNewCodeOK:function()
-    {
-        this.addnewDlgMTable.saveChanges();
-        this.oncmd_refresh();
-    },
-    /*xjs.ui.ComboAidInputerA.onAddNewCodeClosed*/
-    onAddNewCodeClosed:function()
-    {
-        if(this.backHideIfOutclick !== undefined)
-        {
-            this.hideIfOutclick = this.backHideIfOutclick;
-        }
-    },
-    /*xjs.ui.ComboAidInputerA.oncmd_refresh*/
-    oncmd_refresh:function()
-    {
-        if(this.parent == null)
-            return;
-        var codeData = this.parent.selectOptions;
-        codeData.clearBuffered();
-        codeData.disableBrowserCache = true;
-        this.oncmd_query();
-    },
-    /*xjs.ui.ComboAidInputerA.initPgNavPane*/
-    initPgNavPane:function()
-    {
-        if(this.pgNavPane === undefined)
-        {
-            this.pgNavPane = null;
-            var pdnavDOM = Xjs.DOM.findById("PageNav",this.dom);
-            if(!pdnavDOM)
-                return;
-            var codeData = this.parent.selectOptions;
-            if(codeData && codeData.pgRowCount || this.forcePgNavPane)
+            var li = liDoms[selectIdx],
+                value = li._value;
+            if(value !== undefined)
             {
-                this.pgNavPane = new Xjs.ui.PageNavPane({dom:pdnavDOM});
-                this.pgNavPane.onAttachDOM();
-                this.pgNavPane.addListener(this);
+                this.onSelectValue(value);
             }
         }
     },
-    /*xjs.ui.ComboAidInputerA.beforeExpandShow*/
-    beforeExpandShow:function(newDom)
+    /*xjs.ui.ComboAidInputer.onInputFieldKeydown*/
+    onInputFieldKeydown:function(e)
     {
-        var selectOpts = this.loadSelectOptions(),
-            refilter = false;
-        if(newDom || this.refilterOpts & 1 || this.isSelectOptsChanged(selectOpts))
+        if(!Xjs.Event.isNavKeyPress(e))
         {
-            this.selectOptions = selectOpts;
-            this.sortedSelOpts = null;
-            this.valueList.setSelectOptions(this.selectOptions);
-            this.ulastLevlCodes = null;
-            this._searchableCols = null;
-            refilter = true;
+            this.refilter(false);
+            this.checkInputComplete();
+        } else if(e.keyCode == 40 || e.keyCode == 13)
+        {
+            if(this.inputOvParent)
+            {
+                this.onListKeydown(e);
+            } else if(this.listDOM != null && this.getLIDoms().length > 0)
+            {
+                this.listDOM.focus();
+                this.onListKeydown(e);
+                if(e.keyCode == 13)
+                {
+                    this.entryKeyLock++;
+                }
+            }
+        } else if(e.keyCode == 38 && this.inputOvParent)
+        {
+            this.onListKeydown(e);
+        } else if(e.keyCode == 27)
+        {
+            this.hideAndFocusParent();
+            return false;
         }
-        this.valueList.setShowCode(this.showCode);
-        if(this.inputField && this.clearInitFilter)
-            this.inputField.value = "";
-        this.valueList.setValue(this.initValue == "" ? null : this.initValue);
-        this.refilter(refilter,0);
+        return;
     },
-    /*xjs.ui.ComboAidInputerA.performCommand*/
-    performCommand:function(source,command)
+    /*xjs.ui.ComboAidInputer.onInputFieldKeyup*/
+    onInputFieldKeyup:function(e)
     {
-        if(command.startsWith("gotoPage:"))
+        if(e.keyCode == 13)
         {
-            this.refilter(false,parseInt(command.substring(9)));
+            this.forEnterKey(e);
+            Xjs.Event.cancelEvent(e,true);
+            return false;
         }
+        return;
     },
-    /*xjs.ui.ComboAidInputerA.doParentCompSearchBoxKeyUp*/
-    doParentCompSearchBoxKeyUp:function(e)
+    /*xjs.ui.ComboAidInputer.doParentCompSearchBoxKeyDown*/
+    doParentCompSearchBoxKeyDown:function(e)
     {
         var k = e.keyCode;
-        if(k == 13 || k == 40 || k == 38 || k == 27)
+        if(k == 13)
         {
-            Xjs.Event.cancelEvent(e,true);
-            return true;
+        } else if(k == 40 || k == 38)
+        {
+            this.onListKeydown(e);
+        } else if(k == 27)
+        {
+            this.hideAndFocusParent();
+        } else 
+        {
+            return false;
+        }
+        Xjs.Event.cancelEvent(e,true);
+        return true;
+    },
+    /*xjs.ui.ComboAidInputer.setKeyFocused*/
+    setKeyFocused:function(idx,dir,liDoms)
+    {
+        if(this.viewKeyFocused === false)
+            return;
+        if(!liDoms)
+            liDoms = this.getLIDoms();
+        for(;idx >= 0 && idx < liDoms.length;idx += dir)
+        {
+            if(this.isSelectable(liDoms[idx]._value))
+            {
+                this.setFocusedRow(idx,liDoms);
+                break;
+            }
+        }
+    },
+    /*xjs.ui.ComboAidInputer.setCurKeyFocused*/
+    setCurKeyFocused:function(idx,dir,liDoms)
+    {
+        if(this.viewKeyFocused === false)
+            return;
+        if(!liDoms)
+            liDoms = this.getLIDoms();
+        if(idx == 0)
+            this.setFocusedRow(idx,liDoms);
+        for(;idx >= 0 && idx < liDoms.length;idx += dir)
+        {
+            if(this.isSelectable(liDoms[idx]._value))
+            {
+                var className = liDoms[idx].className;
+                if(className && className.indexOf("selected") > -1)
+                {
+                    this.setFocusedRow(idx,liDoms);
+                    break;
+                }
+            }
+        }
+    },
+    /*xjs.ui.ComboAidInputer.indexRowOfValue*/
+    indexRowOfValue:function(v)
+    {
+        var liDoms = this.getLIDoms();
+        for(var i=0;i >= 0 && i < liDoms.length;i++)
+        {
+            if(liDoms[i]._value == v)
+                return i;
+        }
+        return -1;
+    },
+    /*xjs.ui.ComboAidInputer.setFocusedRow*/
+    setFocusedRow:function(idx,liDoms)
+    {
+        if(!liDoms)
+            liDoms = this.getLIDoms();
+        if(this.keyFocusedRow)
+        {
+            var j = Xjs.DOM.indexOf(liDoms,this.keyFocusedRow);
+            if(j == idx)
+                return;
+            Xjs.DOM.removeClass(this.keyFocusedRow,"focused");
+            this.keyFocusedRow = null;
+        }
+        if(idx >= liDoms.length)
+            return;
+        this.keyFocusedRow = liDoms[idx];
+        Xjs.DOM.addClass(this.keyFocusedRow,"focused");
+        if(Xjs.DOM.isShowing(this.dom))
+            this.scrollFocusedRowVisible();
+    },
+    /*xjs.ui.ComboAidInputer.getRowValue*/
+    getRowValue:function(row,mode,focus)
+    {
+        var liDoms = this.getLIDoms(),
+            nr;
+        if((nr = liDoms.length) == 0)
+            return null;
+        if(mode == 1)
+        {
+            var r0 = this.keyFocusedRow == null ? -1 : Xjs.DOM.indexOf(liDoms,this.keyFocusedRow);
+            if(row < 0 && r0 < 0)
+                row = nr + row;
+            else 
+                row = r0 + row;
+        }
+        for(;row < 0;row += nr)
+            ;
+        for(;row >= nr;row -= nr)
+            ;
+        if(focus)
+            this.setFocusedRow(row,liDoms);
+        var rowDom = liDoms[row];
+        if(rowDom)
+            return rowDom._value;
+        return null;
+    },
+    /*xjs.ui.ComboAidInputer.scrollFocusedRowVisible*/
+    scrollFocusedRowVisible:function()
+    {
+        if(this.keyFocusedRow)
+            Xjs.DOM.scrollToVisible(this.listDOMX,this.keyFocusedRow,2);
+    },
+    /*xjs.ui.ComboAidInputer.scrollFocusedRowToTop*/
+    scrollFocusedRowToTop:function()
+    {
+        Xjs.DOM.scrollToTop(this.listDOMX,this.keyFocusedRow);
+    },
+    /*xjs.ui.ComboAidInputer.onListKeydown*/
+    onListKeydown:function(e)
+    {
+        var liDoms = this.getLIDoms(),
+            j = this.keyFocusedRow == null ? -1 : Xjs.DOM.indexOf(liDoms,this.keyFocusedRow),
+            d;
+        if(e.keyCode == 40)
+            d = 1;
+        else if(e.keyCode == 38)
+            d = -1;
+        else 
+        {
+            if(j == -1 && e.keyCode == 13)
+            {
+                d = 1;
+            } else 
+            {
+                return;
+            }
+        }
+        if(j < 0)
+        {
+            this.setKeyFocused(0,1,liDoms);
+        } else 
+        {
+            this.setKeyFocused(j + d,d,liDoms);
         }
         return false;
+    },
+    /*xjs.ui.ComboAidInputer.onListKeyup*/
+    onListKeyup:function(e)
+    {
+        if(e.keyCode == 13)
+        {
+            if(!this.entryKeyLock)
+            {
+                if(this.keyFocusedRow)
+                {
+                    var j = Xjs.DOM.indexOf(this.getLIDoms(),this.keyFocusedRow);
+                    if(j >= 0)
+                    {
+                        this.onSelectClickRow(this.keyFocusedRow);
+                    }
+                }
+            } else 
+            {
+                this.entryKeyLock--;
+            }
+            return false;
+        } else if(e.keyCode == 27)
+        {
+            this.hideAndFocusParent();
+            return false;
+        }
+        return;
+    },
+    /*xjs.ui.ComboAidInputer.onSearchDelBtnClick*/
+    onSearchDelBtnClick:function(e)
+    {
+        if(this.inputField != null)
+        {
+            this.inputField.value = "";
+            this.refilter(false);
+            this.inputField.focus();
+        }
+    },
+    /*xjs.ui.ComboAidInputer.oncmd_all*/
+    oncmd_all:function()
+    {
+        var changed = false,
+            vals;
+        if(this.pgRowCount)
+        {
+            this.filterValues(1,vals = new Xjs.util.SortedArray(null));
+        } else 
+        {
+            vals = this.inSelectingValues;
+        }
+        for(var i=0;i < vals.size();i++)
+        {
+            var value = vals.get(i);
+            if((this.selOptions & 3) == 0 && !this.isLastLevlCode(value))
+            {
+                continue;
+            }
+            if(this.valueList.addItem(value,false))
+                changed = true;
+        }
+        if(changed)
+            this.updateRowDOMClass();
+    }
+});
+Xjs.apply(Xjs.ui.ComboAidInputer,{
+    /*xjs.ui.ComboAidInputer.newDefaultRemoteSearchAid*/
+    newDefaultRemoteSearchAid:function(params)
+    {
+        var aidParams = {selOptions:1 | 0x50,promptInfo:"",selOptions4:16};
+        if(params)
+        {
+            Xjs.apply(aidParams,params);
+        }
+        var remoteSearchAid = new Xjs.ui.ComboAidInputer(aidParams);
+        remoteSearchAid.fnFilterVals = Xjs.ui.ComboAidInputer.newDefaultRemoteSearchFn(null,remoteSearchAid);
+        return remoteSearchAid;
+    },
+    /*xjs.ui.ComboAidInputer.newDefaultRemoteSearchFn*/
+    newDefaultRemoteSearchFn:function(searchBeanId,scop)
+    {
+        var remoteSearch = this.remoteSearchFn.createDelegate(this,[searchBeanId],true);
+        return new Xjs.FuncCall(remoteSearch,scop);
+    },
+    /*xjs.ui.ComboAidInputer.remoteSearchFn*/
+    remoteSearchFn:function(aid,curFilter,searchBeanId)
+    {
+        if(curFilter == null)
+        {
+        }
+        if(!searchBeanId)
+        {
+            searchBeanId = aid.searchBeanId;
+        }
+        var v = [];
+        if(searchBeanId)
+        {
+            var params = {filterTxt:curFilter};
+            params.columnName = aid.parent.name;
+            Xjs.apply(params,aid.searchParams || {});
+            aid.selectOptions = v = Xjs.RInvoke.rsvInvoke("SN-UI.ComboRemoteService.remoteFilter",searchBeanId,params);
+        }
+        return v;
     }
 });
 /*xjs/ui/DateAidInputer.java*/
@@ -7279,7 +8753,7 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
             curMin = date.getMinutes(),
             curSec = date.getSeconds(),
             htmlRes = this.htmlRes || "@" + Xjs.getDefResPath() + "/datepicker.html",
-            dom = Xjs.ui.Component.createDomFromRes(htmlRes,this,false);
+            dom = Xjs.ui.Component.createDomFromRes(htmlRes,this,false,Xjs.ResBundle.getRes("UI"));
         {
             this.yearAI = this.createComboInput("YEARSELECT",dom,"_onYMChanged",65);
             this.monthAI = this.createComboInput("MONTHSELECT",dom,"_onYMChanged",50);
@@ -7291,36 +8765,39 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
                     this.monthAI.selectOptions[m - 1] = m;
                 }
             }
-            var tableDOM = this.tableDOM = Xjs.DOM.findById("DAYSELECT",dom);
-            tableDOM.onclick = Function.bindAsEventListener(this._onDayClick,this);
-            tableDOM.onkeydown = Function.bindAsEventListener(this._onDayKeydown,this);
-            for(var r=0;r < 7;r++)
+            if(!(this.hms & 8))
             {
-                var row = tableDOM.insertRow(r);
-                if(r == 0)
+                var tableDOM = this.tableDOM = Xjs.DOM.findById("DAYSELECT",dom);
+                tableDOM.onclick = Function.bindAsEventListener(this._onDayClick,this);
+                tableDOM.onkeydown = Function.bindAsEventListener(this._onDayKeydown,this);
+                for(var r=0;r < 7;r++)
                 {
-                    row.className = "headerrow";
-                } else 
-                {
-                    row.className = "bodyrow";
-                }
-                for(var c=0;c < 7;c++)
-                {
-                    var cell = row.insertCell(c);
-                    cell.align = "center";
-                    cell.vAlign = "middle";
+                    var row = tableDOM.insertRow(r);
                     if(r == 0)
                     {
-                        cell.innerHTML = Xjs.ui.DateAidInputer.ShortWeekTitle[c];
+                        row.className = "headerrow";
                     } else 
                     {
+                        row.className = "bodyrow";
+                    }
+                    for(var c=0;c < 7;c++)
+                    {
+                        var cell = row.insertCell(c);
+                        cell.align = "center";
+                        cell.vAlign = "middle";
+                        if(r == 0)
+                        {
+                            cell.innerHTML = this.ShortWeekTitle[c];
+                        } else 
+                        {
+                        }
                     }
                 }
             }
         }
         this.okBtn = Xjs.DOM.findById("OKBTN",dom);
         var hmsDOM = Xjs.DOM.findById("HMSSELECT",dom);
-        if(this.hms > 0)
+        if(this.hms & 7)
         {
             var dftCurHMS = this.dftCurHMS === undefined ? 7 : this.dftCurHMS,
                 hmsIDs = ["HOURELECT","MINSELECT","SECSELECT"];
@@ -7339,14 +8816,14 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
                     this.minDOM = e;
                     max = 59;
                     v = (dftCurHMS & 2) != 0 ? (this.initMin === undefined ? curMin : this.initMin) : 0;
-                    if((this.hms & 6) == 0 && e != null)
+                    if(!(this.hms & 6) && e != null)
                         e.disabled = true;
                 } else 
                 {
                     this.secDOM = e;
                     max = 59;
                     v = (dftCurHMS & 4) != 0 ? (this.initSec === undefined ? curSec : this.initSec) : 0;
-                    if((this.hms & 4) == 0 && e != null)
+                    if(!(this.hms & 4) && e != null)
                         e.disabled = true;
                 }
                 if(this.okBtn && e.tagName == "INPUT")
@@ -7384,7 +8861,7 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
                                 Xjs.DOM.setTextContent(li,(h < 10 ? "0" + h : "" + h) + " : " + (m < 10 ? "0" + m : "" + m));
                             }
                     }
-                    this.hmSelScrollbar = new Xjs.ui.util.CustomScrollbar(this.hmSelList,1 | 4 | 8,null);
+                    this.hmSelScrollbar = new Xjs.ui.util.CustomScrollbar("DateAI.SBar",this.hmSelList,1 | 4 | 8,null,null,null);
                 } else 
                 {
                     this.hmSelList.style.display = "none";
@@ -7392,7 +8869,11 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
             }
         } else 
         {
-            Xjs.DOM.remove(hmsDOM);
+            var hmsI = Xjs.DOM.findById("HMSINPUT",hmsDOM);
+            if(hmsI && this.hms & 8)
+                Xjs.DOM.remove(hmsI);
+            else 
+                Xjs.DOM.remove(hmsDOM);
         }
         {
             var navIds = ["NAVYEARPREV","NAVYEARNEXT","NAVMONPREV","NAVMONTNEXT"],
@@ -7412,7 +8893,9 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
                 this.okBtn.onclick = Function.bindAsEventListener(this._onOk,this);
         }
         if(this.selectOnDayClick === undefined)
-            this.selectOnDayClick = this.okBtn == null || (this.hms || 0) == 0;
+        {
+            this.selectOnDayClick = this.okBtn == null || (this.hms & 7) == 0;
+        }
         this.ymdSelBtns = Xjs.DOM.findById("YMDSELBTNS",dom);
         if(this.ymdSelBtns)
         {
@@ -7478,7 +8961,7 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
         e.parentNode.insertBefore(input.getDOM(),e);
         e.parentNode.removeChild(e);
         if(onChanged)
-            input.addListener("valueChanged",{func:this[onChanged],scorp:this});
+            input.addListener("valueChanged",new Xjs.FuncCall(this[onChanged],this));
         return input;
     },
     /*xjs.ui.DateAidInputer.onComboAidInputerExpandShow*/
@@ -7491,7 +8974,7 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
             {
                 var v0 = combo.parent.selectOptions[0];
                 if(typeof(v0) == "number")
-                    combo.setKeyFocused(v - v0,1);
+                    combo.setKeyFocused(v - v0,1,null);
                 if(combo.parent == this.yearAI)
                     combo.scrollFocusedRowToTop();
             }
@@ -7534,43 +9017,44 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
                 pmdays = Date.getDaysOfMonth(pyear,pmonth),
                 nyear = month == 12 ? year + 1 : year,
                 nmonth = month == 12 ? 1 : month + 1;
-            for(var r=1;r <= 6;r++)
-            {
-                var row = this.tableDOM.rows[r];
-                for(var j=0;j < 7;j++)
+            if(this.tableDOM)
+                for(var r=1;r <= 6;r++)
                 {
-                    d++;
-                    var cell = row.cells[j];
-                    cell._day = d;
-                    var _ymd;
-                    if(d <= 0)
+                    var row = this.tableDOM.rows[r];
+                    for(var j=0;j < 7;j++)
                     {
-                        _ymd = [pyear,pmonth,pmdays + d];
-                        cell.className = j == 0 || j == 6 ? "xhday" : "xday";
-                    } else if(d > mdays)
-                    {
-                        _ymd = [nyear,nmonth,d - mdays];
-                        cell.className = j == 0 || j == 6 ? "xhday" : "xday";
-                    } else 
-                    {
-                        _ymd = [year,month,d];
-                        cell.className = j == 0 || j == 6 ? "hday" : "day";
-                    }
-                    cell._ymd = _ymd;
-                    if(this.checkDateValid && !this.checkDateValid.func.call(this.checkDateValid.scorp,_ymd))
-                    {
-                        cell.className += " disabled";
-                    }
-                    cell.innerHTML = "" + _ymd[2];
-                    if(this.curDay == d && month == this.curMonth && year == this.curYear)
-                    {
-                        Xjs.DOM.addClass(cell,"today");
-                        this._todayFlaged = d;
-                    } else 
-                    {
+                        d++;
+                        var cell = row.cells[j];
+                        cell._day = d;
+                        var _ymd;
+                        if(d <= 0)
+                        {
+                            _ymd = [pyear,pmonth,pmdays + d];
+                            cell.className = j == 0 || j == 6 ? "xhday" : "xday";
+                        } else if(d > mdays)
+                        {
+                            _ymd = [nyear,nmonth,d - mdays];
+                            cell.className = j == 0 || j == 6 ? "xhday" : "xday";
+                        } else 
+                        {
+                            _ymd = [year,month,d];
+                            cell.className = j == 0 || j == 6 ? "hday" : "day";
+                        }
+                        cell._ymd = _ymd;
+                        if(this.checkDateValid && !this.checkDateValid.call(_ymd))
+                        {
+                            cell.className += " disabled";
+                        }
+                        cell.innerHTML = "" + _ymd[2];
+                        if(this.curDay == d && month == this.curMonth && year == this.curYear)
+                        {
+                            Xjs.DOM.addClass(cell,"today");
+                            this._todayFlaged = d;
+                        } else 
+                        {
+                        }
                     }
                 }
-            }
             this.yearAI.setValue(this.year = year);
             this.monthAI.setValue(this.month = month);
             this.day = 0;
@@ -7591,7 +9075,7 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
     /*xjs.ui.DateAidInputer.setSelectedDay*/
     setSelectedDay:function(day)
     {
-        if(this._flagSelectedDay == day)
+        if(this._flagSelectedDay == day || !this.tableDOM)
             return;
         if(this._flagSelectedDay !== undefined)
         {
@@ -7613,7 +9097,7 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
     /*xjs.ui.DateAidInputer.setFocusedDay*/
     setFocusedDay:function(day)
     {
-        if(this.focusedDay == day)
+        if(this.focusedDay == day || !this.tableDOM)
             return;
         if(this.focusedDay !== undefined)
         {
@@ -7750,14 +9234,31 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
             this.date2Input.selectedVal2 = null;
             this.date2Input.date1Input._onOk();
         }
-        this.selectFocusedDay();
+        if(this.hms & 8)
+        {
+            if(this.parent.sqlType == 12)
+            {
+                var val = this.year + "-" + (this.month < 9 ? "0" + this.month : "" + this.month);
+                this.setParentValue(val);
+            } else if(this.parent.sqlType == 4)
+            {
+                this.setParentValue(this.year * (this.month < 9 ? 1000 : 100) + this.month);
+            }
+            this.hideAndFocusParent();
+        } else 
+        {
+            this.selectFocusedDay();
+        }
     },
     /*xjs.ui.DateAidInputer.isOk*/
     isOk:function()
     {
-        var cell = this._getDayCell(this.focusedDay);
-        if(!cell)
-            return false;
+        if(this.tableDOM)
+        {
+            var cell = this._getDayCell(this.focusedDay);
+            if(!cell)
+                return false;
+        }
         var hms = this.getHMS();
         return hms[0] >= 0 && hms[0] < 24 && hms[1] >= 0 && hms[1] < 60 && hms[2] >= 0 && hms[2] < 60;
     },
@@ -7801,7 +9302,7 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
                     val += ":" + Xjs.ui.DateAidInputer.toStr2(hms[1]);
                 if(this.secDOM)
                     val += ":" + Xjs.ui.DateAidInputer.toStr2(hms[2]);
-                if(this.checkDateValid && !this.checkDateValid.func.call(this.checkDateValid.scorp,ymd,hms))
+                if(this.checkDateValid && !this.checkDateValid.call(ymd,hms))
                 {
                     return;
                 }
@@ -7873,7 +9374,8 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
     /*xjs.ui.DateAidInputer.afterExpandShow*/
     afterExpandShow:function(newDom)
     {
-        this.tableDOM.focus();
+        if(this.tableDOM)
+            this.tableDOM.focus();
         if(this.hmSelScrollbar)
             this.hmSelScrollbar.updateValue();
     },
@@ -7912,6 +9414,15 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
     /*xjs.ui.DateAidInputer.setInitValue*/
     setInitValue:function(date)
     {
+        if(this.hms & 8 && typeof(date) == "string")
+        {
+            date += "-1";
+        }
+        if(this.hms & 8 && typeof(date) == "number")
+        {
+            var intv = "" + date;
+            date = intv.substring(0,4) + "-" + intv.substring(4) + "-1";
+        }
         if(typeof(date) == "string")
         {
             date = Date.parseDate(date);
@@ -7919,15 +9430,15 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
         if(!(date instanceof Date))
         {
             date = Date.getServerTime();
-            var hms = this.hms || 0;
+            var hms = this.hms & 7;
             if(hms == 0)
             {
                 date = new Date(date.getFullYear(),date.getMonth(),date.getDate());
             } else if(hms > 0)
             {
                 var h = this.initHour === undefined ? date.getHours() : this.initHour,
-                    m = this.initMin === undefined ? (hms >= 2 ? date.getMinutes() : 0) : this.initMin,
-                    s = this.initSec === undefined ? 0 : this.initSec;
+                    m = this.initMin === undefined ? (hms & 2 ? date.getMinutes() : 0) : this.initMin,
+                    s = this.initSec === undefined ? (hms & 4 ? date.getSeconds() : 0) : this.initSec;
                 date = new Date(date.getFullYear(),date.getMonth(),date.getDate(),h,m,s,0);
             }
         }
@@ -7946,6 +9457,14 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
         {
             var d = b._value;
             this.setDate(d.getFullYear(),d.getMonth() + 1,d.getDate());
+            if(this.hms == 0 && b._selectOnClick)
+            {
+                this.selectYMD([d.getFullYear(),d.getMonth() + 1,d.getDate()]);
+            }
+        } else if(b._value === null && this.hms == 0)
+        {
+            this.setParentValue(null);
+            this.hideAndFocusParent();
         }
     },
     /*xjs.ui.DateAidInputer.onHMSelItemClick*/
@@ -7968,7 +9487,6 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
     }
 });
 Xjs.apply(Xjs.ui.DateAidInputer,{
-    ShortWeekTitle:["日","一","二","三","四","五","六"],
     /*xjs.ui.DateAidInputer.toStr2*/
     toStr2:function(x)
     {
@@ -8002,51 +9520,11 @@ Xjs.apply(Xjs.ui.DateAidInputer,{
     /*xjs.ui.DateAidInputer.getDefaultInputer*/
     getDefaultInputer:function(hms)
     {
-        if(hms >= 7)
+        if(hms == 7)
             return Xjs.ui.DateAidInputer.defaultInputer3 || (Xjs.ui.DateAidInputer.defaultInputer3 = new Xjs.ui.DateAidInputer({hms:7}));
-        if(hms > 0)
+        if(hms)
             return new Xjs.ui.DateAidInputer({hms:hms});
         return Xjs.ui.DateAidInputer.defaultInputer || (Xjs.ui.DateAidInputer.defaultInputer = new Xjs.ui.DateAidInputer());
-    }
-});
-/*xjs/ui/Image.java*/
-Xjs.ui.Image=function(config){
-    Xjs.ui.Image.superclass.constructor.call(this,config);
-};
-Xjs.extend(Xjs.ui.Image,Xjs.ui.Component,{
-  _js$className_:"Xjs.ui.Image",
-    /*xjs.ui.Image._createDOM*/
-    _createDOM:function(root)
-    {
-        var d = this.imgDOM = Xjs.ui.Image.superclass._createDom0.call(this,root,"img");
-        if(this.name)
-            d.name = this.name;
-        if(this.src)
-            d.src = Xjs.toFullURL(this.src,1);
-        if(this.imgHeight)
-            d.height = this.imgHeight;
-        if(this.imgWidth)
-            d.width = this.imgWidth;
-        return d;
-    },
-    /*xjs.ui.Image.setSrc*/
-    setSrc:function(src)
-    {
-        this.src = src;
-        if(this.imgDOM)
-            this.imgDOM.src = Xjs.toFullURL(src,1);
-    },
-    /*xjs.ui.Image.getImageDOM*/
-    getImageDOM:function()
-    {
-        return this.imgDOM;
-    },
-    /*xjs.ui.Image.setValue*/
-    setValue:function(value)
-    {
-        if(!this.attached)
-            return;
-        this.setSrc(Xjs.table.util.AbsSelectAttachment.buildURL(this.attached,false,null,true,value,this.table,this.columnName,this.table.getDataSet().getRow(),true));
     }
 });
 /*xjs/ui/Menu.java*/
@@ -8087,9 +9565,16 @@ Xjs.extend(Xjs.ui.Menu,Xjs.ui.Component,{
         return this.listDOM = dom;
     },
     /*xjs.ui.Menu._createNodesBySelopts*/
-    _createNodesBySelopts:function(optData,iFrom,prefix,nodes)
+    _createNodesBySelopts:function(optData,iFrom,prefixLvCode,nodes)
     {
-        var nPrefix = prefix.length,
+        var lvColumn = this.lvColumn || 0;
+        if(this.lvColumn === undefined && this.selectOptions instanceof Xjs.dx.CodeData)
+        {
+            var lv = this.selectOptions.lvColumn;
+            if(lv > 0)
+                lv = lvColumn;
+        }
+        var nPrefix = prefixLvCode.length,
             i = iFrom;
         if(optData != null)
             for(;i < optData.length;)
@@ -8097,13 +9582,14 @@ Xjs.extend(Xjs.ui.Menu,Xjs.ui.Component,{
                 var a = optData[i];
                 if(!Xjs.isArray(a))
                     a = [a];
-                var value = a[0];
-                if(value.length <= nPrefix || value.substring(0,nPrefix) != prefix)
+                var lvCode = a[lvColumn];
+                if(lvCode.length <= nPrefix || lvCode.substring(0,nPrefix) != prefixLvCode)
                     break;
-                var text = a.length < 2 ? a[0] : (this.showCode && a[0] != a[1] ? a[0] + ":" + a[1] : a[1]),
+                var value = a[0],
+                    text = a.length < 2 ? value : (this.showCode && value != a[1] ? value + ":" + a[1] : a[1]),
                     node = {value:value,content:text},
                     subNodes = [];
-                i += 1 + this._createNodesBySelopts(optData,i + 1,value,subNodes);
+                i += 1 + this._createNodesBySelopts(optData,i + 1,lvCode,subNodes);
                 if(subNodes.length > 0)
                     node.nodes = subNodes;
                 nodes.push(node);
@@ -8645,7 +10131,8 @@ Xjs.apply(Xjs.canvas.GradientColors.prototype,{
 /*xjs/core/Ajax.java*/
 Xjs.Ajax=function(config){
     Xjs.apply(this,config);
-    this.conn = Xjs.Ajax.createConnection();
+    if(!this.conn)
+        this.conn = Xjs.Ajax.createConnection();
 };
 Xjs.apply(Xjs.Ajax.prototype,{
     postBody:null,
@@ -8721,8 +10208,20 @@ Xjs.apply(Xjs.Ajax.prototype,{
             this.conn.responseType = this.responseType;
         }
         if(this.onposting)
-            this.onposting.func.apply(this.onposting.scorp || window,this.onposting.args || []);
-        this.conn.send(post);
+        {
+            this.onposting.call();
+        }
+        var htmlCls = document.getElementsByTagName("html")[0].classList;
+        if(htmlCls)
+            htmlCls.add("ui-in-ajax");
+        try
+        {
+            this.conn.send(post);
+        }finally
+        {
+            if(htmlCls)
+                htmlCls.remove("ui-in-ajax");
+        }
     },
     /*xjs.core.Ajax.responseIsSuccess*/
     responseIsSuccess:function()
@@ -8745,13 +10244,12 @@ Xjs.apply(Xjs.Ajax.prototype,{
     {
         var status = this.conn.status,
             self = this;
-        if(this.responseIsSuccess())
         {
             var readyState = this.conn.readyState;
             if(this.onready)
             {
                 setTimeout(function(){
-            self.onready.func.call(self.onready.scorp || this,self,readyState);
+            self.onready.call(self,readyState);
         },0);
             }
             if(readyState == 4 && this.success)
@@ -8766,14 +10264,9 @@ Xjs.apply(Xjs.Ajax.prototype,{
                     return;
                 }
                 setTimeout(function(){
-            var a = [v,status];
-            Array.pushAll(a,self.success.args);
-            self.success.func.apply(self.success.scorp || this,a);
+            self.success.call(v,status);
         },0);
             }
-        } else 
-        {
-            this._onError(status,null);
         }
     },
     /*xjs.core.Ajax._onError*/
@@ -8783,36 +10276,64 @@ Xjs.apply(Xjs.Ajax.prototype,{
         if(this.error)
         {
             setTimeout(function(){
-            var a = [ex,status];
-            Array.pushAll(a,self.error.args);
-            self.error.func.apply(self.error.scorp || this,a);
+            self.error.call(ex,status);
         },0);
         }
     },
     /*xjs.core.Ajax.getResponse*/
     getResponse:function(jsonDec)
     {
+        var ct = this.getResponseHeader("Content-type"),
+            p = ct == null ? -1 : ct.indexOf(";");
+        if(p >= 0)
+            ct = ct.substring(0,p);
+        var s = this.conn.response;
         if(this.responseIsSuccess())
         {
-            var ct = this.getResponseHeader("Content-type");
-            if(ct == null || !jsonDec)
-                return this.conn.response;
-            var p = ct.indexOf(";");
-            if(p >= 0)
-                ct = ct.substring(0,p);
-            if(ct != "application/json")
-                return this.conn.response;
-            var s = this.conn.response;
-            if((s = s.trim()).length > 2 && s.charCodeAt(0) == 0x7b && s.charCodeAt(s.length - 1) == 0x7d)
-                s = "(" + s + ")";
-            var v = eval(s);
+            if(ct != "application/json" || !jsonDec)
+                return s;
+            var v = eval("(" + s + ")");
             if(v instanceof Error)
                 throw v;
             return v;
         } else 
         {
-            throw "调用失败:ResponseStatus=" + this.responseStatus();
+            var ex = null;
+            try
+            {
+                if(ct != "application/json")
+                {
+                    ex = new Error(s);
+                } else 
+                {
+                    if((s = s.trim()).length > 2 && s.charCodeAt(0) == 0x7b && s.charCodeAt(s.length - 1) == 0x7d)
+                        s = "(" + s + ")";
+                    var v = eval(s);
+                    if(v instanceof Error)
+                        ex = v;
+                    else if(typeof(v) != "object")
+                        ex = new Error(v == null ? null : v.toString());
+                    else 
+                    {
+                        ex = new Error();
+                        Xjs.apply(ex,v);
+                    }
+                }
+            }catch(e)
+            {
+            }
+            throw ex != null ? ex : new Error("调用失败:ResponseStatus=" + this.responseStatus());
         }
+    },
+    /*xjs.core.Ajax.promise*/
+    promise:function()
+    {
+        var _a = this;
+        return new Promise(function(resolve,reject){
+            _a.success = new Xjs.FuncCall(resolve,window);
+            _a.error = new Xjs.FuncCall(reject,window);
+            _a.request();
+        });
     }
 });
 Xjs.apply(Xjs.Ajax,{
@@ -8892,13 +10413,16 @@ Xjs.apply(Xjs.Ajax,{
             else 
                 contentType = "application/x-www-form-urlencoded;charset=utf-8";
             var ajax = new Xjs.Ajax({url:url,contentType:contentType,header:header});
+            if(method)
+            {
+                ajax.method = method;
+            }
             if(method == "get")
             {
                 ajax.parameters = s;
-                ajax.method = "get";
             } else if(cmdAsBody)
             {
-                ajax.postBody = Xjs.JSON.encode(cmdOrBody);
+                ajax.postBody = Xjs.JSON.encode(cmdOrBody,null,(options & 4) != 0 ? 1 : 0);
             } else 
             {
                 ajax.postBody = s;
@@ -9040,7 +10564,9 @@ Xjs.Data = {
             s,
             typeV = typeof(value);
         if(typeV == "string" && (value = String.rtrim(value)).length == 0)
+        {
             return null;
+        }
         switch(sqlType)
         {
         case 4:
@@ -9049,7 +10575,7 @@ Xjs.Data = {
             value = parseInt(s = value.toString());
             if(isNaN(value) || !Xjs.Data.IntRegExpr.test(s))
             {
-                throw new Error("无效的整数格式:" + initValue);
+                throw new Error(Xjs.ResBundle.getString("ERRUI","ErrorDataformat.Integer",initValue));
             }
             return value;
         case 2:
@@ -9061,7 +10587,7 @@ Xjs.Data = {
             value = parseFloat(s);
             if(isNaN(value) || !Xjs.Data.NumRegExpr.test(s))
             {
-                throw new Error("无效的数值格式:" + initValue);
+                throw new Error(Xjs.ResBundle.getString("ERRUI","ErrorDataformat.Number",initValue));
             }
             return value;
         case -7:
@@ -9077,7 +10603,7 @@ Xjs.Data = {
                 return value;
             value = Date.parseDate(value,1);
             if(!value)
-                throw new Error("无效的日期格式:" + initValue);
+                throw new Error(Xjs.ResBundle.getString("ERRUI","ErrorDataformat.Date",initValue));
             return value;
         default:
             return value;
@@ -9215,10 +10741,11 @@ Xjs.apply(Date,{
                 m = 0;
                 y++;
             }
-            var maxDay = Date.getDaysOfMonth(y,m),
+            var maxDay = Date.getDaysOfMonth(y,m + 1),
                 da = d.getDate();
             if(da > maxDay)
                 da = maxDay;
+            d.setDate(1);
             d.setFullYear(y);
             d.setMonth(m);
             d.setDate(da);
@@ -9743,6 +11270,66 @@ Xjs.DOM = {
     margins:{l:"marginLeft",r:"marginRight",t:"marginTop",b:"marginBottom"},
     PXEndSizeRegX:new RegExp("^\\d+px$"),
     DigEndSizeRegX:new RegExp("^\\d+$"),
+    /*xjs.core.DOM.getHead*/
+    getHead:function()
+    {
+        return Xjs.getHTMLHead();
+    },
+    /*xjs.core.DOM.getHeadScriptSrc*/
+    getHeadScriptSrc:function(src)
+    {
+        var a = Xjs.DOM.getHead().getElementsByTagName("script");
+        if(a)
+            for(var i=0;i < a.length;i++)
+            {
+                if(a[i].src == src)
+                    return a[i];
+            }
+        return null;
+    },
+    /*xjs.core.DOM.addHeadScript*/
+    addHeadScript:function(url)
+    {
+        url = Xjs.toFullURL(url,0);
+        var s = Xjs.DOM.getHeadScriptSrc(url);
+        if(!s)
+        {
+            s = document.createElement("script");
+            s.type = "text/javascript";
+            s.async = false;
+            s.src = url;
+            Xjs.DOM.getHead().appendChild(s);
+        }
+    },
+    /*xjs.core.DOM.getHeadLinkByHRef*/
+    getHeadLinkByHRef:function(href)
+    {
+        var a = Xjs.DOM.getHead().getElementsByTagName("link");
+        if(a)
+            for(var i=0;i < a.length;i++)
+            {
+                if(a[i].href == href)
+                    return a[i];
+            }
+        return null;
+    },
+    /*xjs.core.DOM.addHeaderCSSLink*/
+    addHeaderCSSLink:function(src)
+    {
+        var p = src.indexOf("${theme}");
+        if(p >= 0)
+        {
+            var s = window.EnvParameter ? window.EnvParameter.theme : null;
+            src = src.substring(0,p) + (s || "theme0") + src.substring(p + 8);
+        }
+        src = Xjs.toFullURL(src,0);
+        if(Xjs.DOM.getHeadLinkByHRef(src) != null)
+            return;
+        var s = document.createElement("link");
+        s.href = src;
+        s.rel = "stylesheet";
+        Xjs.DOM.getHead().appendChild(s);
+    },
     /*xjs.core.DOM.getStyle*/
     getStyle:function(dom,prop)
     {
@@ -10138,7 +11725,7 @@ Xjs.DOM = {
     /*xjs.core.DOM.getInputSelectionRange*/
     getInputSelectionRange:function(i)
     {
-        if(typeof(i.selectionStart) == "number")
+        if(i && typeof(i.selectionStart) == "number")
         {
             return [i.selectionStart,i.selectionEnd];
         }
@@ -10272,6 +11859,17 @@ Xjs.DOM = {
             }
             return false;
         }
+    },
+    /*xjs.core.DOM.lookupByChild*/
+    lookupByChild:function(a,c)
+    {
+        if(a)
+            for(var i=0;i < a.length;i++)
+            {
+                if(a[i] == c || Xjs.DOM.contains(a[i],c))
+                    return a[i];
+            }
+        return null;
     },
     /*xjs.core.DOM.getParentForTag*/
     getParentForTag:function(dom,tag)
@@ -10447,24 +12045,24 @@ Xjs.DOM = {
         return dom.textContent || dom.innerText;
     },
     /*xjs.core.DOM.findById*/
-    findById:function(id,context)
+    findById:function(id,ctx)
     {
-        if(!context)
+        if(!ctx)
             return document.getElementById(id);
-        if(context.id == id)
-            return context;
-        if(context.querySelector)
+        if(ctx.id == id)
+            return ctx;
+        if(ctx.querySelector)
             try
             {
                 var e;
-                if((e = context.querySelector("#" + id)) || !Xjs.isSafari)
+                if((e = ctx.querySelector("#" + id)) || !Xjs.isSafari)
                     return e;
-                return context.querySelectorAll("#" + id)[0];
+                return ctx.querySelectorAll("#" + id)[0];
             }catch(ex)
             {
                 throw new Error("无效选择符:#" + id);
             }
-        return $("#" + id,context).get(0);
+        return $("#" + id,ctx).get(0);
     },
     /*xjs.core.DOM.getElementById*/
     getElementById:function(a,id)
@@ -10601,29 +12199,105 @@ Xjs.DOM = {
         }
         return Xjs.DOM.ifrmPath;
     },
-    /*xjs.core.DOM.getVisHeightOnViewport*/
-    getVisHeightOnViewport:function(dom,caseIFrm)
+    /*xjs.core.DOM.clipViewRect*/
+    clipViewRect:function(w,r,removeSB)
     {
-        var ifrmPath = caseIFrm ? Xjs.DOM.getIFramePath() : null,
-            ty = dom ? Xjs.DOM.getXY(dom,false).y : 0,
-            vh;
-        if(ifrmPath && ifrmPath.length > 0)
+        if(!w)
+            w = window;
+        var vw = Xjs.DOM.getViewportWidth(w),
+            vh = Xjs.DOM.getViewportHeight(w);
+        if(removeSB)
         {
+            var d = w.document;
+            if(d.body.scrollHeight > w.innerHeight && Xjs.DOM.getStyle(d.body,"overflow-y") != "hidden")
+            {
+                vw -= 16;
+            }
+            if(d.body.scrollWidth > w.innerWidth && Xjs.DOM.getStyle(d.body,"overflow-x") != "hidden")
+            {
+                vh -= 16;
+            }
+        }
+        if(r.x < 0)
+        {
+            r.width += r.x;
+            r.x = 0;
+        }
+        if(r.y < 0)
+        {
+            r.height += r.y;
+            r.y = 0;
+        }
+        if(r.x + r.width > vw)
+            r.width = vw - r.x;
+        if(r.y + r.height > vh)
+            r.height = vh - r.y;
+    },
+    /*xjs.core.DOM.getVisRect*/
+    getVisRect:function(dom,opts)
+    {
+        var r;
+        if(!dom)
+        {
+            r = {x:0,y:0,width:Xjs.DOM.getViewportWidth(),height:Xjs.DOM.getViewportHeight()};
+        } else 
+        {
+            var o = Xjs.DOM.getXY(dom,true);
+            r = {x:o.x,y:o.y,width:Xjs.DOM.getWidth(dom),height:Xjs.DOM.getHeight(dom)};
+            Xjs.DOM.clipViewRect(window,r,(opts & 2) != 0);
+        }
+        var ifrmPath;
+        if(opts & 1 && (ifrmPath = Xjs.DOM.getIFramePath()).length > 0)
+        {
+            var ifrmPos0 = new Array(ifrmPath.length),
+                ifrmPos1 = new Array(ifrmPath.length);
+            for(var i=ifrmPath.length - 1;i >= 0;i--)
+            {
+                var oxy = ifrmPos1[i] = Xjs.DOM.getXY(ifrmPath[i],true);
+                ifrmPos0[i] = i == ifrmPath.length - 1 ? oxy : {x:oxy.x + ifrmPos1[i + 1].x,y:oxy.y + ifrmPos1[i + 1].y};
+            }
+            r.x += ifrmPos0[0].x;
+            r.y += ifrmPos0[0].y;
+            if(r.x < 0)
+            {
+                r.width += r.x;
+                r.x = 0;
+            }
+            if(r.y < 0)
+            {
+                r.height += r.y;
+                r.y = 0;
+            }
             for(var i=0;i < ifrmPath.length;i++)
             {
-                var oxy = Xjs.DOM.getXY(ifrmPath[i],true);
-                ty += oxy.y;
+                var xy = ifrmPos0[i],
+                    w = Xjs.DOM.getWidth(ifrmPath[i]),
+                    h = Xjs.DOM.getHeight(ifrmPath[i]);
+                if(r.x < xy.x)
+                {
+                    r.width -= xy.x - r.x;
+                    r.x = xy.x;
+                }
+                if(r.y < xy.y)
+                {
+                    r.height -= xy.y - r.y;
+                    r.y = xy.y;
+                }
+                if(r.x + r.width > xy.x + w)
+                {
+                    r.width = xy.x + w - r.x;
+                }
+                if(r.y + r.height > xy.y + h)
+                {
+                    r.height = xy.y + h - r.y;
+                }
             }
-            vh = Xjs.DOM.getViewportHeight(ifrmPath[ifrmPath.length - 1].contentWindow.parent);
-        } else 
-            vh = Xjs.DOM.getViewportHeight();
-        if(dom)
-        {
-            var h = Xjs.DOM.getHeight(dom);
-            if(vh > ty + h)
-                vh = ty + h;
+            var w = ifrmPath[ifrmPath.length - 1].contentWindow.parent;
+            Xjs.DOM.clipViewRect(w,r,(opts & 2) != 0);
+            r.x -= ifrmPos0[0].x;
+            r.y -= ifrmPos0[0].y;
         }
-        return ty < 0 ? vh : vh - ty;
+        return r;
     },
     /*xjs.core.DOM.getTblRow*/
     getTblRow:function(tb,r,addIfNul)
@@ -10704,7 +12378,7 @@ Xjs.DOM = {
             Xjs.DOM.fnOnWinResize = [];
             Xjs.DOM.addListener(window,"resize",Xjs.DOM.onWinResize);
         }
-        Xjs.DOM.fnOnWinResize.push({func:func,scorp:scorp,args:args});
+        Xjs.DOM.fnOnWinResize.push(new Xjs.FuncCall(func,scorp,args));
     },
     /*xjs.core.DOM.onWinResize*/
     onWinResize:function(time)
@@ -10713,7 +12387,9 @@ Xjs.DOM = {
         {
             setTimeout(Xjs.DOM._onWinResize,time);
         } else 
+        {
             Xjs.DOM._onWinResize();
+        }
     },
     /*xjs.core.DOM._onWinResize*/
     _onWinResize:function()
@@ -10721,8 +12397,7 @@ Xjs.DOM = {
         if(Xjs.DOM.fnOnWinResize)
             for(var i=0;i < Xjs.DOM.fnOnWinResize.length;i++)
             {
-                var f = Xjs.DOM.fnOnWinResize[i];
-                f.func.apply(f.scorp || window,f.args || []);
+                Xjs.DOM.fnOnWinResize[i].call();
             }
         if(document.body._customScrollbar)
             try
@@ -10806,11 +12481,16 @@ Xjs.DOM = {
     /*xjs.core.DOM.getTipContentIfOvflow*/
     getTipContentIfOvflow:function(e)
     {
-        if(e && e.scrollWidth > e.offsetWidth || e.scrollHeight > e.offsetHeight)
+        if(Xjs.DOM.isContentOvflow(e))
         {
             return e.innerHTML;
         }
         return null;
+    },
+    /*xjs.core.DOM.isContentOvflow*/
+    isContentOvflow:function(e)
+    {
+        return e && e.scrollWidth > e.offsetWidth || e.scrollHeight > e.offsetHeight;
     }
 };
 /*xjs/core/Event.java*/
@@ -10966,6 +12646,70 @@ Xjs.Event = {
         return k >= 33 && k <= 40 || k == 13 || k == 9 || k == 27;
     }
 };
+/*xjs/core/FuncCall.java*/
+Xjs.FuncCall=function(func,scorp,args,argMode){
+    this.func = func;
+    this.scorp = scorp;
+    this.args = args;
+    this.argMode = argMode;
+};
+Xjs.apply(Xjs.FuncCall.prototype,{
+    /*xjs.core.FuncCall.call*/
+    call:function()
+    {
+        return this.apply(arguments);
+    },
+    /*xjs.core.FuncCall.apply*/
+    apply:function(args)
+    {
+        return this.func.apply(this.scorp || window,this.buildCallArgs(args));
+    },
+    /*xjs.core.FuncCall.asFunction*/
+    asFunction:function()
+    {
+        if(this._df)
+            return this._df;
+        var f = this;
+        return this._df = function(){
+            return f.apply(arguments);
+        };
+    },
+    /*xjs.core.FuncCall.buildCallArgs*/
+    buildCallArgs:function(callArgs)
+    {
+        var am;
+        switch(am = this.argMode || 3)
+        {
+        case 1:
+            return this.args;
+        case 2:
+        default:
+            {
+                var a;
+                if(a = this.args)
+                {
+                    var args = [];
+                    if(callArgs && am != 2)
+                        for(var j=0;j < callArgs.length;j++)
+                        {
+                            args.push(callArgs[j]);
+                        }
+                    for(var j=0;j < a.length;j++)
+                    {
+                        args.push(a[j]);
+                    }
+                    if(callArgs && am == 2)
+                        for(var j=0;j < callArgs.length;j++)
+                        {
+                            args.push(callArgs[j]);
+                        }
+                    return args;
+                }
+                return callArgs;
+            }
+        }
+    }
+});
 /*xjs/core/HtmlUTIL.java*/
 Xjs.HtmlUTIL = {
     /*xjs.core.HtmlUTIL.fillPrefixBlank*/
@@ -11493,7 +13237,7 @@ Xjs.RInvoke = {
             body = args || [];
             params = null;
         }
-        if(md.progParamIdx >= 0 || md.progMode)
+        if(md.progParamIdx >= 0 || md.progMode || md.asyn == 1)
         {
             var p = null;
             if(md.progParamIdx >= 0)
@@ -11508,6 +13252,13 @@ Xjs.RInvoke = {
             p.postArgs = args;
             Xjs.ui.UIUtil.progressRun(p);
             return;
+        }
+        var url = urlP + "sv-" + rmethod;
+        if(md.asyn == 2)
+        {
+            return new Promise(function(resolve,reject){
+            Xjs.Ajax.invoke(url,body,params,md.amethod,32 | 16,new Xjs.FuncCall(resolve,window),new Xjs.FuncCall(reject,window));
+        });
         }
         return Xjs.Ajax.invoke(urlP + "sv-" + rmethod,body,params,md.amethod,32 | 16);
     },
@@ -11537,11 +13288,23 @@ Xjs.RInvoke = {
         var args = Array.prototype.slice.call(arguments,3);
         return Xjs.RInvoke._rinvoke(m,"st",args,success,error);
     },
+    /*xjs.core.RInvoke.asynRMInvoke*/
+    asynRMInvoke:function(m)
+    {
+        var args = Array.prototype.slice.call(arguments,1);
+        return Xjs.RInvoke._asynInvoke(m,"st",args);
+    },
     /*xjs.core.RInvoke.rsvInvoke*/
     rsvInvoke:function(m)
     {
         var args = Array.prototype.slice.call(arguments,1);
         return Xjs.RInvoke._rinvoke(m,"sv",args);
+    },
+    /*xjs.core.RInvoke.asynSVInvoke*/
+    asynSVInvoke:function(m)
+    {
+        var args = Array.prototype.slice.call(arguments,1);
+        return Xjs.RInvoke._asynInvoke(m,"sv",args);
     },
     /*xjs.core.RInvoke.flowInvoke*/
     flowInvoke:function(m)
@@ -11580,6 +13343,13 @@ Xjs.RInvoke = {
         }
         var url = Xjs.RInvoke.buildUIInvokeURL(null,(progMode ? type + "~" : type + "-") + method,1);
         return Xjs.Ajax.invoke(url,args,null,null,16 | 32,success,error);
+    },
+    /*xjs.core.RInvoke._asynInvoke*/
+    _asynInvoke:function(m,type,args)
+    {
+        return new Promise(function(resolve,reject){
+            Xjs.RInvoke._rinvoke(m,type,args,new Xjs.FuncCall(resolve,window),new Xjs.FuncCall(reject,window));
+        });
     }
 };
 /*xjs/core/System.java*/
@@ -11626,7 +13396,7 @@ Xjs.dx.CodeData=function(config){
     {
         Xjs.applyIf(this,window.xjsConfig.codeDataOpts);
     }
-    this.service = Xjs.RInvoke.newBean("snsoft.bas.ui.service.codedata.CodeDataService");
+    this.service = Xjs.RInvoke.newBean("SN-UI.CodeDataService");
 };
 Xjs.extend(Xjs.dx.CodeData,Xjs.Object,{
   _js$className_:"Xjs.dx.CodeData",
@@ -11844,7 +13614,7 @@ Xjs.extend(Xjs.dx.CodeData,Xjs.Object,{
         var loadCommand = this.loadCommand;
         {
             if(!loadCommand)
-                loadCommand = "sv-snsoft.bas.ui.service.codedata.CodeDataService.loadCodeData";
+                loadCommand = "sv-SN-UI.CodeDataService.loadCodeData";
             this.loadUri = Xjs.RInvoke.buildUIInvokeURL(null,loadCommand,1);
         }
         {
@@ -11922,13 +13692,15 @@ Xjs.extend(Xjs.dx.CodeData,Xjs.Object,{
         }
         if(this.bufferedData && !(this.pgRowCount > 0))
         {
-            var bufKey = this.getBufKey(),
-                bufData = this.bufferedData[bufKey];
-            if(bufData != null && bufData.rows)
-                bufData = bufData.rows;
-            var p = bufData == null ? -1 : Array.binarySearch(bufData,[code],Array.arrayCmp0);
-            if(p >= 0)
-                return bufData[p][1];
+            for(var k in this.bufferedData)
+            {
+                var bufData = this.bufferedData[k];
+                if(bufData && bufData.rows)
+                    bufData = bufData.rows;
+                var p = bufData ? Array.binarySearch(bufData,[code],Array.arrayCmp0) : -1;
+                if(p >= 0)
+                    return bufData[p][1];
+            }
         }
         var data = this.data;
         if(!data && this.filterOnLocal)
@@ -12090,7 +13862,7 @@ Xjs.extend(Xjs.dx.CodeData,Xjs.Object,{
         {
             filterRegExpr = [];
             for(var j=0;j < nf;j++)
-                filterRegExpr[j] = filter[j] ? filter[j].toLikeRegExpr() : null;
+                filterRegExpr[j] = filter[j] ? filter[j].toLikeRegExpr("i") : null;
         }
         var orMode = (opts & 1) != 0;
         nextR:for(var r=0;r < a.length;r++)
@@ -12102,7 +13874,9 @@ Xjs.extend(Xjs.dx.CodeData,Xjs.Object,{
                             continue;
                         var x = a[r][j];
                         if(this.searchVal2Display)
-                            x = this.searchVal2Display.func.call(this.searchVal2Display.scorp,a,r,j);
+                        {
+                            x = this.searchVal2Display.call(a,r,j);
+                        }
                         if(!filterRegExpr[j].test(x || ""))
                         {
                             if(!orMode)
@@ -12170,12 +13944,24 @@ Xjs.extend(Xjs.dx.CodeData,Xjs.Object,{
                     v;
                 if(c)
                 {
-                    if(c instanceof Xjs.table.Table)
+                    if(Xjs.table.Table && c instanceof Xjs.table.Table)
                     {
                         v = c.dataSet.getValue(pn);
                     } else 
                     {
                         v = c.getItemValue(pn);
+                    }
+                    if(!v && this.keyCount > 1 && (!("errorOnNull" in this) || this.errorOnNull))
+                    {
+                        var title = null;
+                        if(Xjs.table.Table && c instanceof Xjs.table.Table)
+                        {
+                            title = c.getColumn(pn).title;
+                        } else 
+                        {
+                            title = c.getItemByName(pn).title;
+                        }
+                        throw new Error("[" + title + "]不可为空！");
                     }
                 } else 
                 {
@@ -12333,7 +14119,7 @@ Xjs.apply(Xjs.dx.CodeData,{
     }
 });
 /*xjs/dx/CodeDataService.java*/
-Xjs.RInvoke.beansDef["snsoft.bas.ui.service.codedata.CodeDataService"]={getCodeDataColumns:{amethod:"get",argNames:["*"]},getCodeNames:{},getCodeName:{},getCodeFullName:{},loadCodeData:{amethod:"get",argNames:["*"]},searchLevlCodeData:{},getLevlCode:{},loadHistSelectedValues:{},addHistValue:{},removeHistValue:{},loadCodeValues:{}};
+Xjs.RInvoke.beansDef["SN-UI.CodeDataService"]={getCodeDataColumns:{amethod:"get",argNames:["*"]},getCodeNames:{},getCodeName:{},getCodeFullName:{},loadCodeData:{amethod:"get",argNames:["*"]},searchLevlCodeData:{},getLevlCode:{},loadHistSelectedValues:{},addHistValue:{},removeHistValue:{},loadCodeValues:{}};
 /*xjs/dx/Data.java*/
 Xjs.dx.Data=function(config){
     Xjs.dx.Data.superclass.constructor.call(this,config);
@@ -12436,6 +14222,41 @@ Xjs.table.DefaultListener=Xjs.extend(Xjs.table.DefaultTableListener,{
     refreshedByKeyValue:Xjs.emptyFn,
     /*xjs.table.DefaultListener.onDataSetNewRowValues*/
     onDataSetNewRowValues:Xjs.emptyFn
+});
+Xjs.apply(Xjs.table.DefaultListener,{
+    /*xjs.table.DefaultListener.formatDate*/
+    formatDate:function(date,format)
+    {
+        if(!date)
+        {
+            return "";
+        }
+        if(date instanceof Date)
+        {
+            var formateDate = date,
+                o = {};
+            o["M+"] = formateDate.getMonth() + 1;
+            o["d+"] = formateDate.getDate();
+            o["h+"] = formateDate.getHours();
+            o["m+"] = formateDate.getMinutes();
+            o["s+"] = formateDate.getSeconds();
+            o["q+"] = Math.floor((formateDate.getMonth() + 3) / 3);
+            o.S = formateDate.getMilliseconds();
+            if((new RegExp("(y+)")).test(format))
+            {
+                format = format.replace(RegExp.$1,(formateDate.getFullYear() + "").substring(4 - RegExp.$1.length));
+            }
+            for(var k in o)
+            {
+                if((new RegExp("(" + k + ")")).test(format))
+                {
+                    format = format.replace(RegExp.$1,RegExp.$1.length == 1 ? o[k] : ("00" + o[k]).substring(("" + o[k]).length));
+                }
+            }
+            return format;
+        }
+        return format;
+    }
 });
 /*xjs/ui/Anchor.java*/
 Xjs.ui.Anchor=function(config){
@@ -12557,8 +14378,17 @@ Xjs.extend(Xjs.ui.Canvas,Xjs.ui.Component,{
     /*xjs.ui.Canvas._createDOM*/
     _createDOM:function(root)
     {
-        var pdom = Xjs.ui.Canvas.superclass._createDom0.call(this,root,"div"),
-            d;
+        var pdom = Xjs.ui.Canvas.superclass._createDom0.call(this,root,"div");
+        if(this.scrollable)
+        {
+            pdom.style.overflow = this.scrollable === true ? "auto" : this.scrollable;
+        }
+        if(this.canvasType == 2)
+        {
+            this.drawDOM = pdom;
+            return pdom;
+        }
+        var d;
         if(this.canvasType == 1)
             d = this.drawDOM = document.createElement("DIV");
         else 
@@ -12583,10 +14413,6 @@ Xjs.extend(Xjs.ui.Canvas,Xjs.ui.Component,{
                 d.style.height = h + "px";
             else 
                 d.height = h;
-        }
-        if(this.scrollable)
-        {
-            pdom.style.overflow = this.scrollable === true ? "auto" : this.scrollable;
         }
         pdom.appendChild(d);
         return pdom;
@@ -12625,8 +14451,8 @@ Xjs.extend(Xjs.ui.Canvas,Xjs.ui.Component,{
     {
         this._initContext();
     },
-    /*xjs.ui.Canvas._ieResetSize*/
-    _ieResetSize:Xjs.emptyFn
+    /*xjs.ui.Canvas.onResize*/
+    onResize:Xjs.emptyFn
 });
 /*xjs/ui/CellRenderer.java*/
 Xjs.ui.CellRenderer = {
@@ -12634,8 +14460,19 @@ Xjs.ui.CellRenderer = {
     getCodeKey:function(cell,value,row)
     {
         var knm;
-        if(!(knm = cell.codeKeyNms) || !cell.table)
+        if(!(knm = cell.codeKeyNms))
             return value;
+        if(!cell.table && cell.parent && cell.parent instanceof Xjs.ui.Container)
+        {
+            var parent = cell.parent,
+                key = new Array(knm.length);
+            for(var i=0;i < key.length - 1;i++)
+            {
+                key[i] = parent.getItemValue(knm[i]);
+            }
+            key[key.length - 1] = value;
+            return key;
+        }
         var key = new Array(knm.length),
             nulKey = 0;
         for(var i=0;i < key.length;i++)
@@ -12839,7 +14676,9 @@ Xjs.ui.CellRenderer = {
             return "";
         var cell = info.cell;
         if(value instanceof Date)
+        {
             return value.format(cell.datefmt);
+        }
         var forEdit = info.forEdit;
         if(cell.showName || cell.showFullName)
         {
@@ -12931,21 +14770,20 @@ Xjs.extend(Xjs.ui.Checkbox,Xjs.ui.Component,{
         var spanDOM = this._forChkGrp ? document.createElement("span") : this._createDom0(root,"span");
         spanDOM.className = "ui-check";
         spanDOM.id = this.id;
+        spanDOM.onclick = Function.bindAsEventListener(this.onMClick,this);
         if(this.focusable !== false)
             spanDOM.tabIndex = 0;
-        if(this.readOnly)
+        if(this.readOnly && !(this.focusOpts & 1))
+        {
             this.focusableComp = false;
+        }
         var checked = this._isValChecked();
         Xjs.DOM.createChild(spanDOM,"span","check");
-        var dom = this.checkDOM = Xjs.isIE && Xjs.$browserVer < 9 ? document.createElement("<input type=\"" + this.inputType + "\" name=\"" + this.name + "\"" + (checked ? " checked" : "") + ">") : document.createElement("input");
+        var dom = this.checkDOM = document.createElement("input");
         dom.type = this.inputType;
         dom.onclick = Function.bindAsEventListener(this.onChanged,this);
         dom.onfocus = Function.bindAsEventListener(this._onFocus,this,0,true);
         dom.onblur = Function.bindAsEventListener(this._onBlur,this,0,true);
-        if(this._fonFocus != null)
-            Xjs.DOM.addListener(dom,"focus",this._fonFocus);
-        if(this._fonBlur != null)
-            Xjs.DOM.addListener(dom,"blur",this._fonBlur);
         if(this.checkValue !== undefined)
         {
             dom.value = this.checkValue;
@@ -12967,12 +14805,30 @@ Xjs.extend(Xjs.ui.Checkbox,Xjs.ui.Component,{
         this.labelDOM = document.createElement("label");
         if(this.labelCheck !== false && this.id)
             this.labelDOM.htmlFor = dom.id;
-        if(this.label)
+        if(this.lbHtml)
+        {
+            this.labelDOM.innerHTML = typeof(this.lbHtml) == "string" ? this.lbHtml : this.label;
+        } else if(this.label)
         {
             Xjs.DOM.setTextContent(this.labelDOM,this.label);
         }
         spanDOM.appendChild(this.labelDOM);
         return spanDOM;
+    },
+    /*xjs.ui.Checkbox.updateDomFocusEvent*/
+    updateDomFocusEvent:function()
+    {
+        if(!this.checkDOM || !this.dom)
+            return;
+        if(this.checkDOM.disabled)
+        {
+            this.dom.onfocus = this.checkDOM.onfocus;
+            this.dom.onblur = this.checkDOM.onblur;
+        } else 
+        {
+            this.dom.onfocus = null;
+            this.dom.onblur = null;
+        }
     },
     /*xjs.ui.Checkbox.setCheckDomIdSuffix*/
     setCheckDomIdSuffix:function(idSuffix)
@@ -12989,9 +14845,11 @@ Xjs.extend(Xjs.ui.Checkbox,Xjs.ui.Component,{
     updateReadonlyStatus:function()
     {
         var readOnly = this.readOnly || this.compEditable && this.compEditable.isEditReadonly(this);
-        this.focusableComp = !readOnly;
         if(this.checkDOM)
             this.checkDOM.disabled = !!readOnly;
+        if(!(this.focusOpts & 1))
+            this.focusableComp = !readOnly;
+        this.updateDomFocusEvent();
         this.resetClassName();
     },
     /*xjs.ui.Checkbox.setReadonly*/
@@ -13013,7 +14871,7 @@ Xjs.extend(Xjs.ui.Checkbox,Xjs.ui.Component,{
         if(!this.checkDOM)
             return;
         var idx = (this.inputType == "radio" ? 4 : 0) | (this.checkDOM.checked ? 2 : 0) | (this.checkDOM.disabled ? 1 : 0);
-        this.dom.className = "ui-check ui-check" + idx;
+        this.dom.className = "ui-check ui-check" + idx + (this._focused ? " ui-focused-checkbox" : "");
     },
     /*xjs.ui.Checkbox.getValue*/
     getValue:function()
@@ -13046,6 +14904,17 @@ Xjs.extend(Xjs.ui.Checkbox,Xjs.ui.Component,{
         if(oldValue != this.getValue())
             this.fireEvent("valueChanged");
     },
+    /*xjs.ui.Checkbox.onMClick*/
+    onMClick:function(e)
+    {
+        if((e.srcElement || e.target) == this.dom)
+        {
+            if(this._forChkGrp && this.inputType == "radio")
+            {
+                this._forChkGrp.setValue(this.checkValue);
+            }
+        }
+    },
     /*xjs.ui.Checkbox.onChanged*/
     onChanged:function(e,opts)
     {
@@ -13064,7 +14933,10 @@ Xjs.extend(Xjs.ui.Checkbox,Xjs.ui.Component,{
         if(Xjs.DOM.isShowing(this.checkDOM))
             try
             {
-                this.checkDOM.focus();
+                if(this.checkDOM.disabled)
+                    this.dom.focus();
+                else 
+                    this.checkDOM.focus();
             }catch(ex)
             {
             }
@@ -13072,13 +14944,19 @@ Xjs.extend(Xjs.ui.Checkbox,Xjs.ui.Component,{
     /*xjs.ui.Checkbox._onFocus*/
     _onFocus:function(e)
     {
-        this.fireEvent("focusGained");
         this._focused = true;
+        this.fireEvent("focusGained");
+        this.resetClassName();
+        if(this._fonFocus)
+            this._fonFocus.call(e);
     },
     /*xjs.ui.Checkbox._onBlur*/
     _onBlur:function(e)
     {
         this._focused = false;
+        this.resetClassName();
+        if(this._fonBlur)
+            this._fonBlur.call(e);
     }
 });
 {
@@ -13093,7 +14971,7 @@ Xjs.ui.CheckboxGroup=function(config){
 };
 Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
   _js$className_:"Xjs.ui.CheckboxGroup",
-    focusCls:"ui-focusborder",
+    focusCls:["ui-focusborder","ui-focused-checkboxgroup"],
     /*xjs.ui.CheckboxGroup.__init*/
     __init:function()
     {
@@ -13105,25 +14983,6 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
     {
         if(this.readOnly)
             this.focusableComp = false;
-        var optData = this.getSelectOptions();
-        if(this.emptyText != null)
-        {
-            var old = optData;
-            optData = new Array(old.length + 1);
-            if(this.emptyItemPos == 1)
-            {
-                for(var j=0;j < old.length;j++)
-                    optData[j] = old[j];
-                optData[old.length] = ["",this.emptyText];
-            } else 
-            {
-                optData[0] = ["",this.emptyText];
-                for(var j=0;j < old.length;j++)
-                    optData[j + 1] = old[j];
-            }
-        }
-        this.items = this.checkItems = [];
-        var layout;
         {
             var layoutCfgs = {},
                 cfg2 = false;
@@ -13144,8 +15003,50 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
             }
             if(cfg2)
                 this.layoutConfig = Xjs.apply(this.layoutConfig || {},layoutCfgs);
-            layout = new Xjs.ui.GridLayout(this.layoutConfig);
+            this.layout = new Xjs.ui.GridLayout(this.layoutConfig);
+            if(this.layoutInvibleItem !== undefined)
+                this.layout.ignoreInvisible = !this.layoutInvibleItem;
         }
+        this._buildChkItems();
+        var dom = this._createDom0(root,"div",null);
+        this.layout.attachItemDoms(this,dom,root);
+        Xjs.DOM.addClass(dom,"ui-checkboxgroup");
+        delete this.items;
+        if(this.value != null)
+            this._setInitValue(dom);
+        delete this.__tempValueA;
+        delete this.__invisibleVals;
+        if(this.color != null)
+            dom.style.color = this.color;
+        if(this.bgcolor != null)
+            dom.style.backgroundColor = this.bgcolor;
+        if(this.focusable !== false)
+            dom.tabIndex = 0;
+        dom.onfocus = Function.bindAsEventListener(this._onFocus,this,0,true);
+        dom.onblur = Function.bindAsEventListener(this._onBlur,this,0,true);
+        return dom;
+    },
+    /*xjs.ui.CheckboxGroup._buildChkItems*/
+    _buildChkItems:function()
+    {
+        var optData = this.getSelectOptions();
+        if(this.emptyText != null)
+        {
+            var old = optData;
+            optData = new Array(old.length + 1);
+            if(this.emptyItemPos == 1)
+            {
+                for(var j=0;j < old.length;j++)
+                    optData[j] = old[j];
+                optData[old.length] = ["",this.emptyText];
+            } else 
+            {
+                optData[0] = ["",this.emptyText];
+                for(var j=0;j < old.length;j++)
+                    optData[j + 1] = old[j];
+            }
+        }
+        this.items = this.checkItems = [];
         var _onItemFocusL = null,
             onItemBlurL = null;
         if(optData != null)
@@ -13158,11 +15059,14 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
                     a = [a];
                 var value = a[0],
                     text = a.length < 2 ? a[0] : a[1];
-                if(_onItemFocusL == null)
-                    _onItemFocusL = Function.bindAsEventListener(this._onItemFocus,this,1,true);
-                if(onItemBlurL == null)
-                    onItemBlurL = Function.bindAsEventListener(this._onItemBlur,this,1,true);
-                var c = new Xjs.ui.Checkbox({id:(this.id || "") + "#" + value,label:text,checkValue:value,_fonFocus:_onItemFocusL,_fonBlur:onItemBlurL,focusable:false,_forChkGrp:true});
+                if(!_onItemFocusL)
+                {
+                    _onItemFocusL = new Xjs.FuncCall(this._onItemFocus,this);
+                    onItemBlurL = new Xjs.FuncCall(this._onItemBlur,this);
+                }
+                var c = new Xjs.ui.Checkbox({id:(this.id || "") + "#" + value,label:text,checkValue:value,_fonFocus:_onItemFocusL,_fonBlur:onItemBlurL,focusable:false,_forChkGrp:this});
+                if(this.opts & 1)
+                    c.lbHtml = text;
                 if(this.itemCSSStyle)
                     c.domStyle = this.itemCSSStyle;
                 if(!this.multiple)
@@ -13183,26 +15087,11 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
                     c.setVisible(false);
                 }
                 if(this.idSuffix)
+                {
                     c.setCheckDomIdSuffix(this.idSuffix);
+                }
             }
         }
-        var dom = this._createDom0(root,"div",null);
-        layout.attachItemDoms(this,dom,root);
-        Xjs.DOM.addClass(dom,"ui-checkboxgroup");
-        delete this.items;
-        if(this.value != null)
-            this._setInitValue(dom);
-        delete this.__tempValueA;
-        delete this.__invisibleVals;
-        if(this.color != null)
-            dom.style.color = this.color;
-        if(this.bgcolor != null)
-            dom.style.backgroundColor = this.bgcolor;
-        if(this.focusable !== false)
-            dom.tabIndex = 0;
-        dom.onfocus = Function.bindAsEventListener(this._onFocus,this,0,true);
-        dom.onblur = Function.bindAsEventListener(this._onBlur,this,0,true);
-        return dom;
     },
     /*xjs.ui.CheckboxGroup.setCheckDomIdSuffix*/
     setCheckDomIdSuffix:function(idSuffix)
@@ -13254,10 +15143,24 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
             }
         }
     },
+    /*xjs.ui.CheckboxGroup.getCheckboxByValue*/
+    getCheckboxByValue:function(v)
+    {
+        if(this.checkItems)
+            for(var j=0;j < this.checkItems.length;j++)
+            {
+                if(this.checkItems[j].checkValue == v)
+                    return this.checkItems[j];
+            }
+        return null;
+    },
     /*xjs.ui.CheckboxGroup.setItemVisible*/
     setItemVisible:function(value,visible)
     {
-        var d = this.getItemDOM(value);
+        var d = this.getItemDOM(value),
+            c = this.getCheckboxByValue(value);
+        if(c)
+            c.setVisible(visible);
         if(d)
         {
             if(d.parentNode.tagName == "TD")
@@ -13366,7 +15269,10 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
     updateFocusClass:function()
     {
         if(this.focusCls)
-            Xjs.DOM.addOrRemoveClass(this.dom,this.focusCls,this.isFocused());
+            for(var j=0;j < this.focusCls.length;j++)
+            {
+                Xjs.DOM.addOrRemoveClass(this.dom,this.focusCls[j],this.isFocused());
+            }
     },
     /*xjs.ui.CheckboxGroup.isFocused*/
     isFocused:function()
@@ -13390,7 +15296,7 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
         {
             return this.value === undefined ? null : this.value;
         }
-        var v = Xjs.ui.Component.getCheckValues(this.dom,(this.multiple ? 1 : 0) | (this.intValue ? 2 : 0));
+        var v = Xjs.ui.Component.getCheckValues(this.dom,(this.multiple ? 1 : 0) | (this.intValue ? 2 : 0) | (this.arrayValue ? 8 : 0));
         if(typeof(v) == "string" && this.sqlType && this.sqlType != 12)
         {
             v = Xjs.Data.parseFromSqlType(v,this.sqlType);
@@ -13409,7 +15315,7 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
                 else 
                 {
                     if(this.__tempValueA == null)
-                        this.__tempValueA = value.toString().split(",");
+                        this.__tempValueA = value instanceof Array ? value : value.toString().split(",");
                     return this.__tempValueA.indexOf(itemValue) >= 0;
                 }
             }
@@ -13442,6 +15348,7 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
     setValue:function(value)
     {
         this.value = value;
+        delete this.__tempValueA;
         if(this.dom)
         {
             var oldValue = this._$value !== undefined ? this._$value : Xjs.ui.Component.getCheckValues(this.dom,(this.multiple ? 1 : 0) | (this.intValue ? 2 : 0));
@@ -13476,21 +15383,41 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
     /*xjs.ui.CheckboxGroup.recreateDOM*/
     recreateDOM:function()
     {
-        if(!this.dom)
+        if(!this.dom || !this.layout)
             return;
-        var p = this.dom.parentNode;
-        if(p == null)
-            return;
-        p.removeChild(this.dom);
-        this.dom = null;
-        p.appendChild(this.getDOM());
+        this._buildChkItems();
+        Xjs.DOM.removeAllChild(this.dom);
+        this.layout.attachItemDoms(this,this.dom,null);
+        this.updateReadonlyStatus();
     },
     /*xjs.ui.CheckboxGroup.selectAll*/
     selectAll:function(set)
     {
-        for(var i=0;i < this.checkItems.length;i++)
+        if(this.sqlType == 4 || this.sqlType == 5)
         {
-            this.checkItems[i].setValue(set ? this.checkItems[i].checkValue : null);
+            var allItems = 0,
+                len = this.checkItems.length;
+            if(set && len > 0)
+            {
+                for(var i=0;i < this.checkItems.length;i++)
+                {
+                    allItems += this.checkItems[i].checkValue;
+                }
+            }
+            this.setValue(allItems);
+        } else 
+        {
+            var allItems = [],
+                len = this.checkItems.length;
+            if(set && len > 0)
+            {
+                allItems = new Array(len);
+                for(var i=0;i < this.checkItems.length;i++)
+                {
+                    allItems[i] = this.checkItems[i].checkValue;
+                }
+            }
+            this.setValue(allItems);
         }
     },
     /*xjs.ui.CheckboxGroup.isAllSelected*/
@@ -13534,6 +15461,12 @@ Xjs.extend(Xjs.ui.CheckComboAidInputer,Xjs.ui.ComboAidInputerA,{
         Xjs.ui.CheckComboAidInputer.superclass.onDomAttached.call(this);
         var listTable = Xjs.DOM.findById("SelectListBox",this.dom);
         this.tblBody = Xjs.DOM.find("tbody",listTable);
+    },
+    /*xjs.ui.CheckComboAidInputer.afterExpandShow*/
+    afterExpandShow:function(newDom)
+    {
+        Xjs.ui.CheckComboAidInputer.superclass.afterExpandShow.call(this,newDom);
+        this.fireEvent("onComboAidInputerExpandShow",newDom);
     },
     /*xjs.ui.CheckComboAidInputer._addOptions*/
     _addOptions:function()
@@ -13613,6 +15546,7 @@ Xjs.extend(Xjs.ui.CheckComboAidInputer,Xjs.ui.ComboAidInputerA,{
                 }
                 this.ckbox[i].resetClassName();
             }
+        this.fireEvent("onAidValueChanged",e);
     }
 });
 /*xjs/ui/ClientRectangle.java*/
@@ -13634,800 +15568,6 @@ Xjs.apply(Xjs.ui.ClientRectangle.prototype,{
     getClientHeight:function()
     {
         return this.dom ? this.dom.offsetHeight : this.h || 0;
-    }
-});
-/*xjs/ui/ComboAidInputer.java*/
-Xjs.ui.ComboAidInputer=function(config){
-    Xjs.ui.ComboAidInputer.superclass.constructor.call(this,config);
-    this.entryKeyLock = 0;
-};
-Xjs.extend(Xjs.ui.ComboAidInputer,Xjs.ui.ComboAidInputerA,{
-  _js$className_:"Xjs.ui.ComboAidInputer",
-    /*xjs.ui.ComboAidInputer.__init*/
-    __init:function()
-    {
-        Xjs.ui.ComboAidInputer.superclass.__init.call(this);
-        if(this.htmlRes == null)
-        {
-            this.htmlRes = "@" + Xjs.getDefResPath() + "/combo1.html";
-        }
-    },
-    /*xjs.ui.ComboAidInputer.adjSearchboxOvPos*/
-    adjSearchboxOvPos:function()
-    {
-        var box = this.searchBoxDOM;
-        if(!box.offsetParent)
-            return;
-        var s = box.style,
-            xy = Xjs.DOM.getRelativeXY(box.offsetParent,this.parent.dom);
-        s.left = -xy.x + "px";
-        s.top = -xy.y - 2 + "px";
-        Xjs.DOM.setWidth(box,Xjs.DOM.getWidth(this.parent.dom));
-        Xjs.DOM.setHeight(box,Xjs.DOM.getHeight(this.parent.dom));
-        if(this.inputField)
-        {
-            this.inputField.focus();
-        }
-    },
-    /*xjs.ui.ComboAidInputer.adjSearchboxOvPosL*/
-    adjSearchboxOvPosL:function()
-    {
-        if(this.inputOvParent)
-        {
-            this.adjSearchboxOvPos();
-            if(!this.fn$adjSearchboxOvPos)
-                this.fn$adjSearchboxOvPos = this.adjSearchboxOvPos.createDelegate(this);
-            setTimeout(this.fn$adjSearchboxOvPos,50);
-        }
-    },
-    /*xjs.ui.ComboAidInputer.updateListScrollVal*/
-    updateListScrollVal:function()
-    {
-        if(this.listScrollbar)
-        {
-            var s = this.listScrollbar;
-            setTimeout(function(){
-            s.updateValue();
-            s.resetBarPos();
-        },1);
-        }
-    },
-    /*xjs.ui.ComboAidInputer.afterExpandShow*/
-    afterExpandShow:function(newDom)
-    {
-        this.updateListScrollVal();
-        var ib = this.searchBoxDOM || this.inputField;
-        if(ib && !(this.selOptions & 0x10000))
-        {
-            if(this.aopts & 4)
-            {
-                ib.style.visibility = "hidden";
-                return;
-            } else 
-                ib.style.visibility = "";
-        }
-        if(Xjs.DOM.isShowing(this.inputField))
-        {
-            this.inputField.focus();
-            this.setCurKeyFocused(0,1);
-            if(this.enterChar || this.enterText)
-            {
-                this.inputField.value = this.enterText || String.fromCharCode(this.enterChar);
-                var l = this.inputField.value.length;
-                Xjs.DOM.setInputSelectionRange(this.inputField,l,l);
-                this.refilter(false,0);
-            }
-            if(this.inputOvParent)
-            {
-                this.adjSearchboxOvPosL();
-            }
-        } else if(!this.disListFocus)
-        {
-            this.listDOM.focus();
-            this.setCurKeyFocused(0,1);
-        }
-        this.fireEvent("onComboAidInputerExpandShow",newDom);
-    },
-    /*xjs.ui.ComboAidInputer.getPrefSize*/
-    getPrefSize:function(clientR)
-    {
-        var alignDOM = clientR.dom;
-        if(this.minWidth != null)
-        {
-            if(this.minWidth === true)
-                this.dom.style.minWidth = Xjs.DOM.getWidth(alignDOM) + 2 + "px";
-            else if(typeof(this.minWidth) == "number")
-                this.dom.style.minWidth = this.minWidth + "px";
-        }
-        if(this.width > 0)
-            return {width:this.width,height:0};
-        var fitWidth = this.fitWidth;
-        if(fitWidth === undefined && (this.selOptions & 0x10000) != 0)
-        {
-            if(this.minWidth === true)
-            {
-                return null;
-            }
-            fitWidth = 2;
-        }
-        if(fitWidth != null)
-        {
-            return {width:Xjs.DOM.getWidth(alignDOM) + fitWidth,height:0};
-        }
-        return null;
-    },
-    /*xjs.ui.ComboAidInputer.valueChanged*/
-    valueChanged:function(c,e,bySetValue)
-    {
-        if(c == this.valueList)
-        {
-            this.updateRowDOMClass();
-            if((this.selOptions & 4) == 0 && !bySetValue)
-                this.endAidInputer(true);
-        }
-    },
-    /*xjs.ui.ComboAidInputer.onDomAttached*/
-    onDomAttached:function()
-    {
-        Xjs.DOM.addOrRemoveClass(this.dom,"ui-muti-select",this.selOptions & 4);
-        this.searchBoxDOM = Xjs.DOM.findById("SearchBOX",this.dom);
-        if(this.selOptions2 & (8 | 0x10) && this.searchBoxDOM)
-        {
-            this.setInputOvParent(2);
-            this.dom.style.overflow = "visible";
-            this.searchBoxDOM.style.position = "absolute";
-            Xjs.DOM.addClass(this.dom,"x-combolist-searchboxa");
-        }
-        this.setInputField(Xjs.DOM.findById("SearchInput",this.dom));
-        if(this.inputBgLabel && this.inputField)
-        {
-            this.inputField.placeholder = this.inputBgLabel;
-        }
-        this.listBox = Xjs.DOM.findById("LISTBOX",this.dom);
-        this.listDOM = Xjs.DOM.findById("LIST",this.dom);
-        var tblMode = this.listDOM.tagName == "TBODY";
-        this.listDOMX = this.listDOM.tagName == "TBODY" ? this.listDOM.parentNode : this.listDOM;
-        if(this.listHeight)
-            (this.listBox || this.listDOMX).style.height = this.listHeight + "px";
-        if(this.disListFocus)
-            this.listDOM.tabIndex = "";
-        this.listDOM.onkeydown = Function.bindAsEventListener(this.onListKeydown,this);
-        this.listDOM.onkeyup = Function.bindAsEventListener(this.onListKeyup,this);
-        this.listDOM.onclick = Function.bindAsEventListener(this.onListClick,this);
-        this.listScrollbar = new Xjs.ui.util.CustomScrollbar(tblMode ? this.listBox : this.listDOM,1 | 4 | 8,null);
-        var valuesDOM;
-        this.valueList.ulDOM = valuesDOM = Xjs.DOM.find("#SeledtedVals ul",this.dom);
-        this.infoDOM = Xjs.DOM.findById("InfoPropmpt",this.dom);
-        this.infoDOM2 = Xjs.DOM.findById("MultiSelPrompt",this.dom);
-        this.returnIcon = Xjs.DOM.findById("IconUP",this.dom);
-        if(this.returnIcon)
-        {
-            this.returnIcon.onclick = Function.bindAsEventListener(this.onReturnBtnClick,this);
-        }
-        if(valuesDOM && valuesDOM.childNodes.length > 0)
-        {
-            var li = Xjs.DOM.find("li",valuesDOM);
-            if(li != null)
-            {
-                this.valueList.liHTML = li.innerHTML;
-                valuesDOM.removeChild(li);
-            }
-        }
-        Xjs.DOM.removeAllChild(valuesDOM);
-        this.searchDelDOM = Xjs.DOM.findById("SearchDelete",this.dom);
-        if(this.searchDelDOM)
-        {
-            this.searchDelDOM.onclick = Function.bindAsEventListener(this.onSearchDelBtnClick,this);
-        }
-        var searchBox = Xjs.DOM.findById("SearchBOX",this.dom),
-            btnGroup = Xjs.DOM.findById("BtnGroup",this.dom),
-            hiddenSearchBox = false;
-        if(this.selOptions & 0x10000)
-        {
-            if(searchBox)
-            {
-                searchBox.style.width = "120px";
-                searchBox.style.display = "none";
-                hiddenSearchBox = true;
-            }
-            if(this.infoDOM)
-                this.infoDOM.style.display = "none";
-            if(this.infoDOM2)
-            {
-                this.infoDOM2.style.display = "none";
-            }
-        }
-        if(this.selOptions & 0x80000000 || this.selOptions2 & 0x40)
-        {
-            if(this.infoDOM)
-            {
-                this.infoDOM.style.display = "none";
-            }
-            if(this.infoDOM2)
-            {
-                this.infoDOM2.style.display = "none";
-            }
-        }
-        if(!(this.selOptions & 4))
-        {
-            if(searchBox != null)
-                searchBox.style.width = "100%";
-            if(btnGroup != null)
-            {
-                btnGroup.style.display = "none";
-                if(hiddenSearchBox)
-                    searchBox.style.display = "none";
-            }
-        }
-        if(this.selOptions & 0x20000000)
-        {
-            if(valuesDOM != null)
-                valuesDOM.style.display = "none";
-            if(this.returnIcon != null)
-                this.returnIcon.style.display = "none";
-        }
-        Xjs.ui.ComboAidInputer.superclass.onDomAttached.call(this);
-    },
-    /*xjs.ui.ComboAidInputer.setInputField*/
-    setInputField:function(i)
-    {
-        this.inputField = i;
-        if(i)
-        {
-            i["oninput" in this.inputField ? "oninput" : "onpropertychange"] = Xjs.ui.InputField.asOnInputListener(i,this.onInputFieldChanged,this);
-            i.onkeydown = Function.bindAsEventListener(this.onInputFieldKeydown,this);
-            i.onkeyup = Function.bindAsEventListener(this.onInputFieldKeyup,this);
-        }
-    },
-    /*xjs.ui.ComboAidInputer.getLIClass*/
-    getLIClass:function(value)
-    {
-        var cls = null;
-        if(this.valueList.indexOfItem(value) >= 0)
-            cls = "selected";
-        if((this.selOptions & 1) == 0)
-        {
-            if(!this.isLastLevlCode(value))
-            {
-                cls = cls == null ? "ulastlevel" : cls + " ulastlevel";
-                if(!this.isMidLevlSelectable(value))
-                    cls += " unselectable";
-            } else 
-            {
-                cls = cls == null ? "lastlevel" : cls + " lastlevel";
-            }
-            var lv = this.getCodeLevel(value);
-            cls = cls == null ? "level" + lv : cls + " level" + lv;
-        }
-        return cls;
-    },
-    /*xjs.ui.ComboAidInputer.createRowDOM*/
-    createRowDOM:function(value,text,boldText,levl)
-    {
-        var li = document.createElement("li"),
-            cls;
-        if(cls = this.getLIClass(value))
-            li.className = cls;
-        if(levl > 0)
-            li.style.paddingLeft = levl * 12 + "px";
-        if(this.liStylesByVal)
-            Xjs.apply(li.style,this.liStylesByVal[value]);
-        var d = Xjs.DOM.createChild(li,"div","label");
-        this.appendRowText(d,text,boldText,true);
-        li._value = value;
-        return li;
-    },
-    /*xjs.ui.ComboAidInputer.appendRowText*/
-    appendRowText:function(d,text,boldText,addIcon)
-    {
-        if(addIcon)
-        {
-            Xjs.DOM.createChild(d,"span","icon1");
-        }
-        var p = boldText != null && boldText.length > 0 ? text.toLowerCase().indexOf(boldText) : -1;
-        if(p > 0)
-        {
-            var e = Xjs.DOM.createChild(d,"span");
-            Xjs.DOM.setTextContent(e,text.substring(0,p));
-            text = text.substring(p);
-            p = 0;
-        }
-        if(p == 0)
-        {
-            var e1 = Xjs.DOM.createChild(d,"span","bold");
-            Xjs.DOM.setTextContent(e1,text.substring(0,boldText.length));
-            text = text.substring(boldText.length);
-        }
-        var e2 = Xjs.DOM.createChild(d,"span");
-        Xjs.DOM.setTextContent(e2,text);
-        if(addIcon)
-            Xjs.DOM.createChild(d,"i","icon2");
-    },
-    /*xjs.ui.ComboAidInputer.formatCellText*/
-    formatCellText:function(fmt,values,columns)
-    {
-        if(!columns)
-            return null;
-        return fmt.replace(/\$\{\w+(\?\w+\:\w+)?\}/g,function($0){
-            var id = $0.substring(2,$0.length - 1),
-                j;
-            for(j = 0;j < columns.length;j++)
-            {
-                if(id == columns[j].name)
-                    break;
-            }
-            var v = values[j];
-            return v == null ? "" : (v instanceof Date ? v.format(0) : v.toString());
-        });
-    },
-    /*xjs.ui.ComboAidInputer.createTRowDOM*/
-    createTRowDOM:function(value,values,boldText,levl)
-    {
-        var row = document.createElement("TR"),
-            cls;
-        if(cls = this.getLIClass(value))
-            row.className = cls;
-        var codeData = this.parent.selectOptions,
-            columns = codeData.getColumns();
-        if(this.cellTextFmt)
-        {
-            for(var i=0;i < this.cellTextFmt.length;i++)
-            {
-                var fmt = this.cellTextFmt[i],
-                    s = columns ? this.formatCellText(fmt,values,columns) : (values[i] == null ? "" : values[i].toString()),
-                    td = Xjs.DOM.createChild(row,"td",null);
-                td.noWrap = true;
-                this.appendRowText(td,s,boldText,i == 0);
-            }
-        } else 
-        {
-            var i = 0;
-            for(var j=0;j < columns.length;j++)
-            {
-                if(columns[j].displayFlags & 0x10)
-                    continue;
-                var v = values[j],
-                    s = v == null ? "" : (v instanceof Date ? v.format(0) : v.toString()),
-                    td = Xjs.DOM.createChild(row,"td",null);
-                this.appendRowText(td,s,boldText,i++ == 0);
-            }
-        }
-        row._value = value;
-        return row;
-    },
-    /*xjs.ui.ComboAidInputer.updateRowDOMClass*/
-    updateRowDOMClass:function()
-    {
-        var a = this.listDOM.childNodes;
-        for(var i=0;i < a.length;i++)
-        {
-            if(a[i]._value == null)
-                continue;
-            if(this.valueList.indexOfItem(a[i]._value) >= 0)
-                Xjs.DOM.addClass(a[i],"selected");
-            else 
-                Xjs.DOM.removeClass(a[i],"selected");
-        }
-    },
-    /*xjs.ui.ComboAidInputer._addOptions*/
-    _addOptions:function()
-    {
-        if(!this.listDOM)
-            return;
-        Xjs.DOM.removeAllChild(this.listDOM);
-        this.inSelectingValues.clear();
-        this.keyFocusedRow = null;
-        var optData = this.filterValues(0,null),
-            levels = this.findLevels(optData),
-            tbody = this.listDOM.tagName == "TBODY" ? this.listDOM : null;
-        if(tbody)
-            this.liRowTag = "TR";
-        var focusR = -1,
-            firstSeledRow = -1;
-        if(optData != null)
-            for(var i=0;i < optData.length;i++)
-            {
-                var a = optData[i],
-                    value = a[this.codeColumn];
-                if(tbody)
-                {
-                    tbody.appendChild(this.createTRowDOM(value,a,this.curFilter,levels == null ? 0 : levels[i]));
-                } else 
-                {
-                    var text;
-                    if(this.cellTextFmt && this.cellTextFmt.length > 0)
-                    {
-                        var codeData = this.parent.selectOptions;
-                        text = this.formatCellText(this.cellTextFmt[0],a,codeData.getColumns());
-                    } else 
-                    {
-                        var nm = a[this.textColumn];
-                        if(nm == null)
-                            nm = value.toString();
-                        text = a.length < 2 || (this.selOptions & 0x8000000) != 0 ? value : (this.showCode && value != nm ? value + ":" + nm : nm);
-                    }
-                    this.listDOM.appendChild(this.createRowDOM(value,text,this.curFilter,levels == null ? 0 : levels[i]));
-                }
-                if(this._firstFilterMachedVal && this._firstFilterMachedVal == value)
-                    focusR = i;
-                if(firstSeledRow == -1 && this.valueList && this.valueList.indexOfItem(value) >= 0)
-                {
-                    firstSeledRow = i;
-                }
-                this.inSelectingValues.add(value);
-            }
-        if(focusR < 0)
-            focusR = firstSeledRow >= 0 ? firstSeledRow : 0;
-        delete this._firstFilterMachedVal;
-        if(this.inputOvParent)
-            this.setKeyFocused(focusR,1);
-        if(this.infoDOM)
-        {
-            Xjs.DOM.setTextContent(this.infoDOM,optData.length > 0 || this.infoNoMatch == null ? this.getPromptInfo() : this.getNoMatchPromptInfo());
-        }
-        if(this.domHTMLByID)
-            for(var id in this.domHTMLByID)
-            {
-                var e = Xjs.DOM.findById(id,this.dom);
-                if(e)
-                {
-                    var s = this.domHTMLByID[id],
-                        p = s.indexOf("${title}");
-                    if(p >= 0)
-                        s = s.substring(0,p) + this.parent.title + s.substring(p + 8);
-                    e.innerHTML = s;
-                }
-            }
-        var raOn = this.realignOn || 1;
-        if(raOn == 1 && this._inShowingPos == 1)
-        {
-            this.reAlignShow();
-            this.adjSearchboxOvPosL();
-        }
-        try
-        {
-            this.listDOM.scrollTop = 0;
-            this.listDOM.scrollTo(0,0);
-        }catch(ex)
-        {
-        }
-        if(this.listScrollbar)
-        {
-            this.listDOM.appendChild(this.listScrollbar.vbar);
-            this.updateListScrollVal();
-        }
-    },
-    /*xjs.ui.ComboAidInputer.getNoMatchPromptInfo*/
-    getNoMatchPromptInfo:function()
-    {
-        return (this.selectOptions == null || this.selectOptions.length == 0) && this.infoNoSelect ? this.infoNoSelect : this.infoNoMatch;
-    },
-    /*xjs.ui.ComboAidInputer.getPromptInfo*/
-    getPromptInfo:function()
-    {
-        if(this.promptInfo == null)
-        {
-            this.promptInfo = "";
-            if(this.promptInfoFmt)
-            {
-                var p = this.promptInfoFmt.indexOf("${title}");
-                this.promptInfo = p >= 0 ? this.promptInfoFmt.substring(0,p) + this.parent.title + this.promptInfoFmt.substring(p + 8) : this.promptInfoFmt;
-            }
-        }
-        return this.promptInfo;
-    },
-    /*xjs.ui.ComboAidInputer.findLevels*/
-    findLevels:function(codes)
-    {
-        if((this.selOptions & 1) != 0)
-            return null;
-        var levels = new Array(codes.length);
-        this.findLevels1(codes,"",0,levels,0);
-        return levels;
-    },
-    /*xjs.ui.ComboAidInputer.findLevels1*/
-    findLevels1:function(codes,pcode,i,levels,levl)
-    {
-        for(;i < codes.length && codes[i][this.lvColumn].startsWith(pcode);)
-        {
-            levels[i] = levl;
-            i = this.findLevels1(codes,codes[i][this.lvColumn],i + 1,levels,levl + 1);
-        }
-        return i;
-    },
-    /*xjs.ui.ComboAidInputer.checkInputComplete*/
-    checkInputComplete:function()
-    {
-        if(this.selOptions & 0x400000 && this.inputField)
-        {
-            var v = this.inputField.value;
-            if(v && (v = v.trim()).length > 0 && this.inSelectingValues.size() == 1 && this.inSelectingValues.get(0) == v)
-            {
-                this.onSelectValue(v);
-            }
-        }
-    },
-    /*xjs.ui.ComboAidInputer.onInputFieldChanged*/
-    onInputFieldChanged:function(e)
-    {
-        this.refilter(false);
-        this.checkInputComplete();
-    },
-    /*xjs.ui.ComboAidInputer.forEnterKey*/
-    forEnterKey:function(e)
-    {
-        var selectIdx = -1;
-        if(this.listDOM != null && this.listDOM.childNodes.length == 1)
-        {
-            selectIdx = 0;
-        } else if(this.inputOvParent && this.keyFocusedRow)
-        {
-            selectIdx = Xjs.DOM.indexOf(this.listDOM.childNodes,this.keyFocusedRow);
-        }
-        if(selectIdx >= 0)
-        {
-            if(e.ctrlKey && this.isMultiSelectable())
-            {
-                this.endAidInputer(true);
-                return;
-            }
-            var li = this.listDOM.childNodes[selectIdx],
-                value = li._value;
-            if(value !== undefined)
-            {
-                this.onSelectValue(value);
-            }
-        }
-    },
-    /*xjs.ui.ComboAidInputer.onInputFieldKeydown*/
-    onInputFieldKeydown:function(e)
-    {
-        if(!Xjs.Event.isNavKeyPress(e))
-        {
-            this.refilter(false);
-            this.checkInputComplete();
-        } else if(e.keyCode == 40 || e.keyCode == 13)
-        {
-            if(this.inputOvParent)
-            {
-                this.onListKeydown(e);
-            } else if(this.listDOM != null && this.listDOM.childNodes.length > 0)
-            {
-                this.listDOM.focus();
-                this.onListKeydown(e);
-                if(e.keyCode == 13)
-                {
-                    this.entryKeyLock++;
-                }
-            }
-        } else if(e.keyCode == 38 && this.inputOvParent)
-        {
-            this.onListKeydown(e);
-        } else if(e.keyCode == 27)
-        {
-            this.hideAndFocusParent();
-            return false;
-        }
-        return;
-    },
-    /*xjs.ui.ComboAidInputer.onInputFieldKeyup*/
-    onInputFieldKeyup:function(e)
-    {
-        if(e.keyCode == 13)
-        {
-            this.forEnterKey(e);
-            Xjs.Event.cancelEvent(e,true);
-            return false;
-        }
-        return;
-    },
-    /*xjs.ui.ComboAidInputer.doParentCompSearchBoxKeyDown*/
-    doParentCompSearchBoxKeyDown:function(e)
-    {
-        var k = e.keyCode;
-        if(k == 13)
-        {
-            this.forEnterKey(e);
-        } else if(k == 40 || k == 38)
-        {
-            this.onListKeydown(e);
-        } else if(k == 27)
-        {
-            this.hideAndFocusParent();
-        } else 
-        {
-            return false;
-        }
-        Xjs.Event.cancelEvent(e,true);
-        return true;
-    },
-    /*xjs.ui.ComboAidInputer.setKeyFocused*/
-    setKeyFocused:function(idx,dir)
-    {
-        if(this.viewKeyFocused === false)
-            return;
-        for(;idx >= 0 && idx < this.listDOM.childNodes.length;idx += dir)
-        {
-            if(this.isSelectable(this.listDOM.childNodes[idx]._value))
-            {
-                this.setFocusedRow(idx);
-                break;
-            }
-        }
-    },
-    /*xjs.ui.ComboAidInputer.setCurKeyFocused*/
-    setCurKeyFocused:function(idx,dir)
-    {
-        if(this.viewKeyFocused === false)
-            return;
-        if(idx == 0)
-            this.setFocusedRow(idx);
-        for(;idx >= 0 && idx < this.listDOM.childNodes.length;idx += dir)
-        {
-            if(this.isSelectable(this.listDOM.childNodes[idx]._value))
-            {
-                var className = this.listDOM.childNodes[idx].className;
-                if(className && className.indexOf("selected") > -1)
-                {
-                    this.setFocusedRow(idx);
-                    break;
-                }
-            }
-        }
-    },
-    /*xjs.ui.ComboAidInputer.indexRowOfValue*/
-    indexRowOfValue:function(v)
-    {
-        for(var i=0;i >= 0 && i < this.listDOM.childNodes.length;i++)
-        {
-            if(this.listDOM.childNodes[i]._value == v)
-                return i;
-        }
-        return -1;
-    },
-    /*xjs.ui.ComboAidInputer.setFocusedRow*/
-    setFocusedRow:function(idx)
-    {
-        if(this.keyFocusedRow)
-        {
-            var j = Xjs.DOM.indexOf(this.listDOM.childNodes,this.keyFocusedRow);
-            if(j == idx)
-                return;
-            Xjs.DOM.removeClass(this.keyFocusedRow,"focused");
-            this.keyFocusedRow = null;
-        }
-        if(idx >= this.listDOM.childNodes.length)
-            return;
-        this.keyFocusedRow = this.listDOM.childNodes[idx];
-        Xjs.DOM.addClass(this.keyFocusedRow,"focused");
-        if(Xjs.DOM.isShowing(this.dom))
-            this.scrollFocusedRowVisible();
-    },
-    /*xjs.ui.ComboAidInputer.getRowValue*/
-    getRowValue:function(row,mode,focus)
-    {
-        var nr;
-        if((nr = this.listDOM.childNodes.length) == 0)
-            return null;
-        if(mode == 1)
-        {
-            var r0 = this.keyFocusedRow == null ? -1 : Xjs.DOM.indexOf(this.listDOM.childNodes,this.keyFocusedRow);
-            if(row < 0 && r0 < 0)
-                row = nr + row;
-            else 
-                row = r0 + row;
-        }
-        for(;row < 0;row += nr)
-            ;
-        for(;row >= nr;row -= nr)
-            ;
-        if(focus)
-            this.setFocusedRow(row);
-        var rowDom = this.listDOM.childNodes[row];
-        if(rowDom)
-            return rowDom._value;
-        return null;
-    },
-    /*xjs.ui.ComboAidInputer.scrollFocusedRowVisible*/
-    scrollFocusedRowVisible:function()
-    {
-        if(this.keyFocusedRow)
-            Xjs.DOM.scrollToVisible(this.listDOMX,this.keyFocusedRow,2);
-    },
-    /*xjs.ui.ComboAidInputer.scrollFocusedRowToTop*/
-    scrollFocusedRowToTop:function()
-    {
-        Xjs.DOM.scrollToTop(this.listDOMX,this.keyFocusedRow);
-    },
-    /*xjs.ui.ComboAidInputer.onListKeydown*/
-    onListKeydown:function(e)
-    {
-        var j = this.keyFocusedRow == null ? -1 : Xjs.DOM.indexOf(this.listDOM.childNodes,this.keyFocusedRow),
-            d;
-        if(e.keyCode == 40)
-            d = 1;
-        else if(e.keyCode == 38)
-            d = -1;
-        else 
-        {
-            if(j == -1 && e.keyCode == 13)
-            {
-                d = 1;
-            } else 
-            {
-                return;
-            }
-        }
-        if(j < 0)
-        {
-            this.setKeyFocused(0,1);
-        } else 
-        {
-            this.setKeyFocused(j + d,d);
-        }
-        return false;
-    },
-    /*xjs.ui.ComboAidInputer.onListKeyup*/
-    onListKeyup:function(e)
-    {
-        if(e.keyCode == 13)
-        {
-            if(!this.entryKeyLock)
-            {
-                if(this.keyFocusedRow)
-                {
-                    var j = Xjs.DOM.indexOf(this.listDOM.childNodes,this.keyFocusedRow);
-                    if(j >= 0)
-                    {
-                        this.onSelectClickRow(this.keyFocusedRow);
-                    }
-                }
-            } else 
-            {
-                this.entryKeyLock--;
-            }
-            return false;
-        } else if(e.keyCode == 27)
-        {
-            this.hideAndFocusParent();
-            return false;
-        }
-        return;
-    },
-    /*xjs.ui.ComboAidInputer.onSearchDelBtnClick*/
-    onSearchDelBtnClick:function(e)
-    {
-        if(this.inputField != null)
-        {
-            this.inputField.value = "";
-            this.refilter(false);
-            this.inputField.focus();
-        }
-    },
-    /*xjs.ui.ComboAidInputer.oncmd_all*/
-    oncmd_all:function()
-    {
-        var changed = false,
-            vals;
-        if(this.pgRowCount)
-        {
-            this.filterValues(1,vals = new Xjs.util.SortedArray(null));
-        } else 
-        {
-            vals = this.inSelectingValues;
-        }
-        for(var i=0;i < vals.size();i++)
-        {
-            var value = vals.get(i);
-            if((this.selOptions & 3) == 0 && !this.isLastLevlCode(value))
-            {
-                continue;
-            }
-            if(this.valueList.addItem(value,false))
-                changed = true;
-        }
-        if(changed)
-            this.updateRowDOMClass();
     }
 });
 /*xjs/ui/ComponentT.java*/
@@ -14476,7 +15616,9 @@ Xjs.apply(Xjs.ui.ComponentT.prototype,{
         return c;
     },
     /*xjs.ui.ComponentT.fireOnShowing*/
-    fireOnShowing:Xjs.emptyFn
+    fireOnShowing:Xjs.emptyFn,
+    /*xjs.ui.ComponentT._updateDomSize*/
+    _updateDomSize:Xjs.emptyFn
 });
 Xjs.apply(Xjs.ui.ComponentT,{
     /*xjs.ui.ComponentT.getCompByName*/
@@ -14594,6 +15736,29 @@ Xjs.extend(Xjs.ui.Date2AidInputer,Xjs.ui.LayerAidInputer,{
         this.date2Input.setInitValue(date2);
     }
 });
+/*xjs/ui/DateYearMonthAidInputer.java*/
+Xjs.ui.DateYearMonthAidInputer=function(config){
+    Xjs.ui.DateYearMonthAidInputer.superclass.constructor.call(this,config);
+    this.colname = config.colname;
+};
+Xjs.extend(Xjs.ui.DateYearMonthAidInputer,Xjs.ui.ComboAidInputer,{
+  _js$className_:"Xjs.ui.DateYearMonthAidInputer",
+    /*xjs.ui.DateYearMonthAidInputer.setInitValue*/
+    setInitValue:function(value)
+    {
+        if(!value)
+        {
+            if(this.colname == "year")
+            {
+                value = Date.getServerTime().getFullYear();
+            } else if(this.colname == "month")
+            {
+                value = Date.getServerTime().getMonth() + 1;
+            }
+        }
+        Xjs.ui.DateYearMonthAidInputer.superclass.setInitValue.call(this,value);
+    }
+});
 /*xjs/ui/DefaultComponentListener.java*/
 Xjs.ui.DefaultComponentListener=function(){};
 Xjs.apply(Xjs.ui.DefaultComponentListener.prototype,{
@@ -14612,7 +15777,9 @@ Xjs.apply(Xjs.ui.DefaultComponentListener.prototype,{
     /*xjs.ui.DefaultComponentListener.onRender*/
     onRender:Xjs.emptyFn,
     /*xjs.ui.DefaultComponentListener.onShowing*/
-    onShowing:Xjs.emptyFn
+    onShowing:Xjs.emptyFn,
+    /*xjs.ui.DefaultComponentListener.onLazyLoaded*/
+    onLazyLoaded:Xjs.emptyFn
 });
 /*xjs/ui/DefaultDialogPaneListener.java*/
 Xjs.ui.DefaultDialogPaneListener=function(){};
@@ -14652,7 +15819,9 @@ Xjs.apply(Xjs.ui.DefaultDialogPaneListener.prototype,{
     /*xjs.ui.DefaultDialogPaneListener.onPaneCollapseing*/
     onPaneCollapseing:Xjs.emptyFn,
     /*xjs.ui.DefaultDialogPaneListener.onPaneCollapse*/
-    onPaneCollapse:Xjs.emptyFn
+    onPaneCollapse:Xjs.emptyFn,
+    /*xjs.ui.DefaultDialogPaneListener.onLazyLoaded*/
+    onLazyLoaded:Xjs.emptyFn
 });
 /*xjs/ui/DefaultProgressPaneListener.java*/
 Xjs.ui.DefaultProgressPaneListener=function(){};
@@ -14661,6 +15830,8 @@ Xjs.apply(Xjs.ui.DefaultProgressPaneListener.prototype,{
     onClosed:Xjs.emptyFn,
     /*xjs.ui.DefaultProgressPaneListener.onRunProgress*/
     onRunProgress:Xjs.emptyFn,
+    /*xjs.ui.DefaultProgressPaneListener.onLockRunProgress*/
+    onLockRunProgress:Xjs.emptyFn,
     /*xjs.ui.DefaultProgressPaneListener.initComponent*/
     initComponent:Xjs.emptyFn,
     /*xjs.ui.DefaultProgressPaneListener.afterInitComponent*/
@@ -14685,6 +15856,8 @@ Xjs.apply(Xjs.ui.DefaultProgressPaneListener.prototype,{
     onRendering:Xjs.emptyFn,
     /*xjs.ui.DefaultProgressPaneListener.onRender*/
     onRender:Xjs.emptyFn,
+    /*xjs.ui.DefaultProgressPaneListener.onLazyLoaded*/
+    onLazyLoaded:Xjs.emptyFn,
     /*xjs.ui.DefaultProgressPaneListener.validateValue*/
     validateValue:Xjs.trueFn,
     /*xjs.ui.DefaultProgressPaneListener.valueExchange*/
@@ -14710,6 +15883,8 @@ Xjs.apply(Xjs.ui.DefaultTabPanelListener.prototype,{
     onRendering:Xjs.emptyFn,
     /*xjs.ui.DefaultTabPanelListener.onRender*/
     onRender:Xjs.emptyFn,
+    /*xjs.ui.DefaultTabPanelListener.onLazyLoaded*/
+    onLazyLoaded:Xjs.emptyFn,
     /*xjs.ui.DefaultTabPanelListener.addNotify*/
     addNotify:Xjs.emptyFn,
     /*xjs.ui.DefaultTabPanelListener.onTabbedSelecting*/
@@ -14916,6 +16091,42 @@ Xjs.extend(Xjs.ui.GroupPane,Xjs.ui.Container,{
         {
             Xjs.DOM.setTextContent(titleDOM,title);
         }
+    },
+    /*xjs.ui.GroupPane.onTitbarBtnClick*/
+    onTitbarBtnClick:function(ev)
+    {
+        var btn = Xjs.DOM.lookupByChild(this.titbarBtns,ev.srcElement || ev.target);
+        if(!btn || !btn.id)
+            return;
+        switch(btn.id)
+        {
+        case "collapse":
+            this.collapseContent = this.collapseContent == 1 ? 0 : 1;
+            this.updateCollapseStat();
+            break;
+        }
+    },
+    /*xjs.ui.GroupPane.updateCollapseStat*/
+    updateCollapseStat:function()
+    {
+        Xjs.DOM.addOrRemoveClass(this.dom,"grouppane-content-collapsed",this.collapseContent == 1);
+    },
+    /*xjs.ui.GroupPane.onDomCreated*/
+    onDomCreated:function(root)
+    {
+        Xjs.ui.GroupPane.superclass.onDomCreated.call(this,root);
+        var titBar = Xjs.DOM.find("#GroupPaneTitleBar",this.dom);
+        if(titBar)
+        {
+            this.titbarBtns = Xjs.DOM.findAll(".ui-grppane-titbar-btn",titBar);
+            if(this.titbarBtns && this.titbarBtns.length > 0)
+            {
+                var f = this.onTitbarBtnClick.createDelegate(this);
+                for(var i=0;i < this.titbarBtns.length;i++)
+                    this.titbarBtns[i].onclick = f;
+            }
+        }
+        this.updateCollapseStat();
     }
 });
 /*xjs/ui/HtmlView.java*/
@@ -15007,78 +16218,44 @@ Xjs.extend(Xjs.ui.IFrame,Xjs.ui.Component,{
         this.reload();
     }
 });
-/*xjs/ui/ImageButton.java*/
-Xjs.ui.ImageButton=function(config){
-    Xjs.ui.ImageButton.superclass.constructor.call(this,config);
+/*xjs/ui/Image.java*/
+Xjs.ui.Image=function(config){
+    Xjs.ui.Image.superclass.constructor.call(this,config);
 };
-Xjs.extend(Xjs.ui.ImageButton,Xjs.ui.Image,{
-  _js$className_:"Xjs.ui.ImageButton",
-    /*xjs.ui.ImageButton._createDOM*/
+Xjs.extend(Xjs.ui.Image,Xjs.ui.Component,{
+  _js$className_:"Xjs.ui.Image",
+    /*xjs.ui.Image._createDOM*/
     _createDOM:function(root)
     {
-        var d = Xjs.ui.ImageButton.superclass._createDOM.call(this,root);
-        this.imgDOM.className = "ui-imagebutton";
-        if(this.href)
-        {
-            var hrefDom = this.hrefDOM = document.createElement("a");
-            hrefDom.href = this.href;
-            hrefDom.target = this.target || "_blank";
-            hrefDom.appendChild(d);
-            d = hrefDom;
-            if(this.className)
-                d.className = this.className;
-        } else if(this.className)
-        {
-            this.imgDOM.className = this.className;
-        }
-        d.onclick = Function.bindAsEventListener(this._onClick,this,0,true);
-        d.onmousemove = Function.bindAsEventListener(this._onMouseMove,this);
-        d.onmouseout = Function.bindAsEventListener(this._onMouseOut,this);
+        var d = this.imgDOM = Xjs.ui.Image.superclass._createDom0.call(this,root,"img");
+        if(this.name)
+            d.name = this.name;
+        if(this.src)
+            d.src = Xjs.toFullURL(this.src,1);
+        if(this.imgHeight)
+            d.height = this.imgHeight;
+        if(this.imgWidth)
+            d.width = this.imgWidth;
         return d;
     },
-    /*xjs.ui.ImageButton.setHRef*/
-    setHRef:function(href,target)
+    /*xjs.ui.Image.setSrc*/
+    setSrc:function(src)
     {
-        if(href !== undefined)
-        {
-            this.href = href;
-            if(this.hrefDOM)
-                this.hrefDOM.href = href;
-        }
-        if(target !== undefined)
-        {
-            this.target = target;
-            if(this.hrefDOM)
-                this.hrefDOM.target = this.target || "_blank";
-        }
+        this.src = src;
+        if(this.imgDOM)
+            this.imgDOM.src = Xjs.toFullURL(src,1);
     },
-    /*xjs.ui.ImageButton._onClick*/
-    _onClick:function(e)
+    /*xjs.ui.Image.getImageDOM*/
+    getImageDOM:function()
     {
-        if(this.openURL)
-            window.open(this.openURL,this.openTarget || this.target || "_blank",this.openFeatures);
-        {
-            this.fireEvent("performCommand",this.command);
-        }
-        if(this.handler)
-            this.handler.call(this.scope || this,this,this.command,e);
+        return this.imgDOM;
     },
-    /*xjs.ui.ImageButton._updateIconSrcOnMouseOver*/
-    _updateIconSrcOnMouseOver:function(over)
+    /*xjs.ui.Image.setValue*/
+    setValue:function(value)
     {
-        var src = over && this.mouseOverSrc ? this.mouseOverSrc : this.src;
-        if(this.imgDOM.src != src)
-            this.imgDOM.src = src;
-    },
-    /*xjs.ui.ImageButton._onMouseMove*/
-    _onMouseMove:function(e)
-    {
-        this._updateIconSrcOnMouseOver(true);
-    },
-    /*xjs.ui.ImageButton._onMouseOut*/
-    _onMouseOut:function(e)
-    {
-        this._updateIconSrcOnMouseOver(false);
+        if(!this.attached)
+            return;
+        this.setSrc(Xjs.table.util.AbsSelectAttachment.buildURL(this.attached,false,null,true,value,this.table,this.columnName,this.table.getDataSet().getRow(),true));
     }
 });
 /*xjs/ui/InputField.java*/
@@ -15168,6 +16345,8 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         {
             id.autocomplete = this.autoComplete;
         }
+        if(this.textDir)
+            id.dir = this.textDir;
         this.bindEvent(true);
         this._updateDomValue(0);
     },
@@ -15219,9 +16398,12 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         e[this.nm$onInput] = this.fn$OnInput;
         if(this.fn$onChanged)
             this.inputDom.onchange = this.fn$onChanged;
-        if(this.tipIfOverflow)
+        if(this.tipIfOverflow || this.tipText || this.bgLabel)
         {
-            this.fn$TipText = {func:this.getTipText,scorp:this};
+            if(this.tipIfOverflow || this.bgLabel && !this.tipText)
+            {
+                this.fn$TipText = this.fnTipText || new Xjs.FuncCall(this.getTipText,this);
+            }
             this._addShowTipTextMouseListener();
         }
         e.onfocus = this.fn$onFocus;
@@ -15281,12 +16463,12 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             i.initCharsCntInd();
         },1);
         }
-        ;
         if(this.parent && this.parent.subCompOpts)
         {
             if(this.parent.subCompOpts & 2 && this.width === undefined)
             {
                 this.width = "100%";
+                this._resetFullWid = true;
             }
         }
         setTimeout(function(){
@@ -15319,6 +16501,25 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
     {
         if(this.disableUpdateSize)
             return;
+        if(this._resetFullWid && this.dom.parentNode)
+        {
+            var wx = 0,
+                a = this.dom.parentNode.childNodes;
+            for(var j=0;j < a.length;j++)
+            {
+                if(a[j] != this.dom && a[j].nodeType == 1)
+                {
+                    wx += Xjs.DOM.getWidth(a[j]) + Xjs.DOM.getMargins(a[j],"lr");
+                }
+            }
+            if(wx > 0)
+            {
+                this.width = Xjs.DOM.getWidth(this.dom.parentNode) - wx - 2;
+            } else 
+            {
+                this.width = "100%";
+            }
+        }
         Xjs.ui.InputField.superclass._updateDomSize.call(this);
         if(this.inputDom != this.inputDomx)
         {
@@ -15352,7 +16553,9 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             this.inAISearch = 1;
             this.inputDom.readOnly = false;
         } else if(this.inAISearch)
+        {
             delete this.inAISearch;
+        }
     },
     /*xjs.ui.InputField.updateReadonlyStatus*/
     updateReadonlyStatus:function()
@@ -15467,6 +16670,10 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             alcs.push("ui-focusborder");
             alcs.push("ui-focused-input");
         }
+        if(this.__lastInalidate1)
+        {
+            alcs.push("ui-validation-err");
+        }
         if(this._addedCls)
         {
             var changed = this._addedCls.length != alcs.length;
@@ -15549,6 +16756,29 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         this._updateDomValue(0);
         this._updateClass();
         this.fireEvent("focusLost");
+    },
+    /*xjs.ui.InputField.validateAndAlert*/
+    validateAndAlert:function()
+    {
+        {
+            var ex = null;
+            try
+            {
+                var v = this.value !== undefined || !this.inputDom ? this.value : this.getDisplayValue(false);
+                if(!this._validateValue(v,null,2))
+                {
+                    ex = new Error("无效格式:" + v);
+                }
+            }catch(er)
+            {
+                ex = er;
+            }
+            if(ex)
+            {
+                var s = ex.description || ex.message || ex.toString();
+                Xjs.ui.UIUtil.showErrorDialog(null,this.title ? this.title + ":" + s : s,null,null,0x10);
+            }
+        }
     },
     /*xjs.ui.InputField._onClick*/
     _onClick:function(e)
@@ -15637,7 +16867,13 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
                 ev = {enterChar:enterChar};
             else if(enterChar)
                 ev.enterChar = enterChar;
-            var v = this.getValue();
+            var v = null;
+            try
+            {
+                v = this.getValue();
+            }catch(ex)
+            {
+            }
             v = this.aidInputer.doAidInput(this,v,ev);
             if(v != null && !readOnly)
             {
@@ -15686,9 +16922,9 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
     /*xjs.ui.InputField.isDelable*/
     isDelable:function()
     {
-        if(this.isReadonly() || this.editable !== false || this.disableDel)
-            return false;
         var c = this.tableColumn || this;
+        if(this.isReadonly() || this.editable !== false || c.disableDel)
+            return false;
         if(c.aidInputer && (c.nonBlank || c.nonBlankOnSubmit))
         {
             return !c.disableDelIfAI;
@@ -15745,10 +16981,6 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
                 this.histAI.hide();
                 return false;
             }
-        }
-        if(Xjs.isIE && (Xjs.$browserVer <= 8 && (!Xjs.Event.isNavKeyPress(e) || this.isNLByKey13(e)) && !this.inputDom.readOnly || Xjs.$browserVer == 9 && (e.keyCode == 8 || e.keyCode == 46)))
-        {
-            this.onInput(e);
         }
         if(preventKey)
             return false;
@@ -15824,6 +17056,15 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
                 {
                     return this.undoFunc();
                 }
+            case 67:
+                {
+                    var a = Xjs.DOM.getInputSelectionRange(this.inputDom);
+                    if(a && a[0] == a[1])
+                    {
+                        this.inputDom.select();
+                    }
+                    break;
+                }
             }
         }
         if(this.table && this.table instanceof Xjs.ui.GridTable)
@@ -15872,6 +17113,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
                 delete this.value;
                 delete this.displayValue;
             }
+            this.validateValue(null,null,1);
             this.fireEvent("valueChanged",e,opts);
             this._initValueBeforeChanged();
             this.updateCharsCntInd();
@@ -15919,19 +17161,70 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             if(this.percent > 1 && typeof(v) == "number")
             {
                 v = v / this.percent;
+                var inc = 0,
+                    p = s.indexOf(".");
+                if(s.length > 0 && p >= 0)
+                {
+                    inc = s.substring(p + 1).length;
+                }
+                inc += 2;
+                var vstr = v.toString();
+                p = vstr.indexOf(".");
+                if(vstr.substring(p + 1).length > inc)
+                {
+                    var pow = Math.pow(10,inc);
+                    v = Math.round(v * pow) / pow;
+                }
             }
             return v;
         }
         return s;
     },
     /*xjs.ui.InputField.validateValue*/
-    validateValue:function(src,ivFields)
+    validateValue:function(src,ivFields,opts)
     {
-        var value = this.value !== undefined || !this.inputDom ? this.value : this.getDisplayValue(false);
-        return this._validateValue(value,ivFields,0);
+        var v = this.value !== undefined || !this.inputDom ? this.value : this.getDisplayValue(false);
+        return this._validateValue(v,ivFields,opts || 0);
     },
     /*xjs.ui.InputField._validateValue*/
-    _validateValue:function(value,ivFields,opts)
+    _validateValue:function(v,ivFields,opts)
+    {
+        if(v === undefined)
+        {
+            v = null;
+        }
+        if(opts == 1)
+        {
+            if(this.__lastValidVal1 === v)
+            {
+                return !this.__lastInalidate1;
+            }
+        }
+        if((opts || 0) == 0)
+        {
+            if(this.__lastValidVal0 === v)
+            {
+                return !this.__lastInalidate0;
+            }
+        }
+        var b = this._validateValue0(v,ivFields,opts);
+        if((opts || 0) == 0)
+        {
+            this.__lastValidVal0 = v === null ? undefined : v;
+            this.__lastInalidate0 = !b;
+        } else if(opts == 1)
+        {
+            this.__lastValidVal1 = v;
+            if(!this.__lastInalidate1 != b)
+            {
+                this.__lastInalidate1 = !b;
+                this._updateClass();
+            }
+        }
+        return b;
+    },
+    /*xjs.ui.InputField._validateValue0*/
+    _validateValue0:function(value,ivFields,opts)
     {
         if(value === "" || value == null)
         {
@@ -15951,6 +17244,66 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             if(p >= 0)
                 value = value.substring(0,p);
         }
+        var v0 = value;
+        if(typeof(v0) == "string")
+        {
+            try
+            {
+                v0 = Xjs.Data.parseFromSqlType(value,this.sqlType);
+            }catch(ex)
+            {
+                if(opts & 2)
+                    throw ex;
+                return false;
+            }
+        }
+        if(this.chkValues)
+            for(var j=0;j < this.chkValues.length;j++)
+            {
+                var ckv = this.chkValues[j],
+                    v = ckv.value;
+                if(ckv.valIn > 0)
+                    switch(ckv.valIn)
+                    {
+                    case 1:
+                        var c = this.getMainParentComponent().getItemByName(v);
+                        if(!c)
+                            continue;
+                        v = c.getValue();
+                        break;
+                    }
+                if(ckv.opts & 1 && v == null)
+                {
+                    continue;
+                }
+                var cmp = Xjs.objCmp(v0,v),
+                    k;
+                switch(ckv.cmp)
+                {
+                case ">=":
+                    k = cmp >= 0;
+                    break;
+                case ">":
+                    k = cmp > 0;
+                    break;
+                case "<=":
+                    k = cmp <= 0;
+                    break;
+                case "<":
+                    k = cmp < 0;
+                    break;
+                case "==":
+                    k = cmp == 0;
+                    break;
+                case "!=":
+                    k = cmp != 0;
+                    break;
+                default:
+                    continue;
+                }
+                if(!k)
+                    return false;
+            }
         var p;
         if(isDate)
         {
@@ -15999,15 +17352,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         }
         if(this.validateValueRng)
         {
-            var v;
-            try
-            {
-                v = Xjs.Data.parseFromSqlType(value,this.sqlType);
-            }catch(ex)
-            {
-                return false;
-            }
-            if(this.validateValueRng[0] != null && v < this.validateValueRng[0] || this.validateValueRng[1] != null && v > this.validateValueRng[1])
+            if(this.validateValueRng[0] != null && v0 < this.validateValueRng[0] || this.validateValueRng[1] != null && v0 > this.validateValueRng[1])
             {
                 return false;
             }
@@ -16170,6 +17515,8 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
     setValue:function(value,displayValue,opts)
     {
         var changed = this.value != value;
+        delete this.__lastInalidate1;
+        delete this.__lastInalidate0;
         this.value = value;
         this.displayValue = this.showCode && !this.showName ? value : displayValue;
         if(this.inputDom)
@@ -16254,7 +17601,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             if(this.aidInputer && !this.aidInputer.isAidInputerInShowing())
             {
                 this.lastAidInputChar = 0;
-                this.doAidInput({fnSearchFilter:{func:this.getInputValue,scorp:this},options:4});
+                this.doAidInput({fnSearchFilter:new Xjs.FuncCall(this.getInputValue,this),options:4});
             }
             this.filterAISearch();
             return;
@@ -16268,7 +17615,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         if(ie = this.inputDom)
         {
             var domW = ie.offsetWidth,
-                tipText = ie.value || "";
+                tipText = ie.value || this.bgLabel || "";
             if(this.getCharLength(tipText) * 8 <= domW)
                 return null;
             var e = Xjs.DOM._createTempSpanDOM();
@@ -16305,6 +17652,11 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
     {
         if(this.inAISearch == 1 && this.getAidInputer().getAidInputerInfo(2,null) & 4)
         {
+            if(this.value === undefined)
+            {
+                this._flags |= 1;
+            } else 
+                this._flags &= ~1;
             this.inAISearch = 2;
             Xjs.DOM.addClass(this.dom,"ui-input-inaisearch");
             this.filterAISearch();
@@ -16316,6 +17668,8 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         if(this.inAISearch == 2)
         {
             this.inAISearch = 1;
+            if(this._flags & 1)
+                this.inputDom.value = "";
             Xjs.DOM.removeClass(this.dom,"ui-input-inaisearch");
             this._updateDomValue(0);
         }
@@ -16468,7 +17822,123 @@ Xjs.extend(Xjs.ui.Label,Xjs.ui.Component,{
 });
 {
     Xjs.UITYPES.label = Xjs.ui.Label;
-}/*xjs/ui/List.java*/
+}/*xjs/ui/LayDateAidInputer.java*/
+Xjs.ui.LayDateAidInputer=function(params){
+    Xjs.apply(this,params);
+};
+Xjs.apply(Xjs.ui.LayDateAidInputer.prototype,{
+    /*xjs.ui.LayDateAidInputer.doAidInput*/
+    doAidInput:function(comp,value,event)
+    {
+        if(!this.type)
+        {
+            throw new Error("必须配置配置日期辅助录入类型 type ！");
+        }
+        var laydate = window.laydate,
+            field = comp;
+        field.immPostValue = true;
+        if(!field.isReadonly())
+        {
+            var tgt = {};
+            tgt.type = this.type;
+            if(this.format)
+            {
+                tgt.format = this.format;
+            }
+            tgt.elem = "#UIA_" + (field.table ? field.table.name : field.parent.name) + "_" + comp.name + " input";
+            tgt.done = this.inputFieldDone(field);
+            tgt.show = true;
+            tgt.trigger = "xxx";
+            var o = laydate.render(tgt);
+            if(window._debug_)
+            {
+                window.console.log(o);
+            }
+        }
+        return null;
+    },
+    /*xjs.ui.LayDateAidInputer.inputFieldDone*/
+    inputFieldDone:function(field)
+    {
+        return function(value,date,enddate){
+            if(field.table)
+            {
+                if(field.table instanceof Xjs.ui.GridTable)
+                {
+                    field.table.getColumn(field.name).editComponent.setValue(value);
+                }
+                if(field.table.dataSet.columnAt(field.name) > -1)
+                {
+                    field.table.dataSet.setValue(field.name,value);
+                }
+            } else 
+            {
+                field.setValue(value);
+            }
+        };
+    },
+    /*xjs.ui.LayDateAidInputer.hideAidInputer*/
+    hideAidInputer:Xjs.emptyFn,
+    /*xjs.ui.LayDateAidInputer.isAidInputerInShowing*/
+    isAidInputerInShowing:Xjs.falseFn,
+    /*xjs.ui.LayDateAidInputer.getAidInputerInfo*/
+    getAidInputerInfo:Xjs.nullFn
+});
+/*xjs/ui/LazyComp.java*/
+Xjs.ui.LazyComp=function(cfg){
+    Xjs.ui.LazyComp.superclass.constructor.call(this,cfg);
+};
+Xjs.extend(Xjs.ui.LazyComp,Xjs.ui.Component,{
+  _js$className_:"Xjs.ui.LazyComp",
+    /*xjs.ui.LazyComp.loadUI*/
+    loadUI:function(rootDOM)
+    {
+        var _this = this;
+        if(this.refComp)
+        {
+            return new Promise(function(resolve,reject){
+            resolve(_this.refComp);
+        });
+        } else 
+        {
+            return Xjs.JsLoad.asynLoadUI(this.getRootComponentMID() + "~" + this.name).then(function(ui){
+            _this.refComp = ui.getUI(0,0,null,null,_this.getRootComponent());
+            _this.onCompLoaded(rootDOM);
+            return _this.refComp;
+        });
+        }
+    },
+    /*xjs.ui.LazyComp.onCompLoaded*/
+    onCompLoaded:function(rootDOM)
+    {
+        var uid = this.getRootComponentMID() + "~" + this.name;
+        for(var i=0;i < this.parent.items.length;i++)
+        {
+            if(this.parent.items[i] == this)
+                this.parent.items[i] = this.refComp;
+        }
+        var htmlURL = Xjs.ui.UIUtil.getAttachHtmlURL(uid,null),
+            html = Xjs.loadUrlRES(htmlURL,false).trim();
+        if(html.startsWith("<body>") && html.endsWith("</body>"))
+        {
+            html = html.substring(6,html.length - 7).trim();
+        }
+        var pdom = Xjs.DOM.findById(this.id,rootDOM);
+        pdom.innerHTML = html;
+        var a = [];
+        while(pdom.hasChildNodes())
+        {
+            a.push(pdom.firstChild);
+            pdom.removeChild(pdom.firstChild);
+        }
+        for(var j=0;j < a.length;j++)
+        {
+            pdom.parentNode.insertBefore(a[j],pdom);
+        }
+        pdom.parentNode.removeChild(pdom);
+    }
+});
+/*xjs/ui/List.java*/
 Xjs.ui.List$AidInputComp=function(list){
     this.list = list;
 };
@@ -16500,11 +17970,14 @@ Xjs.extend(Xjs.ui.List$AidInputComp,Xjs.ui.Component,{
                 }
             }
         }
-        window.console.log("AidInputComp.setValue(" + v + ")");
     }
 });
 Xjs.ui.List=function(config){
     Xjs.ui.List.superclass.constructor.call(this,config);
+    if(typeof(this.mcheckCls) == "string")
+    {
+        this.mcheckCls = this.mcheckCls.split(",");
+    }
 };
 Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
   _js$className_:"Xjs.ui.List",
@@ -16514,30 +17987,45 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
     __init:function()
     {
         Xjs.ui.List.superclass.__init.call(this);
-        this.className = "ui-list";
+        this.className = "ui-list-box";
+        this.listClassName = "ui-list";
         this.rowClassName = "ui-listrow";
         this.srowClassName = "ui-seledlistrow";
     },
     /*xjs.ui.List._createDOM*/
     _createDOM:function(root)
     {
-        var ldom = Xjs.ui.List.superclass._createDom0.call(this,root,"div");
+        var dom = Xjs.ui.List.superclass._createDom0.call(this,root,"div");
         if(this.maxHeight > 0)
-            ldom.style.maxHeight = this.maxHeight + "px";
-        this._addOptions(ldom);
+            dom.style.maxHeight = this.maxHeight + "px";
+        this.listDOM = Xjs.DOM.createChild(dom,"div",this.listClassName);
+        Xjs.DOM.addOrRemoveClass(this.listDOM,"ui-list-dragable",this.dragable);
+        this._addOptions(this.listDOM);
         if(this.value != null)
-            this._updateChecked(ldom);
-        var dom = this.listDOM = ldom;
+            this._updateChecked(this.listDOM);
         if(this.appendAidInputer)
         {
-            dom = document.createElement("div");
-            dom.appendChild(ldom);
             this.appendDOM = Xjs.DOM.createChild(dom,"button");
             var textDOM = Xjs.DOM.createChild(this.appendDOM,"span","text");
             Xjs.DOM.setTextContent(textDOM,this.appendBtnText || "添加..");
             this.appendDOM.onclick = Function.bindAsEventListener(this.startAppendAidInputer,this);
         }
+        if(this.customSbar)
+            this._customScrollSbar = new Xjs.ui.util.CustomScrollbar(this.name + ".SBar",dom,this.customSbar,null,null,null);
         return dom;
+    },
+    /*xjs.ui.List.updateCustomScrollBar*/
+    updateCustomScrollBar:function()
+    {
+        if(this._customScrollSbar)
+        {
+            this._customScrollSbar.updateValue();
+        }
+    },
+    /*xjs.ui.List.onResize*/
+    onResize:function()
+    {
+        this.updateCustomScrollBar();
     },
     /*xjs.ui.List.setEmptyItemText*/
     setEmptyItemText:function(emptyText)
@@ -16554,7 +18042,7 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
     {
         if(this.emptyText !== undefined)
         {
-            var rowDom = this.createRowDOM(false,"",this.emptyText,this.check2Label);
+            var rowDom = this.createRowDOM(false,"",this.emptyText,this.check2Fac);
             listDOM.appendChild(rowDom);
         }
         var optData = this.getSelectOptions();
@@ -16568,7 +18056,7 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
                     continue;
                 var value = a[0],
                     text = a.length < 2 ? value : (this.showCode && value != a[1] ? value + ":" + a[1] : a[1]),
-                    rowDom = this.createRowDOM(false,value,text,this.check2Label);
+                    rowDom = this.createRowDOM(false,value,text,this.check2Fac);
                 if(this.value != null)
                 {
                     if(!this.multiple)
@@ -16584,6 +18072,7 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
                 }
                 listDOM.appendChild(rowDom);
             }
+        this.updateCustomScrollBar();
     },
     /*xjs.ui.List.setSelectOptions*/
     setSelectOptions:function(o)
@@ -16602,15 +18091,8 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
                 this._updateChecked(this.listDOM);
         }
     },
-    /*xjs.ui.List.setCheck2Value*/
-    setCheck2Value:function(value,v)
-    {
-        if(!this.check2Vals)
-            this.check2Vals = {};
-        this.check2Vals[value] = v;
-    },
     /*xjs.ui.List.createRowDOM*/
-    createRowDOM:function(disableCheck,value,text,check2Label)
+    createRowDOM:function(disableCheck,value,text,check2Fac)
     {
         var rowDom = document.createElement("div");
         if(this.rowHeight)
@@ -16635,7 +18117,8 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
             var span = Xjs.DOM.createChild(rowDom,"span",this.mcheckBasCls);
             span.id = "mcheck_" + this.id + "_" + value;
         }
-        var checkDOM = Xjs.isIE && Xjs.$browserVer < 9 ? document.createElement("<input name=\"" + name + "\">") : document.createElement("input");
+        var span = Xjs.DOM.createChild(rowDom,"span","ui-check"),
+            checkDOM = document.createElement("input");
         checkDOM.type = this.multiple ? "checkbox" : "radio";
         checkDOM.value = value;
         if(this.readOnly)
@@ -16643,41 +18126,39 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
         if(disableCheck)
             checkDOM.disabled = true;
         if(!this.checkVisible)
+        {
             checkDOM.style.display = "none";
+            Xjs.DOM.addClass(rowDom,"ui-checkvisivle");
+        } else 
+        {
+            Xjs.DOM.createChild(span,"span","check");
+            Xjs.DOM.addClass(rowDom,"ui-checkinvisivle");
+        }
         checkDOM.id = this.id + "#" + value;
         checkDOM.name = name;
-        rowDom.appendChild(checkDOM);
-        var label2Prefix = "",
-            label2Suffix = null;
-        if(check2Label)
-        {
-            var p = check2Label.indexOf('\t');
-            if(p >= 0)
-            {
-                label2Prefix = check2Label.substring(0,p);
-                label2Suffix = check2Label.substring(p + 1);
-            }
-        }
+        span.appendChild(checkDOM);
         var labelDOM = document.createElement("label"),
-            textNode = document.createTextNode(text + label2Prefix);
+            textNode = document.createTextNode(text);
         labelDOM.appendChild(textNode);
-        rowDom.appendChild(labelDOM);
+        span.appendChild(labelDOM);
+        if(this.fnItemRemoveable && this.fnItemRemoveable.call(value))
+        {
+            var delIcon = document.createElement("span");
+            delIcon.id = "DelItemIcon";
+            span.appendChild(delIcon);
+        }
         rowDom.value = value;
         rowDom.checkDOM = checkDOM;
-        if(label2Suffix)
+        if(check2Fac)
         {
-            var check2DOM = Xjs.isIE && Xjs.$browserVer < 9 ? document.createElement("<input name=\"" + name + "\">") : document.createElement("input");
-            check2DOM.type = "checkbox";
-            if(this.check2Vals && this.check2Vals[value])
-                check2DOM.checked = true;
-            rowDom.check2DOM = check2DOM;
-            rowDom.appendChild(check2DOM);
-            var label2DOM = document.createElement("label"),
-                text2Node = document.createTextNode(label2Suffix);
-            label2DOM.appendChild(text2Node);
-            rowDom.appendChild(label2DOM);
+            var comp = check2Fac.newComponent({_value:value,_text:text});
+            if(comp)
+            {
+                rowDom.check2Comp = comp;
+                rowDom.appendChild(comp.getDOM());
+            }
         }
-        if(this._$onClick == null)
+        if(!this._$onClick)
         {
             this._$onClick = Function.bindAsEventListener(this._onClick,this);
             this._$onRowClick = Function.bindAsEventListener(this._onRowClick,this);
@@ -16700,21 +18181,43 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
     /*xjs.ui.List._onClick*/
     _onClick:function(e)
     {
-        this.clearMovinfDOM();
-        var checkDOM = Xjs.DOM.getParentForTag(e.srcElement || e.target,"INPUT");
-        this.onClick(checkDOM.parentNode);
+        this.clearMovingDOM();
+        this.onClick(this.getListRowDOM(e));
+    },
+    /*xjs.ui.List.getListRowDOM*/
+    getListRowDOM:function(e)
+    {
+        if(!this.listDOM)
+            return null;
+        var t = e.srcElement || e.target;
+        for(var j=0;j < this.listDOM.childNodes.length;j++)
+        {
+            if(Xjs.DOM.contains(this.listDOM.childNodes[j],t))
+                return this.listDOM.childNodes[j];
+        }
+        return null;
     },
     /*xjs.ui.List._onRowClick*/
     _onRowClick:function(e)
     {
-        this.clearMovinfDOM();
+        this.clearMovingDOM();
         if((!this.dragable || this.labelCheck === true) && !this.readOnly)
         {
             var target = e.srcElement || e.target;
             if(target.tagName == "INPUT")
                 return;
-            var rowDom = Xjs.DOM.getParentForTag(target,"DIV"),
-                checkDOM = rowDom.checkDOM;
+            var rowDom = this.getListRowDOM(e);
+            if(!rowDom)
+                return;
+            if(target.id == "DelItemIcon")
+            {
+                this.removeItem(rowDom);
+                return;
+            }
+            var c = rowDom.check2Comp;
+            if(c && c.dom && Xjs.DOM.contains(c.dom,target))
+                return;
+            var checkDOM = rowDom.checkDOM;
             if(this.multiple || !checkDOM.checked)
                 checkDOM.checked = !checkDOM.checked;
             this.onClick(rowDom);
@@ -16733,8 +18236,8 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
         delete this._$value;
         this.setMCheckVal(target.id.substring(pid.length),target,v + 1);
     },
-    /*xjs.ui.List.clearMovinfDOM*/
-    clearMovinfDOM:function()
+    /*xjs.ui.List.clearMovingDOM*/
+    clearMovingDOM:function()
     {
         delete this.movingRowIndex;
         if(this.movingDOM != null)
@@ -16746,7 +18249,7 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
     /*xjs.ui.List._onRowMouseDown*/
     _onRowMouseDown:function(e)
     {
-        this.clearMovinfDOM();
+        this.clearMovingDOM();
         if(this.dragable)
         {
             var target = e.srcElement || e.target,
@@ -16771,7 +18274,7 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
                     value = "",
                     labelElement = rowDom.getElementsByTagName("LABEL")[0],
                     text = labelElement.innerText || labelElement.textContent,
-                    mrowDom = this.createRowDOM(true,value,text,this.check2Label);
+                    mrowDom = this.createRowDOM(true,value,text,this.check2Fac);
                 mrowDom.checkDOM.checked = checked;
                 this.movingDOM.appendChild(mrowDom);
             }
@@ -16850,6 +18353,8 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
     /*xjs.ui.List.onClick*/
     onClick:function(rowDom)
     {
+        if(!rowDom)
+            return;
         if(!this.multiple)
         {
             this.updateCheckedItemColor();
@@ -16882,27 +18387,29 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
             if(this.chkIdxClsPrefix)
             {
                 rowDom.className = this.rowClassName;
-                this.resetCheckIdxCls(rowDom);
             }
+            this.resetCheckIdxCls(rowDom);
             return;
         }
-        if(rowDom.checkDOM.checked)
-        {
-            rowDom.className = this.srowClassName;
-        } else 
-        {
-            rowDom.className = this.rowClassName;
-        }
+        var checked = rowDom.checkDOM.checked;
+        Xjs.DOM.addOrRemoveClass(rowDom,this.rowClassName,!checked);
+        Xjs.DOM.addOrRemoveClass(rowDom,this.srowClassName,checked);
         this.resetCheckIdxCls(rowDom);
     },
     /*xjs.ui.List.resetCheckIdxCls*/
     resetCheckIdxCls:function(rowDom)
     {
-        if(this.chkIdxClsPrefix)
         {
             var checkDOM = rowDom.checkDOM,
                 idx = (checkDOM.type == "radio" ? 4 : 0) | (checkDOM.checked ? 2 : 0) | (checkDOM.disabled ? 1 : 0);
-            rowDom.className += " " + this.chkIdxClsPrefix + idx;
+            if(this.chkIdxClsPrefix)
+            {
+                for(var j=0;j < 8;j++)
+                {
+                    Xjs.DOM.addOrRemoveClass(rowDom,this.chkIdxClsPrefix + idx,j == idx);
+                }
+            }
+            checkDOM.parentNode.className = "ui-check ui-check" + idx;
         }
     },
     /*xjs.ui.List.getRowDomByValue*/
@@ -16914,8 +18421,9 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
         if(rowDoms != null)
             for(var i=0;i < rowDoms.length;i++)
             {
-                var rowDom = rowDoms[i];
-                if(rowDom.checkDOM.value == value)
+                var rowDom = rowDoms[i],
+                    checkDOM = rowDom.checkDOM;
+                if(checkDOM && checkDOM.value == value)
                     return rowDom;
             }
         return null;
@@ -16924,7 +18432,7 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
     setValueChecked:function(value,checked)
     {
         var rowDom = this.getRowDomByValue(value);
-        if(rowDom == null)
+        if(!rowDom)
             return;
         if(rowDom.checkDOM.checked != checked)
         {
@@ -16949,17 +18457,33 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
         if(flags & 1)
             this.onChanged();
     },
+    /*xjs.ui.List.getExValue*/
+    getExValue:function(value)
+    {
+        var rowDom = this.getRowDomByValue(value);
+        if(!rowDom)
+            return null;
+        var c = rowDom.check2Comp;
+        return c ? c.getValue() : null;
+    },
     /*xjs.ui.List.addItem*/
     addItem:function(value,text,before)
     {
         if(this.listDOM == null)
             return null;
-        var e = this.createRowDOM(false,value,text,this.check2Label),
-            rowDoms = this.listDOM.childNodes;
-        if(rowDoms != null && before >= 0 && before < rowDoms.length)
-            this.listDOM.insertBefore(e,rowDoms[before]);
-        else 
-            this.listDOM.appendChild(e);
+        var e = this.getRowDomByValue(value);
+        if(!e)
+        {
+            e = this.createRowDOM(false,value,text,this.check2Fac);
+            var rowDoms = this.listDOM.childNodes;
+            if(rowDoms != null && before >= 0 && before < rowDoms.length)
+                this.listDOM.insertBefore(e,rowDoms[before]);
+            else 
+                this.listDOM.appendChild(e);
+            if(this.mcheckCls)
+                delete this._$value;
+        }
+        this.updateCustomScrollBar();
         return e;
     },
     /*xjs.ui.List.removeItem*/
@@ -16974,11 +18498,23 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
                 var rowDom = rowDoms[i];
                 if(rowDom == item || rowDom.checkDOM.value == item)
                 {
-                    delete this._$value;
+                    var ck = rowDom.checkDOM.checked,
+                        changed = ck || this.mcheckCls;
+                    if(changed)
+                        delete this._$value;
                     this.listDOM.removeChild(rowDom);
+                    if(this.fnOnRemoveItem)
+                    {
+                        this.fnOnRemoveItem.call(rowDom.value,rowDom);
+                    }
+                    if(changed)
+                    {
+                        this.onChanged();
+                    }
                     return;
                 }
             }
+        this.updateCustomScrollBar();
     },
     /*xjs.ui.List.removeItemByIndex*/
     removeItemByIndex:function(i)
@@ -17071,7 +18607,21 @@ Xjs.extend(Xjs.ui.List,Xjs.ui.Component,{
                 }
             return this._$value = this.value = vals;
         }
-        return this._$value = this.value = Xjs.ui.Component.getCheckValues(this.listDOM,(this.multiple ? 1 : 0) | (this.intValue ? 2 : 0) | (this.valueCaseOrder ? 4 : 0) | (this.arrayValue ? 8 : 0));
+        return this._$value = this.value = Xjs.ui.Component.getCheckValues(this.getAllCheckDoms(),(this.multiple ? 1 : 0) | (this.intValue ? 2 : 0) | (this.valueCaseOrder ? 4 : 0) | (this.arrayValue ? 8 : 0));
+    },
+    /*xjs.ui.List.getAllCheckDoms*/
+    getAllCheckDoms:function()
+    {
+        if(!this.listDOM)
+            return null;
+        var n = this.listDOM.childNodes.length,
+            a = new Array(n);
+        for(var j=0;j < a.length;j++)
+        {
+            var rowDom = this.listDOM.childNodes[j];
+            a[j] = rowDom.checkDOM;
+        }
+        return a;
     },
     /*xjs.ui.List.setValue*/
     setValue:function(value)
@@ -17655,7 +19205,7 @@ Xjs.extend(Xjs.ui.MessagePane,Xjs.ui.Component,{
     /*xjs.ui.MessagePane.clear*/
     clear:function()
     {
-        if(this.dom != null)
+        if(this.dom)
             for(;this.dom.hasChildNodes();)
             {
                 this.dom.removeChild(this.dom.lastChild);
@@ -17812,7 +19362,7 @@ Xjs.ui.MutiDateAidInputer=Xjs.extend(Xjs.ui.DateAidInputer,{
                         cell.className = j == 0 || j == 6 ? "hday" : "day";
                     }
                     cell._ymd = _ymd;
-                    if(this.checkDateValid && !this.checkDateValid.func.call(this.checkDateValid.scorp,_ymd))
+                    if(this.checkDateValid && !this.checkDateValid.call(_ymd))
                     {
                         cell.className += " disabled";
                     }
@@ -17884,7 +19434,7 @@ Xjs.ui.MutiDateAidInputer=Xjs.extend(Xjs.ui.DateAidInputer,{
                         cell.className = j == 0 || j == 6 ? "hday" : "day";
                     }
                     cell._ymd = _ymd;
-                    if(this.checkDateValid && !this.checkDateValid.func.call(this.checkDateValid.scorp,_ymd))
+                    if(this.checkDateValid && !this.checkDateValid.call(_ymd))
                     {
                         cell.className += " disabled";
                     }
@@ -17956,7 +19506,7 @@ Xjs.ui.MutiDateAidInputer=Xjs.extend(Xjs.ui.DateAidInputer,{
                     val += ":" + Xjs.ui.DateAidInputer.toStr2(hms[1]);
                 if(this.secDOM)
                     val += ":" + Xjs.ui.DateAidInputer.toStr2(hms[2]);
-                if(this.checkDateValid && !this.checkDateValid.func.call(this.checkDateValid.scorp,ymd,hms))
+                if(this.checkDateValid && !this.checkDateValid.call(ymd,hms))
                 {
                     return;
                 }
@@ -18074,6 +19624,47 @@ Xjs.ui.PopupMenu=function(config){
 Xjs.extend(Xjs.ui.PopupMenu,Xjs.ui.Layer,{
   _js$className_:"Xjs.ui.PopupMenu",
     hideIfOutclick:true,
+    /*xjs.ui.PopupMenu.addMenuNode*/
+    addMenuNode:function(command,text,node)
+    {
+        node = Xjs.apply({},node);
+        if(command != null)
+            node.command = command;
+        if(text != null)
+            node.text = text;
+        var cmdPath = (node.command || "").split("|"),
+            p = this;
+        node.command = cmdPath[cmdPath.length - 1];
+        for(var i=0;i < cmdPath.length;i++)
+        {
+            var cmd = cmdPath[i];
+            if(cmd.length == 0)
+                cmd = null;
+            if(!p.nodes)
+                p.nodes = [];
+            var n = p.nodes.length,
+                j;
+            if(cmd != null)
+            {
+                for(j = 0;j < n;j++)
+                {
+                    if(p.nodes[j].command == cmd)
+                        break;
+                }
+            } else 
+            {
+                j = n;
+            }
+            if(j >= n)
+            {
+                p.nodes.push(node.command == "-" ? "-" : node);
+            } else if(i == cmdPath.length - 1)
+            {
+                Xjs.apply(p.nodes[j],node);
+            }
+            p = p.nodes[j];
+        }
+    },
     /*xjs.ui.PopupMenu.getMenuNode*/
     getMenuNode:function(command)
     {
@@ -18288,26 +19879,35 @@ Xjs.extend(Xjs.ui.PopupMenu,Xjs.ui.Layer,{
     /*xjs.ui.PopupMenu.showAtXY*/
     showAtXY:function(x,y)
     {
+        this.alignShow(null,[x,y]);
+    },
+    /*xjs.ui.PopupMenu.prepareShowing*/
+    prepareShowing:function()
+    {
         this.hidePopupMenu();
         this._createDOM();
-        var _this = this;
-        setTimeout(function(){
-            _this._updateCommandEnabled();
-            _this.alignShow(null,[x,y]);
-        },10);
+        this._updateCommandEnabled();
     }
 });
 Xjs.apply(Xjs.ui.PopupMenu,{
     /*xjs.ui.PopupMenu.showPopupMenu*/
     showPopupMenu:function(menuPane,parentNode,position)
     {
-        if(parentNode.nodes == null)
+        if(!parentNode.nodes)
             return null;
         var pm = parentNode.popupMenu;
         if(!pm)
         {
             pm = parentNode.popupMenu = new Xjs.ui.PopupMenu({parentNode:parentNode,nodes:parentNode.nodes,menuPane:menuPane});
             pm._createDOM();
+        }
+        if(parentNode.dom && pm.dom)
+        {
+            var w = Xjs.DOM.getWidth(parentNode.dom);
+            if(w > 0)
+            {
+                pm.dom.style.minWidth = w + "px";
+            }
         }
         pm._updateCommandEnabled();
         pm.alignShow(parentNode,position);
@@ -18400,6 +20000,8 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
         this.onContentCollapse = this.onResize;
         var dom = Xjs.ui.ProgressPane.superclass._createDOM.call(this,root);
         this.messagePane = new Xjs.ui.MessagePane({id:"msgpane",_rootDOM:dom,autoScroll:this.autoScroll});
+        if(this.msgpaneClsName)
+            this.messagePane.className = this.msgpaneClsName;
         this.messagePane.getDOM();
         this.barsBox = Xjs.DOM.find("#progressbars",dom);
         if(this.barsBox)
@@ -18441,16 +20043,35 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
     {
         var runBtn = this.buttons[0];
         runBtn.setEnabled(enabled);
-        runBtn.setClassName("btn extanim16" + (this.runLock <= 0 ? "-0" : ""));
+        runBtn.setClassName("btn extanim16" + (this.runLock <= 0 ? "-0" : "") + (this.cancelable ? " ui-progress-cancelable" : ""));
         this.setToolbarIconEnabled("onClose",enabled);
     },
     /*xjs.ui.ProgressPane.lockStart*/
     lockStart:function(lock)
     {
+        if(this.runLock <= 0 && this._htmlCls)
+        {
+            Xjs.ui.UIUtil.updateHtmlCls(this._htmlCls,true);
+            this._htmlCls = null;
+        }
+        var oldRunlock = this.runLock;
         if(lock)
             this.runLock++;
         else 
             this.runLock--;
+        if(this.runLock <= 0 && this._htmlCls)
+        {
+            Xjs.ui.UIUtil.updateHtmlCls(this._htmlCls,true);
+            this._htmlCls = null;
+        } else if(this.runLock > 0 && !this._htmlCls)
+        {
+            this._htmlCls = Xjs.ui.UIUtil.addHtmCls(["ui-in-pregress"]);
+        }
+        if(oldRunlock == 0 && lock && this.backgroundRun)
+        {
+            Xjs.ui.ProgressPane.getFixProgress().startProgress();
+        }
+        this.fireEvent("onLockRunProgress",this.runLock);
         if(this.buttons)
         {
             var runBtn = this.buttons[0];
@@ -18459,30 +20080,41 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
         }
         if(this.runLock == 0)
         {
-            if(this.returnValue)
+            if(this.backgroundRun)
             {
-                if(this.returnValue._exception)
-                {
-                    Xjs.ui.UIUtil.showErrorDialog(Xjs.ResBundle.getString("UI","Dlg.Error"),this.returnValue._exception);
-                    return;
-                }
-                var _jsAction = this.returnValue._jsAction,
-                    url;
-                if(_jsAction == "open" && (url = this.returnValue.url))
-                {
-                    var target = this.returnValue.target || this.id + "$iframe";
-                    window.open(Xjs.toFullURL(url,0),target);
-                }
-                var urls;
-                if(_jsAction == "open" && (urls = this.returnValue.urls))
-                {
-                    var target = this.returnValue.target || this.id + "$iframe";
-                    for(var i=0;i < urls.length;i++)
-                        window.open(Xjs.toFullURL(urls[i],0),target);
-                }
-                if(_jsAction == "viewopen" && (url = this.returnValue.url))
-                    this.onViewPrinted(this.returnValue);
+                Xjs.ui.ProgressPane.getFixProgress().stopProgress();
             }
+            forRetVal:if(this.returnValue)
+                {
+                    if(this.returnValue instanceof Error)
+                    {
+                        Xjs.alertErr(this.returnValue);
+                        return;
+                    }
+                    var k = this.fireEventV(0,"forRunProgressValue",this.returnValue);
+                    if(k !== undefined)
+                    {
+                        if(k == null)
+                            break forRetVal;
+                        this.returnValue = k;
+                    }
+                    var _jsAction = this.returnValue._jsAction,
+                        url;
+                    if(_jsAction == "open" && (url = this.returnValue.url))
+                    {
+                        var target = this.returnValue.target || this.id + "$iframe";
+                        window.open(Xjs.toFullURL(url,0),target);
+                    }
+                    var urls;
+                    if(_jsAction == "open" && (urls = this.returnValue.urls))
+                    {
+                        var target = this.returnValue.target || this.id + "$iframe";
+                        for(var i=0;i < urls.length;i++)
+                            window.open(Xjs.toFullURL(urls[i],0),target);
+                    }
+                    if(_jsAction == "viewopen" && (url = this.returnValue.url))
+                        this.onViewPrinted(this.returnValue);
+                }
             if(this.returnValue !== undefined)
             {
                 this.fireEvent("onRunProgress",this.returnValue);
@@ -18539,6 +20171,16 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
     /*xjs.ui.ProgressPane.setProgress*/
     setProgress:function(k,msgText,value,maxValue)
     {
+        if(arguments.length == 1)
+        {
+            var m = k;
+            this.setProgress(m.levl,m.message,m.value,m.maxValue);
+            return;
+        }
+        if(this.backgroundRun)
+        {
+            Xjs.ui.ProgressPane.getFixProgress().setProgress(k,msgText,value,maxValue);
+        }
         if(k >= 1 && k <= 3)
         {
             if(this.progressBars && k - 1 < this.progressBars.length)
@@ -18547,10 +20189,12 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
             }
         } else if(k == 4)
         {
-            this.messagePane.addMessage(msgText);
+            if(this.messagePane)
+                this.messagePane.addMessage(msgText);
         } else if(k == 6)
         {
-            this.messagePane.addHTML(msgText);
+            if(this.messagePane)
+                this.messagePane.addHTML(msgText);
         } else if(k == -1)
         {
             this.errorText = msgText;
@@ -18577,18 +20221,23 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
         if(c === false)
             return;
         if(ra.length > 0)
-            (new Xjs.util.ConfirmPerform(null,ra,{func:this.run,scorp:this})).confirmPerform();
+            (new Xjs.util.ConfirmPerform(null,ra,new Xjs.FuncCall(this.run,this))).confirmPerform();
         else 
             this.run();
     },
     /*xjs.ui.ProgressPane.run*/
     run:function()
     {
+        {
+            var v = this.fireEventV(0,"progressRun");
+            if(v)
+                return;
+        }
         if(this.runLock > 0)
         {
             if(confirm("是否确定取消当前操作"))
             {
-                Xjs.RInvoke.rmInvoke("snsoft.ui.servlet.UIInvokeServlet.cancelProgress",this.progressID);
+                Xjs.RInvoke.rmInvoke("snsoft.ui.controller.UIInvokeController.cancelProgress",this.progressID);
             }
             return;
         }
@@ -18597,7 +20246,8 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
         this.lockStart(true);
         try
         {
-            this.messagePane.clear();
+            if(this.messagePane)
+                this.messagePane.clear();
             if(this.progressBars != null)
                 for(var i=0;i < this.progressBars.length;i++)
                     this.progressBars[i].setProgress("",0,0);
@@ -18616,7 +20266,8 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
         }
         if(_exception && _exception.dummy != true)
         {
-            this.messagePane.addMessage("错误：" + (_exception.message || _exception.toString()));
+            if(this.messagePane)
+                this.messagePane.addMessage("错误：" + (_exception.message || _exception.toString()));
             throw _exception;
         }
     },
@@ -18669,7 +20320,7 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
                     q = true;
                 }
             }
-            return new Xjs.Ajax({url:url,onready:{func:this.onAjaxReady,scorp:this},onposting:{func:this.onAjaxPosting,scorp:this},contentType:"application/json;charset=utf-8",postBody:Xjs.JSON.encode(this.postArgs)});
+            return new Xjs.Ajax({url:url,onready:new Xjs.FuncCall(this.onAjaxReady,this),onposting:new Xjs.FuncCall(this.onAjaxPosting,this),contentType:"application/json;charset=utf-8",postBody:Xjs.JSON.encode(this.postArgs)});
         }
         var values = this.getItemValues(1);
         values = Xjs.applyIf(values,this.reqParams);
@@ -18704,7 +20355,7 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
                 formData.append("__Json_." + p,v);
             }
         }
-        return new Xjs.Ajax({url:url,onready:{func:this.onAjaxReady,scorp:this},contentType:nfiles > 0 ? null : "application/x-www-form-urlencoded;charset=utf-8",postBody:nfiles > 0 ? formData : Xjs.urlEncode(reqParams)});
+        return new Xjs.Ajax({url:url,onready:new Xjs.FuncCall(this.onAjaxReady,this),contentType:nfiles > 0 ? null : "application/x-www-form-urlencoded;charset=utf-8",postBody:nfiles > 0 ? formData : Xjs.urlEncode(reqParams)});
     },
     /*xjs.ui.ProgressPane.initToolbar*/
     initToolbar:function()
@@ -18713,7 +20364,76 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
     }
 });
 Xjs.apply(Xjs.ui.ProgressPane,{
-    EndPart:";/*$*/\n"
+    EndPart:";/*$*/\n",
+    /*xjs.ui.ProgressPane.getFixProgress*/
+    getFixProgress:function()
+    {
+        if(!Xjs.ui.ProgressPane.fixProgress)
+        {
+            if(window != window.parent)
+                try
+                {
+                    Xjs.ui.ProgressPane.fixProgress = window.parent.Xjs.ui.ProgressPane.getFixProgress();
+                }catch(ex)
+                {
+                }
+            if(!Xjs.ui.ProgressPane.fixProgress)
+                Xjs.ui.ProgressPane.fixProgress = new Xjs.ui.FixProgress();
+        }
+        return Xjs.ui.ProgressPane.fixProgress;
+    }
+});
+Xjs.ui.FixProgress=function(){
+    this.fixProgBar = document.createElement("div");
+    this.fixProgBar.className = "ui-fix-progbar";
+    Xjs.DOM.createChild(this.fixProgBar,"div","ui-fix-progrebar-v");
+};
+Xjs.apply(Xjs.ui.FixProgress.prototype,{
+    /*xjs.ui.FixProgress.removeHtmlCls*/
+    removeHtmlCls:function()
+    {
+        if(this._htmlCls)
+        {
+            Xjs.ui.UIUtil.updateHtmlCls(this._htmlCls,true);
+            this._htmlCls = null;
+        }
+    },
+    /*xjs.ui.FixProgress.setProgress*/
+    setProgress:function(k,msgText,value,maxValue)
+    {
+        if(this.fixProgBar.parentNode != document.body)
+        {
+            this.startProgress();
+        }
+        if(maxValue > 0 && k == 1)
+        {
+            this.fixProgBar.childNodes[0].style.width = value * 100 / maxValue + "%";
+        }
+    },
+    /*xjs.ui.FixProgress.startProgress*/
+    startProgress:function()
+    {
+        if(this.fixProgBar.parentNode != document.body)
+        {
+            document.body.appendChild(this.fixProgBar);
+            this.removeHtmlCls();
+            this._htmlCls = Xjs.ui.UIUtil.addHtmCls(["ui-in-fixpregress"]);
+            this.fixProgBar.childNodes[0].style.width = "0px";
+        }
+    },
+    /*xjs.ui.FixProgress.stopProgress*/
+    stopProgress:function()
+    {
+        if(this.fixProgBar)
+        {
+            var _fixProgBar = this.fixProgBar,
+                rmFunc = new Xjs.FuncCall(this.removeHtmlCls,this);
+            setTimeout(function(){
+            rmFunc.func.apply(rmFunc.scorp,[]);
+            Xjs.DOM.remove(_fixProgBar);
+        },500);
+        }
+    }
 });
 /*xjs/ui/Select.java*/
 Xjs.ui.Select=function(config){
@@ -18727,7 +20447,7 @@ Xjs.extend(Xjs.ui.Select,Xjs.ui.Component,{
     _createDOM:function(root)
     {
         var d = Xjs.ui.Select.superclass._createDom0.call(this,root,"select");
-        d.onchange = Function.bindAsEventListener(this.onChanged,this);
+        d.onchange = Function.bindAsEventListener(this.onSelChanged,this);
         if(this.id != null)
             d.id = this.id;
         if(this.name != null)
@@ -18738,7 +20458,6 @@ Xjs.extend(Xjs.ui.Select,Xjs.ui.Component,{
             d.size = this.rows;
         this.selectDOM = d;
         this._addOptions(d,this.getSelectOptions());
-        d.onchange = Function.bindAsEventListener(this.onChanged,this);
         return d;
     },
     /*xjs.ui.Select.setSelectOptions*/
@@ -18791,17 +20510,17 @@ Xjs.extend(Xjs.ui.Select,Xjs.ui.Component,{
     /*xjs.ui.Select.setValue*/
     setValue:function(value)
     {
+        var oldValue = this.getValue();
         this.value = value;
         delete this._$value;
         if(this.selectDOM)
         {
             if(!this.selectDOM.multiple)
             {
-                var oldValue = this.getValue();
                 delete this._$value;
                 this.selectDOM.value = value;
                 if(oldValue != this.getValue())
-                    this.fireEvent("valueChanged",null,true);
+                    this.fireEvent("valueChanged",null,1);
                 return;
             }
         }
@@ -18811,7 +20530,7 @@ Xjs.extend(Xjs.ui.Select,Xjs.ui.Component,{
     {
         if(this._$value !== undefined)
             return this._$value;
-        if(this.selectDOM != null)
+        if(this.selectDOM)
         {
             var v = this.selectDOM.value;
             if(v != null && this.sqlType == 4)
@@ -18822,11 +20541,16 @@ Xjs.extend(Xjs.ui.Select,Xjs.ui.Component,{
         }
         return this.value;
     },
+    /*xjs.ui.Select.onSelChanged*/
+    onSelChanged:function(e)
+    {
+        this.onChanged(e,4);
+    },
     /*xjs.ui.Select.onChanged*/
-    onChanged:function(e,opts)
+    onChanged:function(e,o)
     {
         delete this._$value;
-        this.fireEvent("valueChanged",e,opts);
+        this.fireEvent("valueChanged",e,o);
     }
 });
 {
@@ -18858,7 +20582,6 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
         } else 
         {
             this.dividerDOM.onmousedown = Function.bindAsEventListener(this._onMouseDown,this);
-            dom.onmousemove = Function.bindAsEventListener(this._onMouseMove,this);
         }
         var dvSize = this.dividerSize === undefined ? (this.leftHideable ? 6 : 2) : this.dividerSize,
             divS = this.dividerDOM.style;
@@ -18941,8 +20664,32 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
             {
                 this.leftCmp._updateDomSize();
             }
-            leftSize = this.orientation ? Xjs.DOM.getWidth(this.leftCmp.getDOM()) : Xjs.DOM.getHeight(this.leftCmp.getDOM());
-            if(leftSize <= 0)
+            if(this.orientation)
+            {
+                var findComps = this.leftCmp.findComps(new Xjs.FuncCall(function(v){
+            return v instanceof Xjs.ui.GridTable;
+        },this),true);
+                if(findComps != null && findComps.length == 1)
+                {
+                    var addWidth = 10;
+                    leftSize = findComps[0].getOptimalWidth() + addWidth;
+                    if(findComps[0] == this.leftCmp)
+                    {
+                        var _lastUpszW = findComps[0].__lastUpszW;
+                        if(_lastUpszW && leftSize - _lastUpszW.width == addWidth)
+                        {
+                            leftSize = _lastUpszW.width;
+                        }
+                    }
+                } else 
+                {
+                    leftSize = Xjs.DOM.getWidth(this.leftCmp.getDOM());
+                }
+            } else 
+            {
+                leftSize = Xjs.DOM.getHeight(this.leftCmp.getDOM());
+            }
+            if(leftSize <= 0 || leftSize >= domSize)
             {
                 if(this.rightCmp . _updateDomSize)
                 {
@@ -18953,6 +20700,16 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
                     leftSize = (domSize - 4) / 2;
                 else 
                     leftSize = domSize - (rightSize + 4);
+            }
+            if(leftSize > 0)
+            {
+                if(this.orientation)
+                {
+                    this.leftCmp._setSizeCaseContainerDOM(leftSize,sz100);
+                } else 
+                {
+                    this.leftCmp._setSizeCaseContainerDOM(sz100,leftSize);
+                }
             }
         }
         var rdomS = this.rightCmp.dom.style,
@@ -18977,6 +20734,7 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
         if(leftAutoSize && this.leftCmp . onResize)
             this.leftCmp.onResize();
         this._reszCalled = true;
+        this.fireEvent("onSplitPaneResized");
     },
     /*xjs.ui.SplitPane.collapse*/
     collapse:function(hidden)
@@ -19025,20 +20783,13 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
         }
         if(!this.splitUnmovable)
         {
-            if(this._MouseUpListener != null)
-            {
-                Xjs.DOM.removeListener(this.dom,"mouseup",this._MouseUpListener);
-                this._MouseUpListener = null;
-            }
-            Xjs.DOM.addListener(this.dom,"mouseup",this._MouseUpListener = Function.bindAsEventListener(this._onMouseUp,this));
-            Xjs.Event.captureMouse(this.dom);
+            Xjs.DOM.addWMDragListener(this,this._onMouseMove,this._onMouseUp);
             this._deltaMove = this._leftPos - (this.orientation == 1 ? e.clientX : e.clientY);
         }
     },
     /*xjs.ui.SplitPane._onMouseMove*/
     _onMouseMove:function(e)
     {
-        if(this._MouseUpListener != null)
         {
             if(this.mouseResizeImm)
                 this.resizeByMouse(e);
@@ -19055,13 +20806,7 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
     /*xjs.ui.SplitPane._onMouseUp*/
     _onMouseUp:function(e)
     {
-        Xjs.Event.captureMouse(this.dom,true);
-        if(this._MouseUpListener != null)
-        {
-            Xjs.DOM.removeListener(this.dom,"mouseup",this._MouseUpListener);
-            this._MouseUpListener = null;
-            this.resizeByMouse(e);
-        }
+        this.resizeByMouse(e);
     },
     /*xjs.ui.SplitPane.resizeByMouse*/
     resizeByMouse:function(e)
@@ -19132,7 +20877,7 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
                 if(ea[i].id && ea[i].id.startsWith("TabOfUIA_"))
                 {
                     var id = ea[i].id.substring(5),
-                        c = this._getSubComponent(root,id);
+                        c = t.comp = this._getSubComponent(root,id);
                     if(c && (c.visible === false || c.inTabVisible === false))
                         t.visible = false;
                 }
@@ -19152,8 +20897,9 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
     _getSubComponent:function(root,id)
     {
         if(this.mainUI & 3 || !this.getMainParentComponent())
+        {
             return root.getMainComponentById(id);
-        else 
+        } else 
         {
             if(this.items)
                 for(var j=0;j < this.items.length;j++)
@@ -19225,7 +20971,8 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
                     t.contentDOM.style.display = i == (this.selectedTab >= 0 ? this.selectedTab : this.initSelectedTab) ? "block" : "none";
                 }
             }
-        setTimeout(this.setActiveTab.createDelegate(this,[this.initSelectedTab],true),1);
+        var opts = Xjs._uiInited ? 0 : 1;
+        setTimeout(this.setActiveTab.createDelegate(this,[this.initSelectedTab,opts],true),1);
     },
     /*xjs.ui.TabPanel.setTabComponent*/
     setTabComponent:function(id,c)
@@ -19238,32 +20985,46 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
             }
     },
     /*xjs.ui.TabPanel.setActiveTab*/
-    setActiveTab:function(s)
+    setActiveTab:function(s,opts)
     {
         if(this.tabs && s >= 0 && s < this.tabs.length)
         {
             var oldSelected = this.selectedTab;
             if(this.selectedTab == s)
                 return;
+            if(s >= 0 && s < this.tabs.length && this.tabs[s].comp instanceof Xjs.ui.LazyComp)
+            {
+                var _this = this;
+                this.tabs[s].comp.loadUI(this._rootDOM).then(function(c){
+            _this.tabs[s].comp = c;
+            _this.setActiveTab(s);
+        });
+                return;
+            }
             if(this.postITblOnUnselect && this.selectedTab >= 0)
                 Xjs.table.Table.postITblsPending(this.tabs[this.selectedTab].comps,1);
             this.fireEvent("onTabbedSelecting",s);
-            var hideOldCDOM = null;
+            var hideOldTab = null;
             if(this.selectedTab >= 0 && this.selectedTab < this.tabs.length)
             {
                 var t = this.tabs[this.selectedTab];
                 Xjs.DOM.updateClass(t.tabDOM,this.ncurClass,this.curClass);
                 if(t.contentDOM)
                 {
-                    if(this.showSeledPageOrd == 1)
-                        hideOldCDOM = t.contentDOM;
+                    if(this.showSeledPageOrd == 1 || this.showSeledPageOrd === undefined)
+                        hideOldTab = t;
                     else 
+                    {
                         t.contentDOM.style.display = "none";
+                        this.checkTabHidden(t);
+                    }
                 }
             }
             var t = this.tabs[this.selectedTab = s];
             if(!t.contentDOM)
+            {
                 this.initTabContentDOM(t);
+            }
             if(t.comps)
                 for(var i=0;i < t.comps.length;i++)
                 {
@@ -19276,16 +21037,21 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
             {
                 t.contentDOM.style.display = "block";
             }
+            if(hideOldTab)
+            {
+                hideOldTab.contentDOM.style.display = "none";
+                this.checkTabHidden(hideOldTab);
+            }
             var headFirstFocus = [null];
-            this.checkTabShowing(t,headFirstFocus,true);
-            if(hideOldCDOM)
-                hideOldCDOM.style.display = "none";
+            this.checkTabShowing(t,headFirstFocus,!(opts & 1));
             this.doOnResize();
             if(t.comps)
             {
                 for(var i=0;i < t.comps.length;i++)
                 {
-                    t.comps[i].onResize();
+                    var c;
+                    if((c = t.comps[i]).onResize)
+                        c.onResize();
                 }
             }
             Xjs.DOM.onWinResize(1);
@@ -19308,6 +21074,17 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
             for(var i=0;i < t.comps.length;i++)
             {
                 t.comps[i].checkShowing(firstFocus,setFirstFocus);
+            }
+        }
+    },
+    /*xjs.ui.TabPanel.checkTabHidden*/
+    checkTabHidden:function(t)
+    {
+        if(t.comps)
+        {
+            for(var i=0;i < t.comps.length;i++)
+            {
+                t.comps[i].checkHidden();
             }
         }
     },
@@ -19335,6 +21112,25 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
         var t = this.tabs[i];
         if(t && t.tabDOM)
             t.tabDOM.disabled = !e;
+    },
+    /*xjs.ui.TabPanel.isEnable*/
+    isEnable:function(i)
+    {
+        if(typeof(i) != "number")
+        {
+            i = this.indexOfItem(i);
+        }
+        var n = this.items ? this.items.length : 0;
+        if(i < 0 || i >= n)
+        {
+            return false;
+        }
+        var t = this.tabs[i];
+        if(t && t.tabDOM)
+        {
+            return !t.tabDOM.disabled;
+        }
+        return !this.disabled;
     },
     /*xjs.ui.TabPanel.removeTab*/
     removeTab:function(id)
@@ -19570,7 +21366,9 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
     indexOfTabById:function(c)
     {
         if(!this.tabs)
+        {
             return -1;
+        }
         var r = c.getRootComponent();
         for(var i=0;i < this.tabs.length;i++)
         {
@@ -19622,6 +21420,29 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
         if(this.tabs[i].tabDOM)
             this.tabs[i].tabDOM.style.display = visible ? "" : "none";
     },
+    /*xjs.ui.TabPanel.isVisible*/
+    isVisible:function(i)
+    {
+        if(typeof(i) != "number")
+        {
+            i = this.indexOfItem(i);
+        }
+        var n = this.items ? this.items.length : 0;
+        if(i < 0 || i >= n)
+        {
+            return false;
+        }
+        if(!this.tabs)
+        {
+            return this.inTabVisible;
+        }
+        if(this.tabs[i].tabDOM)
+        {
+            var style = this.tabs[i].tabDOM.style;
+            return style.display != "none" && style.visibility != "hidden";
+        }
+        return Xjs.ui.TabPanel.superclass.isVisible.call(this);
+    },
     /*xjs.ui.TabPanel.doOnResize*/
     doOnResize:function()
     {
@@ -19648,39 +21469,12 @@ Xjs.apply(Xjs.ui.TabPanel,{
         }
         return false;
     },
-    /*xjs.ui.TabPanel._initTabs*/
-    _initTabs:function(c)
-    {
-        if(c.parent)
-        {
-            Xjs.ui.TabPanel._initTabs(c.parent);
-        }
-        if(c instanceof Xjs.ui.TabPanel)
-        {
-            var t = c;
-            if(t.initRoot)
-            {
-                if(!t.tabs)
-                {
-                    t.init(t.initRoot,t.initContextDOM,true);
-                } else 
-                {
-                    for(var j=0;j < t.tabs.length;j++)
-                    {
-                        if(!t.tabs[j].comps)
-                        {
-                            t.initTabContentDOM(t.tabs[j]);
-                        }
-                    }
-                }
-            }
-        }
-    },
     /*xjs.ui.TabPanel.setTabSelectedByComp*/
     setTabSelectedByComp:function(c)
     {
         if(!c.parent)
             return;
+        Xjs.ui.TabPanel.setTabSelectedByComp(c.parent);
         if(c.parent instanceof Xjs.ui.TabPanel)
         {
             var t = c.parent,
@@ -19688,15 +21482,9 @@ Xjs.apply(Xjs.ui.TabPanel,{
             if(i < 0)
                 i = t.indexOfTabById(c);
             if(i < 0)
-            {
-                Xjs.ui.TabPanel._initTabs(t);
-                i = t.indexOfComp(c);
-            }
-            if(i < 0)
                 return;
             t.setActiveTab(i);
         }
-        Xjs.ui.TabPanel.setTabSelectedByComp(c.parent);
     }
 });
 /*xjs/ui/Toolbar.java*/
@@ -19882,6 +21670,16 @@ Xjs.extend(Xjs.ui.ToolbarBtn,Xjs.ui.Button,{
         {
             Xjs.DOM.setTextContent(this.textDOM,this.text);
         }
+        if(this.rIconClassName)
+            Xjs.DOM.createChild(d,"i",this.rIconClassName);
+        if(this.className && this.className.indexOf("ui-head-drop") >= 0)
+        {
+            var ohtml = d.innerHTML;
+            ohtml += "<svg class='icon btn-icon-drop' aria-hidden='true'>";
+            ohtml += "<use xlink:href='#icons-biaodan_xiala'></use>";
+            ohtml += "</svg>";
+            d.innerHTML = ohtml;
+        }
         if(!this.command && this.name)
             this.command = this.name;
         if(this.command)
@@ -19897,6 +21695,13 @@ Xjs.ui.ToolbarBtnGroup=function(cfg){
 Xjs.extend(Xjs.ui.ToolbarBtnGroup,Xjs.ui.Container,{
   _js$className_:"Xjs.ui.ToolbarBtnGroup",
     className:"ui-btn-group",
+    dftBtnCls:"ui-btn",
+    popupMenuCls:"ui-popup-menu",
+    /*xjs.ui.ToolbarBtnGroup.getBtnListDOM*/
+    getBtnListDOM:function()
+    {
+        return this.btnListDOM;
+    },
     /*xjs.ui.ToolbarBtnGroup._createDOM*/
     _createDOM:function(root)
     {
@@ -19904,9 +21709,18 @@ Xjs.extend(Xjs.ui.ToolbarBtnGroup,Xjs.ui.Container,{
             dftBtnDOM = Xjs.DOM.findById("default_btn",dom);
         if(!dftBtnDOM)
         {
-            dftBtnDOM = Xjs.DOM.createChild(dom,"button","ui-btn dft-group-btn");
+            dftBtnDOM = Xjs.DOM.createChild(dom,"button",this.dftBtnCls + " dft-group-btn");
             dftBtnDOM.id = "default_btn";
+            if(this.dftBtnIconCls)
+            {
+                var iconHtml = "";
+                iconHtml += "<svg class='icon' aria-hidden='true'>";
+                iconHtml += "<use xlink:href='#" + this.dftBtnIconCls + "'></use>";
+                iconHtml += "</svg>";
+                dftBtnDOM.innerHTML = iconHtml;
+            }
             var span = Xjs.DOM.createChild(dftBtnDOM,"span","btn-text");
+            span.id = "btn_text";
             Xjs.DOM.setTextContent(span,this.title);
             Xjs.DOM.createChild(dftBtnDOM,"i","inner-arrow");
         }
@@ -19916,7 +21730,28 @@ Xjs.extend(Xjs.ui.ToolbarBtnGroup,Xjs.ui.Container,{
             this.btnListDOM = Xjs.DOM.createChild(dom,"div","ui-btn-list");
             this.btnListDOM.id = "btn_list";
         }
-        if(this.items != null)
+        this.appendItemDoms();
+        if(this.popupMenuCls)
+        {
+            dom.onmouseover = Function.bindAsEventListener(this._onMouseOver,this);
+            dom.onmouseout = Function.bindAsEventListener(this._onMouseOut,this);
+        }
+        return dom;
+    },
+    /*xjs.ui.ToolbarBtnGroup._onMouseOver*/
+    _onMouseOver:function(e)
+    {
+        Xjs.DOM.addClass(this.dom,this.popupMenuCls);
+    },
+    /*xjs.ui.ToolbarBtnGroup._onMouseOut*/
+    _onMouseOut:function(e)
+    {
+        Xjs.DOM.removeClass(this.dom,this.popupMenuCls);
+    },
+    /*xjs.ui.ToolbarBtnGroup.appendItemDoms*/
+    appendItemDoms:function()
+    {
+        if(this.items)
         {
             for(var i=0;i < this.items.length;i++)
             {
@@ -19924,7 +21759,6 @@ Xjs.extend(Xjs.ui.ToolbarBtnGroup,Xjs.ui.Container,{
                 this.btnListDOM.appendChild(c.getDOM());
             }
         }
-        return dom;
     }
 });
 /*xjs/ui/Tree.java*/
@@ -20499,9 +22333,18 @@ Xjs.extend(Xjs.ui.ValueList,Xjs.ui.ULComponent,{
         if(this.ulDOM == null)
             return;
         if(this.displayValueOutofdate)
+        {
             this.updateDisplayValues();
+        }
         var n = this.values.size(),
-            i = 0;
+            vals = new Array(n);
+        for(var j=0;j < vals.length;j++)
+        {
+            vals[j] = this.values.get(j);
+        }
+        if(this.displayValCmp)
+            vals.sort(this.displayValCmp);
+        var i = 0;
         for(;i < n || i < this.ulDOM.childNodes.length;)
         {
             if(i >= n)
@@ -20509,7 +22352,7 @@ Xjs.extend(Xjs.ui.ValueList,Xjs.ui.ULComponent,{
                 this.ulDOM.removeChild(this.ulDOM.childNodes[i]);
                 continue;
             }
-            var v1 = this.values.get(i);
+            var v1 = vals[i];
             if(i >= this.ulDOM.childNodes.length)
             {
                 this.ulDOM.appendChild(this.createLI(v1));
@@ -20517,7 +22360,8 @@ Xjs.extend(Xjs.ui.ValueList,Xjs.ui.ULComponent,{
                 continue;
             }
             var v2 = this.ulDOM.childNodes[i]._value,
-                c = Xjs.objCmp(v1,v2);
+                c;
+            c = this.displayValCmp ? this.displayValCmp(v1,v2) : Xjs.objCmp(v1,v2);
             if(c == 0)
             {
                 i++;
@@ -20758,6 +22602,288 @@ Xjs.apply(Xjs.ui.canvas.ImageCanvasRender.prototype,{
         return this.image ? this.image.complete : true;
     }
 });
+/*xjs/ui/img/ImageFileRender.java*/
+Xjs.namespace("Xjs.ui.img");
+Xjs.ui.img.ImageFileRender=function(params){
+    if(!params)
+    {
+        this.showNuImg = true;
+        this.openOnBlank = false;
+        this.mode = 3;
+    } else 
+    {
+        this.showNuImg = params.showNuImg == null ? true : params.showNuImg;
+        this.openOnBlank = params.openOnBlank == null ? false : params.openOnBlank;
+        this.mode = String.obj2int(params.mode,3);
+    }
+};
+Xjs.apply(Xjs.ui.img.ImageFileRender.prototype,{
+    /*xjs.ui.img.ImageFileRender.cellRender*/
+    cellRender:function(value,info)
+    {
+        info.cell.html = true;
+        info.html = true;
+        info.forEdit = false;
+        var table = info.cell.table,
+            innerfld = this.initAuth(table),
+            authparams = [table.dataSet.getTableName(),table.dataSet.getValue(innerfld,info.row),info.cell.name,this.lmso],
+            path = value;
+        if(Xjs.table.util.AttachmentUrlBuilder.isImageFile(path))
+        {
+            if(value && !path.endsWith(Xjs.table.util.AttachmentUrlBuilder.encodeZPPrefix) && path.split("|").length == 2)
+            {
+                path = Xjs.table.util.AttachmentUrlBuilder.encodeURIComponent(path);
+            }
+            info.className = Xjs.ui.img.TableImagesCellDom.tdPaddingClass;
+            info.fclassName = Xjs.ui.img.TableImagesCellDom.tdPaddingClass;
+            if(!this.openOnBlank)
+            {
+                path = path + "#" + this.getImgTitle(info);
+            }
+            return Xjs.ui.img.ImageFileRender.appendImageDomAndBindFc(path,this.showNuImg,authparams,this.openOnBlank,this.mode);
+        } else 
+        {
+            return Xjs.ui.img.ImageFileRender.appendFileNameDomAndBindFc(path,authparams);
+        }
+    },
+    /*xjs.ui.img.ImageFileRender.getImgTitle*/
+    getImgTitle:function(info)
+    {
+        return "图片";
+    },
+    /*xjs.ui.img.ImageFileRender.initAuth*/
+    initAuth:function(table)
+    {
+        if(!this.lmso)
+        {
+            var dataStore = table.dataSet.dataStore;
+            this.lmso = dataStore.getClientProp("FileLimitSC_Lmso");
+        }
+        return table.dataSet.getCuInnerfld();
+    }
+});
+Xjs.apply(Xjs.ui.img.ImageFileRender,{
+    /*xjs.ui.img.ImageFileRender._onClickImg*/
+    _onClickImg:function(e,imgPath)
+    {
+        Xjs.ui.img.TableImagesCellDom.appenViewDom([imgPath],null);
+    },
+    /*xjs.ui.img.ImageFileRender._onClickImgOnBlank*/
+    _onClickImgOnBlank:function(e,imgPath)
+    {
+        window.open(Xjs.table.util.AttachmentUrlBuilder.canlThumbnailPath(true,imgPath));
+    },
+    /*xjs.ui.img.ImageFileRender.appendImageDomAndBindFc*/
+    appendImageDomAndBindFc:function(imgPath,showNuImg,authparams,openOnBlank,mode)
+    {
+        var dom = Xjs.DOM.createChild(null,"div","ui-opt-imgwrap"),
+            imgDOM = Xjs.DOM.createChild(dom,"img","img");
+        mode = mode || 3;
+        imgDOM.src = Xjs.table.util.AttachmentUrlBuilder.buildDownLoadUrl(imgPath,mode,authparams);
+        if(imgPath)
+        {
+            if(openOnBlank)
+            {
+                dom.onclick = this._onClickImgOnBlank.createDelegate(this,[imgPath],true);
+            } else 
+            {
+                dom.onclick = this._onClickImg.createDelegate(this,[imgPath],true);
+            }
+        } else if(!showNuImg)
+        {
+            return null;
+        } else 
+        {
+            dom.title = "暂无图片";
+        }
+        return dom;
+    },
+    /*xjs.ui.img.ImageFileRender.appendFileNameDomAndBindFc*/
+    appendFileNameDomAndBindFc:function(path,authparams)
+    {
+        if(path == null || path == "")
+        {
+            return null;
+        }
+        var href = Xjs.table.util.AttachmentUrlBuilder.buildDownLoadUrl(path,1,authparams),
+            fileName = Xjs.table.util.AttachmentUrlBuilder.getFileName(path);
+        return "<div style=\"text-align: center;\"><a href=\"" + href + "\" target=\"_blank\">" + fileName + "</a></div>";
+    }
+});
+/*xjs/ui/img/TableImagesCellDom.java*/
+Xjs.ui.img.TableImagesCellDom$ImgLayer=function(title){
+    this.createDOM();
+    this.swiper = this.initSwiper();
+};
+Xjs.apply(Xjs.ui.img.TableImagesCellDom$ImgLayer.prototype,{
+    wrap_Id:"UI_Image_View_SwiperWrap",
+    cover_Id:"UI_Image_View_SwiperCover",
+    container_Id:"UI_Image_View_SwiperWrapper_Container",
+    page_Id:"UI_Image_View_SwiperWrapper_pagination",
+    prev_Id:"UI_Image_View_SwiperWrapper_prev",
+    next_Id:"UI_Image_View_SwiperWrapper_next",
+    /*xjs.ui.img.TableImagesCellDom$ImgLayer.createDOM*/
+    createDOM:function()
+    {
+        var coverDom = Xjs.DOM.findById(this.cover_Id,document.body),
+            wrapDom = Xjs.DOM.findById(this.wrap_Id,document.body);
+        if(!wrapDom || !coverDom)
+        {
+            this.swiperCover = Xjs.DOM.createChild(document.body,"div","swiper-cover");
+            this.swiperWrap = Xjs.DOM.createChild(document.body,"div","swiper-wrapper-box");
+            this.swiperWrap.id = this.wrap_Id;
+            var wrapper = Xjs.DOM.createChild(this.swiperWrap,"div","swiper-img-wrapper"),
+                closeBtn = Xjs.DOM.createChild(wrapper,"span","swiper-wrapper-close");
+            closeBtn.onclick = Function.bindAsEventListener(this.hide,this);
+            var container = Xjs.DOM.createChild(wrapper,"div","swiper-container"),
+                con = Xjs.DOM.createChild(container,"div","swiper-wrapper");
+            con.id = this.container_Id;
+            var page = Xjs.DOM.createChild(wrapper,"div","swiper-pagination");
+            page.id = this.page_Id;
+            var prev = Xjs.DOM.createChild(wrapper,"div","swiper-button-prev");
+            prev.id = this.prev_Id;
+            var next = Xjs.DOM.createChild(wrapper,"div","swiper-button-next");
+            next.id = this.next_Id;
+        } else 
+        {
+            this.swiperCover = coverDom;
+            this.swiperWrap = wrapDom;
+        }
+    },
+    /*xjs.ui.img.TableImagesCellDom$ImgLayer.updateImagesDom*/
+    updateImagesDom:function(imgs,title)
+    {
+        var conDom = Xjs.DOM.findById(this.container_Id,this.swiperWrap);
+        if(!conDom)
+        {
+            return;
+        }
+        Xjs.DOM.removeAllChild(conDom);
+        for(var i=0;i < imgs.length;i++)
+        {
+            var p = imgs[i].lastIndexOf("#"),
+                src,
+                _title;
+            if(p > -1)
+            {
+                _title = imgs[i].substring(p + 1);
+                src = imgs[i].substring(0,p);
+            } else 
+            {
+                _title = title;
+                src = imgs[i];
+            }
+            var item = Xjs.DOM.createChild(conDom,"div","swiper-slide"),
+                itemTitle = Xjs.DOM.createChild(item,"div","swiper-img-title");
+            Xjs.DOM.setTextContent(itemTitle,_title);
+            var imgWrap = Xjs.DOM.createChild(item,"div","swiper-wrap-img"),
+                itemImg = Xjs.DOM.createChild(imgWrap,"img");
+            itemImg.src = Xjs.table.util.AttachmentUrlBuilder.buildDownLoadUrl(src,1,["","",""]);
+        }
+        var display = "block";
+        if(imgs.length == 1)
+        {
+            display = "none";
+        }
+        var page = Xjs.DOM.findById(this.page_Id,this.swiperWrap),
+            prev = Xjs.DOM.findById(this.prev_Id,this.swiperWrap),
+            next = Xjs.DOM.findById(this.next_Id,this.swiperWrap);
+        page.style.display = display;
+        prev.style.display = display;
+        next.style.display = display;
+    },
+    /*xjs.ui.img.TableImagesCellDom$ImgLayer.updateZIndex*/
+    updateZIndex:function(isClose)
+    {
+        var mask = Xjs.DOM.findAll(".ui-mask",document.body);
+        if(!mask || mask.length == 0)
+        {
+            this.swiperCover.style.zIndex = Xjs.ui.Panel.nextZIndex();
+            this.swiperWrap.style.zIndex = Xjs.ui.Panel.nextZIndex() + 1000;
+            return;
+        }
+        this.swiperCover.style.display = "none";
+        if(isClose)
+        {
+            mask[this.lastIndex].style.zIndex = this.lastMax;
+            this.swiperWrap.style.zIndex = this.initBoxMax;
+        } else 
+        {
+            var maxIndex = 0,
+                max = 0;
+            for(var i=0;i < mask.length;i++)
+            {
+                var zindex = mask[i].style.zIndex;
+                if(max < zindex)
+                {
+                    max = zindex;
+                    maxIndex = i;
+                }
+            }
+            maxIndex = String.obj2int(maxIndex,0);
+            max = String.obj2int(max,0);
+            this.lastIndex = maxIndex;
+            this.lastMax = max;
+            max += 1000;
+            mask[maxIndex].style.zIndex = max;
+            this.initBoxMax = this.swiperWrap.style.zIndex;
+            this.swiperWrap.style.zIndex = max + 1000;
+        }
+    },
+    /*xjs.ui.img.TableImagesCellDom$ImgLayer.show*/
+    show:function(imgs,title)
+    {
+        this.swiperCover.style.display = "block";
+        this.swiperWrap.style.display = "block";
+        this.updateZIndex(false);
+        this.updateImagesDom(imgs,title);
+        this.swiper.slideTo(0,0,false);
+        this.swiper.update();
+    },
+    /*xjs.ui.img.TableImagesCellDom$ImgLayer.initSwiper*/
+    initSwiper:function()
+    {
+        if(!this.swiper)
+        {
+            var options = {},
+                pagination = {};
+            pagination.el = ".swiper-pagination";
+            pagination.type = "fraction";
+            options.pagination = pagination;
+            var navigation = {};
+            navigation.nextEl = ".swiper-button-next";
+            navigation.prevEl = ".swiper-button-prev";
+            options.navigation = navigation;
+            this.swiper = new Swiper(".swiper-container",options);
+        }
+        return this.swiper;
+    },
+    /*xjs.ui.img.TableImagesCellDom$ImgLayer.hide*/
+    hide:function()
+    {
+        this.updateZIndex(true);
+        this.swiperCover.style.display = "none";
+        this.swiperWrap.style.display = "none";
+    }
+});
+Xjs.ui.img.TableImagesCellDom=function(){};
+Xjs.apply(Xjs.ui.img.TableImagesCellDom,{
+    tdPaddingClass:" ui-opt-imgcell",
+    /*xjs.ui.img.TableImagesCellDom.appenViewDom*/
+    appenViewDom:function(imgs,title)
+    {
+        Xjs.JsLoad.load(Xjs.ROOTPATH + "jslib/swiper/swiper.min.js",2);
+        if(!Xjs.ui.img.TableImagesCellDom.layer)
+        {
+            Xjs.ui.img.TableImagesCellDom.layer = new Xjs.ui.img.TableImagesCellDom$ImgLayer(title);
+        }
+        if(!title)
+        {
+            title = "图片";
+        }
+        Xjs.ui.img.TableImagesCellDom.layer.show(imgs,title);
+    }
+});
 /*xjs/ui/layout/BorderLayout.java*/
 Xjs.ui.BorderLayout=function(cfg){
     Xjs.ui.BorderLayout.superclass.constructor.call(this,cfg);
@@ -20770,6 +22896,7 @@ Xjs.extend(Xjs.ui.BorderLayout,Xjs.ui.Layout,{
         this.parent = parent;
         this.nsOnly = true;
         var a = parent.items;
+        this.centers = null;
         if(a)
             for(var i=0;i < a.length;i++)
             {
@@ -20782,14 +22909,18 @@ Xjs.extend(Xjs.ui.BorderLayout,Xjs.ui.Layout,{
                 if(r == "west" || r == "east")
                     this.nsOnly = false;
                 else if(r != "north" && r != "south")
-                    this.center = a[i];
+                {
+                    if(!this.centers)
+                        this.centers = [];
+                    this.centers.push(a[i]);
+                }
             }
         return true;
     },
     /*xjs.ui.layout.BorderLayout.onResize*/
     onResize:function()
     {
-        if(!this.center)
+        if(!this.centers)
             return;
         var dom = this.parent.getResizePDOM(),
             a = this.parent.items;
@@ -20808,13 +22939,16 @@ Xjs.extend(Xjs.ui.BorderLayout,Xjs.ui.Layout,{
                         continue;
                     if(!Xjs.DOM.isShowing(d))
                         continue;
-                    if(a[i] != this.center)
+                    if(this.centers.indexOf(a[i]) < 0)
                         h -= Xjs.DOM.getHeight(d);
                     var m = Xjs.DOM.getMargins(d,"t");
                     h -= m < lastMargin ? lastMargin : m;
                     lastMargin = Xjs.DOM.getMargins(d,"b");
                 }
-            this.center.setHeight(h - lastMargin);
+            for(var j=0;j < this.centers.length;j++)
+            {
+                this.centers[j].setHeight(h - lastMargin);
+            }
             return;
         }
         var lx = 0,
@@ -20878,11 +23012,12 @@ Xjs.extend(Xjs.ui.BorderLayout,Xjs.ui.Layout,{
                         break;
                     }
             }
-        if(this.center)
+        for(var j=0;j < this.centers.length;j++)
         {
-            this.center.dom.style.top = ty + "px";
-            this.center.dom.style.left = lx + "px";
-            this.center.setSize(tw,th);
+            var c = this.centers[j];
+            c.dom.style.top = ty + "px";
+            c.dom.style.left = lx + "px";
+            c.setSize(tw,th);
         }
     }
 });
@@ -20912,9 +23047,125 @@ Xjs.extend(Xjs.ui.DefaultLayout,Xjs.ui.Layout,{
         return true;
     }
 });
+/*xjs/ui/layout/FitParentSize.java*/
+Xjs.namespace("Xjs.ui.layout");
+Xjs.ui.layout.FitParentSize=function(comp,cfg){
+    this.comp = comp;
+    Xjs.apply(this,cfg);
+    this.hRemove = Xjs.ui.layout.FitParentSize.toDOM(this.hRemove);
+    Xjs.DOM.addOnWinResize(this.onResize,this,null);
+};
+Xjs.apply(Xjs.ui.layout.FitParentSize.prototype,{
+    /*xjs.ui.layout.FitParentSize.onResize*/
+    onResize:function()
+    {
+        if(this.timeout > 0)
+        {
+            if(!this.fn$doOnResize)
+                this.fn$doOnResize = this.doOnResize.createDelegate(this);
+            setTimeout(this.fn$doOnResize,this.timeout);
+        } else 
+        {
+            this.doOnResize();
+        }
+    },
+    /*xjs.ui.layout.FitParentSize.doOnResize*/
+    doOnResize:function()
+    {
+        var e = this.comp._getSizeDOM();
+        if(!e || !e.parentNode)
+            return;
+        if(this.flags & 1)
+        {
+            var h;
+            if(this.flags & 4)
+            {
+                h = Xjs.DOM.getViewportHeight();
+                if(this.flags & 0x10)
+                {
+                    h -= Xjs.DOM.getXY(e,false).y;
+                }
+            } else 
+            {
+                h = Xjs.DOM.getHeight(e.parentNode);
+                if(this.flags & 0x10)
+                    h -= e.offsetTop;
+                if(this.flags & 0x100)
+                {
+                    var n = e;
+                    for(;;)
+                    {
+                        n = n.nextElementSibling || n.nextSibling;
+                        if(!n)
+                            break;
+                        h -= Xjs.DOM.getHeight(n);
+                    }
+                }
+            }
+            this.comp.setFitParentHeight(h,this.oheight);
+        }
+        if(this.flags & 2)
+        {
+            var w = Xjs.DOM.getWidth(e.parentNode);
+            if(this.flags & 0x2000)
+            {
+                var n = e;
+                for(;;)
+                {
+                    n = e.previousElementSibling;
+                    if(!n)
+                        break;
+                    w -= Xjs.DOM.getWidth(n);
+                }
+            }
+            if(this.flags & 0x200)
+            {
+                var n = e;
+                for(;;)
+                {
+                    n = e.nextElementSibling;
+                    if(!n)
+                        break;
+                    w -= Xjs.DOM.getWidth(n);
+                }
+            }
+            this.comp.setWidth(w >= 0 ? w : 0);
+        }
+    }
+});
+Xjs.apply(Xjs.ui.layout.FitParentSize,{
+    /*xjs.ui.layout.FitParentSize.toDOM*/
+    toDOM:function(a)
+    {
+        if(a == null)
+            return null;
+        var ea = [];
+        for(var i=0;i < a.length;i++)
+        {
+            if(typeof(a[i]) == "string")
+                ea[i] = Xjs.DOM.find(a[i],null);
+            else 
+                ea[i] = a[i];
+        }
+        return ea;
+    },
+    /*xjs.ui.layout.FitParentSize.setMaxHeight*/
+    setMaxHeight:function(dom,pmaxH,pdom)
+    {
+        var totalH = Xjs.DOM.getHeight(pdom),
+            h = Xjs.DOM.getHeight(dom),
+            mh = pmaxH - totalH + h - Xjs.DOM.getPadding(dom,"tb");
+        dom.style.maxHeight = mh > 0 ? mh + "px" : "";
+    }
+});
 /*xjs/ui/layout/GridLayout.java*/
 Xjs.ui.GridLayout=function(config){
     Xjs.ui.GridLayout.superclass.constructor.call(this,config);
+    var opts;
+    if(window.xjsConfig && (opts = window.xjsConfig.glayoutOpts))
+    {
+        Xjs.applyIf(this,opts);
+    }
 };
 Xjs.extend(Xjs.ui.GridLayout,Xjs.ui.Layout,{
   _js$className_:"Xjs.ui.GridLayout",
@@ -20939,7 +23190,7 @@ Xjs.extend(Xjs.ui.GridLayout,Xjs.ui.Layout,{
         var tableDOM;
         tableDOM = document.createElement("table");
         tableDOM.id = "_GridLayout";
-        var cn = this.className;
+        var cn = this.className || parent.layoutGridClsName;
         if(!cn)
         {
             cn = this.border > 0 ? "ui_bgridlayout" : "ui_gridlayout";
@@ -21002,6 +23253,10 @@ Xjs.extend(Xjs.ui.GridLayout,Xjs.ui.Layout,{
             {
                 items.push(btns[i]);
             }
+        }
+        if(!this.tableBody)
+        {
+            return;
         }
         var tableBody = this.tableBody;
         for(;tableBody.rows.length > 0;)
@@ -21139,7 +23394,7 @@ Xjs.extend(Xjs.ui.GridLayout,Xjs.ui.Layout,{
                 if(!comp.labelComp)
                 {
                     var title;
-                    if((title = comp.title) || comp.labelHtml)
+                    if(((title = comp.title) || comp.labelHtml) && !comp.hideTitle)
                     {
                         comp.labelComp = new Xjs.ui.Label(null);
                         comp.labelDOM = null;
@@ -21278,6 +23533,7 @@ Xjs.extend(Xjs.ui.GridLayout,Xjs.ui.Layout,{
         }
         if(this.tableColGrp)
         {
+            Xjs.DOM.removeAllChild(this.tableColGrp);
             for(var i=0;i < colInfo.length;i++)
             {
                 var c = colInfo[i],
@@ -21287,8 +23543,8 @@ Xjs.extend(Xjs.ui.GridLayout,Xjs.ui.Layout,{
                 for(var j=0;j < c.n;j++)
                 {
                     var col = Xjs.DOM.createChild(this.tableColGrp,"col");
-                    if(j == jd && this.cWidths && this.cWidths[j] > 0)
-                        col.width = this.cWidths[j];
+                    if(j == jd && this.cWidths && this.cWidths[i] > 0)
+                        col.width = this.cWidths[i];
                 }
             }
         }
@@ -21359,9 +23615,23 @@ Xjs.extend(Xjs.ui.GridLayout,Xjs.ui.Layout,{
                     if(xc.labelForComp && xc.labelForComp.lbTipIfOvflow)
                     {
                         var clb = new Xjs.ui.Component({dom:cell,tipTextCls:"x-tiptext td_label"});
-                        clb.fn$TipText = {func:clb.getTipContentIfOvflow,scorp:clb};
+                        clb.fn$TipText = new Xjs.FuncCall(clb.getTipContentIfOvflow,clb);
                         clb._addShowTipTextMouseListener();
                         Xjs.DOM.addClass(cell,"ui-tipifovflow");
+                    }
+                    var w = comp.labelTDWidth;
+                    if(w === undefined && this.labelTDWidth > 0)
+                        w = this.labelTDWidth;
+                    if(w > 0)
+                    {
+                        cell.style.width = w + "px";
+                    }
+                    w = comp.labelTDMaxWidth;
+                    if(w === undefined && this.labelTDMaxWidth > 0)
+                        w = this.labelTDMaxWidth;
+                    if(w > 0)
+                    {
+                        cell.style.maxWidth = w + "px";
                     }
                 } else if(xc.layoutFor == 3)
                 {
@@ -21526,15 +23796,17 @@ Xjs.extend(Xjs.ui.ComponentMove,Xjs.Object,{
 });
 /*xjs/ui/util/CustomScrollbar.java*/
 Xjs.namespace("Xjs.ui.util");
-Xjs.ui.util.CustomScrollbar=function(boxDOM,flags,cfg){
+Xjs.ui.util.CustomScrollbar=function(name,boxDOM,flags,cfg,fixBottomH,ajdSize){
     if(cfg)
         Xjs.apply(this,cfg);
+    this.name = name;
     this.flags = flags;
     this.boxDOM = boxDOM;
     Xjs.DOM.addClass(boxDOM,"custom-scrollable");
     if(flags & 0x10)
         boxDOM.style.overflow = "hidden";
     boxDOM._customScrollbar = this;
+    this.fixBottomH = fixBottomH;
     var fn$MDown = Function.bindAsEventListener(this.onMouseDown,this);
     if(flags & 1)
     {
@@ -21655,8 +23927,10 @@ Xjs.extend(Xjs.ui.util.CustomScrollbar,Xjs.Observable,{
             if(maxValue <= 0 || pgValue >= maxValue)
             {
                 s.display = "none";
+                Xjs.DOM.removeClass(this.boxDOM,"custom-scrollvisible-y");
                 return;
             }
+            Xjs.DOM.addClass(this.boxDOM,"custom-scrollvisible-y");
             s.display = "";
             var t = value * 100 / maxValue,
                 h = pgValue * 100 / maxValue,
@@ -21688,12 +23962,14 @@ Xjs.extend(Xjs.ui.util.CustomScrollbar,Xjs.Observable,{
             if(maxValue <= 0 || pgValue >= maxValue)
             {
                 s.display = "none";
+                Xjs.DOM.removeClass(this.boxDOM,"custom-scrollvisible-x");
                 return;
             }
             s.display = "";
+            Xjs.DOM.addClass(this.boxDOM,"custom-scrollvisible-x");
             var l = value * 100 / maxValue,
                 w = pgValue * 100 / maxValue,
-                minW = 20 * 100 / this.vbar.offsetHeight;
+                minW = 20 * 100 / this.hbar.offsetWidth;
             if(w < minW)
             {
                 w = minW;
@@ -21710,34 +23986,12 @@ Xjs.extend(Xjs.ui.util.CustomScrollbar,Xjs.Observable,{
     {
         if(start)
         {
-            if(!this.fn$MUp)
-            {
-                this.fn$MUp = Function.bindAsEventListener(this.onMouseUp,this);
-                this.fn$MMove = Function.bindAsEventListener(this.onMouseMove,this);
-            }
-            if(this.movingBar . setCapture)
-            {
-                this.movingBar.onmousemove = this.fn$MMove;
-                this.movingBar.onmouseup = this.fn$MUp;
-            } else 
-            {
-                window.onmousemove = this.fn$MMove;
-                window.onmouseup = this.fn$MUp;
-            }
+            Xjs.DOM.addWMDragListener(this,this.onMouseMove,this.onMouseUp);
             window.onselectstart = Xjs.falseFn;
             this.movingBar.style.visibility = "visible";
             document.body.style.MozUserSelect = "none";
         } else 
         {
-            if(this.movingBar . setCapture)
-            {
-                this.movingBar.onmousemove = null;
-                this.movingBar.onmouseup = null;
-            } else 
-            {
-                window.onmousemove = null;
-                window.onmouseup = null;
-            }
             window.onselectstart = null;
             this.movingBar.style.visibility = "";
             document.body.style.MozUserSelect = "";
@@ -21868,6 +24122,178 @@ Xjs.extend(Xjs.ui.util.CustomScrollbar,Xjs.Observable,{
     onWinResize:function()
     {
         this.updateValue();
+    },
+    /*xjs.ui.util.CustomScrollbar.bindWEvent*/
+    bindWEvent:function()
+    {
+        if(!this.fonWinScroll && this.flags & 0x40 && Xjs.DOM.isShowing(this.boxDOM))
+        {
+            this.fonWinScroll = Function.bindAsEventListener(this.checkFix,this);
+            Xjs.DOM.addListener(window,"scroll",this.fonWinScroll);
+            Xjs.DOM.addListener(window,"resize",this.fonWinScroll);
+        }
+        this.checkFix();
+    },
+    /*xjs.ui.util.CustomScrollbar.removeWEvent*/
+    removeWEvent:function()
+    {
+        if(this.fonWinScroll && !Xjs.DOM.isShowing(this.boxDOM))
+        {
+            Xjs.DOM.removeListener(window,"scroll",this.fonWinScroll);
+            Xjs.DOM.removeListener(window,"resize",this.fonWinScroll);
+            this.fonWinScroll = null;
+        }
+    },
+    /*xjs.ui.util.CustomScrollbar.checkFix*/
+    checkFix:function()
+    {
+        if(!(this.flags & 0x40))
+            return;
+        if(!this.fn$checkFix)
+            this.fn$checkFix = this.doCheckFix.createDelegate(this);
+        setTimeout(this.fn$checkFix,1);
+    },
+    /*xjs.ui.util.CustomScrollbar.doCheckFix*/
+    doCheckFix:function()
+    {
+        var b = this.boxDOM.getBoundingClientRect(),
+            fixBH = this.fixBottomH ? this.fixBottomH.call() : 0,
+            fixRW = 0,
+            ajdSize = this.ajdSize ? this.ajdSize.call() : 0,
+            xy = null;
+        if(this.hbar)
+        {
+            var vh = Xjs.DOM.getViewportHeight() - fixBH,
+                bv = b.bottom - ajdSize > vh && b.top < vh;
+            Xjs.DOM.addOrRemoveClass(this.hbar,"scroll-fixedbar",bv);
+            var hbars = this.hbar.style;
+            if(bv)
+            {
+                hbars.bottom = fixBH + "px";
+                hbars.width = Xjs.DOM.getWidth(this.boxDOM) + "px";
+                if(!xy)
+                    xy = Xjs.DOM.getXY(this.boxDOM,true);
+                hbars.left = xy.x + "px";
+            } else 
+            {
+                hbars.bottom = "";
+                hbars.width = "";
+                hbars.left = "";
+            }
+        }
+        if(this.vbar)
+        {
+            var vw = Xjs.DOM.getViewportWidth() - fixRW,
+                rv = b.right - ajdSize > vw && b.left < vw,
+                vbars = this.vbar.style;
+            Xjs.DOM.addOrRemoveClass(this.vbar,"scroll-fixedbar",rv);
+            if(rv)
+            {
+                vbars.right = fixRW + "px";
+                vbars.height = Xjs.DOM.getHeight(this.boxDOM) + "px";
+                if(!xy)
+                    xy = Xjs.DOM.getXY(this.boxDOM,true);
+                vbars.top = xy.y + "px";
+            } else 
+            {
+                vbars.right = "";
+                vbars.height = "";
+                vbars.top = "";
+            }
+        }
+    }
+});
+/*xjs/ui/util/DialogPaneLoader.java*/
+Xjs.ui.util.DialogPaneLoader=function(uiid,options,buttons,size,dlgCfg,initVals){
+    this.uiid = uiid;
+    this.options = options || 0;
+    this.buttons = buttons;
+    this.size = size;
+    this.dlgCfg = dlgCfg;
+    this.initVals = initVals;
+    if(window.uiHTLMURL)
+    {
+        this.nmHTMLURL = dlgCfg ? dlgCfg.NAMEUIHTMLURL : null;
+        if(this.nmHTMLURL == null)
+            this.nmHTMLURL = uiid;
+        if(dlgCfg)
+            delete dlgCfg.NAMEUIHTMLURL;
+    }
+    this.uiInitPM = dlgCfg ? dlgCfg._UI_InitParam : null;
+    if(dlgCfg)
+        delete dlgCfg._UI_InitParam;
+    var s = dlgCfg ? dlgCfg.SRootPath : null;
+    if(s == null && window.EnvParameter && window.EnvParameter.uiRoot)
+    {
+        s = Xjs.ui.UIUtil.buildUIRoot(window.EnvParameter.uiRoot);
+    }
+    this.srootPath = s;
+};
+Xjs.apply(Xjs.ui.util.DialogPaneLoader.prototype,{
+    loadUIOpts:13,
+    /*xjs.ui.util.DialogPaneLoader.load*/
+    load:function()
+    {
+        return this.toDialog(Xjs.JsLoad.loadUI(this.uiid,this.srootPath).getUI(0,this.loadUIOpts,this.initVals,this.uiInitPM));
+    },
+    /*xjs.ui.util.DialogPaneLoader.asynLoad*/
+    asynLoad:function()
+    {
+        var _this = this;
+        return Xjs.JsLoad.asynLoadUI(this.uiid).then(function(ui){
+            return _this.toDialog(ui.getUI(0,_this.loadUIOpts,_this.initVals,_this.uiInitPM));
+        });
+    },
+    /*xjs.ui.util.DialogPaneLoader.toDialog*/
+    toDialog:function(comp)
+    {
+        comp.setRootComponent(comp);
+        var htmlURL = Xjs.ui.UIUtil.getAttachHtmlURL(this.uiid,this.nmHTMLURL,this.srootPath);
+        Xjs.ui.AttachUtils.attachToHTML("@" + htmlURL,comp,0);
+        var w = null;
+        if(comp instanceof Xjs.ui.DialogPane)
+        {
+            w = comp;
+        } else 
+        {
+            var boxHtml = this.dlgCfg ? this.dlgCfg.UIWinFrameBoxHTML : null;
+            if(boxHtml == null)
+                boxHtml = "@" + Xjs.getThemePath() + "/xjsres/WindowBox0.html";
+            w = new Xjs.ui.Window({buttons:this.buttons,id:"UIA__Window_",title:comp.mtitle || comp.title || "",htmlRes:boxHtml});
+            w.itemsLayout = new Xjs.ui.DefaultLayout({opts:1});
+            w.rootUiid = this.uiid;
+            comp.parent3 = comp.parent;
+            w.addChild(comp);
+            w.resizeItemsOnResize = true;
+            if(comp.pwinUIProps)
+                Xjs.apply(w,comp.pwinUIProps);
+        }
+        w.toolbarClassName = "ui-wtitlebar";
+        w.frameClassName = "ui-window ui-wborder";
+        w.mainUI = 3;
+        {
+            if(this.dlgCfg)
+            {
+                Xjs.apply(w,this.dlgCfg);
+            }
+            if(!(w.buttons = this.buttons))
+            {
+                w.buttons = Xjs.ui.Panel.newDefaultButtons(w.id + "_btn_");
+            }
+            delete w.alignOpts;
+            w.closeable = true;
+            w.disableAddDlgItems = (this.options & 4) == 0;
+            w.moveable = (this.options & 1) == 0;
+            w.resizeable = (this.options & 2) == 0;
+            if(this.size)
+            {
+                if(this.size.width > 0)
+                    w.width = this.size.width;
+                if(this.size.height > 0)
+                    w.height = this.size.height;
+            }
+        }
+        return w;
     }
 });
 /*xjs/ui/util/DOMSlide.java*/
@@ -21989,7 +24415,7 @@ Xjs.extend(Xjs.ui.util.HistAidInputer,Xjs.Object,{
         {
             this.aidInputer = new Xjs.ui.ComboAidInputer({selOptions:1 | 0x10000 | 0x20000000 | 0x80000000,disListFocus:true});
             if(this.filter)
-                this.aidInputer.fnGetFilter = {func:this.getFilterValue,scorp:this};
+                this.aidInputer.fnGetFilter = new Xjs.FuncCall(this.getFilterValue,this);
             this.ev = {};
         }
         this.aidInputer.doAidInput(this,null,this.ev);
@@ -22304,6 +24730,18 @@ Xjs.apply(Xjs.ui.util.UIUtil$MessageBoxLayer.prototype,{
 });
 Xjs.RInvoke.beansDef["SN-UI.FuncService"]={getUiid:{}};
 Xjs.ui.UIUtil = {
+    /*xjs.ui.util.UIUtil.buildUIRoot*/
+    buildUIRoot:function(uiRoot)
+    {
+        var uriP = Xjs.ROOTPATH + uiRoot + "/";
+        if(window.EnvParameter && window.EnvParameter.wsp)
+        {
+            uriP += window.EnvParameter.wsp + "/" + (window.EnvParameter.lang || "zh_CN") + "/";
+            if(window.EnvParameter.theme)
+                uriP += window.EnvParameter.theme + "/";
+        }
+        return uriP;
+    },
     /*xjs.ui.util.UIUtil.loadProgressPane*/
     loadProgressPane:function(p)
     {
@@ -22328,6 +24766,8 @@ Xjs.ui.UIUtil = {
         if(p.options & 8)
             ui.layoutBottomBtnsMode = 2;
         ui.moveable = true;
+        ui.backgroundRun = (p.options & 0x200) != 0;
+        ui.exInfo = p.exInfo || null;
         if(p.size)
         {
             ui.width = p.size.width;
@@ -22345,9 +24785,9 @@ Xjs.ui.UIUtil = {
             if(p.postArgs)
                 ui.postArgs = p.postArgs;
         }
-        if(p.onRunCall)
+        if(p.onRunCall || p.onLockRun)
         {
-            ui.addListener(Xjs.apply({onRunCall:p.onRunCall},Xjs.ui.TempProgressOnRunListebner));
+            ui.addListener(Xjs.apply({onRunCall:p.onRunCall,onLockRun:p.onLockRun},Xjs.ui.TempProgressOnRunListebner));
         }
         return ui;
     },
@@ -22355,10 +24795,13 @@ Xjs.ui.UIUtil = {
     progressRun:function(p)
     {
         var ui = Xjs.ui.UIUtil.loadProgressPane(p);
-        ui.showModal();
-        if((p.options & 1) != 0)
+        if(!ui.backgroundRun)
         {
-            Function.setTimeout(ui.run,ui,10,false);
+            ui.showModal();
+        }
+        if((p.options & 0x201) != 0)
+        {
+            Function.setTimeout(ui.run,ui,1,false);
         }
         return ui;
     },
@@ -22385,71 +24828,18 @@ Xjs.ui.UIUtil = {
     {
         if(!uiid)
             return null;
-        var nmHTMLURL = null;
-        if(window.uiHTLMURL)
-        {
-            nmHTMLURL = dlgCfg ? dlgCfg.NAMEUIHTMLURL : null;
-            if(nmHTMLURL == null)
-                nmHTMLURL = uiid;
-            if(dlgCfg)
-                delete dlgCfg.NAMEUIHTMLURL;
-        }
-        var srootPath,
-            uiInitPM = dlgCfg ? dlgCfg._UI_InitParam : null;
-        if(dlgCfg)
-            delete dlgCfg._UI_InitParam;
-        var comp = Xjs.JsLoad.loadUI(uiid,srootPath = dlgCfg ? dlgCfg.SRootPath : null).getUI(0,13,initVals,uiInitPM);
-        comp.setRootComponent(comp);
-        var htmlURL = Xjs.ui.UIUtil.getAttachHtmlURL(uiid,nmHTMLURL,srootPath);
-        Xjs.ui.AttachUtils.attachToHTML("@" + htmlURL,comp,0);
-        var w = null;
-        if(comp instanceof Xjs.ui.DialogPane)
-        {
-            w = comp;
-        } else 
-        {
-            var boxHtml = dlgCfg ? dlgCfg.UIWinFrameBoxHTML : null;
-            if(boxHtml == null)
-                boxHtml = "@" + Xjs.getThemePath() + "/xjsres/WindowBox0.html";
-            w = new Xjs.ui.Window({buttons:buttons,id:"UIA__Window_",title:comp.mtitle || comp.title || "",htmlRes:boxHtml});
-            w.itemsLayout = new Xjs.ui.DefaultLayout({opts:1});
-            w.rootUiid = uiid;
-            comp.parent3 = comp.parent;
-            w.addChild(comp);
-            w.resizeItemsOnResize = true;
-        }
-        w.toolbarClassName = "ui-wtitlebar";
-        w.frameClassName = "ui-window ui-wborder";
-        w.mainUI = 3;
-        {
-            if(dlgCfg)
-            {
-                Xjs.apply(w,dlgCfg);
-            }
-            if(buttons == null)
-            {
-                buttons = Xjs.ui.Panel.newDefaultButtons(w.id + "_btn_");
-            }
-            w.buttons = buttons;
-            delete w.alignOpts;
-            w.closeable = true;
-            w.disableAddDlgItems = (options & 4) == 0;
-            w.moveable = (options & 1) == 0;
-            w.resizeable = (options & 2) == 0;
-            if(size)
-            {
-                if(size.width > 0)
-                    w.width = size.width;
-                if(size.height > 0)
-                    w.height = size.height;
-            }
-        }
-        return w;
+        return (new Xjs.ui.util.DialogPaneLoader(uiid,options,buttons,size,dlgCfg,initVals)).load();
     },
     /*xjs.ui.util.UIUtil.loadUIComp*/
-    loadUIComp:function(uiid,initVals,pm,refresOpts)
+    loadUIComp:function(uiid,initVals,pm,autoRefresh,opts)
     {
-        var comp = Xjs.JsLoad.loadUI(uiid).getUI(refresOpts || 0,5,initVals,pm);
+        return Xjs.ui.UIUtil._getUIComp(Xjs.JsLoad.loadUI(uiid),initVals,pm,autoRefresh,opts);
+    },
+    /*xjs.ui.util.UIUtil._getUIComp*/
+    _getUIComp:function(ui,initVals,pm,autoRefresh,opts)
+    {
+        var comp = ui.getUI(autoRefresh || 0,opts === undefined ? 5 : opts,initVals,pm),
+            uiid = comp.mid;
         comp.setRootComponent(comp);
         var htmlURL = Xjs.ui.UIUtil.getAttachHtmlURL(uiid,uiid);
         if(htmlURL)
@@ -22457,6 +24847,13 @@ Xjs.ui.UIUtil = {
             Xjs.ui.AttachUtils.attachToHTML("@" + htmlURL,comp,0);
         }
         return comp;
+    },
+    /*xjs.ui.util.UIUtil.asynLoadUIComp*/
+    asynLoadUIComp:function(uiid,initVals,pm,autoRefresh,opts)
+    {
+        return Xjs.JsLoad.asynLoadUI(uiid).then(function(ui){
+            return Xjs.ui.UIUtil._getUIComp(ui,initVals,pm,autoRefresh,opts);
+        });
     },
     /*xjs.ui.util.UIUtil.showDialog*/
     showDialog:function(w)
@@ -22481,7 +24878,7 @@ Xjs.ui.UIUtil = {
     /*xjs.ui.util.UIUtil.showReLogin*/
     showReLogin:function(ex,opts)
     {
-        Xjs.ui.UIUtil.showConfirmDialog("重登录","登录信息已经过期,需要重新登录\n(登录后需要重新刚才的操作)",{func:Xjs.ui.UIUtil._showRelogin,scorp:null},["ok:重新登录","close:关闭"],4);
+        Xjs.ui.UIUtil.showConfirmDialog("重登录","登录信息已经过期,需要重新登录\n(登录后需要重新刚才的操作)",new Xjs.FuncCall(Xjs.ui.UIUtil._showRelogin,null),["ok:重新登录","close:关闭"],4);
     },
     /*xjs.ui.util.UIUtil._showRelogin*/
     _showRelogin:function(src,cmd)
@@ -22507,9 +24904,32 @@ Xjs.ui.UIUtil = {
             url = Xjs.ROOTPATH + "ui/sso-open/_iloginok.html?_relogin=" + pm;
         } else 
         {
-            url = Xjs.ROOTPATH + "Login.html?homepage=_iloginok.html&page-cls=ui-relogin&_aopts=96" + "&wspid=" + (window.EnvParameter.wsp || window.EnvParameter.IDWORKSPC || "") + "&sysid=" + (window.EnvParameter.SYSID || "") + "&lang=" + (window.EnvParameter.lang || "");
+            var loginPage = null;
+            try
+            {
+                loginPage = Xjs.RInvoke.rmInvoke("snsoft.ui.xjs.XjsLoginUtils.getLoginPage",2);
+            }catch(e)
+            {
+            }
+            if(!loginPage)
+            {
+                loginPage = "Login.html";
+            }
+            url = Xjs.ROOTPATH + loginPage + "?homepage=_iloginok.html&page-cls=ui-relogin&_aopts=96" + "&wspid=" + (window.EnvParameter.wsp || window.EnvParameter.IDWORKSPC || "") + "&sysid=" + (window.EnvParameter.SYSID || "") + "&lang=" + (window.EnvParameter.lang || "");
         }
         Xjs.ui.UIUtil.showIFrameLayer(url,{width:436,height:253});
+    },
+    /*xjs.ui.util.UIUtil.showIFrmLogin*/
+    showIFrmLogin:function()
+    {
+        var url = Xjs.ROOTPATH + "Login.html?homepage=_iloginok.html&page-cls=ui-ifrmlogin&_aopts=" + 0x20000 + "&wspid=" + (window.EnvParameter.wsp || window.EnvParameter.IDWORKSPC || "") + "&sysid=" + (window.EnvParameter.SYSID || "") + "&lang=" + (window.EnvParameter.lang || "");
+        Xjs.ui.UIUtil.showIFrameLayer(url,{width:800,height:450});
+    },
+    /*xjs.ui.util.UIUtil.showIFrmModiPWD*/
+    showIFrmModiPWD:function()
+    {
+        var url = Xjs.ROOTPATH + "loginpage/ModiPWD.html?page-cls=ui-ifrmlogin&_aopts=" + 0x20000;
+        Xjs.ui.UIUtil.showIFrameLayer(url,{width:800,height:450});
     },
     /*xjs.ui.util.UIUtil.newWindow*/
     newWindow:function(cfg)
@@ -22533,6 +24953,9 @@ Xjs.ui.UIUtil = {
             } else if(type == "information")
             {
                 title = Xjs.ResBundle.getString("UI","Dlg.Info");
+            } else if(type == "success")
+            {
+                title = Xjs.ResBundle.getString("UI","Dlg.Success");
             } else if(type == "question")
             {
                 title = Xjs.ResBundle.getString("UI","Dlg.Question");
@@ -22544,7 +24967,7 @@ Xjs.ui.UIUtil = {
             if(onClose)
             {
                 setTimeout(function(){
-            onClose.func.apply(onClose.scorp || window,onClose.args || []);
+            onClose.call();
         },1);
             }
             return null;
@@ -22634,20 +25057,30 @@ Xjs.ui.UIUtil = {
     {
         Xjs.ui.UIUtil.showMessageBox("error",title,message,onClosing,okText,opts);
     },
+    /*xjs.ui.util.UIUtil.showSuccessInfoDialog*/
+    showSuccessInfoDialog:function(title,message,onClosing)
+    {
+        Xjs.ui.UIUtil.showMessageBox("success",title,message,onClosing,null,0);
+    },
     /*xjs.ui.util.UIUtil.showInfoDialog*/
     showInfoDialog:function(title,message,onClosing)
     {
         Xjs.ui.UIUtil.showMessageBox("information",title,message,onClosing,null,0);
     },
     /*xjs.ui.util.UIUtil.showYesNoDialog*/
-    showYesNoDialog:function(title,message,onOk,okText)
+    showYesNoDialog:function(title,message,onOk,okText,opts)
     {
         if(okText == null)
         {
-            var res = Xjs.ResBundle.getRes("UI");
-            okText = ["yes:" + res.get("Dlg.Yes"),"no:" + res.get("Dlg.No"),"cancel:" + res.get("Dlg.Close")];
+            okText = Xjs.ui.UIUtil.newYesNoBtnText();
         }
-        Xjs.ui.UIUtil.showMessageBox("question",title,message,onOk,okText);
+        Xjs.ui.UIUtil.showMessageBox("question",title,message,onOk,okText,opts || 0);
+    },
+    /*xjs.ui.util.UIUtil.newYesNoBtnText*/
+    newYesNoBtnText:function()
+    {
+        var res = Xjs.ResBundle.getRes("UI");
+        return ["yes:" + res.get("Dlg.Yes"),"no:" + res.get("Dlg.No"),"cancel:" + res.get("Dlg.Close")];
     },
     /*xjs.ui.util.UIUtil.showConfirmDialog*/
     showConfirmDialog:function(title,message,onOk,okText,opts,wcfg)
@@ -22667,7 +25100,7 @@ Xjs.ui.UIUtil = {
         {
             selOpts[i] = [i,text[i]];
         }
-        var idxList = new Xjs.ui.List({id:"idxlist",name:"idxlist",checkVisible:true,showCode:false,labelCheck:true,selectOptions:selOpts,nonBlank:true,value:defaultValue,intValue:true,className:"ui-nobglist"});
+        var idxList = new Xjs.ui.List({id:"idxlist",name:"idxlist",checkVisible:true,showCode:false,labelCheck:true,selectOptions:selOpts,nonBlank:true,value:defaultValue,intValue:true,className:"ui-nobglist ui-askchoice-list"});
         if((options & 1) != 0)
         {
             idxList.multiple = true;
@@ -22682,6 +25115,7 @@ Xjs.ui.UIUtil = {
                 cfg.height = size.height;
         }
         var w = Xjs.ui.UIUtil.newWindow(cfg);
+        Xjs.DOM.addClass(w.getDOM(),"ui-askchoice-win");
         if(onOk)
         {
             w.addListener("onOk",onOk);
@@ -22709,14 +25143,29 @@ Xjs.ui.UIUtil = {
         }
         return Xjs.ui.UIUtil.tempIFrameDOM;
     },
+    /*xjs.ui.util.UIUtil.addWinMsgListener*/
+    addWinMsgListener:function(mt,f)
+    {
+        if(!Xjs.ui.UIUtil.winMsgListeners)
+            Xjs.ui.UIUtil.winMsgListeners = {};
+        var a = Xjs.ui.UIUtil.winMsgListeners[mt];
+        if(!a)
+        {
+            Xjs.ui.UIUtil.winMsgListeners[mt] = a = [f];
+        } else 
+        {
+            a.push(f);
+        }
+    },
     /*xjs.ui.util.UIUtil._onWinMessage*/
     _onWinMessage:function(e)
     {
         if(!e.data)
             return;
-        var msgtype = e.data.msgtype;
-        if(msgtype)
-            switch(msgtype)
+        var mt = e.data.msgtype;
+        if(mt)
+        {
+            switch(mt)
             {
             case "updateBodyStyle":
                 {
@@ -22772,6 +25221,24 @@ Xjs.ui.UIUtil = {
                     Xjs.DOM.removeClass(document.documentElement,e.data.cls);
                     break;
                 }
+            case "tablecmd":
+                {
+                    var cmd = e.data.cmd;
+                    if(window._MainUI && Xjs.table.Table)
+                    {
+                        var tbls = window._MainUI.getMainComponents(Xjs.table.Table);
+                        if(tbls && tbls.length > 0)
+                        {
+                            var t = tbls[0].getToolbarAttachedTable(),
+                                f = t["oncmd_" + cmd];
+                            if(typeof(f) == "function")
+                            {
+                                f.call(t);
+                            }
+                        }
+                    }
+                    break;
+                }
             case "info":
                 {
                     var msg = e.data.msg;
@@ -22779,7 +25246,24 @@ Xjs.ui.UIUtil = {
                     window.console.log("     msg = " + msg);
                     break;
                 }
+            case "onUserLoginOK":
+                {
+                    if(!Xjs._uiInited && !(Xjs.ui.UIUtil.winMsgListeners ? Xjs.ui.UIUtil.winMsgListeners[mt] : null))
+                    {
+                        window.location.reload();
+                    }
+                    break;
+                }
             }
+            var a;
+            if(a = Xjs.ui.UIUtil.winMsgListeners ? Xjs.ui.UIUtil.winMsgListeners[mt] : null)
+            {
+                for(var j=0;j < a.length;j++)
+                {
+                    a[j].call(e.data);
+                }
+            }
+        }
     },
     /*xjs.ui.util.UIUtil._postParentOnScroll*/
     _postParentOnScroll:function(e)
@@ -22887,6 +25371,24 @@ Xjs.ui.UIUtil = {
         }
         return null;
     },
+    /*xjs.ui.util.UIUtil.refreshMsgTips*/
+    refreshMsgTips:function()
+    {
+        var mainPage = window.parent.MainPage ? window.parent.MainPage : window.MainPage;
+        if(mainPage && mainPage.refreshMsgTips)
+        {
+            mainPage.refreshMsgTips();
+        }
+    },
+    /*xjs.ui.util.UIUtil.onClickMsgDom*/
+    onClickMsgDom:function()
+    {
+        var mainPage = window.parent.MainPage ? window.parent.MainPage : window.MainPage;
+        if(mainPage && mainPage.onClickMsgDom)
+        {
+            mainPage.onClickMsgDom();
+        }
+    },
     /*xjs.ui.util.UIUtil.wopenUI*/
     wopenUI:function(title,uiid,pm)
     {
@@ -22903,6 +25405,15 @@ Xjs.ui.UIUtil = {
             return Xjs.ui.UIUtil.openInIFrameByPage(mainPage,title,uri);
         }
         return false;
+    },
+    /*xjs.ui.util.UIUtil.reloadLeftMenus*/
+    reloadLeftMenus:function()
+    {
+        var mainPage;
+        if(mainPage = Xjs.ui.UIUtil.getHomePage(window))
+        {
+            mainPage.reloadMenu();
+        }
     },
     /*xjs.ui.util.UIUtil.openInIFrameByPage*/
     openInIFrameByPage:function(mainPage,title,uri)
@@ -23014,6 +25525,26 @@ Xjs.ui.UIUtil = {
         if(window._MainUI)
             window._MainUI.fireAllMCompEvent.apply(window._MainUI,arguments);
     },
+    /*xjs.ui.util.UIUtil.hasTagHtml*/
+    hasTagHtml:function(context)
+    {
+        var contextHtml = document.createElement("div");
+        contextHtml.innerHTML = context;
+        var childNodes = contextHtml.childNodes;
+        if(childNodes && childNodes.length > 0)
+        {
+            for(var i=0;i < childNodes.length;i++)
+            {
+                var childNode = childNodes[i],
+                    nodeType = childNode.nodeType;
+                if(nodeType == 1)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    },
     /*xjs.ui.util.UIUtil.getHomePage*/
     getHomePage:function(window)
     {
@@ -23041,69 +25572,145 @@ Xjs.ui.UIUtil = {
     {
         Xjs.ui.UIUtil.showConfirmDialog(title,Xjs.ResBundle.getRes("UI").get("Tbl.DeletePrompt.Content"),functionCall,null);
     },
-    /*xjs.ui.util.UIUtil.addToolbarBtnGroup*/
-    addToolbarBtnGroup:function(toolbarName,table,btnGroup)
+    /*xjs.ui.util.UIUtil.performConfirm*/
+    performConfirm:function(r,onConfirm)
     {
-        var toolbarComp = Xjs.ui.Component.getItemByName(table.getRootComponent(),toolbarName);
-        if(toolbarComp)
+        if(r.type == 1)
         {
-            var parentDOM = toolbarComp.getDOM();
-            if(parentDOM)
-            {
-                var items = btnGroup.items;
-                if(items)
-                {
-                    for(var i=0;i < items.length;i++)
-                    {
-                        var c = items[i];
-                        if(c instanceof Xjs.ui.ToolbarBtn)
-                        {
-                            var button = c;
-                            if(!button.id)
-                            {
-                                button.id = "UI_" + table.name + "_btn_" + button.command;
-                            }
-                            table.addToolbarButton(button.command,button.text);
-                        }
-                    }
-                }
-                btnGroup.id = toolbarComp.id + "_" + btnGroup.name;
-                parentDOM.appendChild(btnGroup.getDOM());
-            }
+            Xjs.ui.UIUtil.showMessageBox("question",r.title,r.prompt,onConfirm,r.confirmMsgBoxBtns == null ? Xjs.ui.UIUtil.newYesNoBtnText() : r.confirmMsgBoxBtns,r.confirmMsgBoxOpts,r.confirmMsgBoxCfg);
+        } else if(r.type == 2)
+        {
+            r.showConfirm.call(onConfirm);
+        } else 
+        {
+            Xjs.ui.UIUtil.showConfirmDialog(r.title,r.prompt,onConfirm,null,r.confirmMsgBoxOpts,r.confirmMsgBoxCfg);
         }
     },
-    /*xjs.ui.util.UIUtil.addToolbarBtn*/
-    addToolbarBtn:function(toolbarName,table,button,btnGroupName)
+    /*xjs.ui.util.UIUtil._newConfirmPromise1*/
+    _newConfirmPromise1:function(r)
     {
-        var toolbarComp = Xjs.ui.Component.getItemByName(table.getRootComponent(),toolbarName);
-        if(toolbarComp)
-        {
-            if(button)
+        return new Promise(function(resolve,reject){
+            var onClose = function(d,cmd){
+            var f;
+            if((cmd == "yes" || cmd == "ok") && (f = r.perform))
             {
-                if(!button.id)
-                {
-                    button.id = "UI_" + table.name + "_btn_" + button.command;
-                }
-                table.addToolbarButton(button.command,button.text);
+                f.call();
             }
-            var toolbarDOM = toolbarComp.getDOM();
-            if(toolbarDOM)
+            if(cmd == "yes" || cmd == "ok" || cmd == "no" && r.performIfNo !== false)
             {
-                var parentDOM = toolbarDOM;
-                if(btnGroupName)
+                resolve(cmd);
+            } else 
+            {
+                var ex = new Error(cmd);
+                ex.dummy = true;
+                reject(ex);
+            }
+        };
+            Xjs.ui.UIUtil.performConfirm(r,new Xjs.FuncCall(onClose,window));
+        });
+    },
+    /*xjs.ui.util.UIUtil._newConfirmPromise2*/
+    _newConfirmPromise2:function(p,r)
+    {
+        if(!r)
+            return p;
+        if(p)
+        {
+            return p.then(function(cmd){
+            return Xjs.ui.UIUtil._newConfirmPromise1(r);
+        });
+        } else 
+        {
+            return Xjs.ui.UIUtil._newConfirmPromise1(r);
+        }
+    },
+    /*xjs.ui.util.UIUtil.newConfirmPromise*/
+    newConfirmPromise:function()
+    {
+        var a = arguments;
+        if(!a || a.length == 0)
+            return null;
+        var p = null,
+            i = 0;
+        if(a[0] instanceof Promise)
+        {
+            p = a[0];
+            i++;
+        }
+        for(;i < a.length;i++)
+        {
+            if(a[i] instanceof Array)
+            {
+                var ra = a[i];
+                for(var j=0;j < ra.length;j++)
                 {
-                    var btnGroupDOM = Xjs.DOM.findById("UIA_" + toolbarName + "_" + btnGroupName,toolbarDOM);
-                    if(btnGroupDOM)
-                    {
-                        parentDOM = Xjs.DOM.findById("btn_list",btnGroupDOM);
-                    }
+                    p = Xjs.ui.UIUtil._newConfirmPromise2(p,ra[j]);
                 }
-                if(parentDOM)
-                {
-                    parentDOM.appendChild(button.getDOM());
-                }
+            } else 
+            {
+                p = Xjs.ui.UIUtil._newConfirmPromise2(p,a[i]);
             }
         }
+        return p;
+    },
+    /*xjs.ui.util.UIUtil.addHtmCls*/
+    addHtmCls:function(cls)
+    {
+        var html = document.getElementsByTagName("html")[0],
+            c = {};
+        for(var i=0;i < cls.length;i++)
+        {
+            var s = cls[i];
+            if(s == null || s == "")
+                continue;
+            if(s.charCodeAt(0) == 0x2d || s.charCodeAt(0) == 0x7e)
+            {
+                s = s.substring(1);
+                if(!Xjs.DOM.hasClass(html,s))
+                {
+                    continue;
+                }
+                if(!c.rmCls)
+                {
+                    c.rmCls = [];
+                }
+                c.rmCls.push(s);
+            } else 
+            {
+                if(Xjs.DOM.hasClass(html,s))
+                {
+                    continue;
+                }
+                if(!c.addCls)
+                {
+                    c.addCls = [];
+                }
+                c.addCls.push(s);
+            }
+        }
+        if(!c.addCls && !c.rmCls)
+            return null;
+        Xjs.ui.UIUtil.updateHtmlCls(c,false);
+        return c;
+    },
+    /*xjs.ui.util.UIUtil.updateHtmlCls*/
+    updateHtmlCls:function(c,restore)
+    {
+        if(!c)
+            return;
+        var rmCls = restore ? c.addCls : c.rmCls,
+            html = document.getElementsByTagName("html")[0];
+        if(rmCls)
+            for(var j=0;j < rmCls.length;j++)
+            {
+                Xjs.DOM.removeClass(html,rmCls[j]);
+            }
+        var addCls = restore ? c.rmCls : c.addCls;
+        if(addCls)
+            for(var j=0;j < addCls.length;j++)
+            {
+                Xjs.DOM.addClass(html,addCls[j]);
+            }
     }
 };
 {
@@ -23115,7 +25722,17 @@ Xjs.ui.UIUtil = {
     onRunProgress:function(progPane,retValue)
     {
         if(this.onRunCall)
-            this.onRunCall.func.call(this.onRunCall.scorp,retValue);
+        {
+            this.onRunCall.call(retValue);
+        }
+    },
+    /*xjs.ui.util.TempProgressOnRunListebner.onLockRunProgress*/
+    onLockRunProgress:function(progPane,lock)
+    {
+        if(this.onLockRun)
+        {
+            this.onLockRun.call(progPane,lock);
+        }
     },
     /*xjs.ui.util.TempProgressOnRunListebner.onClosed*/
     onClosed:function(progressPane)
@@ -23134,60 +25751,22 @@ Xjs.util.ConfirmPerform=function(title,closeReq,perform){
 };
 Xjs.apply(Xjs.util.ConfirmPerform.prototype,{
     i:0,
-    /*xjs.util.ConfirmPerform.onConfirmClose*/
-    onConfirmClose:function(d,cmd)
-    {
-        this.lastConfirmCmd = cmd;
-        if(d)
-        {
-            if(d.ConfirmPerform$i === undefined)
-                d.ConfirmPerform$i = this.i;
-            else 
-                this.i = d.ConfirmPerform$i;
-        }
-        if(cmd == "yes" || cmd == "ok")
-        {
-            var f;
-            if(f = this.closeReq[this.i].perform)
-            {
-                f.func.apply(f.scorp,f.args || []);
-            }
-        }
-        if(cmd == "yes" || cmd == "ok" || cmd == "no" && this.closeReq[this.i].performIfNo !== false)
-        {
-            this.i++;
-            this.confirmPerform();
-        }
-    },
-    /*xjs.util.ConfirmPerform.confirmPerformNext*/
-    confirmPerformNext:function()
-    {
-        this.i++;
-        this.confirmPerform();
-    },
     /*xjs.util.ConfirmPerform.confirmPerform*/
     confirmPerform:function()
     {
-        if(!this.closeReq || this.i >= this.closeReq.length)
+        var p = Xjs.ui.UIUtil.newConfirmPromise(this.closeReq),
+            perform = this.perform;
+        if(!p)
         {
-            this.perform.func.apply(this.perform.scorp,this.perform.args);
-            return;
-        }
-        var r = this.closeReq[this.i];
-        if(r.type == 1)
-        {
-            Xjs.ui.UIUtil.showMessageBox("question",r.title || this.title,r.prompt,{func:this.onConfirmClose,scorp:this},r.confirmMsgBoxBtns == null ? ["yes:是","no:否","close:关闭"] : r.confirmMsgBoxBtns,r.confirmMsgBoxOpts,r.confirmMsgBoxCfg);
-        } else if(r.type == 2)
-        {
-            var args = [];
-            if(r.showConfirm.args)
-                for(var j=0;j < r.showConfirm.args.length;j++)
-                    args.push(r.showConfirm.args[j]);
-            args.push(this);
-            r.showConfirm.func.apply(r.showConfirm.scorp,args);
+            perform.call();
         } else 
         {
-            Xjs.ui.UIUtil.showConfirmDialog(r.title || this.title,r.prompt,{func:this.onConfirmClose,scorp:this},null);
+            p.then(function(v){
+            perform.call();
+        }).catch(function(ex){
+            if(!ex.dummy)
+                throw ex;
+        });
         }
     }
 });
@@ -23196,17 +25775,22 @@ Xjs.JsLoad = {
     /*xjs.util.JsLoad.load*/
     load:function(js,mode)
     {
-        if(js == "xjs-base")
-            return true;
-        mode = mode || 0;
-        var url;
+        return Xjs.JsLoad.ajaxLoadJS(Xjs.JsLoad.urlIfUnload({lib:js,m:mode}));
+    },
+    /*xjs.util.JsLoad.urlIfUnload*/
+    urlIfUnload:function(lib)
+    {
+        var js;
+        if(!lib || (js = lib.lib) == "xjs-base")
+            return null;
+        var mode = lib.m || 0;
         if(mode == 0 || mode == 1)
         {
             if(Xjs.loadedXjs.indexOf(js) >= 0)
             {
-                return true;
+                return null;
             }
-            url = Xjs.ROOTPATH + "xjslib";
+            var url = Xjs.ROOTPATH + "xjslib";
             if(window._debug_)
                 url += "_debug";
             url += "/" + js + ".js";
@@ -23216,10 +25800,17 @@ Xjs.JsLoad = {
             {
                 url += "?_v=" + window.EnvParameter.v;
             }
+            return url;
         } else 
         {
-            url = js;
+            return Xjs.toFullURL(js,2);
         }
+    },
+    /*xjs.util.JsLoad.ajaxLoadJS*/
+    ajaxLoadJS:function(url)
+    {
+        if(!url)
+            return true;
         var ajax = new Xjs.Ajax({url:url,postBody:null,method:"get"});
         ajax.request();
         if(ajax.responseIsSuccess())
@@ -23227,7 +25818,55 @@ Xjs.JsLoad = {
             window.eval(ajax.conn.responseText);
             return true;
         }
-        throw new Error(js + ":装载失败");
+        throw new Error(url + ":装载失败");
+    },
+    /*xjs.util.JsLoad._onScriptLoadSuccess*/
+    _onScriptLoadSuccess:function(ev)
+    {
+        var e = ev.srcElement || ev.target;
+        e.onload = null;
+        e.onerror = null;
+        var a = e._promiseCommits;
+        delete e._promiseCommits;
+        Xjs.promiseCommit(a,e.src);
+    },
+    /*xjs.util.JsLoad._onScriptLoadFail*/
+    _onScriptLoadFail:function(ev)
+    {
+        var e = ev.srcElement || ev.target;
+        e.onload = null;
+        e.onerror = null;
+        e._loadFail = true;
+        var a = e._promiseCommits;
+        delete e._promiseCommits;
+        Xjs.promiseCommit(a,e.src,true);
+    },
+    /*xjs.util.JsLoad.asynLoadJS*/
+    asynLoadJS:function(url)
+    {
+        url = Xjs.toFullURL(url,2);
+        var s0 = Xjs.DOM.getHeadScriptSrc(url);
+        if(s0)
+        {
+            if(s0._promiseCommits)
+            {
+                return Xjs.joinPromiseCommit(s0);
+            }
+            return new Promise(function(resolve,reject){
+            if(s0._loadFail)
+                reject(s0.src);
+            else 
+                resolve(s0.src);
+        });
+        }
+        var s = document.createElement("script");
+        s.type = "text/javascript";
+        s.async = false;
+        s.src = url;
+        s.onload = Xjs.JsLoad._onScriptLoadSuccess;
+        s.onerror = Xjs.JsLoad._onScriptLoadFail;
+        Xjs.DOM.getHead().appendChild(s);
+        return Xjs.joinPromiseCommit(s);
     },
     /*xjs.util.JsLoad.loadJsLibsOfVar*/
     loadJsLibsOfVar:function(v)
@@ -23244,25 +25883,32 @@ Xjs.JsLoad = {
         Xjs.JsLoad.loadJsLibs(Xjs.RInvoke.rmInvoke("snsoft.ui.xjs.XjsLibMeta.rgetJsLibs",v));
         return true;
     },
+    /*xjs.util.JsLoad.asynLoadJsLibsOfVar*/
+    asynLoadJsLibsOfVar:function(v)
+    {
+        var hasVar = null;
+        try
+        {
+            hasVar = eval(v);
+        }catch(e)
+        {
+        }
+        if(hasVar)
+        {
+            return new Promise(function(resolve,reject){
+            resolve(true);
+        });
+        }
+        return Xjs.JsLoad.asynAjaxLoadLibs(Xjs.RInvoke.rmInvoke("snsoft.ui.xjs.XjsLibMeta.rgetJsLibs",v),0);
+    },
     /*xjs.util.JsLoad.loadJsLibs*/
     loadJsLibs:function(libs)
     {
         if(libs)
             for(var i=0;i < libs.length;i++)
             {
-                var lib,
-                    mode;
-                if(libs[i].endsWith(".js.~gzip"))
-                {
-                    lib = libs[i].substring(0,libs[i].length - 9);
-                    mode = 1;
-                } else if(libs[i].endsWith(".js"))
-                {
-                    lib = libs[i].substring(0,libs[i].length - 3);
-                    mode = 0;
-                } else 
-                    continue;
-                Xjs.JsLoad.load(lib,mode);
+                var lib = Xjs.JsLoad.decodeJSLIB(libs[i]);
+                Xjs.JsLoad.ajaxLoadJS(Xjs.JsLoad.urlIfUnload(lib));
             }
     },
     /*xjs.util.JsLoad.newObject*/
@@ -23289,13 +25935,13 @@ Xjs.JsLoad = {
         var cls = m.substring(0,p);
         if(!Xjs.JsLoad.loadJsLibsOfVar(cls))
             throw new Error("未定义类型 " + cls);
-        return {func:eval(m),scorp:eval(cls)};
+        return new Xjs.FuncCall(eval(m),eval(cls));
     },
     /*xjs.util.JsLoad.callStatic*/
     callStatic:function(m,a)
     {
         var f = Xjs.JsLoad.getStaicMethod(m);
-        return f.func.apply(f.scorp,a);
+        return f.apply(a);
     },
     /*xjs.util.JsLoad.loadJsLibOfVar*/
     loadJsLibOfVar:function(v,lib,mode)
@@ -23310,6 +25956,27 @@ Xjs.JsLoad = {
         if(hasVar != null)
             return true;
         return Xjs.JsLoad.load(lib,mode);
+    },
+    /*xjs.util.JsLoad.asynLoadJsLibOfVar*/
+    asynLoadJsLibOfVar:function(v,lib,mode)
+    {
+        var hasVar = null;
+        try
+        {
+            hasVar = eval(v);
+        }catch(e)
+        {
+        }
+        if(hasVar)
+        {
+            return new Promise(function(resolve,reject){
+            resolve(true);
+        });
+        }
+        var url = Xjs.JsLoad.urlIfUnload({lib:lib,m:mode});
+        return Xjs.JsLoad.asynLoadJS(url).then(function(_v){
+            return true;
+        });
     },
     /*xjs.util.JsLoad.getBaseReqParameter*/
     getBaseReqParameter:function()
@@ -23331,6 +25998,20 @@ Xjs.JsLoad = {
         }
         return s;
     },
+    /*xjs.util.JsLoad.addUICssLinks*/
+    addUICssLinks:function(ui)
+    {
+        if(ui._$cssList)
+            for(var j=0;j < ui._$cssList.length;j++)
+            {
+                var s = ui._$cssList[j];
+                if(window.EnvParameter && window.EnvParameter.v)
+                {
+                    s += "?_v=" + window.EnvParameter.v;
+                }
+                Xjs.DOM.addHeaderCSSLink(s);
+            }
+    },
     /*xjs.util.JsLoad.loadUI*/
     loadUI:function(uiid,srootPath)
     {
@@ -23338,31 +26019,140 @@ Xjs.JsLoad = {
             ui = window.UI[$uiid];
         if(!ui)
         {
-            Xjs.JsLoad.load((srootPath || "") + uiid + ".js",2);
+            var s = (srootPath || "") + uiid + ".js";
+            if(window.EnvParameter && window.EnvParameter.v)
+            {
+                s += "?_v=" + window.EnvParameter.v;
+            }
+            Xjs.JsLoad.ajaxLoadJS(s);
             ui = window.UI[$uiid];
             if(ui == null)
                 throw new Error(uiid + ":装载失败");
-            if(ui._$jsList)
-            {
-                var n = ui._$jsList.length;
-                for(var i=0;i < n;i++)
+            Xjs.JsLoad.addUICssLinks(ui);
+            ui.status = 1;
+            var libs;
+            if(libs = Xjs.JsLoad.getUIJSLibs(ui))
+                for(var i=0;i < libs.length;i++)
                 {
-                    var lib = ui._$jsList[i],
-                        mode = 0;
-                    if(lib.startsWith("zlib:"))
-                    {
-                        mode = 1;
-                        lib = lib.substring(5);
-                    } else if(lib.startsWith("js:"))
-                    {
-                        mode = 2;
-                        lib = lib.substring(3);
-                    }
-                    Xjs.JsLoad.load(lib,mode);
+                    Xjs.JsLoad.ajaxLoadJS(Xjs.JsLoad.urlIfUnload(libs[i]));
+                }
+            ui.status = 2;
+        }
+        return ui;
+    },
+    /*xjs.util.JsLoad.asynLoadUI*/
+    asynLoadUI:function(uiid,srootPath)
+    {
+        var $uiid = "$" + String.replaceInvalidIdPart(uiid.replace("~","$"));
+        {
+            var ui = window.UI[$uiid];
+            if(ui)
+            {
+                if(ui.status != 1)
+                {
+                    return new Promise(function(resolve,reject){
+            resolve(ui);
+        });
+                } else 
+                {
+                    return Xjs.JsLoad._newPromiseForUILoad(ui);
                 }
             }
         }
-        return ui;
+        var s = (srootPath || "") + uiid + ".js";
+        if(window.EnvParameter && window.EnvParameter.v)
+        {
+            s += "?_v=" + window.EnvParameter.v;
+        }
+        return Xjs.JsLoad.asynLoadJS(s).then(function(jsUrl){
+            var ui = window.UI[$uiid];
+            Xjs.JsLoad.addUICssLinks(ui);
+            var urls = Xjs.JsLoad.getUIJSLibs(ui);
+            ui.status = 1;
+            Xjs.JsLoad.asynAjaxLoadJS(urls,0).then(function(v){
+            if(v.fail)
+            {
+                ui.status = -2;
+            } else 
+                ui.status = 2;
+            Xjs.promiseCommit(ui._promiseCommits,ui);
+            delete ui._promiseCommits;
+        });
+            return Xjs.JsLoad._newPromiseForUILoad(ui);
+        });
+    },
+    /*xjs.util.JsLoad._newPromiseForUILoad*/
+    _newPromiseForUILoad:function(ui)
+    {
+        return Xjs.joinPromiseCommit(ui);
+    },
+    /*xjs.util.JsLoad.getUIJSLibs*/
+    getUIJSLibs:function(ui)
+    {
+        if(!ui._$jsList)
+            return null;
+        var n = ui._$jsList.length,
+            libs = new Array(n);
+        for(var i=0;i < n;i++)
+        {
+            libs[i] = Xjs.JsLoad.decodeJSLIB(ui._$jsList[i]);
+        }
+        return libs;
+    },
+    /*xjs.util.JsLoad.decodeJSLIB*/
+    decodeJSLIB:function(lib)
+    {
+        if(!lib)
+            return null;
+        var m = 0;
+        if(lib.startsWith("zlib:"))
+        {
+            m = 1;
+            lib = lib.substring(5);
+        } else if(lib.startsWith("js:"))
+        {
+            m = 2;
+            lib = lib.substring(3);
+        } else if(lib.endsWith(".js.~gzip"))
+        {
+            lib = lib.substring(0,lib.length - 9);
+            m = 1;
+        } else if(lib.endsWith(".js"))
+        {
+            lib = lib.substring(0,lib.length - 3);
+        }
+        return {lib:lib,m:m};
+    },
+    /*xjs.util.JsLoad.decodeJSLIBs*/
+    decodeJSLIBs:function(urls)
+    {
+        if(!urls)
+            return null;
+        var a = new Array(urls.length);
+        for(var i=0;i < a.length;i++)
+            a[i] = Xjs.JsLoad.decodeJSLIB(urls[i]);
+        return a;
+    },
+    /*xjs.util.JsLoad.asynAjaxLoadLibs*/
+    asynAjaxLoadLibs:function(libs,opts)
+    {
+        return Xjs.JsLoad.asynAjaxLoadJS(Xjs.JsLoad.decodeJSLIBs(libs),opts);
+    },
+    /*xjs.util.JsLoad.asynAjaxLoadJS*/
+    asynAjaxLoadJS:function(libs,opts)
+    {
+        var all = [];
+        if(libs)
+            for(var i=0;i < libs.length;i++)
+            {
+                var url = Xjs.JsLoad.urlIfUnload(libs[i]);
+                if(!url)
+                    continue;
+                all.push(Xjs.JsLoad.asynLoadJS(url));
+            }
+        return Promise.all(all).then(function(urls){
+            return {success:urls};
+        });
     }
 };
 /*xjs/util/LazyLoadValue.java*/
@@ -23379,7 +26169,7 @@ Xjs.apply(Xjs.util.LazyLoadValue.prototype,{
         if(this.json)
             return this.val = eval(this.json);
         if(this.loader)
-            return this.val = this.loader.func.apply(this.loader.scorp || window,this.loader.args || []);
+            return this.val = this.loader.call();
         return this.val = null;
     }
 });
@@ -23422,6 +26212,22 @@ Xjs.apply(Xjs.util.ResBundle$Res.prototype,{
         throw new Error("No Supported!");
     }
 });
+Xjs.util.ResBundle$ResMap=function(){};
+Xjs.apply(Xjs.util.ResBundle$ResMap.prototype,{
+    /*xjs.util.ResBundle$ResMap.get*/
+    get:function(key)
+    {
+        var p = key ? key.indexOf(".") : -1;
+        if(p < 0)
+            return null;
+        return Xjs.ResBundle.getString(key.substring(0,p),key.substring(p + 1));
+    },
+    /*xjs.util.ResBundle$ResMap.set*/
+    set:function(name,value)
+    {
+        throw new Error("No Supported!");
+    }
+});
 Xjs.ResBundle = {
     /*xjs.util.ResBundle.getStrings*/
     getStrings:function(sysid)
@@ -23433,7 +26239,7 @@ Xjs.ResBundle = {
         }
         var key = sysid + "_" + lang,
             m = Xjs.ResBundle[key];
-        if(m == null)
+        if(!m)
         {
             var p = {};
             p.SYSID = sysid;
@@ -23479,6 +26285,20 @@ Xjs.ResBundle = {
         for(var j=0;j < arguments.length - 2;j++)
             args[1 + j] = arguments[2 + j];
         return String.format.apply(null,args);
+    },
+    /*xjs.util.ResBundle.getResMap*/
+    getResMap:function()
+    {
+        if(!Xjs.ResBundle._resMap)
+            Xjs.ResBundle._resMap = new Xjs.util.ResBundle$ResMap();
+        return Xjs.ResBundle._resMap;
+    },
+    /*xjs.util.ResBundle.replaceResMacro*/
+    replaceResMacro:function(text)
+    {
+        if(!text || text.indexOf("${RES.") < 0)
+            return text;
+        return String.macroReplace(text,Xjs.ResBundle.getResMap(),"${RES.","}",null,"?");
     }
 };
 /*xjs/util/SortedArray.java*/
@@ -23563,6 +26383,47 @@ Xjs.Utils = {
             a.push(String.fromCharCode(c));
         }
         return changed ? a.join("") : s;
+    },
+    /*xjs.util.Utils.formatTac*/
+    formatTac:function(text)
+    {
+        var tac = text;
+        if(tac == null || (tac = tac.trim()).length == 0)
+        {
+            return text;
+        }
+        var prefix = new RegExp("^((if)|(try)|(for)|(while)|(loop)|(proc))(\\s|\\(|$)","g"),
+            suffix = new RegExp("^(end)(\\s)","g"),
+            middle = new RegExp("^((elif)|(else)|(catch)|(finally))(\\s?|$)","g"),
+            lines = tac.split("\n"),
+            cnt = 0,
+            str = "";
+        for(var i=0;i < lines.length;i++)
+        {
+            var line = lines[i].trim();
+            if(prefix.test(line))
+            {
+                line = String.newString("\t",cnt++) + line;
+            } else if(middle.test(line))
+            {
+                line = String.newString("\t",cnt - 1) + line;
+            } else if(suffix.test(line))
+            {
+                line = String.newString("\t",--cnt) + line;
+            } else 
+            {
+                line = String.newString("\t",cnt) + line;
+            }
+            if(str.length > 0)
+            {
+                str += "\n";
+            }
+            str += line;
+            prefix.lastIndex = 0;
+            suffix.lastIndex = 0;
+            middle.lastIndex = 0;
+        }
+        return str;
     }
 };
 /*xjs/util/ValueMap.java*/
