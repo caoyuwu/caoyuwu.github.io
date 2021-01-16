@@ -938,9 +938,14 @@ snsoftx.x1room.X1Room2=Xjs.extend(snsoftx.x1room.X1Room,{
             return;
         }
         this.h5RoomData = v.data;
-        v.data.room.initURL = this.HomeURL;
-        this.onRoomLoaded(v.data.room);
+        var h5room = v.data.room;
+        h5room.initURL = this.HomeURL;
+        this.onRoomLoaded(h5room);
         this.startPlayVideo();
+        if(h5room.start_time)
+        {
+            this.infoMsg("?",h5room.start_time + " - " + h5room.end_time);
+        }
     },
     /*snsoftx.x1room.X1Room2.startPlayVideo*/
     startPlayVideo:function()
