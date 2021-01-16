@@ -942,9 +942,9 @@ snsoftx.x1room.X1Room2=Xjs.extend(snsoftx.x1room.X1Room,{
         h5room.initURL = this.HomeURL;
         this.onRoomLoaded(h5room);
         this.startPlayVideo();
-        if(h5room.start_time)
+        if(v.data.start_time)
         {
-            this.infoMsg("?",h5room.start_time + " - " + h5room.end_time);
+            this.infoMsg("?",v.data.start_time + " - " + v.data.end_time);
         }
     },
     /*snsoftx.x1room.X1Room2.startPlayVideo*/
