@@ -31,7 +31,9 @@ snsoftx.x1room.X1Room=function(){
     this.anchor1 = Xjs.DOM.findById("Anchor1",null);
     this.anchor2 = Xjs.DOM.findById("Anchor2",null);
     if(this.refreshBtnDOM)
+    {
         this.refreshBtnDOM.onclick = Function.bindAsEventListener(this.oncmd_refresh,this,0,true);
+    }
     if(this.testBtnDOM)
         this.testBtnDOM.onclick = Function.bindAsEventListener(this.oncmd_test,this);
     if(this.enterRootBtnDOM)
@@ -133,9 +135,19 @@ Xjs.apply(snsoftx.x1room.X1Room.prototype,{
     },
     /*snsoftx.x1room.X1Room.getWebsocketURL*/
     getWebsocketURL:Xjs.emptyFn,
+    /*snsoftx.x1room.X1Room.disableEnterRoomBtn*/
+    disableEnterRoomBtn:function()
+    {
+        if(this.enterRootBtnDOM)
+        {
+            this.enterRootBtnDOM.disabled = true;
+            Xjs.DOM.setTextContent(this.enterRootBtnDOM,"连接..");
+        }
+    },
     /*snsoftx.x1room.X1Room.openWebSocket*/
     openWebSocket:function()
     {
+        this.disableEnterRoomBtn();
         if(this.websocket)
         {
             try
@@ -149,6 +161,7 @@ Xjs.apply(snsoftx.x1room.X1Room.prototype,{
         var url = this.getWebsocketURL();
         if(url == null)
         {
+            this.updateEnterBtnLabel();
             this.infoMsg(null,"未获取到WebSocket地址");
             return;
         }
@@ -175,7 +188,9 @@ Xjs.apply(snsoftx.x1room.X1Room.prototype,{
     {
         if(this.enterRootBtnDOM)
         {
-            Xjs.DOM.setTextContent(this.enterRootBtnDOM,this.websocket && this.websocket.readyState == 1 ? "退出" : "进入");
+            var opened = this.websocket && this.websocket.readyState == 1;
+            this.enterRootBtnDOM.disabled = false;
+            Xjs.DOM.setTextContent(this.enterRootBtnDOM,opened ? "退 出" : "进 入");
         }
     },
     /*snsoftx.x1room.X1Room.onWebSocketMessage*/
@@ -515,6 +530,10 @@ Xjs.apply(snsoftx.x1room.X1Room.prototype,{
     /*snsoftx.x1room.X1Room.refreshRooms*/
     refreshRooms:function(refresh)
     {
+        if(this.refreshBtnDOM)
+        {
+            this.refreshBtnDOM.disabled = true;
+        }
         if(this.msgPane)
             this.msgPane.clear();
         Xjs.DOM.removeAllChild(this.roomListDOM);
@@ -530,6 +549,10 @@ Xjs.apply(snsoftx.x1room.X1Room.prototype,{
     onRoomListLoaded:function(roomList)
     {
         this.roomList = roomList;
+        if(this.refreshBtnDOM)
+        {
+            this.refreshBtnDOM.disabled = false;
+        }
         this.renderRooms(0);
         if(this.curTimeTagDom)
         {
@@ -561,7 +584,7 @@ Xjs.apply(snsoftx.x1room.X1Room.prototype,{
         if(!this.websocket || this.websocket.readyState >= 2)
         {
             this.msgPane.clear();
-            this.openWebSocket();
+            this.initRoom();
         } else 
         {
             this.websocket.close();
@@ -926,6 +949,7 @@ snsoftx.x1room.X1Room2=Xjs.extend(snsoftx.x1room.X1Room,{
     /*snsoftx.x1room.X1Room2.initRoom*/
     initRoom:function()
     {
+        this.disableEnterRoomBtn();
         var url = this.HomeURL + "/api/room/" + this.roomid + "/h5";
         this.ajaxGET(url,null,this.onAjaxRoomLoadSuccess);
     },
@@ -935,6 +959,7 @@ snsoftx.x1room.X1Room2=Xjs.extend(snsoftx.x1room.X1Room,{
         if(v.status != 1)
         {
             alert(v.msg);
+            this.updateEnterBtnLabel();
             return;
         }
         this.h5RoomData = v.data;
