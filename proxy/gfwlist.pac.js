@@ -59,6 +59,7 @@ var hostGrps = function(){
 		"telegra.ph",
 		"githubusercontent.com",
 		"apkpure.com",
+		"blogger.com",
 		/*
 		,"arukas.io",	
 		"io",
