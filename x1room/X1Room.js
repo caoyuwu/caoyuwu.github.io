@@ -563,7 +563,6 @@ Xjs.apply(snsoftx.x1room.X1Room.prototype,{
     /*snsoftx.x1room.X1Room._doRefresh*/
     _doRefresh:function(refresh)
     {
-        window.console.log("_doRefresh : refresh = " + refresh);
         try
         {
             this.loadRooms(this.serverSite,refresh);
@@ -674,10 +673,8 @@ Xjs.apply(snsoftx.x1room.X1Room.prototype,{
             Xjs.DOM.addOrRemoveClass(r.dom,"live-offline",this.getRoomField(r,5) == 0);
             Xjs.DOM.addOrRemoveClass(r.dom,"live-showing",this.getRoomField(r,8) > 0);
             Xjs.DOM.addOrRemoveClass(r.dom,"live-favorited",isFavo);
-            var logoImgUrl = this.getRoomField(r,9);
-            if(logoImgUrl)
+            if(r.headimg)
             {
-                r.logoDom.src = logoImgUrl;
             }
             this.roomListDOM.appendChild(r.dom);
             r.dom.ondblclick = this.fn$onRoomItemDblClick;
