@@ -72,7 +72,9 @@ var hostGrps = function(){
 		"free-proxy.cz",
 		"wallmama.com",
 		"lncn.org",
-		"fanqiangdang.com"
+		"fanqiangdang.com",
+		// 其他:
+		"r18.com"
   ];
   var rootGrps = {};	
 		for (var i = 0; i < proxyHosts.length; i++){

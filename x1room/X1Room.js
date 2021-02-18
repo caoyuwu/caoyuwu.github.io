@@ -462,7 +462,8 @@ Xjs.apply(snsoftx.x1room.X1Room.prototype,{
                 this.msgPane3.dom.style.top = r.bottom + 10 + "px";
         }
         var videoHeight = this.getVideoHeight(),
-            viewH = Xjs.DOM.getViewportHeight();
+            viewH = Xjs.DOM.getViewportHeight(),
+            viewW = Xjs.DOM.getViewportWidth();
         if(this.lastVideoHeight == videoHeight && this.lastViewH == viewH)
             return;
         var videoWidth = this.getVideoWidth(),
@@ -472,6 +473,14 @@ Xjs.apply(snsoftx.x1room.X1Room.prototype,{
         {
             w = 300;
             h = 150;
+        }
+        var maxW = viewW * 3 / 4;
+        if(maxW < 300)
+            maxW = 300;
+        if(w > maxW)
+        {
+            h = maxW * h / w;
+            w = maxW;
         }
         var maxH = viewH - 40;
         if(maxH < 150)
