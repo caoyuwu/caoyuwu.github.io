@@ -17,7 +17,8 @@
    var videoPlayer;
    function consoleLog(s)
    {
-	   consolePane.addMessage(s);
+	   if( consolePane)
+	   	consolePane.addMessage(s);
    }
   function onVideoPlayReady(){
 	  window.console.log("onVideoPlayReady...");
@@ -44,8 +45,9 @@
   }
   
   function startVideoPlay(){
-	  document.getElementById("ErrInfo").textContent = ""; 
-	  consolePane.clear();// DOM.remove(consoleDOM); 
+	  document.getElementById("ErrInfo").textContent = "";
+	  if( consolePane )
+	  	consolePane.clear();// DOM.remove(consoleDOM); 
 	  var url = document.getElementById("VideoURL").value.trim();
 	  console.log("url=%s",url);
 	  videoPlayer.pause();
@@ -61,9 +63,11 @@
 	 		 }
 	 	 );
   };
+  
   function stopVideoPlay(){
 	  videoPlayer.pause();
   };
+  
    window.onload = function(){
 	   consolePane = new Xjs.ui.MessagePane({dom:document.getElementById("Console")});
 	   videoPlayer = document.getElementById("video-player");

@@ -4,65 +4,45 @@
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<script type='text/javascript' src='../xjslib/xjs-base.js'></script>
-<link rel="icon" href="video-64.png"/>
 <script src="./video.min.js"></script>
+<script type='text/javascript' src='../xjslib/xjs-base.js'></script>
+<script type='text/javascript' src='../xjslib/video/VideoPlay.js'></script>
+<link rel="icon" href="video-64.png"/>
 <link href="./video-js.min.css" rel="stylesheet">
 <!-- 
 <script src="../jslib/videojs-flash/2.1.1/videojs-flash.js"></script>
 -->
 <title>视频播放(Flash)</title>
 <script type="text/javascript">
-  // http://localhost:8000/snsoft/demo/VideoPlay.html
-  var consolePane ; 
+   /*
+    http://www.caoyuwu.top/video/VideoPlay.html
+    http://www.caoyuwu.top/video/VideoPlay.html?url=http%3A%2F%2Fivi.bupt.edu.cn%2Fhls%2Fcctv1hd.m3u8
+  */
+ // var consolePane ; 
    var videoPlayer;
-   function consoleLog(s)
-   {
-	   consolePane.addMessage(s);
-   }
-  function onVideoPlayReady(){
-	  window.console.log("onVideoPlayReady...");
-	  consoleLog("onVideoPlayReady...");
-	  videoPlayer.on("play",onVideoPlay);
-	  videoPlayer.on("resize",onVideoResize);
-	  // waiting, playing,
-	  videoPlayer.on("error",onVideoError);
-	  window.console.log("videoPlayer.src = "+videoPlayer.src());
-	  if( videoPlayer.src() )
-			videoPlayer.play();
-  };
-  function onVideoPlay(ev){
-	  consoleLog("onVideoPlay...: Video大小="+videoPlayer.videoWidth()+"x"+videoPlayer.videoHeight()); 
-	 // window.console.log("onVideoPlay...: Video大小="+videoPlayer.videoWidth()+"x"+videoHeight());
-	 // alert(videoPlayer.videoWidth()+"x"+videoHeight());
-  };
-  function onVideoResize(ev){
-	  window.console.log("onVideoResize...");
-  };
-  function onVideoError(ev){
-	  alert("onVideoError");
-  };
+   
   function startVideoPlay(){
 	  document.getElementById("ErrInfo").textContent = ""; 
-	  consolePane.clear();// DOM.remove(consoleDOM); 
+	  //consolePane.clear();// DOM.remove(consoleDOM); 
 	  var url = document.getElementById("VideoURL").value.trim();
 	  console.log("url=%s",url);
-	  videoPlayer.pause();
-	  videoPlayer.src(url);
-	  videoPlayer.play();
-	  setTimeout(function(){videoPlayer.play();},200);
-	  setTimeout(function(){videoPlayer.play();},1000);
+	  videoPlayer.play(url);
   };
   function stopVideoPlay(){
 	  videoPlayer.pause();
   };
    window.onload = function(){
-	   consolePane = new Xjs.ui.MessagePane({dom:document.getElementById("Console")});
-	   videojs.options.flash.swf = Xjs.ROOTPATH+"jslib/videojs-swf/5.4.1/video-js.swf";  
-	   videoPlayer = window.videojs("video-player",
-			   {},//"swf":Xjs.ROOTPATH+"jslib/videojs-swf/5.4.1/video-js.swf"},
-			   onVideoPlayReady);
-	   videoPlayer.onresize 
+	   //consolePane = new Xjs.ui.MessagePane({dom:document.getElementById("Console")});
+	   var url = Xjs.getReqParameter("url"); 
+	   var padding = null;
+	   if( url ) {
+		   document.getElementById("InfoPane").style.display="none";
+	   } else
+	   {
+		   padding = {width:16};
+	   }
+	   videoPlayer = new snsoftx.video.VideoPlay(null,{fitSize:1},url);
+	   
 	   document.getElementById("VideoPlayBtn").onclick = startVideoPlay;
 	   document.getElementById("VideoStopBtn").onclick = stopVideoPlay;
   };
@@ -73,8 +53,8 @@
 </style>
 </head>
 
-<body>
-
+<body><div id="InfoPane">
+ 
  <h4>HLS等播放视频 </h4>
 视频地址:<br>
 <textarea id="VideoURL" style="width:1000px;height:50px;border:1px solid blue;"></textarea> <br> 
@@ -86,25 +66,12 @@
  </div>
  <div id="ErrInfo"></div>
  <div id="Console"></div>
- <!--
-   autoplay   loop
-   width height
-  -->
- <video
+ </div><video
     id="video-player"
     class="video-js"
     controls
     preload="auto"
     poster="../video/oceans.png"
     
-    >
-       <!-- 
-       <source  type='video/x-flv'/>
-       <source  type='rtmp/flv'/>
-	<source  type="video/mp4">
-  	<source  type="video/ogg">
-  	<source type="application/x-mpegURL">
-  	  -->
-</video>
-</body>
+    /></body>
 </html>
