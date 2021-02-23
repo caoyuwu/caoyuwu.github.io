@@ -37,6 +37,8 @@ var hostGrps = function(){
 
 		"facebook.com",
 		"fbcdn.net",
+		"instagram.com",
+		"cdninstagram.com",
 
 		"twitter.com",
 		"twimg.com",
