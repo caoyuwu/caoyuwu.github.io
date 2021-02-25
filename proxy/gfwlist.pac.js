@@ -75,8 +75,9 @@ var hostGrps = function(){
 		"wallmama.com",
 		"lncn.org",
 		"fanqiangdang.com",
-		// 其他:
-		"r18.com"
+		// 其他x:
+		"r18.com",
+		"oidhfjg.com"
   ];
   var rootGrps = {};	
 		for (var i = 0; i < proxyHosts.length; i++){
