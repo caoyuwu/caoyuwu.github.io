@@ -1,0 +1,30 @@
+<!DOCTYPE HTML> 
+<!--
+ http://www.caoyuwu.top/test/Google-reCAPTCHA.html
+ -->
+<html>
+  <head>
+    <title>reCAPTCHA demo: Simple page</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer/>
+    <!-- 
+    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
+    async defer>
+	</script>
+	-->
+	<script type="text/javascript">
+	  var onloadCallback = function() {
+	      alert("grecaptcha is ready!");
+	  };
+	</script>
+  </head>
+  <body>
+  <h1>测试Google</h1>
+    <!-- -->
+    <form action="?" method="POST">
+      <div class="g-recaptcha" data-sitekey="6Le3P3gaAAAAALXzzgmoVDSdsIPhdNogNfhkUPcP"></div>
+      <br/>
+      <input type="submit" value="Submit">
+    </form>
+    
+  </body>
+</html>
