@@ -77,7 +77,7 @@ var hostGrps = function(){
 		"fanqiangdang.com",
 		// 其他x:
 		"r18.com",
-		"oidhfjg.com"
+		"oidhfjg.com"  // didi-live
   ];
   var rootGrps = {};	
 		for (var i = 0; i < proxyHosts.length; i++){
