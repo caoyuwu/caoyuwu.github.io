@@ -3,8 +3,8 @@ Xjs.loadedXjs.push("video/VideoPlay");
 Xjs.namespace("snsoftx.video");
 snsoftx.video.VideoPlay=function(domId,cfg,playUrl){
     this.videoElement = document.getElementById(domId || "video-player");
-    this.videoPlayer = window.videojs(this.videoElement,{},this.onVideoPlayReady.createDelegate(this));
     Xjs.apply(this,cfg);
+    this.init();
     if(this.fitSize)
     {
         window.addEventListener("resize",this.onWindowResized.createDelegate(this),false);
@@ -15,17 +15,12 @@ snsoftx.video.VideoPlay=function(domId,cfg,playUrl){
     }
 };
 Xjs.apply(snsoftx.video.VideoPlay.prototype,{
+    /*snsoftx.video.VideoPlay.init*/
+    init:Xjs.emptyFn,
     /*snsoftx.video.VideoPlay.play*/
-    play:function(url)
-    {
-        this.videoPlayer.src(url);
-        this.videoPlayer.play();
-    },
+    play:Xjs.emptyFn,
     /*snsoftx.video.VideoPlay.pause*/
-    pause:function()
-    {
-        this.videoPlayer.pause();
-    },
+    pause:Xjs.emptyFn,
     /*snsoftx.video.VideoPlay.onVideoError*/
     onVideoError:function(err)
     {
@@ -34,27 +29,15 @@ Xjs.apply(snsoftx.video.VideoPlay.prototype,{
     /*snsoftx.video.VideoPlay.getVideoWidth*/
     getVideoWidth:function()
     {
-        if(this.videoPlayer)
-            return this.videoPlayer.videoWidth();
         return this.videoElement.videoWidth;
     },
     /*snsoftx.video.VideoPlay.getVideoHeight*/
     getVideoHeight:function()
     {
-        if(this.videoPlayer)
-            return this.videoPlayer.videoHeight();
         return this.videoElement.videoHeight;
     },
     /*snsoftx.video.VideoPlay.onVideoPlayReady*/
-    onVideoPlayReady:function()
-    {
-        this.videoPlayer.on("play",this.onVideoPlay.createDelegate(this));
-        this.videoPlayer.on("resize",this.onVideoResize.createDelegate(this));
-        this.videoPlayer.on("error",this.onVideoError.createDelegate(this));
-        window.console.log("videoPlayer.src = " + this.videoPlayer.src());
-        if(this.videoPlayer.src() != null)
-            this.videoPlayer.play();
-    },
+    onVideoPlayReady:Xjs.emptyFn,
     /*snsoftx.video.VideoPlay.onVideoPlay*/
     onVideoPlay:function()
     {
@@ -71,6 +54,12 @@ Xjs.apply(snsoftx.video.VideoPlay.prototype,{
     onWindowResized:function()
     {
         this.updateVideoPos();
+    },
+    /*snsoftx.video.VideoPlay.setVideoViewSize*/
+    setVideoViewSize:function(w,h)
+    {
+        this.videoElement.style.width = w + "px";
+        this.videoElement.style.height = h + "px";
     },
     /*snsoftx.video.VideoPlay.updateVideoPos*/
     updateVideoPos:function()
@@ -100,15 +89,68 @@ Xjs.apply(snsoftx.video.VideoPlay.prototype,{
                 w = maxH * w / h;
                 h = maxH;
             }
-            if(!this.videoPlayer)
-            {
-                this.videoElement.style.width = w + "px";
-                this.videoElement.style.height = h + "px";
-            } else 
-            {
-                this.videoPlayer.height(h);
-                this.videoPlayer.width(w);
-            }
+            this.setVideoViewSize(w,h);
+        }
+    }
+});
+/*snsoftx/video/FLVVideoPlay.java*/
+snsoftx.video.FLVVideoPlay=function(){};
+/*snsoftx/video/HLSVideoPlay.java*/
+snsoftx.video.HLSVideoPlay=function(domId,cfg,playUrl){
+    snsoftx.video.HLSVideoPlay.superclass.constructor.call(this,domId,cfg,playUrl);
+};
+Xjs.extend(snsoftx.video.HLSVideoPlay,snsoftx.video.VideoPlay,{
+  _js$className_:"snsoftx.video.HLSVideoPlay",
+    /*snsoftx.video.HLSVideoPlay.init*/
+    init:function()
+    {
+        this.videoPlayer = window.videojs(this.videoElement,{},this.onVideoPlayReady.createDelegate(this));
+    },
+    /*snsoftx.video.HLSVideoPlay.play*/
+    play:function(url)
+    {
+        this.videoPlayer.src(url);
+        this.videoPlayer.play();
+    },
+    /*snsoftx.video.HLSVideoPlay.pause*/
+    pause:function()
+    {
+        this.videoPlayer.pause();
+    },
+    /*snsoftx.video.HLSVideoPlay.getVideoWidth*/
+    getVideoWidth:function()
+    {
+        if(this.videoPlayer)
+            return this.videoPlayer.videoWidth();
+        return this.videoElement.videoWidth;
+    },
+    /*snsoftx.video.HLSVideoPlay.getVideoHeight*/
+    getVideoHeight:function()
+    {
+        if(this.videoPlayer)
+            return this.videoPlayer.videoHeight();
+        return this.videoElement.videoHeight;
+    },
+    /*snsoftx.video.HLSVideoPlay.onVideoPlayReady*/
+    onVideoPlayReady:function()
+    {
+        this.videoPlayer.on("play",this.onVideoPlay.createDelegate(this));
+        this.videoPlayer.on("resize",this.onVideoResize.createDelegate(this));
+        this.videoPlayer.on("error",this.onVideoError.createDelegate(this));
+        window.console.log("videoPlayer.src = " + this.videoPlayer.src());
+        if(this.videoPlayer.src() != null)
+            this.videoPlayer.play();
+    },
+    /*snsoftx.video.HLSVideoPlay.setVideoViewSize*/
+    setVideoViewSize:function(w,h)
+    {
+        if(!this.videoPlayer)
+        {
+            snsoftx.video.HLSVideoPlay.superclass.setVideoViewSize.call(this,w,h);
+        } else 
+        {
+            this.videoPlayer.height(h);
+            this.videoPlayer.width(w);
         }
     }
 });
