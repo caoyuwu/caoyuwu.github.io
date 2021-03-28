@@ -155,6 +155,7 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     /*snsoftx.vlive.VLiveService.onWebSocketClose*/
     onWebSocketClose:function(ev)
     {
+        this.msgListener.onMessage("","WebSocket关闭",ev.data);
         this.msgListener.onMessage("logout",null,null);
         this.websocket = null;
     },
@@ -162,6 +163,7 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     onWebSocketError:function(ev)
     {
         window.console.error("WebSocket错误:%s",ev.data);
+        this.msgListener.onMessage("err","WebSocket错误",ev.data);
         this.closeWebSocket();
     },
     /*snsoftx.vlive.VLiveService.onWebSocketMessage*/
