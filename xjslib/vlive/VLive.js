@@ -205,6 +205,7 @@ snsoftx.vlive.VLiveRoom=function(service){
     }
     this.roomId = Xjs.getReqParameter("rid");
     this.userId = Xjs.getReqParameter("uid");
+    this.enterOrExitRoom();
 };
 Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
   _js$className_:"snsoftx.vlive.VLiveRoom",
@@ -505,9 +506,12 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
             r.titleDom = Xjs.DOM.findById("Title",r.dom);
             r.idxDOM = Xjs.DOM.findById("RoomIdx",r.dom);
             r.userDom = Xjs.DOM.findById("User",r.dom);
+            r.limitDOM = Xjs.DOM.findById("Limit",r.dom);
             Xjs.DOM.setTextContent(r.titleDom,r.title);
             Xjs.DOM.setTextContent(r.userDom,r.userName);
             Xjs.DOM.setTextContent(r.idxDOM,i + ":" + r.userId);
+            Xjs.DOM.setTextContent(r.limitDOM,r.limit);
+            Xjs.DOM.addOrRemoveClass(r.dom,"live-showing",r.limit != null);
             if(renderLogo && r.logoDom && r.logoUrl)
             {
                 r.logoDom.src = r.logoUrl;
@@ -546,6 +550,10 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
 /*snsoftx/vlive/didi/DiDiLiveService.java*/
 Xjs.namespace("snsoftx.vlive.didi");
 snsoftx.vlive.didi.DiDiLiveService=function(serverHost){
+    if(serverHost == null)
+    {
+        serverHost = "api.oidhfjg.com";
+    }
     this.authToken = snsoftx.vlive.didi.DiDiLiveService.TOKEN;
     this.liveButter2 = snsoftx.vlive.didi.DiDiLiveService.LiveButter2;
     this.serverHost = serverHost;
@@ -604,6 +612,17 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             {
                 r.title += "-(" + online + ")";
             }
+            var lim = li.limit,
+                prerequisite = lim ? lim.prerequisite : 0;
+            if(prerequisite > 0)
+            {
+                r.limit = prerequisite + "币";
+            }
+            var ptname = lim ? lim.ptname : null;
+            if(ptname)
+            {
+                r.limit = r.limit ? r.limit + "-" + ptname : ptname;
+            }
             var logoUri = li.snap || li.avatar;
             if(logoUri)
                 r.logoUrl = this.staticURL + logoUri;
@@ -613,7 +632,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.didi.DiDiLiveService.getRefreshRoomsOpts*/
     getRefreshRoomsOpts:function()
     {
-        return [{type:"hot",_title:"热门"},{type:"hot",page:2,_title:"热门2"},{type:"latest",_title:"最新"},{type:"nearby",_title:"附近"},{type:"vegan",_title:"vegan"},{type:"lounge",_title:"lounge"},{type:"vip",_title:"vip"}];
+        return [{type:"hot",_title:"热门"},{type:"hot",page:2,_title:"热门2"},{type:"latest",_title:"最新"},{type:"nearby",_title:"附近"},{type:"vegan",_title:"vegan"},{type:"vip",_title:"收费"},{type:"lounge",_title:"lounge"}];
     },
     /*snsoftx.vlive.didi.DiDiLiveService.refreshRooms*/
     refreshRooms:function(opts)
@@ -672,7 +691,22 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             return;
         }
         var data = o.data,
-            stream = data ? data.stream : null,
+            prerequisite = data.prerequisite,
+            limit = null;
+        if(prerequisite > 0)
+        {
+            limit = prerequisite + "币";
+        }
+        var ptname = data.ptname;
+        if(ptname)
+        {
+            limit = limit ? limit + "-" + ptname : ptname;
+        }
+        if(limit)
+        {
+            this.msgListener.onMessage("","限制",limit);
+        }
+        var stream = data ? data.stream : null,
             url = stream ? stream.pull_url : null;
         if(url)
         {
@@ -783,6 +817,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
                 return;
             case "changeRoomNotice":
             case "sysmsg.alert":
+            case "sysmsg":
                 this.msgListener.onMessage("",m.title,m.content);
                 return;
             default:

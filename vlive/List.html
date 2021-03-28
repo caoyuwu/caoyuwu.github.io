@@ -63,9 +63,7 @@ button {
      vertical-align:text-top;
      margin:1px;
   }
-   .ui-render-userlogo  .roomitem {
-    background-color:gray;
-   }
+  
   .roomitem  #RoomInfoPane {
     position:absolute;
     right:4px;
@@ -77,15 +75,20 @@ button {
     top:2px;
   }
   
+  /*
+   .ui-render-userlogo  .roomitem {
+    background-color:gray;
+   }
    .ui-render-userlogo  .roomitem #RoomInfoPane, .ui-render-userlogo  .roomitem #RoomInfo2Pane {
     color:white;
    }
+   */
   
   .roomitem.live-offline
   {
     color:#ccc;
   }
- .roomitem.live-showing #Title
+ .roomitem.live-showing #User , .roomitem.live-showing #Limit
  {
    color:red;
  }
@@ -122,6 +125,7 @@ button {
   }
   
 </style>
+
 <script type="text/javascript">
 /*
  * http://www.caoyuwu.top/vlive/List.html
@@ -129,7 +133,7 @@ button {
   window.onload = function(){
 	 var s = new snsoftx.vlive.didi.DiDiLiveService(
 			 //"ei8hyaf4.shdkw1o.com"
-			"api.oidhfjg.com"
+			//"api.oidhfjg.com"
 			 //null//
  			//serverHost=
  			);
