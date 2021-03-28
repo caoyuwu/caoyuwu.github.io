@@ -74,27 +74,53 @@ Xjs.apply(snsoftx.video.VideoPlay.prototype,{
                 h = videoHeight;
             if(h <= 0 || w <= 0)
             {
-                w = viewW;
-                h = viewH;
+                return;
             }
-            var maxW = viewW;
+            var maxW = viewW,
+                maxH = viewH;
+            if(this.listener)
+            {
+                var s = this.listener.getVideoViewMaxSize(viewW,viewH);
+                if(s)
+                {
+                    if(s.width > 0)
+                        maxW = s.width;
+                    if(s.height > 0)
+                        maxH = s.height;
+                }
+            }
             if(w > maxW)
             {
                 h = maxW * h / w;
                 w = maxW;
             }
-            var maxH = viewH;
             if(h > maxH)
             {
                 w = maxH * w / h;
                 h = maxH;
             }
             this.setVideoViewSize(w,h);
+            if(this.listener)
+            {
+                this.listener.onVideoViewSizeChanged(w,h);
+            }
         }
+    },
+    /*snsoftx.video.VideoPlay.setListener*/
+    setListener:function(l)
+    {
+        this.listener = l;
     }
 });
 /*snsoftx/video/FLVVideoPlay.java*/
-snsoftx.video.FLVVideoPlay=function(){};
+snsoftx.video.FLVVideoPlay=function(domId,cfg,playUrl){
+    snsoftx.video.FLVVideoPlay.superclass.constructor.call(this,domId,cfg,playUrl);
+};
+Xjs.extend(snsoftx.video.FLVVideoPlay,snsoftx.video.VideoPlay,{
+  _js$className_:"snsoftx.video.FLVVideoPlay",
+    /*snsoftx.video.FLVVideoPlay.init*/
+    init:Xjs.emptyFn
+});
 /*snsoftx/video/HLSVideoPlay.java*/
 snsoftx.video.HLSVideoPlay=function(domId,cfg,playUrl){
     snsoftx.video.HLSVideoPlay.superclass.constructor.call(this,domId,cfg,playUrl);

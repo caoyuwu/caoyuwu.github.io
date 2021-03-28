@@ -1,0 +1,178 @@
+<!DOCTYPE HTML>
+
+<html class="ui-fullpage">
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type='text/javascript' src='../xjslib/xjs-base.js'></script>
+<script type='text/javascript' src='../xjslib/vlive/VLive.js'></script>
+<title>RoomList</title>
+ <link rel="icon" href="../favicon.ico"/>
+ 
+
+<style type="text/css">
+ body
+{
+	font-size: 16px;
+}
+#Toolbar {
+user-select:   none;
+}
+.ui-fullpage body {
+	/* 全屏模式时保证有边距 */
+	/* margin:0px;
+	width:100%;
+	height:100%; */
+	overflow: hidden;
+	position: absolute; 
+	top: 2px;
+	left: 2px;
+	right: 2px;
+	bottom: 2px; 
+}
+button {
+	font-size:100%;
+}
+  #RoomList 
+  {
+     position:absolute;
+     top:40px; bottom:0px;
+     width:100%;
+     /*max-height:50%; */
+     border:1px solid black;
+     overflow: auto;
+     /*line-height:180px; */
+     /* vertical-align:text-top;*/
+  }
+  
+  #MessagePane {
+     position:absolute;
+     bottom:0px;
+     height:20px;
+     width:100%;
+  }
+  
+  .roomitem {
+    position:relative;
+    width:168px;
+    /*height:190px;*/
+    height:168px;
+    border:1px solid blue;
+    margin:2x;
+    display: inline-block;
+     vertical-align:text-top;
+     margin:1px;
+  }
+   .ui-render-userlogo  .roomitem {
+    background-color:gray;
+   }
+  .roomitem  #RoomInfoPane {
+    position:absolute;
+    right:4px;
+    bottom:2px;
+  }
+  .roomitem  #RoomInfo2Pane {
+    position:absolute;
+    right:4px;
+    top:2px;
+  }
+  
+   .ui-render-userlogo  .roomitem #RoomInfoPane, .ui-render-userlogo  .roomitem #RoomInfo2Pane {
+    color:white;
+   }
+  
+  .roomitem.live-offline
+  {
+    color:#ccc;
+  }
+ .roomitem.live-showing #Title
+ {
+   color:red;
+ }
+  .roomitem #TitleBar {
+  	/*height:60px;*/
+  }
+  .roomitem #UserBar {
+  	/*height:60px;*/
+  }
+  .roomitem #FavoritedFlag
+  {
+     visibility: hidden;
+   /*  font-size:200%; */
+  }
+   .roomitem  #LiveTime
+   {
+      font-size:50%;
+      color:#81C0C0;
+   }
+  .roomitem.live-favorited  #FavoritedFlag
+  {
+  	visibility: inherit;
+  	color:red;
+  
+  }
+   .roomitem.live-favorited 
+   {
+     border-color: red;
+   }
+  
+  .roomitem.live-favorited.live-showing  #FavoritedFlag
+  {
+      color:blue;
+  }
+  
+</style>
+<script type="text/javascript">
+/*
+ * http://www.caoyuwu.top/vlive/List.html
+ */
+  window.onload = function(){
+	 var s = new snsoftx.vlive.didi.DiDiLiveService(
+			 "ei8hyaf4.shdkw1o.com"
+			//"api.oidhfjg.com"
+			 //null//
+ 			//serverHost=
+ 			);
+	 new snsoftx.vlive.VLiveRoomList(s); 
+ };
+</script>
+
+</head>
+<body>
+ <div id="Toolbar">
+ <button id="RefreshBtn">刷新</button> &nbsp;&nbsp;
+ <span id="RefresOptsPane">
+ </span>
+ <input id="RenderUserLogo" type="checkbox"></input><label for="RenderUserLogo">显示Logo</label>
+  <!-- 
+ 过滤:<input type="text" id="FilterText">
+  <button id="RoomInfoBtn">RoomInfo</button> 
+  <button id="TestBtn">测试</button>
+  <button id="ExitRoomBtn">退出</button>
+  -->
+  <span id="CurTimeTag"></span>
+ </div>
+ <hr>
+<div id="RoomList" >
+
+</div>
+
+<!-- 
+<div id="MessagePane" ></div>
+-->
+<div id="RoomItem" class="roomitem" >
+  <div >
+   <img id="LogoImage" alt="" height="120" width="120" src="">
+  </div>
+  <div id="RoomInfoPane">
+   <div id="UserBar"><span id="User"></span><span id="FavoritedFlag">*</span></div>
+   <div id="TitleBar"><span id="Title"></span></div>
+  </div>
+  <div id="RoomInfo2Pane">
+    <span id="RoomIdx"></span>
+  </div>
+</div>
+
+</body>
+
+</html>

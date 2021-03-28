@@ -1,6 +1,6 @@
 /*xjs/core/Xjs.java*/
 Xjs = {
-    version:'2.0.210110',
+    version:'2.0.210327',
     loadedXjs:[],
     objectTypes:{'regexp':RegExp,'array':Array,'date':Date,'error':Error},
     ROOTPATH:"",
@@ -745,7 +745,7 @@ Xjs = {
     /*xjs.core.Xjs.getSessionID*/
     getSessionID:function()
     {
-        return Xjs.RInvoke.rsvInvoke("snsoft.bas.ui.service.homepage.LoginService.getSessionID");
+        return Xjs.RInvoke.rsvInvoke("SN-CORE.LoginUIService.getSessionID");
     },
     /*xjs.core.Xjs.newRSSOURL*/
     newRSSOURL:function(nmSID,root,path)
@@ -2600,8 +2600,8 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
         {
             for(var n in values.selectOpts)
             {
-                var v = values.selectOpts[n],
-                    forCol = n.endsWith("#columns"),
+                var forCol = n.endsWith("#columns"),
+                    v = forCol ? (new Xjs.util.MapArray(values.selectOpts[n])).toJsonArray() : values.selectOpts[n],
                     c = this.getSubCompByName(forCol ? n.substring(0,n.length - 8) : n);
                 if(c)
                 {
@@ -3745,7 +3745,7 @@ Xjs.apply(Xjs.ui.Component,{
             break;
         default:
             {
-                if(((Xjs.osType == 2 ? ev.metaKey : ev.ctrlKey) || ev.altKey) && (keyCode >= 0x41 && keyCode <= 0x5a || keyCode >= 0x70 && keyCode <= 0x7b) || keyCode == 9 || keyCode == 0x1b)
+                if(((Xjs.osType == 2 ? ev.metaKey : ev.ctrlKey) || ev.altKey) && (keyCode >= 0x41 && keyCode <= 0x5a || keyCode >= 0x70 && keyCode <= 0x7b) || keyCode == 9 || keyCode == 0x1b || keyCode == 119)
                 {
                     Xjs.ui.Component._wkeyEvent = ev;
                     try
@@ -4308,6 +4308,16 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
     getParamSaveType:function()
     {
         return this.paramSaveType;
+    },
+    /*xjs.ui.Container.initComponent*/
+    initComponent:function(values)
+    {
+        Xjs.ui.Container.superclass.initComponent.call(this,values);
+        var nm = Xjs.getReqParameter(this.name + ".InitValParamName");
+        if(nm)
+        {
+            this.loadSavedParamValues(nm);
+        }
     },
     /*xjs.ui.Container.loadSavedParamValues*/
     loadSavedParamValues:function(name)
@@ -7137,7 +7147,7 @@ Xjs.extend(Xjs.ui.ComboAidInputerA,Xjs.ui.LayerAidInputer,{
         var rowVals;
         if(this.copyMap && (rowVals = this.getRowByValue(value)))
         {
-            var columns = this.parent.selectOptions.getColumns();
+            var columns = this.fnFilterCols ? this.fnFilterCols.call(this) : this.parent.selectOptions.getColumns();
             if(this.parent.table)
             {
                 var ds = this.parent.table.getDataSet();
@@ -8707,7 +8717,14 @@ Xjs.apply(Xjs.ui.ComboAidInputer,{
         }
         var remoteSearchAid = new Xjs.ui.ComboAidInputer(aidParams);
         remoteSearchAid.fnFilterVals = Xjs.ui.ComboAidInputer.newDefaultRemoteSearchFn(null,remoteSearchAid);
+        remoteSearchAid.fnFilterCols = Xjs.ui.ComboAidInputer.newDefaultRemoteColumnsFn(null,remoteSearchAid);
         return remoteSearchAid;
+    },
+    /*xjs.ui.ComboAidInputer.newDefaultRemoteColumnsFn*/
+    newDefaultRemoteColumnsFn:function(searchBeanId,scop)
+    {
+        var remoteSearch = this.remoteGetDataColumnsFn.createDelegate(this,[searchBeanId],true);
+        return new Xjs.FuncCall(remoteSearch,scop);
     },
     /*xjs.ui.ComboAidInputer.newDefaultRemoteSearchFn*/
     newDefaultRemoteSearchFn:function(searchBeanId,scop)
@@ -8715,12 +8732,30 @@ Xjs.apply(Xjs.ui.ComboAidInputer,{
         var remoteSearch = this.remoteSearchFn.createDelegate(this,[searchBeanId],true);
         return new Xjs.FuncCall(remoteSearch,scop);
     },
+    /*xjs.ui.ComboAidInputer.remoteGetDataColumnsFn*/
+    remoteGetDataColumnsFn:function(aid,searchBeanId)
+    {
+        var cols;
+        if(cols = aid.remoteFilterCols)
+        {
+            return cols;
+        }
+        if(!searchBeanId)
+        {
+            searchBeanId = aid.searchBeanId;
+        }
+        if(searchBeanId)
+        {
+            var params = {};
+            params.columnName = aid.parent.name;
+            Xjs.apply(params,aid.searchParams || {});
+            aid.remoteFilterCols = cols = Xjs.RInvoke.rsvInvoke("SN-UI.ComboRemoteService.getCodeDataColumns",searchBeanId,params);
+        }
+        return cols;
+    },
     /*xjs.ui.ComboAidInputer.remoteSearchFn*/
     remoteSearchFn:function(aid,curFilter,searchBeanId)
     {
-        if(curFilter == null)
-        {
-        }
         if(!searchBeanId)
         {
             searchBeanId = aid.searchBeanId;
@@ -8730,10 +8765,62 @@ Xjs.apply(Xjs.ui.ComboAidInputer,{
         {
             var params = {filterTxt:curFilter};
             params.columnName = aid.parent.name;
-            Xjs.apply(params,aid.searchParams || {});
+            var searchParams = aid.searchParams;
+            if(searchParams)
+            {
+                Xjs.ui.ComboAidInputer.applySearchParamValue(params,searchParams,aid.parent);
+            }
             aid.selectOptions = v = Xjs.RInvoke.rsvInvoke("SN-UI.ComboRemoteService.remoteFilter",searchBeanId,params);
+            aid.sortedSelOpts = v;
         }
         return v;
+    },
+    /*xjs.ui.ComboAidInputer.findParentComponent*/
+    findParentComponent:function(parent)
+    {
+        if(parent)
+        {
+            if(parent instanceof Xjs.table.Table || parent instanceof Xjs.ui.DialogPane)
+            {
+                return parent;
+            } else if(parent.parent != parent)
+            {
+                return Xjs.ui.ComboAidInputer.findParentComponent(parent.parent);
+            }
+        }
+        return null;
+    },
+    /*xjs.ui.ComboAidInputer.applySearchParamValue*/
+    applySearchParamValue:function(params,searchParams,parent)
+    {
+        var p;
+        if(parent.table)
+        {
+            p = parent.table;
+        } else 
+        {
+            p = Xjs.ui.ComboAidInputer.findParentComponent(parent);
+        }
+        if(!p)
+        {
+            return;
+        }
+        for(var name in searchParams)
+        {
+            var refItem = searchParams[name];
+            if(refItem.startsWith("@"))
+            {
+                var value = refItem.substring(1);
+                params[name] = value;
+            } else 
+            {
+                var idx = refItem.indexOf("."),
+                    uiname = idx < 0 ? null : refItem.substring(0,idx),
+                    itemName = idx < 0 ? refItem : refItem.substring(idx + 1),
+                    value = Xjs.ui.aid.RefValue.getRefValue(p,{uiname:uiname,itemName:itemName}).getValue();
+                params[name] = value;
+            }
+        }
     }
 });
 /*xjs/ui/DateAidInputer.java*/
@@ -10068,6 +10155,12 @@ Xjs.extend(Xjs.ui.ULComponent,Xjs.ui.Component,{
     {
         return this.values.size();
     },
+    /*xjs.ui.ULComponent.clear*/
+    clear:function()
+    {
+        this.values.clear();
+        this.renderList();
+    },
     /*xjs.ui.ULComponent.getValue*/
     getValue:function()
     {
@@ -11302,6 +11395,7 @@ Xjs.DOM = {
             s.src = url;
             Xjs.DOM.getHead().appendChild(s);
         }
+        return s;
     },
     /*xjs.core.DOM.getHeadLinkByHRef*/
     getHeadLinkByHRef:function(href)
@@ -14225,41 +14319,6 @@ Xjs.table.DefaultListener=Xjs.extend(Xjs.table.DefaultTableListener,{
     /*xjs.table.DefaultListener.onDataSetNewRowValues*/
     onDataSetNewRowValues:Xjs.emptyFn
 });
-Xjs.apply(Xjs.table.DefaultListener,{
-    /*xjs.table.DefaultListener.formatDate*/
-    formatDate:function(date,format)
-    {
-        if(!date)
-        {
-            return "";
-        }
-        if(date instanceof Date)
-        {
-            var formateDate = date,
-                o = {};
-            o["M+"] = formateDate.getMonth() + 1;
-            o["d+"] = formateDate.getDate();
-            o["h+"] = formateDate.getHours();
-            o["m+"] = formateDate.getMinutes();
-            o["s+"] = formateDate.getSeconds();
-            o["q+"] = Math.floor((formateDate.getMonth() + 3) / 3);
-            o.S = formateDate.getMilliseconds();
-            if((new RegExp("(y+)")).test(format))
-            {
-                format = format.replace(RegExp.$1,(formateDate.getFullYear() + "").substring(4 - RegExp.$1.length));
-            }
-            for(var k in o)
-            {
-                if((new RegExp("(" + k + ")")).test(format))
-                {
-                    format = format.replace(RegExp.$1,RegExp.$1.length == 1 ? o[k] : ("00" + o[k]).substring(("" + o[k]).length));
-                }
-            }
-            return format;
-        }
-        return format;
-    }
-});
 /*xjs/ui/Anchor.java*/
 Xjs.ui.Anchor=function(config){
     Xjs.ui.Anchor.superclass.constructor.call(this,config);
@@ -16287,7 +16346,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
                 this.deliconDOM = Xjs.DOM.createChild(d,"span","ui-input-delicon");
             this.deliconDOM.onclick = Function.bindAsEventListener(this._onDelIconClick,this,0,true);
         }
-        if(this.aidInputer || this.createAidInputerBtn || this.alwaysVisCombo)
+        if((this.aidInputer || this.createAidInputerBtn || this.alwaysVisCombo) && !(this.aiOpts & 2))
         {
             if(byCreate || !(this.comboDOM = Xjs.DOM.find("span.ui-input-combobtn",d)))
                 this.comboDOM = Xjs.DOM.createChild(d,"span","ui-input-combobtn");
@@ -16554,9 +16613,12 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         {
             this.inAISearch = 1;
             this.inputDom.readOnly = false;
-        } else if(this.inAISearch)
+        } else 
         {
-            delete this.inAISearch;
+            if(this.inAISearch)
+                delete this.inAISearch;
+            if(!this.isReadonly() && this.aiOpts & 1)
+                this.aiSearchOnEd = true;
         }
     },
     /*xjs.ui.InputField.updateReadonlyStatus*/
@@ -16841,7 +16903,13 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             try
             {
                 this.lastAidInputChar = 0;
-                this.doAidInput();
+                if(this.aiSearchOnEd)
+                {
+                    this.doAidInput({fnSearchFilter:new Xjs.FuncCall(this.getInputValue,this),options:4});
+                } else 
+                {
+                    this.doAidInput();
+                }
             }catch(ex)
             {
                 Xjs.alertErr(ex);
@@ -17090,6 +17158,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
     deleteValue:function()
     {
         delete this.value;
+        delete this.displayValue;
     },
     /*xjs.ui.InputField.fireOnChanged*/
     fireOnChanged:function()
@@ -17112,8 +17181,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             }
             if(!(opts & 1) && (!(opts & 2) || !this.inputDom.readOnly))
             {
-                delete this.value;
-                delete this.displayValue;
+                this.deleteValue();
             }
             this.validateValue(null,null,1);
             this.fireEvent("valueChanged",e,opts);
@@ -17598,7 +17666,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
     {
         if(this.fitHeight)
             Xjs.ui.InputField.resizeHeight(this.inputDom,this.minHeight);
-        if(this.inAISearch)
+        if(this.inAISearch || this.aiOpts & 1)
         {
             if(this.aidInputer && !this.aidInputer.isAidInputerInShowing())
             {
@@ -17606,6 +17674,10 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
                 this.doAidInput({fnSearchFilter:new Xjs.FuncCall(this.getInputValue,this),options:4});
             }
             this.filterAISearch();
+            if(this.aiSearchOnEd)
+            {
+                this.onChanged(e,2,false);
+            }
             return;
         }
         this.onChanged(e,2,false);
@@ -17646,8 +17718,10 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
     /*xjs.ui.InputField.filterAISearch*/
     filterAISearch:function()
     {
-        if(this.inAISearch == 2 && this.getAidInputer().getAidInputerInfo(2,null) & 4 && this.aidInputer.filterByParentInput)
+        if((this.inAISearch == 2 || this.aiOpts & 1) && this.getAidInputer().getAidInputerInfo(2,null) & 4 && this.aidInputer.filterByParentInput)
+        {
             this.aidInputer.filterByParentInput();
+        }
     },
     /*xjs.ui.InputField.onAidInputerShowing*/
     onAidInputerShowing:function(a)
@@ -17662,6 +17736,10 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             this.inAISearch = 2;
             Xjs.DOM.addClass(this.dom,"ui-input-inaisearch");
             this.filterAISearch();
+        } else if(this.aiOpts & 1)
+        {
+            Xjs.DOM.addClass(this.dom,"ui-input-inaisearch");
+            this.filterAISearch();
         }
     },
     /*xjs.ui.InputField.onAidInputerHidden*/
@@ -17672,9 +17750,9 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             this.inAISearch = 1;
             if(this._flags & 1)
                 this.inputDom.value = "";
-            Xjs.DOM.removeClass(this.dom,"ui-input-inaisearch");
             this._updateDomValue(0);
         }
+        Xjs.DOM.removeClass(this.dom,"ui-input-inaisearch");
     },
     /*xjs.ui.InputField.getInputValue*/
     getInputValue:function()
@@ -25772,6 +25850,43 @@ Xjs.apply(Xjs.util.ConfirmPerform.prototype,{
         }
     }
 });
+/*xjs/util/DateUtils.java*/
+Xjs.util.DateUtils=function(){};
+Xjs.apply(Xjs.util.DateUtils,{
+    /*xjs.util.DateUtils.formatDate*/
+    formatDate:function(date,format)
+    {
+        if(!date)
+        {
+            return "";
+        }
+        if(date instanceof Date)
+        {
+            var formateDate = date,
+                o = {};
+            o["M+"] = formateDate.getMonth() + 1;
+            o["d+"] = formateDate.getDate();
+            o["h+"] = formateDate.getHours();
+            o["m+"] = formateDate.getMinutes();
+            o["s+"] = formateDate.getSeconds();
+            o["q+"] = Math.floor((formateDate.getMonth() + 3) / 3);
+            o.S = formateDate.getMilliseconds();
+            if((new RegExp("(y+)")).test(format))
+            {
+                format = format.replace(RegExp.$1,(formateDate.getFullYear() + "").substring(4 - RegExp.$1.length));
+            }
+            for(var k in o)
+            {
+                if((new RegExp("(" + k + ")")).test(format))
+                {
+                    format = format.replace(RegExp.$1,RegExp.$1.length == 1 ? o[k] : ("00" + o[k]).substring(("" + o[k]).length));
+                }
+            }
+            return format;
+        }
+        return format;
+    }
+});
 /*xjs/util/JsLoad.java*/
 Xjs.JsLoad = {
     /*xjs.util.JsLoad.load*/
@@ -26180,6 +26295,33 @@ Xjs.apply(Xjs.util.LazyLoadValue,{
     eval:function(v)
     {
         return v instanceof Xjs.util.LazyLoadValue ? v.getValue() : v;
+    }
+});
+/*xjs/util/MapArray.java*/
+Xjs.util.MapArray=function(o){
+    this.ks = o.ks;
+    this.vs = o.vs;
+};
+Xjs.apply(Xjs.util.MapArray.prototype,{
+    /*xjs.util.MapArray.toJson*/
+    toJson:function(row)
+    {
+        var o = {};
+        for(var j=0;j < this.ks.length;j++)
+        {
+            o[this.ks[j]] = this.vs[row][j];
+        }
+        return o;
+    },
+    /*xjs.util.MapArray.toJsonArray*/
+    toJsonArray:function()
+    {
+        var a = [];
+        for(var row=0;row < this.vs.length;row++)
+        {
+            a.push(this.toJson(row));
+        }
+        return a;
     }
 });
 /*xjs/util/ResBundle.java*/

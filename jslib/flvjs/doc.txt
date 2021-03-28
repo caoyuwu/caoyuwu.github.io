@@ -7,4 +7,6 @@ Flv.js:
   gulp release 
  拷贝:
    dist 
+ 例子:
+   http://bilibili.github.io/flv.js/demo/  
   
