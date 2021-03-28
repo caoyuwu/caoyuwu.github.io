@@ -113,8 +113,16 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     getRefreshRoomsOpts:Xjs.nullFn,
     /*snsoftx.vlive.VLiveService.refreshRooms*/
     refreshRooms:Xjs.emptyFn,
+    /*snsoftx.vlive.VLiveService.setRoomInfo*/
+    setRoomInfo:function(roomId,userId)
+    {
+        this.roomId = roomId;
+        this.userId = userId;
+    },
     /*snsoftx.vlive.VLiveService.enterRoom*/
     enterRoom:Xjs.emptyFn,
+    /*snsoftx.vlive.VLiveService.requestVideoURL*/
+    requestVideoURL:Xjs.emptyFn,
     /*snsoftx.vlive.VLiveService.exitRoom*/
     exitRoom:Xjs.emptyFn,
     /*snsoftx.vlive.VLiveService.openWebSocket*/
@@ -184,10 +192,12 @@ snsoftx.vlive.VLiveRoom=function(service){
     e = Xjs.DOM.findById("MessagePane3",null);
     this.msgPane3 = e ? new Xjs.ui.MessagePane({dom:e,autoScroll:false}) : null;
     this.enterRootBtnDOM = Xjs.DOM.findById("EnterRoomBtn",null);
+    this.getVideoBtnDOM = Xjs.DOM.findById("GetVideoBtn",null);
     this.clearMsgBtnDOM = Xjs.DOM.findById("ClearMsgBtn",null);
     this.infoRegionDom = Xjs.DOM.findById("InfoRegion",null);
     this.roomInfoDom = Xjs.DOM.findById("RoomInfo",null);
     this.enterRootBtnDOM.onclick = Function.bindAsEventListener(this.enterOrExitRoom,this);
+    this.getVideoBtnDOM.onclick = Function.bindAsEventListener(this.requestVideoURL,this);
     this.clearMsgBtnDOM.onclick = Function.bindAsEventListener(this.oncmd_clearmsg,this);
     this.msgPaneSel1 = Xjs.DOM.findById("MessagePaneSel1",null);
     this.msgPaneSel2 = Xjs.DOM.findById("MessagePaneSel2",null);
@@ -207,6 +217,8 @@ snsoftx.vlive.VLiveRoom=function(service){
     }
     this.roomId = Xjs.getReqParameter("rid");
     this.userId = Xjs.getReqParameter("uid");
+    this.service.setRoomInfo(this.roomId,this.userId);
+    this.requestVideoURL();
     this.enterOrExitRoom();
 };
 Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
@@ -222,8 +234,13 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
             this.disableEnterRoomBtn();
             if(this.msgPane)
                 this.msgPane.clear();
-            this.service.enterRoom(this.roomId,this.userId);
+            this.service.enterRoom();
         }
+    },
+    /*snsoftx.vlive.VLiveRoom.requestVideoURL*/
+    requestVideoURL:function()
+    {
+        this.service.requestVideoURL();
     },
     /*snsoftx.vlive.VLiveRoom.updateEnterBtnLabel*/
     updateEnterBtnLabel:function()
@@ -651,15 +668,17 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         return this.websocketURL + "/ws?jwt_token=" + this.authToken + "&ver=1.9.8.2";
     },
     /*snsoftx.vlive.didi.DiDiLiveService.enterRoom*/
-    enterRoom:function(roomId,userId)
+    enterRoom:function()
     {
-        this.roomId = roomId;
-        this.userId = userId;
-        if(this.getUserProfile(userId) == null)
+        if(this.getUserProfile(this.userId) == null)
         {
             this.prepareUserProfile();
         }
         this.openWebSocket(this.getWebsocketURL());
+    },
+    /*snsoftx.vlive.didi.DiDiLiveService.requestVideoURL*/
+    requestVideoURL:function()
+    {
         this.prepareVideo();
     },
     /*snsoftx.vlive.didi.DiDiLiveService.exitRoom*/
