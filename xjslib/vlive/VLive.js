@@ -613,7 +613,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.didi.DiDiLiveService.getRefreshRoomsOpts*/
     getRefreshRoomsOpts:function()
     {
-        return [{type:"hot",_title:"热门"},{type:"hot",page:2,_title:"热门2"},{type:"latest",_title:"最新"},{type:"nearby",_title:"附近"},{type:"vegan",_title:"vegan"},{type:"lounge",_title:"lounge"},{type:"vip",_title:"vip"},{_name:"CHK_RefreshWithToken",refreshWithToken:true,_title:"使用Token"}];
+        return [{type:"hot",_title:"热门"},{type:"hot",page:2,_title:"热门2"},{type:"latest",_title:"最新"},{type:"nearby",_title:"附近"},{type:"vegan",_title:"vegan"},{type:"lounge",_title:"lounge"},{type:"vip",_title:"vip"}];
     },
     /*snsoftx.vlive.didi.DiDiLiveService.refreshRooms*/
     refreshRooms:function(opts)
@@ -621,9 +621,8 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         if(!opts)
             opts = {};
         var type = opts.type || "hot",
-            params = {page:opts.page || 1,size:50,order:"time"},
-            refreshWithToken = opts.refreshWithToken;
-        this.httpGet("anchor/" + type,params,new Xjs.FuncCall(this.onAjaxRoomsLoaded,this),new Xjs.FuncCall(this.msgListener.onRoomsLoadFail,this.msgListener),refreshWithToken ? 2 : 1);
+            params = {page:opts.page || 1,size:50,order:"time"};
+        this.httpGet("anchor/" + type,params,new Xjs.FuncCall(this.onAjaxRoomsLoaded,this),new Xjs.FuncCall(this.msgListener.onRoomsLoadFail,this.msgListener),2);
     },
     /*snsoftx.vlive.didi.DiDiLiveService.getWebsocketURL*/
     getWebsocketURL:function()
