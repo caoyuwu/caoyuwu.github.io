@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+
+<html class="ui-fullpage">
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<meta http-equiv='cache-control' content='no-cache'>
+<meta http-equiv='expires' content='0'>
+<meta http-equiv='pragma' content='no-cache'>
+
+<script type='text/javascript' src='../xjslib/xjs-base.js'></script>
+<script type='text/javascript' src='../xjslib/vlive/VLive.js'></script>
+<script type='text/javascript' src='../xjslib/tools/LocalSettings.js'></script>
+<link rel="icon" href="../favicon.ico"/>
+
+<style type="text/css">
+
+table {
+ 	border-collapse: collapse;
+    table-layout: fixed;
+   /* width: 0px;*/
+   border-right: 1px solid #dadfe6;
+    
+ }
+ table td ,table th {
+     border: 1px solid #e8ecf0;
+     padding:3px;
+  }
+  
+</style>
+
+<script type="text/javascript">
+/*
+ * http://127.0.0.1:8000/snsoft/vlive/Config.html
+ */
+  window.onload = function()
+  {
+	 var s = new snsoftx.vlive.didi.DiDiLiveService(
+		 		//"api.oidhfjg.com"
+				 //null//
+	 			//serverHost=
+	 			);
+	 new snsoftx.tools.LocalSettings(s.getLocalSettings());
+		//window.room = new snsoftx.vlive.VLiveRoom(s); 
+ };
+</script>
+
+</head>
+<body>
+ <table id="LocalSettingsTbl">
+   <thead>
+     <th>标题</th>
+     <th>配置</th>
+   </thead>
+   <tbody>
+     
+   </tbody>
+ </table>
+ <button id="UpdateSettingsBtn" >更新配置</button>
+</body>
+
+</html>
