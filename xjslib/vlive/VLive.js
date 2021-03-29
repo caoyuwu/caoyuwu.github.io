@@ -64,7 +64,9 @@ Xjs.apply(snsoftx.vlive.VLive.prototype,{
         s.removeAllRanges();
         s.addRange(range);
         document.execCommand("Copy",false,false);
-    }
+    },
+    /*snsoftx.vlive.VLive.updateViwers*/
+    updateViwers:Xjs.emptyFn
 });
 /*snsoftx/vlive/VLiveService.java*/
 snsoftx.vlive.VLiveService=function(){};
@@ -368,7 +370,6 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
             document.title = message;
             return;
         case "update-viwers":
-            this.updateViwers(message);
             return;
         default:
             {
@@ -428,10 +429,10 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
         return {width:vw * 3 / 4,height:vh};
     },
     /*snsoftx.vlive.VLiveRoom.updateViwers*/
-    updateViwers:function(views)
+    updateViwers:function(totalCount,views)
     {
         this.msgPane2.clear();
-        var s = views == null ? "" : "在线" + views.length + "人";
+        var s = views == null ? "" : "在线" + totalCount + "人";
         if(this.lbMsgPaneSel2)
         {
             Xjs.DOM.setTextContent(this.lbMsgPaneSel2,s);
@@ -871,7 +872,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
                     var u = cusers[j];
                     a[j] = {userId:u.user_id,level:u.levelid,role:u.role};
                 }
-                this.msgListener.onMessage("update-viwers",null,a);
+                this.msgListener.updateViwers(m.viewer_num + "/" + m.all_num,a);
                 return;
             case "legend_hall_win":
                 return;
