@@ -7,6 +7,7 @@ snsoftx.vlive.VLive=function(service){
     this.vliveTag = service.getVLiveTag() || "VLive";
 };
 Xjs.apply(snsoftx.vlive.VLive.prototype,{
+    bufUserNames:{},
     /*snsoftx.vlive.VLive.loadFavorited*/
     loadFavorited:function(reload)
     {
@@ -60,6 +61,17 @@ Xjs.apply(snsoftx.vlive.VLive.prototype,{
         s.removeAllRanges();
         s.addRange(range);
         document.execCommand("Copy",false,false);
+    },
+    /*snsoftx.vlive.VLive.setBufUserName*/
+    setBufUserName:function(userId,userName)
+    {
+        if(userName && userId)
+            this.bufUserNames[userId] = userName;
+    },
+    /*snsoftx.vlive.VLive.getBufUserName*/
+    getBufUserName:function(userId)
+    {
+        return this.bufUserNames[userId] || null;
     },
     /*snsoftx.vlive.VLive.updateViwers*/
     updateViwers:Xjs.emptyFn
@@ -380,6 +392,9 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
             return;
         case "update-viwers":
             return;
+        case "buf-username":
+            this.setBufUserName(title,message);
+            return;
         default:
             {
                 var cls = null;
@@ -453,8 +468,9 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
             {
                 var u = views[i];
                 s = "" + u.userId;
-                if(u.userName)
-                    s += ":" + u.userName;
+                var uname = u.userName || this.getBufUserName(u.userId);
+                if(uname)
+                    s += ":" + uname;
                 if(u.role)
                     s += "(" + u.role + ")";
                 if(u.level)
@@ -916,9 +932,11 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
                 this.msgListener.onMessage("sys",m.title,m.fromUserDesc + m.fromUserName + "=>" + m.toUserName + " : " + m.giftName);
                 return;
             case "sendGift":
+                this.msgListener.onMessage("buf-username",m.from_user_id,m.from_client_name);
                 this.msgListener.onMessage("sys",m.from_client_name + "的礼物",m.giftName);
                 return;
             case "SendPubMsg":
+                this.msgListener.onMessage("buf-username",m.from_user_id,m.from_client_name);
                 this.msgListener.onMessage("",m.from_client_name,m.content);
                 return;
             case "toy":
