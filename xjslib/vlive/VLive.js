@@ -70,20 +70,26 @@ Xjs.apply(snsoftx.vlive.VLive.prototype,{
 snsoftx.vlive.VLiveService=function(){};
 Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     /*snsoftx.vlive.VLiveService.ajaxInvoke*/
-    ajaxInvoke:function(method,url,header,params,onSuccess,onError,opts)
+    ajaxInvoke:function(method,url,header,params,contentType,postParams,onSuccess,onError,opts)
     {
-        var contentType = null,
-            postBody = null,
+        var postBody = null,
             queryParams = null;
         if(params)
         {
-            if(method == "post")
+            queryParams = Xjs.urlEncode(params);
+        }
+        if(method == null)
+            method = postParams != null ? "post" : "get";
+        if(method.toLowerCase() == "post")
+        {
+            if(contentType == null || contentType.startsWith("application/json"))
             {
-                postBody = Xjs.JSON.encode(params,null,1);
-                contentType = "application/json;charset=utf-8";
+                postBody = Xjs.JSON.encode(postParams,null,1);
+                if(contentType == null)
+                    contentType = "application/json;charset=utf-8";
             } else 
             {
-                queryParams = Xjs.urlEncode(params);
+                throw new Error("todo..:Form 表单");
             }
         }
         try
@@ -107,7 +113,12 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     /*snsoftx.vlive.VLiveService.ajaxGET*/
     ajaxGET:function(url,header,params,onSuccess,onError,opts)
     {
-        this.ajaxInvoke("GET",url,header,params,onSuccess,onError,opts);
+        this.ajaxInvoke("GET",url,header,params,null,null,onSuccess,onError,opts);
+    },
+    /*snsoftx.vlive.VLiveService.ajaxPOST*/
+    ajaxPOST:function(url,header,params,postBody,onSuccess,onError,opts)
+    {
+        this.ajaxInvoke("POST",url,header,params,null,null,onSuccess,onError,opts);
     },
     /*snsoftx.vlive.VLiveService.getRefreshRoomsOpts*/
     getRefreshRoomsOpts:Xjs.nullFn,
@@ -202,6 +213,7 @@ snsoftx.vlive.VLiveRoom=function(service){
     this.msgPaneSel1 = Xjs.DOM.findById("MessagePaneSel1",null);
     this.msgPaneSel2 = Xjs.DOM.findById("MessagePaneSel2",null);
     this.msgPaneSel3 = Xjs.DOM.findById("MessagePaneSel3",null);
+    this.lbMsgPaneSel2 = Xjs.DOM.findById("lb_MessagePaneSel2",null);
     {
         var f = Function.bindAsEventListener(this.onMsgPaneSelChanged,this);
         this.msgPaneSel1.onchange = f;
@@ -355,6 +367,9 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
         case "win-title":
             document.title = message;
             return;
+        case "update-viwers":
+            this.updateViwers(message);
+            return;
         default:
             {
                 var cls = null;
@@ -411,6 +426,32 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
     getVideoViewMaxSize:function(vw,vh)
     {
         return {width:vw * 3 / 4,height:vh};
+    },
+    /*snsoftx.vlive.VLiveRoom.updateViwers*/
+    updateViwers:function(views)
+    {
+        this.msgPane2.clear();
+        var s = views == null ? "" : "在线" + views.length + "人";
+        if(this.lbMsgPaneSel2)
+        {
+            Xjs.DOM.setTextContent(this.lbMsgPaneSel2,s);
+        }
+        this.msgPane2.addMessage(s);
+        if(views)
+        {
+            for(var i=0;i < views.length;i++)
+            {
+                var u = views[i];
+                s = "" + u.userId;
+                if(u.userName)
+                    s += ":" + u.userName;
+                if(u.role)
+                    s += "(" + u.role + ")";
+                if(u.level)
+                    s += "(" + u.level + ")";
+                this.msgPane2.addMessage(s);
+            }
+        }
     }
 });
 /*snsoftx/vlive/VLiveRoomList.java*/
@@ -600,7 +641,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         {
             header["X-Live-Butter2"] = this.liveButter2;
         }
-        this.ajaxGET(this.serverURL + path,header,params,onSuccess,onError,opts & 4 ? 1 : 0);
+        this.ajaxPOST(this.serverURL + path,header,params,null,onSuccess,onError,opts & 4 ? 1 : 0);
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxRoomsLoaded*/
     onAjaxRoomsLoaded:function(o)
@@ -788,7 +829,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             {
                 this.pendingNotifyLoginOkUID = [];
             }
-            if(this.pendingNotifyLoginOkUID.indexOf(data.id) < 0)
+            if(this.pendingNotifyLoginOkUID.indexOf(this.userId) < 0)
             {
                 this.pendingNotifyLoginOkUID.push(this.userId);
             }
@@ -823,6 +864,14 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
                 this.notifyLoginOk();
                 return;
             case "onLineClient":
+                var cusers = m.client_list,
+                    a = new Array(cusers ? cusers.length : 0);
+                for(var j=0;j < a.length;j++)
+                {
+                    var u = cusers[j];
+                    a[j] = {userId:u.user_id,level:u.levelid,role:u.role};
+                }
+                this.msgListener.onMessage("update-viwers",null,a);
                 return;
             case "legend_hall_win":
                 return;
