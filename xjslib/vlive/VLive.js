@@ -582,6 +582,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
         Xjs.DOM.addOrRemoveClass(this.roomListDOM,"ui-render-userlogo",renderLogo);
         Xjs.DOM.addOrRemoveClass(this.roomListDOM,"ui-no-userlogo",!renderLogo);
         this.loadFavorited(true);
+        var baseRoomIdx = this.rooms.baseRoomIdx || 0;
         for(var i=0;i < n;i++)
         {
             var r = rooms[i],
@@ -599,7 +600,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
             r.limitDOM = Xjs.DOM.findById("Limit",r.dom);
             Xjs.DOM.setTextContent(r.titleDom,r.title);
             Xjs.DOM.setTextContent(r.userDom,r.userName);
-            Xjs.DOM.setTextContent(r.idxDOM,i + ":" + r.userId);
+            Xjs.DOM.setTextContent(r.idxDOM,baseRoomIdx + i + ":" + r.userId);
             Xjs.DOM.setTextContent(r.limitDOM,r.limit);
             Xjs.DOM.addOrRemoveClass(r.dom,"live-showing",r.limit != null);
             Xjs.DOM.addOrRemoveClass(r.dom,"live-favorited",isFavo);
@@ -689,7 +690,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         }
         var data = o.data,
             list = data.list,
-            rooms = {};
+            rooms = {baseRoomIdx:(this.curPage - 1) * 50};
         rooms.refreshTime = (new Date()).getTime();
         rooms.rooms = new Array(list == null ? 0 : list.length);
         for(var i=0;i < rooms.rooms.length;i++)
@@ -736,7 +737,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.didi.DiDiLiveService.getRefreshRoomsOpts*/
     getRefreshRoomsOpts:function()
     {
-        return [{type:"hot",_title:"热门"},{type:"hot",page:2,_title:"热门2"},{type:"latest",_title:"最新"},{type:"nearby",_title:"附近"},{type:"vegan",_title:"vegan"},{type:"vip",_title:"收费"},{type:"lounge",_title:"lounge"}];
+        return [{type:"hot",_title:"热门"},{type:"latest",_title:"最新"},{type:"nearby",_title:"附近"},{type:"vegan",_title:"vegan"},{type:"vip",_title:"收费"},{type:"lounge",_title:"lounge"},{_name:"Page",page:1,_title:"1"},{_name:"Page",page:2,_title:"2"},{_name:"Page",page:3,_title:"3"},{_name:"Page",page:4,_title:"4"},{_name:"Page",page:5,_title:"5"},{_name:"Page",page:6,_title:"6"}];
     },
     /*snsoftx.vlive.didi.DiDiLiveService.refreshRooms*/
     refreshRooms:function(opts)
@@ -744,7 +745,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         if(!opts)
             opts = {};
         var type = opts.type || "hot",
-            params = {page:opts.page || 1,size:50,order:"time"};
+            params = {page:this.curPage = opts.page || 1,size:50,order:"time"};
         this.httpGet("anchor/" + type,params,new Xjs.FuncCall(this.onAjaxRoomsLoaded,this),new Xjs.FuncCall(this.msgListener.onRoomsLoadFail,this.msgListener),2);
     },
     /*snsoftx.vlive.didi.DiDiLiveService.getWebsocketURL*/
