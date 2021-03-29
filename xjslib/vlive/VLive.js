@@ -568,22 +568,22 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
 });
 /*snsoftx/vlive/didi/DiDiLiveService.java*/
 Xjs.namespace("snsoftx.vlive.didi");
-snsoftx.vlive.didi.DiDiLiveService=function(serverHost){
-    if(serverHost == null)
+snsoftx.vlive.didi.DiDiLiveService=function(){
+    var settings = this.getLocalSettings();
+    for(var j=0;j < settings.items.length;j++)
     {
-        serverHost = "api.oidhfjg.com";
+        var i = settings.items[j];
+        this[i.name] = settings.getItemValue(i.name);
     }
-    this.authToken = snsoftx.vlive.didi.DiDiLiveService._TOKEN;
-    this.liveButter2 = snsoftx.vlive.didi.DiDiLiveService._LiveButter2;
-    this.serverHost = serverHost;
+    if(this.serverHost == null)
+    {
+        this.serverHost = "api.oidhfjg.com";
+    }
     this.serverURL = "https://" + this.serverHost + "/OpenAPI/v1/";
-    this.websocketURL = "wss://" + serverHost + ":443";
+    this.websocketURL = "wss://" + this.serverHost + ":443";
 };
 Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
   _js$className_:"snsoftx.vlive.didi.DiDiLiveService",
-    device_id:"feeb632063289bfa",
-    user_id:"46670330",
-    user_name:"游客46670330",
     staticURL:"https://static.oidhfjg.com",
     /*snsoftx.vlive.didi.DiDiLiveService.getLocalSettings*/
     getLocalSettings:function()
@@ -854,8 +854,4 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
                 return;
             }
     }
-});
-Xjs.apply(snsoftx.vlive.didi.DiDiLiveService,{
-    _TOKEN:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI0NjY3MDMzMCIsInVzZXJuYW1lIjoiMTM4MDEzNzc0ODkiLCJyb2xlIjowLCJsb2IiOjEsImlhdCI6MTYxNjY1NTA3NiwiZXhwIjoxNjE5MjQ3MDc2fQ.HVCLG4wwu9FC9XE_F_uKBInRN1t83Y6hBmcGLBltcy7hDS2cOAEU1XPjTFBw9bqi5Nqdn-_2anBVPpmXr63U3A",
-    _LiveButter2:"4L0HHMyx728WLb9kOmYL2uzpIuwgqj6EeRwlJDDIcxNxQhO00KTdm9Kq1w/x/0JArMLY3dptRBvwYHs1QGItVC5TYterbEneffODKLkMCtfk/vmwVi7KwK/IsI2BaTtfV+NnuM86vQXCBnRedl0lYUKBQvKDf6FL4uMgjrShyN6eh9XvAXk1VmxlSI56KYj7ZBRE4tlIBBo1O68NboEXHA=="
 });
