@@ -573,15 +573,23 @@ snsoftx.vlive.didi.DiDiLiveService=function(serverHost){
     {
         serverHost = "api.oidhfjg.com";
     }
-    this.authToken = snsoftx.vlive.didi.DiDiLiveService.TOKEN;
-    this.liveButter2 = snsoftx.vlive.didi.DiDiLiveService.LiveButter2;
+    this.authToken = snsoftx.vlive.didi.DiDiLiveService._TOKEN;
+    this.liveButter2 = snsoftx.vlive.didi.DiDiLiveService._LiveButter2;
     this.serverHost = serverHost;
     this.serverURL = "https://" + this.serverHost + "/OpenAPI/v1/";
     this.websocketURL = "wss://" + serverHost + ":443";
 };
 Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
   _js$className_:"snsoftx.vlive.didi.DiDiLiveService",
+    device_id:"feeb632063289bfa",
+    user_id:"46670330",
+    user_name:"游客46670330",
     staticURL:"https://static.oidhfjg.com",
+    /*snsoftx.vlive.didi.DiDiLiveService.getLocalSettings*/
+    getLocalSettings:function()
+    {
+        return new snsoftx.tools.LocalSettings$Settings("DiDiLive.",[{name:"device_id"},{name:"user_id"},{name:"user_name"},{name:"serverHost",defaultValue:"api.oidhfjg.com"},{name:"authToken",height:50},{name:"liveButter2",height:50}]);
+    },
     /*snsoftx.vlive.didi.DiDiLiveService.httpGet*/
     httpGet:function(path,params,onSuccess,onError,opts)
     {
@@ -797,8 +805,8 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     onWebSocketOpen:function(ev)
     {
         snsoftx.vlive.didi.DiDiLiveService.superclass.onWebSocketOpen.call(this,ev);
-        this.sendWebSocketMessage({device_id:snsoftx.vlive.didi.DiDiLiveService.device_id,issued:"lite",lob:1,_method_:"BindUid",plat:"android",rid:1,jwt_token:this.authToken,user_id:snsoftx.vlive.didi.DiDiLiveService.user_id,ver:"1.9.8.2"});
-        this.sendWebSocketMessage({avatartime:"0",device_id:snsoftx.vlive.didi.DiDiLiveService.device_id,levelid:"1",_method_:"login",prompt_time:0,rollmsg_time:0,room_id:this.roomId,jwt_token:this.authToken,user_id:snsoftx.vlive.didi.DiDiLiveService.user_id,user_name:snsoftx.vlive.didi.DiDiLiveService.user_name});
+        this.sendWebSocketMessage({device_id:this.device_id,issued:"lite",lob:1,_method_:"BindUid",plat:"android",rid:1,jwt_token:this.authToken,user_id:this.user_id,ver:"1.9.8.2"});
+        this.sendWebSocketMessage({avatartime:"0",device_id:this.device_id,levelid:"1",_method_:"login",prompt_time:0,rollmsg_time:0,room_id:this.roomId,jwt_token:this.authToken,user_id:this.user_id,user_name:this.user_name});
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onWebSocketMessage*/
     onWebSocketMessage:function(ev)
@@ -848,9 +856,6 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     }
 });
 Xjs.apply(snsoftx.vlive.didi.DiDiLiveService,{
-    TOKEN:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI0NjY3MDMzMCIsInVzZXJuYW1lIjoiMTM4MDEzNzc0ODkiLCJyb2xlIjowLCJsb2IiOjEsImlhdCI6MTYxNjY1NTA3NiwiZXhwIjoxNjE5MjQ3MDc2fQ.HVCLG4wwu9FC9XE_F_uKBInRN1t83Y6hBmcGLBltcy7hDS2cOAEU1XPjTFBw9bqi5Nqdn-_2anBVPpmXr63U3A",
-    LiveButter2:"4L0HHMyx728WLb9kOmYL2uzpIuwgqj6EeRwlJDDIcxNxQhO00KTdm9Kq1w/x/0JArMLY3dptRBvwYHs1QGItVC5TYterbEneffODKLkMCtfk/vmwVi7KwK/IsI2BaTtfV+NnuM86vQXCBnRedl0lYUKBQvKDf6FL4uMgjrShyN6eh9XvAXk1VmxlSI56KYj7ZBRE4tlIBBo1O68NboEXHA==",
-    device_id:"feeb632063289bfa",
-    user_id:"46670330",
-    user_name:"游客46670330"
+    _TOKEN:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI0NjY3MDMzMCIsInVzZXJuYW1lIjoiMTM4MDEzNzc0ODkiLCJyb2xlIjowLCJsb2IiOjEsImlhdCI6MTYxNjY1NTA3NiwiZXhwIjoxNjE5MjQ3MDc2fQ.HVCLG4wwu9FC9XE_F_uKBInRN1t83Y6hBmcGLBltcy7hDS2cOAEU1XPjTFBw9bqi5Nqdn-_2anBVPpmXr63U3A",
+    _LiveButter2:"4L0HHMyx728WLb9kOmYL2uzpIuwgqj6EeRwlJDDIcxNxQhO00KTdm9Kq1w/x/0JArMLY3dptRBvwYHs1QGItVC5TYterbEneffODKLkMCtfk/vmwVi7KwK/IsI2BaTtfV+NnuM86vQXCBnRedl0lYUKBQvKDf6FL4uMgjrShyN6eh9XvAXk1VmxlSI56KYj7ZBRE4tlIBBo1O68NboEXHA=="
 });
