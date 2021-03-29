@@ -4,6 +4,7 @@ Xjs.namespace("snsoftx.vlive");
 snsoftx.vlive.VLive=function(service){
     this.service = service;
     service.msgListener = this;
+    this.vliveTag = service.getVLiveTag() || "VLive";
 };
 Xjs.apply(snsoftx.vlive.VLive.prototype,{
     /*snsoftx.vlive.VLive.loadFavorited*/
@@ -11,16 +12,11 @@ Xjs.apply(snsoftx.vlive.VLive.prototype,{
     {
         if(!this.favoritedIds || reload)
         {
-            var s = window.localStorage["VLive.Favorited"];
+            var s = window.localStorage[this.vliveTag + ".Favorited"];
             if(!s || (s = s.toString()).length == 0)
                 this.favoritedIds = [];
             else 
-            {
-                var a = s.toString().split(",");
-                this.favoritedIds = new Array(a.length);
-                for(var i=0;i < a.length;i++)
-                    this.favoritedIds[i] = Number.obj2int(a[i],0);
-            }
+                this.favoritedIds = Xjs.JSON.parse(s);
         }
     },
     /*snsoftx.vlive.VLive.isFavorited*/
@@ -45,7 +41,7 @@ Xjs.apply(snsoftx.vlive.VLive.prototype,{
                 return;
             this.favoritedIds.splice(j,1);
         }
-        window.localStorage["VLive.Favorited"] = this.favoritedIds.join(",");
+        window.localStorage[this.vliveTag + ".Favorited"] = Xjs.JSON.encode(this.favoritedIds);
     },
     /*snsoftx.vlive.VLive.onMessage*/
     onMessage:Xjs.emptyFn,
@@ -122,6 +118,11 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     {
         this.ajaxInvoke("POST",url,header,params,null,null,onSuccess,onError,opts);
     },
+    /*snsoftx.vlive.VLiveService.getVLiveTag*/
+    getVLiveTag:function()
+    {
+        return "VLive";
+    },
     /*snsoftx.vlive.VLiveService.getRefreshRoomsOpts*/
     getRefreshRoomsOpts:Xjs.nullFn,
     /*snsoftx.vlive.VLiveService.refreshRooms*/
@@ -138,6 +139,8 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     requestVideoURL:Xjs.emptyFn,
     /*snsoftx.vlive.VLiveService.exitRoom*/
     exitRoom:Xjs.emptyFn,
+    /*snsoftx.vlive.VLiveService.getLocalSettings*/
+    getLocalSettings:Xjs.emptyFn,
     /*snsoftx.vlive.VLiveService.openWebSocket*/
     openWebSocket:function(wsUrl)
     {
@@ -216,6 +219,7 @@ snsoftx.vlive.VLiveRoom=function(service){
     this.msgPaneSel2 = Xjs.DOM.findById("MessagePaneSel2",null);
     this.msgPaneSel3 = Xjs.DOM.findById("MessagePaneSel3",null);
     this.lbMsgPaneSel2 = Xjs.DOM.findById("lb_MessagePaneSel2",null);
+    this.favoriteRoomBtnDOM = Xjs.DOM.findById("FavoriteRoomBtn",null);
     {
         var f = Function.bindAsEventListener(this.onMsgPaneSelChanged,this);
         this.msgPaneSel1.onchange = f;
@@ -231,6 +235,11 @@ snsoftx.vlive.VLiveRoom=function(service){
     }
     this.roomId = Xjs.getReqParameter("rid");
     this.userId = Xjs.getReqParameter("uid");
+    if(this.favoriteRoomBtnDOM)
+    {
+        this.favoriteRoomBtnDOM.onclick = Function.bindAsEventListener(this.oncmd_setFavoroted,this);
+        this.updateSetFavoritedBtnText();
+    }
     this.service.setRoomInfo(this.roomId,this.userId);
     this.requestVideoURL();
     this.enterOrExitRoom();
@@ -453,6 +462,20 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
                 this.msgPane2.addMessage(s);
             }
         }
+    },
+    /*snsoftx.vlive.VLiveRoom.oncmd_setFavoroted*/
+    oncmd_setFavoroted:function()
+    {
+        if(this.userId == null)
+            return;
+        this.setFavorited(this.userId,!this.isFavorited(this.userId));
+        this.updateSetFavoritedBtnText();
+    },
+    /*snsoftx.vlive.VLiveRoom.updateSetFavoritedBtnText*/
+    updateSetFavoritedBtnText:function()
+    {
+        if(this.favoriteRoomBtnDOM)
+            Xjs.DOM.setTextContent(this.favoriteRoomBtnDOM,this.isFavorited(this.userId) ? "取消收藏" : "收藏");
     }
 });
 /*snsoftx/vlive/VLiveRoomList.java*/
@@ -558,9 +581,15 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
         var renderLogo = this.renderLogoChkDOM ? this.renderLogoChkDOM.checked : true;
         Xjs.DOM.addOrRemoveClass(this.roomListDOM,"ui-render-userlogo",renderLogo);
         Xjs.DOM.addOrRemoveClass(this.roomListDOM,"ui-no-userlogo",!renderLogo);
+        this.loadFavorited(true);
         for(var i=0;i < n;i++)
         {
-            var r = rooms[i];
+            var r = rooms[i],
+                isFavo = this.isFavorited(r.userId);
+            if(this.favorited && !isFavo)
+            {
+                continue;
+            }
             r.dom = this.roomItemDOM.cloneNode(true);
             r.dom.id = "Room_" + r.roomId;
             r.logoDom = Xjs.DOM.findById("LogoImage",r.dom);
@@ -573,6 +602,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
             Xjs.DOM.setTextContent(r.idxDOM,i + ":" + r.userId);
             Xjs.DOM.setTextContent(r.limitDOM,r.limit);
             Xjs.DOM.addOrRemoveClass(r.dom,"live-showing",r.limit != null);
+            Xjs.DOM.addOrRemoveClass(r.dom,"live-favorited",isFavo);
             if(renderLogo && r.logoDom && r.logoUrl)
             {
                 r.logoDom.src = r.logoUrl;
@@ -630,7 +660,12 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.didi.DiDiLiveService.getLocalSettings*/
     getLocalSettings:function()
     {
-        return new snsoftx.tools.LocalSettings$Settings("DiDiLive.",[{name:"device_id"},{name:"user_id"},{name:"user_name"},{name:"serverHost",defaultValue:"api.oidhfjg.com"},{name:"authToken",height:50},{name:"liveButter2",height:50}]);
+        return this._settings || (this._settings = new snsoftx.tools.LocalSettings$Settings("DiDiLive.",[{name:"device_id"},{name:"user_id"},{name:"user_name"},{name:"serverHost",defaultValue:"api.oidhfjg.com"},{name:"authToken",height:50},{name:"liveButter2",height:50}]));
+    },
+    /*snsoftx.vlive.didi.DiDiLiveService.getVLiveTag*/
+    getVLiveTag:function()
+    {
+        return "DiDiLive";
     },
     /*snsoftx.vlive.didi.DiDiLiveService.httpGet*/
     httpGet:function(path,params,onSuccess,onError,opts)
