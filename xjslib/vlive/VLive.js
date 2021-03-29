@@ -271,7 +271,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
         if(this.enterRootBtnDOM)
         {
             this.enterRootBtnDOM.disabled = false;
-            Xjs.DOM.setTextContent(this.enterRootBtnDOM,this.roomEntered ? "退 出" : "进 入");
+            Xjs.DOM.setTextContent(this.enterRootBtnDOM,this.roomEntered ? "退出" : "登入");
         }
     },
     /*snsoftx.vlive.VLiveRoom.disableEnterRoomBtn*/
