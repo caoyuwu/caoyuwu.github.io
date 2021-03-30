@@ -670,14 +670,18 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
                 s = "刷新错误：" + roomsLst.errInfo;
             } else if(rooms)
             {
-                s = "记录数=" + rooms.length + ",";
+                s = "记录数=" + rooms.length;
+                if(roomsLst.totalRooms !== undefined)
+                {
+                    s += "/" + roomsLst.totalRooms;
+                }
                 var d = new Date(roomsLst.refreshTime);
-                s += "刷新时间=" + d.format();
+                s += ",刷新时间=" + d.format();
             } else 
             {
                 s = roomsLst.refreshTime > 0 ? "正在刷新.." : "数据待刷新";
             }
-            Xjs.DOM.setTextContent(this.statusPaneDOM,s);
+            Xjs.DOM.setTextContent(this.statusPaneDOM,roomsLst.title + ":" + s);
         }
         this.refreshBtnDOM.disabled = rooms == null && roomsLst.refreshTime > 0 && roomsLst.errInfo == null;
     },
@@ -764,6 +768,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         rooms.refreshTime = (new Date()).getTime();
         rooms.errInfo = null;
         rooms.rooms = new Array(list == null ? 0 : list.length);
+        rooms.totalRooms = data.row_count;
         for(var i=0;i < rooms.rooms.length;i++)
         {
             var r = {};
