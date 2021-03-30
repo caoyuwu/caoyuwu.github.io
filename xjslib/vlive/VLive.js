@@ -502,15 +502,18 @@ snsoftx.vlive.VLiveRoomList=function(service){
     Xjs.DOM.remove(this.roomItemDOM);
     this.refreshBtnDOM = Xjs.DOM.findById("RefreshBtn",null);
     this.renderLogoChkDOM = Xjs.DOM.findById("RenderUserLogo",null);
-    var refresOptsPaneDOM = Xjs.DOM.findById("RefresOptsPane",null),
+    var refresOptsPaneDOM = Xjs.DOM.findById("RefreshOptsPane",null),
         a = service.getRefreshRoomsOpts() || [];
     this.refreshOptChks = new Array(a.length);
-    var optNms = [];
+    this.allRooms = {};
+    var optNms = [],
+        fn$onRefreshOptsChanged = Function.bindAsEventListener(this.onRefreshOptsChanged,this);
     for(var j=0;j < a.length;j++)
     {
         this.refreshOptChks[j] = {opts:a[j]};
-        var d = this.refreshOptChks[j].checkDOM = Xjs.DOM.createChild(refresOptsPaneDOM,"input"),
-            gname = a[j]._name || "RefreshOpts";
+        var d = this.refreshOptChks[j].checkDOM = Xjs.DOM.createChild(refresOptsPaneDOM,"input");
+        d.onclick = fn$onRefreshOptsChanged;
+        var gname = a[j]._name || "RefreshOpts";
         d.name = gname;
         d.id = d.name + "_" + j;
         if(gname != null && !gname.startsWith("CHK_"))
@@ -532,30 +535,29 @@ snsoftx.vlive.VLiveRoomList=function(service){
         lbDOM.htmlFor = d.id;
     }
     this.refreshBtnDOM.onclick = Function.bindAsEventListener(this.oncmd_refresh,this,0,true);
-    this.curTimeTagDom = Xjs.DOM.findById("CurTimeTag",null);
+    this.statusPaneDOM = Xjs.DOM.findById("StatusPane",null);
     ;
     this.fn$onRoomItemDblClick = Function.bindAsEventListener(this.onRoomItemDblClick,this);
+    this.onRefreshOptsChanged();
 };
 Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
   _js$className_:"snsoftx.vlive.VLiveRoomList",
-    /*snsoftx.vlive.VLiveRoomList.oncmd_refresh*/
-    oncmd_refresh:function()
+    /*snsoftx.vlive.VLiveRoomList.getSelectedRoomes*/
+    getSelectedRoomes:function()
     {
-        this.refreshRooms(true);
-    },
-    /*snsoftx.vlive.VLiveRoomList.refreshRooms*/
-    refreshRooms:function(refresh)
-    {
-        this.refreshBtnDOM.disabled = true;
-        Xjs.DOM.removeAllChild(this.roomListDOM);
-        if(this.curTimeTagDom)
-            Xjs.DOM.setTextContent(this.curTimeTagDom,"正在刷新...");
-        var opts = {};
+        var title = null,
+            opts = {};
         for(var j=0;j < this.refreshOptChks.length;j++)
         {
             if(this.refreshOptChks[j].checkDOM.checked)
             {
-                var o = this.refreshOptChks[j].opts;
+                var o = this.refreshOptChks[j].opts,
+                    t = o._title;
+                if(t == null)
+                {
+                    t = (o._name || "") + j;
+                }
+                title = title == null ? t : title + "-" + t;
                 for(var n in o)
                 {
                     if(n == "_name" || n == "_title" || n == "_checked")
@@ -566,39 +568,72 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
                 }
             }
         }
-        this.service.refreshRooms(opts);
+        if(title == null)
+        {
+            title = "";
+        }
+        var r = this.allRooms[title];
+        if(!r)
+        {
+            r = {};
+            r.title = title;
+            r.refreshParams = opts;
+            this.allRooms[title] = r;
+        }
+        return r;
+    },
+    /*snsoftx.vlive.VLiveRoomList.oncmd_refresh*/
+    oncmd_refresh:function()
+    {
+        this.refreshRooms(true);
+    },
+    /*snsoftx.vlive.VLiveRoomList.onRefreshOptsChanged*/
+    onRefreshOptsChanged:function()
+    {
+        var r = this.getSelectedRoomes();
+        this.renderRooms(r,0);
+    },
+    /*snsoftx.vlive.VLiveRoomList.refreshRooms*/
+    refreshRooms:function(refresh)
+    {
+        var r = this.getSelectedRoomes();
+        r.rooms = null;
+        r.refreshTime = (new Date()).getTime();
+        r.errInfo = null;
+        this.renderRooms(r,0);
+        this.service.refreshRooms(r);
     },
     /*snsoftx.vlive.VLiveRoomList.onRoomsLoaded*/
     onRoomsLoaded:function(rooms)
     {
-        this.rooms = rooms;
-        this.refreshBtnDOM.disabled = false;
-        this.renderRooms(0);
-        if(this.curTimeTagDom)
+        rooms.refreshTime = (new Date()).getTime();
+        if(!rooms.rooms)
         {
-            var d = rooms && rooms.refreshTime > 0 ? new Date(rooms.refreshTime) : new Date();
-            Xjs.DOM.setTextContent(this.curTimeTagDom,d.format());
+            rooms.rooms = [];
         }
+        this.renderRooms(rooms,0);
     },
     /*snsoftx.vlive.VLiveRoomList.onRoomsLoadFail*/
-    onRoomsLoadFail:function(ex)
+    onRoomsLoadFail:function(rooms,ex)
     {
-        alert(ex.message);
-        if(this.curTimeTagDom)
-            Xjs.DOM.setTextContent(this.curTimeTagDom,"刷新错误:" + ex.message);
-        this.refreshBtnDOM.disabled = false;
+        rooms.errInfo = ex.message || "";
+        rooms.refreshTime = (new Date()).getTime();
+        this.renderRooms(rooms,0);
     },
     /*snsoftx.vlive.VLiveRoomList.renderRooms*/
-    renderRooms:function(opts)
+    renderRooms:function(roomsLst,opts)
     {
-        var rooms = this.rooms ? this.rooms.rooms : null,
+        var rooms = roomsLst ? roomsLst.rooms : null,
             n = rooms ? rooms.length : 0;
         Xjs.DOM.removeAllChild(this.roomListDOM);
         var renderLogo = this.renderLogoChkDOM ? this.renderLogoChkDOM.checked : true;
         Xjs.DOM.addOrRemoveClass(this.roomListDOM,"ui-render-userlogo",renderLogo);
         Xjs.DOM.addOrRemoveClass(this.roomListDOM,"ui-no-userlogo",!renderLogo);
-        this.loadFavorited(true);
-        var baseRoomIdx = this.rooms.baseRoomIdx || 0;
+        if(n > 0)
+        {
+            this.loadFavorited(true);
+        }
+        var baseRoomIdx = roomsLst.baseRoomIdx || 0;
         for(var i=0;i < n;i++)
         {
             var r = rooms[i],
@@ -627,11 +662,30 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
             this.roomListDOM.appendChild(r.dom);
             r.dom.ondblclick = this.fn$onRoomItemDblClick;
         }
+        if(this.statusPaneDOM)
+        {
+            var s = "";
+            if(roomsLst.errInfo != null)
+            {
+                s = "刷新错误：" + roomsLst.errInfo;
+            } else if(rooms)
+            {
+                s = "记录数=" + rooms.length + ",";
+                var d = new Date(roomsLst.refreshTime);
+                s += "刷新时间=" + d.format();
+            } else 
+            {
+                s = roomsLst.refreshTime > 0 ? "正在刷新.." : "数据待刷新";
+            }
+            Xjs.DOM.setTextContent(this.statusPaneDOM,s);
+        }
+        this.refreshBtnDOM.disabled = rooms == null && roomsLst.refreshTime > 0 && roomsLst.errInfo == null;
     },
     /*snsoftx.vlive.VLiveRoomList.getRoomById*/
     getRoomById:function(rid)
     {
-        var rooms = this.rooms ? this.rooms.rooms : null,
+        var roomsLst = this.getSelectedRoomes(),
+            rooms = roomsLst ? roomsLst.rooms : null,
             n = rooms ? rooms.length : 0;
         for(var i=0;i < n;i++)
         {
@@ -697,17 +751,18 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         this.ajaxPOST(this.serverURL + path,header,params,null,onSuccess,onError,opts & 4 ? 1 : 0);
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxRoomsLoaded*/
-    onAjaxRoomsLoaded:function(o)
+    onAjaxRoomsLoaded:function(rooms,o)
     {
         if(o.code != 0)
         {
-            this.msgListener.onRoomsLoadFail(new Error(o.code + ":" + o.msg));
+            this.msgListener.onRoomsLoadFail(rooms,new Error(o.code + ":" + o.msg));
             return;
         }
         var data = o.data,
-            list = data.list,
-            rooms = {baseRoomIdx:(this.curPage - 1) * 50};
+            list = data.list;
+        rooms.baseRoomIdx = (this.curPage - 1) * 50;
         rooms.refreshTime = (new Date()).getTime();
+        rooms.errInfo = null;
         rooms.rooms = new Array(list == null ? 0 : list.length);
         for(var i=0;i < rooms.rooms.length;i++)
         {
@@ -756,13 +811,12 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         return [{type:"hot",_title:"热门"},{type:"latest",_title:"最新"},{type:"nearby",_title:"附近"},{type:"vegan",_title:"vegan"},{type:"vip",_title:"收费"},{type:"lounge",_title:"lounge"},{_name:"Page",page:1,_title:"1"},{_name:"Page",page:2,_title:"2"},{_name:"Page",page:3,_title:"3"},{_name:"Page",page:4,_title:"4"},{_name:"Page",page:5,_title:"5"},{_name:"Page",page:6,_title:"6"}];
     },
     /*snsoftx.vlive.didi.DiDiLiveService.refreshRooms*/
-    refreshRooms:function(opts)
+    refreshRooms:function(rooms)
     {
-        if(!opts)
-            opts = {};
-        var type = opts.type || "hot",
+        var opts = rooms.refreshParams || {},
+            type = opts.type || "hot",
             params = {page:this.curPage = opts.page || 1,size:50,order:"time"};
-        this.httpGet("anchor/" + type,params,new Xjs.FuncCall(this.onAjaxRoomsLoaded,this),new Xjs.FuncCall(this.msgListener.onRoomsLoadFail,this.msgListener),2);
+        this.httpGet("anchor/" + type,params,new Xjs.FuncCall(this.onAjaxRoomsLoaded,this,[rooms],2),new Xjs.FuncCall(this.msgListener.onRoomsLoadFail,this.msgListener,[rooms],2),2);
     },
     /*snsoftx.vlive.didi.DiDiLiveService.getWebsocketURL*/
     getWebsocketURL:function()

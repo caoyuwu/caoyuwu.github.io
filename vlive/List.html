@@ -132,12 +132,7 @@ button {
  * http://www.caoyuwu.top/vlive/List.html
  */
   window.onload = function(){
-	 var s = new snsoftx.vlive.didi.DiDiLiveService(
-			 //"ei8hyaf4.shdkw1o.com"
-			//"api.oidhfjg.com"
-			 //null//
- 			//serverHost=
- 			);
+	 var s = new snsoftx.vlive.didi.DiDiLiveService();
 	 new snsoftx.vlive.VLiveRoomList(s); 
  };
 </script>
@@ -146,7 +141,7 @@ button {
 <body>
  <div id="Toolbar">
  <button id="RefreshBtn">刷新</button> &nbsp;&nbsp;
- <span id="RefresOptsPane">
+ <span id="RefreshOptsPane">
  </span>
  <input id="RenderUserLogo" type="checkbox"></input><label for="RenderUserLogo">显示Logo</label>
   <!-- 
@@ -155,7 +150,7 @@ button {
   <button id="TestBtn">测试</button>
   <button id="ExitRoomBtn">退出</button>
   -->
-  <span id="CurTimeTag"></span>
+  <span id=StatusPane></span>
  </div>
  <hr>
 <div id="RoomList" >
