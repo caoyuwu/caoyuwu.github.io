@@ -14,7 +14,11 @@ Xjs.apply(snsoftx.tools.LocalSettings$Settings.prototype,{
     /*snsoftx.tools.LocalSettings$Settings.setItemValue*/
     setItemValue:function(name,value)
     {
-        window.localStorage[(this.namePrefix || "") + name] = value;
+        var key = (this.namePrefix || "") + name;
+        if(value == null || value == "")
+            delete window.localStorage[key];
+        else 
+            window.localStorage[key] = value;
     }
 });
 snsoftx.tools.LocalSettings=function(settings,cfgTbl,updateBtn){

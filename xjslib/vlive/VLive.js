@@ -77,7 +77,15 @@ Xjs.apply(snsoftx.vlive.VLive.prototype,{
     updateViwers:Xjs.emptyFn
 });
 /*snsoftx/vlive/VLiveService.java*/
-snsoftx.vlive.VLiveService=function(){};
+snsoftx.vlive.VLiveService=function(){
+    var settings = this.getLocalSettings();
+    for(var j=0;j < settings.items.length;j++)
+    {
+        var i = settings.items[j];
+        this[i.name] = settings.getItemValue(i.name);
+    }
+    this.options = Number.obj2int(this.options,1);
+};
 Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     /*snsoftx.vlive.VLiveService.ajaxInvoke*/
     ajaxInvoke:function(method,url,header,params,contentType,postParams,onSuccess,onError,opts)
@@ -253,8 +261,10 @@ snsoftx.vlive.VLiveRoom=function(service){
         this.updateSetFavoritedBtnText();
     }
     this.service.setRoomInfo(this.roomId,this.userId);
-    this.requestVideoURL();
-    this.enterOrExitRoom();
+    if(this.service.options & 1)
+        this.requestVideoURL();
+    if(this.service.options & 2)
+        this.enterOrExitRoom();
 };
 Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
   _js$className_:"snsoftx.vlive.VLiveRoom",
@@ -716,12 +726,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
 /*snsoftx/vlive/didi/DiDiLiveService.java*/
 Xjs.namespace("snsoftx.vlive.didi");
 snsoftx.vlive.didi.DiDiLiveService=function(){
-    var settings = this.getLocalSettings();
-    for(var j=0;j < settings.items.length;j++)
-    {
-        var i = settings.items[j];
-        this[i.name] = settings.getItemValue(i.name);
-    }
+    snsoftx.vlive.didi.DiDiLiveService.superclass.constructor.call(this);
     if(this.serverHost == null)
     {
         this.serverHost = "api.oidhfjg.com";
@@ -735,7 +740,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.didi.DiDiLiveService.getLocalSettings*/
     getLocalSettings:function()
     {
-        return this._settings || (this._settings = new snsoftx.tools.LocalSettings$Settings("DiDiLive.",[{name:"device_id"},{name:"user_id"},{name:"user_name"},{name:"serverHost",defaultValue:"api.oidhfjg.com"},{name:"authToken",height:50},{name:"liveButter2",height:50}]));
+        return this._settings || (this._settings = new snsoftx.tools.LocalSettings$Settings("DiDiLive.",[{name:"device_id"},{name:"user_id"},{name:"user_name"},{name:"serverHost",defaultValue:"api.oidhfjg.com"},{name:"authToken",height:50},{name:"liveButter2",height:50},{name:"options",width:50}]));
     },
     /*snsoftx.vlive.didi.DiDiLiveService.getVLiveTag*/
     getVLiveTag:function()
