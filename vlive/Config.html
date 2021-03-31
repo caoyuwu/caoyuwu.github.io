@@ -32,12 +32,14 @@ table {
 
 <script type="text/javascript">
 /*
- * http://www.caoyuwu.top/vlive/Config.html
+  *  http://www.caoyuwu.top/vlive/Config.html
+	 http://www.caoyuwu.top/vlive/Config.html#?s=1
+     http://www.caoyuwu.top/vlive/Config.html#?s=2
  */
   window.onload = function()
   {
 	 var s = new snsoftx.vlive.didi.DiDiLiveService();
-	 new snsoftx.tools.LocalSettings(s.getLocalSettings());
+	 new snsoftx.tools.LocalSettings(s.getLocalSettingsDef());
 		//window.room = new snsoftx.vlive.VLiveRoom(s); 
  };
 </script>
