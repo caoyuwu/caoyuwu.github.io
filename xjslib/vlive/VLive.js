@@ -914,13 +914,20 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         var settings = this.getCurrentSettings();
         return settings.websocketURL + "/ws?jwt_token=" + settings.authToken + "&ver=1.9.8.2";
     },
-    /*snsoftx.vlive.didi.DiDiLiveService.enterRoom*/
-    enterRoom:function()
+    /*snsoftx.vlive.didi.DiDiLiveService.setRoomInfo*/
+    setRoomInfo:function(roomId,userId)
     {
+        if(this.userId == userId && this.roomId == roomId)
+            return;
+        snsoftx.vlive.didi.DiDiLiveService.superclass.setRoomInfo.call(this,roomId,userId);
         if(this.getUserProfile(this.userId) == null)
         {
             this.prepareUserProfile();
         }
+    },
+    /*snsoftx.vlive.didi.DiDiLiveService.enterRoom*/
+    enterRoom:function()
+    {
         this.openWebSocket(this.getWebsocketURL());
     },
     /*snsoftx.vlive.didi.DiDiLiveService.requestVideoURL*/
@@ -1008,6 +1015,10 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             this.userProfiles = {};
         }
         this.userProfiles[data.id] = data;
+        if(data.nickname && data.id == this.userId)
+        {
+            this.msgListener.onMessage("win-title",null,data.nickname);
+        }
         if(this.pendingNotifyLoginOkUID && this.pendingNotifyLoginOkUID.indexOf(data.id) >= 0)
         {
             this.notifyLoginOk(null);
