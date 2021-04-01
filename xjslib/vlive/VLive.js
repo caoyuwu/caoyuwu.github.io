@@ -1175,6 +1175,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             window.console.log("签到： %s : %s ",userId,settings.authToken);
             var header = {};
             header.Authorization = "Bearer " + settings.authToken;
+            header["X-Live-Butter2"] = settings.liveButter2;
             var params = {uid:userId,ver:snsoftx.vlive.didi.DiDiLiveService.AppVersion,lob:1},
                 onSuccess = new Xjs.FuncCall(this.onAjaxSigninSuccess,this,[settings],2),
                 onError = new Xjs.FuncCall(this.onAjaxSigninFail,this,[settings],2);
