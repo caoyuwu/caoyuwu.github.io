@@ -1166,6 +1166,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             if(signinDate == ymd0)
             {
                 window.console.log("已签到： %s ",userId);
+                continue;
             }
             var settings = this.getSettings(k);
             if(!settings.authToken)
