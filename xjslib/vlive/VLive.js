@@ -801,8 +801,8 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         var s = this.bufSettings[settingType];
         if(!s)
         {
-            s = {};
-            var settings = this.getLocalSettingsDef();
+            s = {settingType:settingType};
+            var settings = new snsoftx.tools.LocalSettings$Settings(settingType + ".",snsoftx.vlive.didi.DiDiLiveService.LocalSettingItems);
             for(var j=0;j < settings.items.length;j++)
             {
                 var i = settings.items[j];
@@ -1184,6 +1184,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxSigninSuccess*/
     onAjaxSigninSuccess:function(settings,o)
     {
+        window.localStorage[settings.settingType + ".signinDate"];
         window.console.log("签到成功： %s ",settings.user_id);
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxSigninFail*/
