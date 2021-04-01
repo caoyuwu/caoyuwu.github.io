@@ -1178,7 +1178,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             var params = {uid:userId,ver:snsoftx.vlive.didi.DiDiLiveService.AppVersion,lob:1},
                 onSuccess = new Xjs.FuncCall(this.onAjaxSigninSuccess,this,[settings],2),
                 onError = new Xjs.FuncCall(this.onAjaxSigninFail,this,[settings],2);
-            this.ajaxPOST("https://" + settings.serverHost + "/home/user/sign_in",header,params,null,onSuccess,onError,1);
+            this.ajaxGET("https://" + settings.serverHost + "/home/user/sign_in",header,params,onSuccess,onError,1);
         }
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxSigninSuccess*/
@@ -1190,7 +1190,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxSigninFail*/
     onAjaxSigninFail:function(settings,ex)
     {
-        window.console.error("签到失败： %s ",settings.user_id);
+        window.console.error("签到失败： %s : %s ",settings.user_id,ex.message);
     }
 });
 Xjs.apply(snsoftx.vlive.didi.DiDiLiveService,{
