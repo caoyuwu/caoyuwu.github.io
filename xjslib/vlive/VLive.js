@@ -1176,8 +1176,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             var header = {};
             header.Authorization = "Bearer " + settings.authToken;
             header["User-Agent"] = "Mozilla/5.0 (Linux; Android 9; AOSP on IA Emulator Build/PSR1.180720.117; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/69.0.3497.100 Mobile Safari/537.36";
-            var params = {uid:userId,ver:snsoftx.vlive.didi.DiDiLiveService.AppVersion,lob:1},
-                onSuccess = new Xjs.FuncCall(this.onAjaxSigninSuccess,this,[settings],2),
+            var onSuccess = new Xjs.FuncCall(this.onAjaxSigninSuccess,this,[settings],2),
                 onError = new Xjs.FuncCall(this.onAjaxSigninFail,this,[settings],2);
             this.ajaxPOST("http://localhost:8000/snsoft/uiinvoke/st-snsoft.commons.net.HttpClient.httpRequest",null,null,[{url:"https://" + settings.serverHost + "/home/user/sign_in?uid=" + userId + "&ver=" + snsoftx.vlive.didi.DiDiLiveService.AppVersion + "&lob=1",header:header}],onSuccess,onError,0);
         }
