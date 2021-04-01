@@ -1184,7 +1184,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxSigninSuccess*/
     onAjaxSigninSuccess:function(settings,o)
     {
-        window.localStorage[settings.settingType + ".signinDate"];
+        window.localStorage[settings.settingType + ".signinDate"] = (new Date()).format(2);
         window.console.log("签到成功： %s ",settings.user_id);
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxSigninFail*/
