@@ -314,6 +314,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
     /*snsoftx.vlive.VLiveRoom.requestVideoURL*/
     requestVideoURL:function()
     {
+        this.enableGetVideoBtn(false);
         this.service.requestVideoURL();
     },
     /*snsoftx.vlive.VLiveRoom.updateEnterBtnLabel*/
@@ -399,6 +400,14 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
         }
         this.videoPlay.play(url);
     },
+    /*snsoftx.vlive.VLiveRoom.enableGetVideoBtn*/
+    enableGetVideoBtn:function(enable)
+    {
+        if(this.getVideoBtnDOM)
+        {
+            this.getVideoBtnDOM.disabled = !enable;
+        }
+    },
     /*snsoftx.vlive.VLiveRoom.onMessage*/
     onMessage:function(type,title,message)
     {
@@ -424,7 +433,12 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
             this.updateEnterBtnLabel();
             return;
         case "play-video":
+            this.enableGetVideoBtn(true);
             this.playVideo(message);
+            return;
+        case "getvideo-fail":
+            this.onMessage("err",title,message);
+            this.enableGetVideoBtn(true);
             return;
         case "win-title":
             document.title = message;
@@ -958,12 +972,17 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     {
         this.onPrepareVideo(Xjs.JSON.parse(this.aesDecode(s)));
     },
+    /*snsoftx.vlive.didi.DiDiLiveService.onAjaxPrepareVideoFail*/
+    onAjaxPrepareVideoFail:function(err)
+    {
+        this.msgListener.onMessage("getvideo-fail","获取视频",err.getMessage());
+    },
     /*snsoftx.vlive.didi.DiDiLiveService.onPrepareVideo*/
     onPrepareVideo:function(o)
     {
         if(o.code != 0)
         {
-            this.msgListener.onMessage("err","获取视频",o.code + ":" + o.msg);
+            this.msgListener.onMessage("getvideo-fail","获取视频",o.code + ":" + o.msg);
             return;
         }
         var data = o.data,
@@ -989,14 +1008,14 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             this.msgListener.onMessage("play-video",null,url);
         } else 
         {
-            this.msgListener.onMessage("err","获取视频","未获取到视频地址");
+            this.msgListener.onMessage("getvideo-fail","获取视频","未获取到视频地址");
         }
     },
     /*snsoftx.vlive.didi.DiDiLiveService.prepareVideo*/
     prepareVideo:function()
     {
         var params = {uid:this.userId};
-        this.httpGet("private/getPrivateLimit",params,new Xjs.FuncCall(this.onAjaxPrepareVideo,this),null,2 | 4);
+        this.httpGet("private/getPrivateLimit",params,new Xjs.FuncCall(this.onAjaxPrepareVideo,this),new Xjs.FuncCall(this.onAjaxPrepareVideoFail,this),2 | 4);
     },
     /*snsoftx.vlive.didi.DiDiLiveService.prepareUserProfile*/
     prepareUserProfile:function()
