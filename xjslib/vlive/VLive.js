@@ -248,7 +248,9 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     {
         var s = Xjs.JSON.encode(m,null,1);
         this.websocket.send(s);
-    }
+    },
+    /*snsoftx.vlive.VLiveService.onInitListRooms*/
+    onInitListRooms:Xjs.emptyFn
 });
 /*snsoftx/vlive/VLiveRoom.java*/
 snsoftx.vlive.VLiveRoom=function(service){
@@ -592,6 +594,7 @@ snsoftx.vlive.VLiveRoomList=function(service){
     ;
     this.fn$onRoomItemDblClick = Function.bindAsEventListener(this.onRoomItemDblClick,this);
     this.onRefreshOptsChanged();
+    service.onInitListRooms();
 };
 Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
   _js$className_:"snsoftx.vlive.VLiveRoomList",
@@ -790,10 +793,12 @@ snsoftx.vlive.didi.DiDiLiveService=function(){
 Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
   _js$className_:"snsoftx.vlive.didi.DiDiLiveService",
     staticURL:"https://static.oidhfjg.com",
-    /*snsoftx.vlive.didi.DiDiLiveService.getCurrentSettings*/
-    getCurrentSettings:function()
+    /*snsoftx.vlive.didi.DiDiLiveService.getSettings*/
+    getSettings:function(settingType)
     {
-        var s = this.bufSettings[this.settingType];
+        if(!settingType)
+            settingType = this.settingType;
+        var s = this.bufSettings[settingType];
         if(!s)
         {
             s = {};
@@ -809,9 +814,14 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             }
             s.serverURL = "https://" + s.serverHost + "/OpenAPI/v1/";
             s.websocketURL = "wss://" + s.serverHost + ":443";
-            this.bufSettings[this.settingType] = s;
+            this.bufSettings[settingType] = s;
         }
         return s;
+    },
+    /*snsoftx.vlive.didi.DiDiLiveService.getCurrentSettings*/
+    getCurrentSettings:function()
+    {
+        return this.getSettings(this.settingType);
     },
     /*snsoftx.vlive.didi.DiDiLiveService.getSettingSelections*/
     getSettingSelections:function()
@@ -1136,6 +1146,50 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
                 window.console.log("接受到 %s",s);
                 return;
             }
+    },
+    /*snsoftx.vlive.didi.DiDiLiveService.onInitListRooms*/
+    onInitListRooms:function()
+    {
+        this.memberSignIN();
+    },
+    /*snsoftx.vlive.didi.DiDiLiveService.memberSignIN*/
+    memberSignIN:function()
+    {
+        var ymd0 = (new Date()).format(2);
+        for(var j=0;j < 10;j++)
+        {
+            var k = "DiDiLive" + (j == 0 ? "" : "" + j),
+                userId = window.localStorage[k + ".user_id"];
+            if(!userId)
+                continue;
+            var signinDate = window.localStorage[k + ".signinDate"];
+            if(signinDate == ymd0)
+            {
+                window.console.log("已签到： %s ",userId);
+            }
+            var settings = this.getSettings(k);
+            if(!settings.authToken)
+            {
+                continue;
+            }
+            window.console.log("签到： %s : %s ",userId,settings.authToken);
+            var header = {};
+            header.Authorization = "Bearer " + settings.authToken;
+            var params = {uid:userId,ver:snsoftx.vlive.didi.DiDiLiveService.AppVersion,lob:1},
+                onSuccess = new Xjs.FuncCall(this.onAjaxSigninSuccess,this,[settings],2),
+                onError = new Xjs.FuncCall(this.onAjaxSigninFail,this,[settings],2);
+            this.ajaxPOST("https://" + settings.serverHost + "/home/user/sign_in",header,params,null,onSuccess,onError,1);
+        }
+    },
+    /*snsoftx.vlive.didi.DiDiLiveService.onAjaxSigninSuccess*/
+    onAjaxSigninSuccess:function(settings,o)
+    {
+        window.console.log("签到成功： %s ",settings.user_id);
+    },
+    /*snsoftx.vlive.didi.DiDiLiveService.onAjaxSigninFail*/
+    onAjaxSigninFail:function(settings,ex)
+    {
+        window.console.error("签到失败： %s ",settings.user_id);
     }
 });
 Xjs.apply(snsoftx.vlive.didi.DiDiLiveService,{
