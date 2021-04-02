@@ -1018,7 +1018,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             this.msgListener.onMessage("play-video",null,url);
         } else 
         {
-            this.msgListener.onMessage("getvideo-fail","获取视频","未获取到视频地址");
+            this.msgListener.onMessage("getvideo-fail","获取视频","未获取到视频地址" + (data.online == 0 ? ":该用户离线" : ""));
         }
     },
     /*snsoftx.vlive.didi.DiDiLiveService.prepareVideo*/
