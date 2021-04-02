@@ -1196,5 +1196,5 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
 });
 Xjs.apply(snsoftx.vlive.didi.DiDiLiveService,{
     AppVersion:"1.9.9",
-    LocalSettingItems:[{name:"device_id"},{name:"user_id"},{name:"user_name"},{name:"serverHost",defaultValue:"api.oidhfjg.com"},{name:"authToken",height:50},{name:"liveButter2",height:50},{name:"options",width:50}]
+    LocalSettingItems:[{name:"settingTitle"},{name:"device_id"},{name:"user_id"},{name:"user_name"},{name:"serverHost",defaultValue:"api.oidhfjg.com"},{name:"authToken",height:50},{name:"liveButter2",height:50},{name:"options",width:50}]
 });
