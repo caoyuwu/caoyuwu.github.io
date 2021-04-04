@@ -293,6 +293,7 @@ snsoftx.vlive.VLiveRoom=function(service){
         this.favoriteRoomBtnDOM.onclick = Function.bindAsEventListener(this.oncmd_setFavoroted,this);
         this.updateSetFavoritedBtnText();
     }
+    this.fn$onClickCopy = Function.bindAsEventListener(this.onClickCopy,this);
     this.service.setRoomInfo(this.roomId,this.userId);
     if(this.service.options & 1)
         this.requestVideoURL();
@@ -393,6 +394,10 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
     {
         this.startPlayDate = new Date();
         this.infoMsg("视频地址",url,null);
+        var cpBtn = document.createElement("button");
+        cpBtn.textContent = "拷贝地址";
+        cpBtn.onclick = this.fn$onClickCopy;
+        this.msgPane.addDOM(cpBtn,0);
         this.playingUrl = url;
         this.showOtherMsgs();
         if(!this.videoPlay)
@@ -470,8 +475,6 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
         this.msgPane3.clear();
         addPlayURL:if(this.playingUrl)
             {
-                if(!this.fn$onClickCopy)
-                    this.fn$onClickCopy = Function.bindAsEventListener(this.onClickCopy,this);
                 this.msgPane3.addMessage(this.startPlayDate.format());
                 this.msgPane3.addMessage("【播放地址】","item-title",2);
                 this.msgPane3.addMessage(this.playingUrl,null,2);
@@ -1132,6 +1135,9 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
                 return;
             case "peerage_join":
                 this.msgListener.onMessage("sys",m.title,m.user_nickname + ":" + m.desc);
+                return;
+            case "peerage_login":
+                this.msgListener.onMessage("buf-username",m.user_id,m.nick_name);
                 return;
             case "nameCardNews":
                 return;
