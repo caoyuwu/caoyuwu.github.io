@@ -3,6 +3,7 @@ Xjs.loadedXjs.push("video/VideoPlay");
 Xjs.namespace("snsoftx.video");
 snsoftx.video.VideoPlay=function(domId,cfg,playUrl){
     this.videoElement = document.getElementById(domId || "video-player");
+    this.videoElement.onloadedmetadata = this.onLoadedMetadata.createDelegate(this);
     Xjs.apply(this,cfg);
     this.init();
     if(this.fitSize)
@@ -15,12 +16,19 @@ snsoftx.video.VideoPlay=function(domId,cfg,playUrl){
     }
 };
 Xjs.apply(snsoftx.video.VideoPlay.prototype,{
+    /*snsoftx.video.VideoPlay.onLoadedMetadata*/
+    onLoadedMetadata:function()
+    {
+        this.updateVideoPos();
+    },
     /*snsoftx.video.VideoPlay.init*/
     init:Xjs.emptyFn,
     /*snsoftx.video.VideoPlay.play*/
     play:Xjs.emptyFn,
     /*snsoftx.video.VideoPlay.pause*/
     pause:Xjs.emptyFn,
+    /*snsoftx.video.VideoPlay.stop*/
+    stop:Xjs.emptyFn,
     /*snsoftx.video.VideoPlay.onVideoError*/
     onVideoError:function(err)
     {
@@ -70,8 +78,8 @@ Xjs.apply(snsoftx.video.VideoPlay.prototype,{
         if(this.fitSize == 1)
         {
             var videoWidth = this.getVideoWidth(),
-                w = videoWidth,
-                h = videoHeight;
+                w = videoWidth || this.defaultVideoWidth || 0,
+                h = videoHeight || this.defaultVideoHeight || 0;
             if(h <= 0 || w <= 0)
             {
                 return;
@@ -119,7 +127,37 @@ snsoftx.video.FLVVideoPlay=function(domId,cfg,playUrl){
 Xjs.extend(snsoftx.video.FLVVideoPlay,snsoftx.video.VideoPlay,{
   _js$className_:"snsoftx.video.FLVVideoPlay",
     /*snsoftx.video.FLVVideoPlay.init*/
-    init:Xjs.emptyFn
+    init:Xjs.emptyFn,
+    /*snsoftx.video.FLVVideoPlay.play*/
+    play:function(url)
+    {
+        this.destroy();
+        this.flvPlayer = window.flvjs.createPlayer({type:"flv",url:url});
+        this.flvPlayer.attachMediaElement(this.videoElement);
+        this.flvPlayer.load();
+        this.videoElement.play();
+    },
+    /*snsoftx.video.FLVVideoPlay.pause*/
+    pause:function()
+    {
+        this.flvPlayer.pause();
+    },
+    /*snsoftx.video.FLVVideoPlay.stop*/
+    stop:function()
+    {
+        this.destroy();
+    },
+    /*snsoftx.video.FLVVideoPlay.destroy*/
+    destroy:function()
+    {
+        if(this.flvPlayer)
+        {
+            this.flvPlayer.unload();
+            this.flvPlayer.detachMediaElement();
+            this.flvPlayer.destroy();
+            this.flvPlayer = null;
+        }
+    }
 });
 /*snsoftx/video/HLSVideoPlay.java*/
 snsoftx.video.HLSVideoPlay=function(domId,cfg,playUrl){
@@ -140,6 +178,11 @@ Xjs.extend(snsoftx.video.HLSVideoPlay,snsoftx.video.VideoPlay,{
     },
     /*snsoftx.video.HLSVideoPlay.pause*/
     pause:function()
+    {
+        this.videoPlayer.pause();
+    },
+    /*snsoftx.video.HLSVideoPlay.stop*/
+    stop:function()
     {
         this.videoPlayer.pause();
     },
