@@ -402,8 +402,15 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
         this.showOtherMsgs();
         if(!this.videoPlay)
         {
-            this.videoPlay = new snsoftx.video.HLSVideoPlay("video-player",{fitSize:1});
+            if(window.flvjs)
+                this.videoPlay = new snsoftx.video.FLVVideoPlay("video-player",{fitSize:1});
+            else 
+                this.videoPlay = new snsoftx.video.HLSVideoPlay("video-player",{fitSize:1});
             this.videoPlay.setListener(this);
+        }
+        if(this.videoPlay instanceof snsoftx.video.FLVVideoPlay && url.startsWith("rtmp://"))
+        {
+            url = "http://localhost:8000/snsoft/ui/rtmp2flv/" + url.substring(7);
         }
         this.videoPlay.play(url);
     },
