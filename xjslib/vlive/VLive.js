@@ -118,9 +118,20 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     },
     /*snsoftx.vlive.VLiveService.getSettingSelections*/
     getSettingSelections:Xjs.nullFn,
+    /*snsoftx.vlive.VLiveService.getAjaxInvokeProxy*/
+    getAjaxInvokeProxy:Xjs.nullFn,
     /*snsoftx.vlive.VLiveService.ajaxInvoke*/
     ajaxInvoke:function(method,url,header,params,contentType,postParams,onSuccess,onError,opts)
     {
+        var ajaxInvokeProxy = this.getAjaxInvokeProxy();
+        if(!(opts & 2) && ajaxInvokeProxy && !ajaxInvokeProxy.startsWith("#"))
+        {
+            var s = ajaxInvokeProxy == "~" ? Xjs.ROOTPATH : ajaxInvokeProxy;
+            if(!s.endsWith("/"))
+                s += "/";
+            this.ajaxInvoke("POST",s + "uiinvoke/st-snsoft.commons.net.HttpClient.httpRequest",header,params,null,[{method:method || null,url:url,queryParams:params,header:header,content:postParams,options:0x81}],onSuccess,onError,(opts || 0) | 2);
+            return;
+        }
         var postBody = null,
             queryParams = null;
         if(params)
@@ -833,6 +844,11 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     {
         return this.getSettings(this.settingType);
     },
+    /*snsoftx.vlive.didi.DiDiLiveService.getAjaxInvokeProxy*/
+    getAjaxInvokeProxy:function()
+    {
+        return this.getCurrentSettings().ajaxInvokeProxy;
+    },
     /*snsoftx.vlive.didi.DiDiLiveService.getSettingSelections*/
     getSettingSelections:function()
     {
@@ -990,7 +1006,10 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxPrepareVideo*/
     onAjaxPrepareVideo:function(s)
     {
-        this.onPrepareVideo(Xjs.JSON.parse(this.aesDecode(s)));
+        window.console.log("原始数据: %s",s);
+        var decoded = this.aesDecode(s);
+        window.console.log("解密后数据: %s",decoded);
+        this.onPrepareVideo(Xjs.JSON.parse(decoded));
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxPrepareVideoFail*/
     onAjaxPrepareVideoFail:function(err)
@@ -1192,7 +1211,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             header["User-Agent"] = "Mozilla/5.0 (Linux; Android 9; AOSP on IA Emulator Build/PSR1.180720.117; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/69.0.3497.100 Mobile Safari/537.36";
             var onSuccess = new Xjs.FuncCall(this.onAjaxSigninSuccess,this,[settings],2),
                 onError = new Xjs.FuncCall(this.onAjaxSigninFail,this,[settings],2);
-            this.ajaxPOST("http://localhost:8000/snsoft/uiinvoke/st-snsoft.commons.net.HttpClient.httpRequest",null,null,[{url:"https://" + settings.serverHost + "/home/user/sign_in?uid=" + userId + "&ver=" + snsoftx.vlive.didi.DiDiLiveService.AppVersion + "&lob=1",header:header,options:0x81}],onSuccess,onError,0);
+            this.ajaxPOST("http://localhost:8000/snsoft/uiinvoke/st-snsoft.commons.net.HttpClient.httpRequest",null,null,[{url:"https://" + settings.serverHost + "/home/user/sign_in?uid=" + userId + "&ver=" + snsoftx.vlive.didi.DiDiLiveService.AppVersion + "&lob=1",header:header,options:0x81}],onSuccess,onError,2);
         }
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxSigninSuccess*/
@@ -1209,5 +1228,5 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
 });
 Xjs.apply(snsoftx.vlive.didi.DiDiLiveService,{
     AppVersion:"1.9.9",
-    LocalSettingItems:[{name:"settingTitle"},{name:"device_id"},{name:"user_id"},{name:"user_name"},{name:"serverHost",defaultValue:"api.oidhfjg.com"},{name:"authToken",height:50},{name:"liveButter2",height:50},{name:"options",width:50}]
+    LocalSettingItems:[{name:"settingTitle"},{name:"device_id"},{name:"user_id"},{name:"user_name"},{name:"serverHost",defaultValue:"api.oidhfjg.com"},{name:"authToken",height:50},{name:"liveButter2",height:50},{name:"options",width:50},{name:"ajaxInvokeProxy"}]
 });
