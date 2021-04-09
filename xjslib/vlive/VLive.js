@@ -129,7 +129,7 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
             var s = ajaxInvokeProxy == "~" ? Xjs.ROOTPATH : ajaxInvokeProxy;
             if(!s.endsWith("/"))
                 s += "/";
-            this.ajaxInvoke("POST",s + "uiinvoke/st-snsoft.commons.net.HttpClient.httpRequest",header,params,null,[{method:method || null,url:url,queryParams:params,header:header,content:postParams,options:0x81}],onSuccess,onError,(opts || 0) | 2);
+            this.ajaxInvoke("POST",s + "uiinvoke/st-snsoft.commons.net.HttpClient.httpRequest",null,null,null,[{method:method || null,url:url,queryParams:params,header:header,content:postParams,options:0x81}],onSuccess,onError,(opts || 0) | 2);
             return;
         }
         var postBody = null,
