@@ -261,7 +261,12 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
         this.websocket.send(s);
     },
     /*snsoftx.vlive.VLiveService.onInitListRooms*/
-    onInitListRooms:Xjs.emptyFn
+    onInitListRooms:Xjs.emptyFn,
+    /*snsoftx.vlive.VLiveService.getEmptyVideoSize*/
+    getEmptyVideoSize:function()
+    {
+        return this.emptyVideoSize;
+    }
 });
 /*snsoftx/vlive/VLiveRoom.java*/
 snsoftx.vlive.VLiveRoom=function(service){
@@ -418,6 +423,12 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
             else 
                 this.videoPlay = new snsoftx.video.HLSVideoPlay("video-player",{fitSize:1});
             this.videoPlay.setListener(this);
+            var s = this.service.getEmptyVideoSize();
+            if(s)
+            {
+                this.videoPlay.defaultVideoWidth = s.width;
+                this.videoPlay.defaultVideoHeight = s.height;
+            }
         }
         if(this.videoPlay instanceof snsoftx.video.FLVVideoPlay && url.startsWith("rtmp://"))
         {
@@ -794,6 +805,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
 Xjs.namespace("snsoftx.vlive.didi");
 snsoftx.vlive.didi.DiDiLiveService=function(){
     snsoftx.vlive.didi.DiDiLiveService.superclass.constructor.call(this);
+    this.emptyVideoSize = {width:544,height:960};
     this.bufSettings = {};
     {
         var s = Xjs.getReqParameter("s"),
