@@ -72,12 +72,12 @@ Xjs.apply(snsoftx.video.VideoPlay.prototype,{
     /*snsoftx.video.VideoPlay.updateVideoPos*/
     updateVideoPos:function()
     {
-        var videoHeight = this.getVideoHeight(),
-            viewH = Xjs.DOM.getViewportHeight() - (this.padding && this.padding.height ? this.padding.height : 0),
+        var viewH = Xjs.DOM.getViewportHeight() - (this.padding && this.padding.height ? this.padding.height : 0),
             viewW = Xjs.DOM.getViewportWidth() - (this.padding && this.padding.width ? this.padding.width : 0);
         if(this.fitSize == 1)
         {
             var videoWidth = this.getVideoWidth(),
+                videoHeight = this.getVideoHeight(),
                 w = videoWidth || this.defaultVideoWidth || 0,
                 h = videoHeight || this.defaultVideoHeight || 0;
             if(h <= 0 || w <= 0)
