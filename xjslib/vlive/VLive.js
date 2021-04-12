@@ -403,7 +403,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
             }
             this.msgPane.addMessage(title,cls || "item-title",1);
         }
-        this.msgPane.addMessage(message,cls,2);
+        this.msgPane.addMessage(message || "",cls,2);
     },
     /*snsoftx.vlive.VLiveRoom.playVideo*/
     playVideo:function(url)
