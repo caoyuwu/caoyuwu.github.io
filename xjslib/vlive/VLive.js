@@ -1215,7 +1215,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             header["X-Via-ESocks-Proxy"] = "default";
             var onSuccess = new Xjs.FuncCall(this.onAjaxSigninSuccess,this,[settings],2),
                 onError = new Xjs.FuncCall(this.onAjaxSigninFail,this,[settings],2);
-            this.ajaxGET("http://127.0.0.1:1080/http-request/" + "http://" + settings.serverHost + "/home/user/sign_in?uid=" + userId + "&ver=" + snsoftx.vlive.didi.DiDiLiveService.AppVersion + "&lob=1",header,null,onSuccess,onError,2);
+            this.ajaxGET("http://proxy.caoyuwu.top:1080/http-request/" + "http://" + settings.serverHost + "/home/user/sign_in?uid=" + userId + "&ver=" + snsoftx.vlive.didi.DiDiLiveService.AppVersion + "&lob=1",header,null,onSuccess,onError,2);
         }
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxSigninSuccess*/
