@@ -396,15 +396,20 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
         }
         this.msgPane.addMessage(message || "",cls,2);
     },
+    /*snsoftx.vlive.VLiveRoom.addCpBtn*/
+    addCpBtn:function(text)
+    {
+        var cpBtn = document.createElement("button");
+        cpBtn.textContent = text || "拷贝..";
+        cpBtn.onclick = this.fn$onClickCopy;
+        this.msgPane.addDOM(cpBtn,0);
+    },
     /*snsoftx.vlive.VLiveRoom.playVideo*/
     playVideo:function(url)
     {
         this.startPlayDate = new Date();
         this.infoMsg("视频地址",url,null);
-        var cpBtn = document.createElement("button");
-        cpBtn.textContent = "拷贝地址";
-        cpBtn.onclick = this.fn$onClickCopy;
-        this.msgPane.addDOM(cpBtn,0);
+        this.addCpBtn("拷贝地址");
         this.playingUrl = url;
         this.showOtherMsgs();
         if(!this.videoPlay)
@@ -425,9 +430,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
         {
             url = "http://proxy.caoyuwu.top:1080/rtmp2flv/" + url.substring(7);
             this.infoMsg("代理视频地址",url,null);
-            cpBtn = document.createElement("button");
-            cpBtn.textContent = "拷贝地址";
-            cpBtn.onclick = this.fn$onClickCopy;
+            this.addCpBtn("拷贝地址");
         }
         this.videoPlay.play(url);
     },
