@@ -423,7 +423,11 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
         }
         if(this.videoPlay instanceof snsoftx.video.FLVVideoPlay && url.startsWith("rtmp://"))
         {
-            url = "http://localhost:8000/snsoft/ui/rtmp2flv/" + url.substring(7);
+            url = "http://proxy.caoyuwu.top:1080/rtmp2flv/" + url.substring(7);
+            this.infoMsg("代理视频地址",url,null);
+            cpBtn = document.createElement("button");
+            cpBtn.textContent = "拷贝地址";
+            cpBtn.onclick = this.fn$onClickCopy;
         }
         this.videoPlay.play(url);
     },
