@@ -123,6 +123,36 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     /*snsoftx.vlive.VLiveService.ajaxInvoke*/
     ajaxInvoke:function(method,url,header,params,contentType,postParams,onSuccess,onError,opts)
     {
+        var proxy = this.getAjaxInvokeProxy();
+        if(!(opts & 2) && proxy && !proxy.startsWith("#"))
+        {
+            var p = proxy.indexOf(';');
+            if(p > 0)
+            {
+                var a = proxy.substring(p + 1).split("&");
+                proxy = proxy.substring(0,p);
+                var nh = 0;
+                for(var i=0;i < a.length;i++)
+                {
+                    p = a[i].indexOf('=');
+                    if(a[i].startsWith("header.") && p > 0)
+                    {
+                        if(nh == 0)
+                        {
+                            header = Xjs.apply({},header);
+                        }
+                        header[a[i].substring(7,p)] = a[i].substring(p + 1);
+                        nh++;
+                    }
+                }
+            }
+            p = url.indexOf("://");
+            if(p < 0)
+            {
+                throw new Error(url);
+            }
+            url = proxy + "/" + url.substring(0,p) + "-request" + url.substring(p + 2);
+        }
         var postBody = null,
             queryParams = null;
         if(params)
@@ -145,7 +175,7 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
         }
         try
         {
-            var ajax = new Xjs.Ajax({url:url,parameters:queryParams,method:method,contentType:contentType,header:header,postBody:postBody,success:onSuccess,error:onError || new Xjs.FuncCall(this.onAjaxFail,this)});
+            var ajax = new Xjs.Ajax({url:url,parameters:queryParams,method:method,contentType:contentType,header:header,postBody:postBody,success:onSuccess,error:onError || new Xjs.FuncCall(this.onAjaxFail,this),xopts:1});
             if(opts & 1)
             {
                 ajax.enableJsonDec = false;
@@ -589,35 +619,28 @@ snsoftx.vlive.VLiveRoomList=function(service){
     this.renderLogoChkDOM = Xjs.DOM.findById("RenderUserLogo",null);
     var refresOptsPaneDOM = Xjs.DOM.findById("RefreshOptsPane",null),
         a = service.getRefreshRoomsOpts() || [];
-    this.refreshOptChks = new Array(a.length);
+    this.refreshRoomsOpts = a;
     this.allRooms = {};
-    var optNms = [],
-        fn$onRefreshOptsChanged = Function.bindAsEventListener(this.onRefreshOptsChanged,this);
-    for(var j=0;j < a.length;j++)
+    var fn$onRefreshOptsChanged = Function.bindAsEventListener(this.onRefreshOptsChanged,this);
+    for(var i=0;i < a.length;i++)
     {
-        this.refreshOptChks[j] = {opts:a[j]};
-        var d = this.refreshOptChks[j].checkDOM = Xjs.DOM.createChild(refresOptsPaneDOM,"input");
-        d.onclick = fn$onRefreshOptsChanged;
-        var gname = a[j]._name || "RefreshOpts";
-        d.name = gname;
-        d.id = d.name + "_" + j;
-        if(gname != null && !gname.startsWith("CHK_"))
+        var selDom = a[i].selDOM = Xjs.DOM.createChild(refresOptsPaneDOM,"select");
+        for(var j=0;j < a[i].options.length;j++)
         {
-            d.type = "radio";
-            var first = optNms.indexOf(d.name) < 0;
-            d.checked = first;
-            if(first)
+            var v = a[i].options[j],
+                s = v.toString(),
+                p;
+            if((p = s.indexOf(':')) > 0)
             {
-                optNms.push(d.name);
+                v = s.substring(0,p);
+                s = s.substring(p + 1);
             }
-        } else 
-        {
-            d.type = "checkbox";
-            d.checked = !!a[j]._checked;
+            var o = document.createElement("option");
+            o.value = v;
+            o.text = s;
+            (selDom).options.add(o);
+            selDom.onchange = fn$onRefreshOptsChanged;
         }
-        var lbDOM = Xjs.DOM.createChild(refresOptsPaneDOM,"label");
-        Xjs.DOM.setTextContent(lbDOM,a[j]._title);
-        lbDOM.htmlFor = d.id;
     }
     this.refreshBtnDOM.onclick = Function.bindAsEventListener(this.oncmd_refresh,this,0,true);
     this.statusPaneDOM = Xjs.DOM.findById("StatusPane",null);
@@ -633,25 +656,27 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
     {
         var title = null,
             opts = {};
-        for(var j=0;j < this.refreshOptChks.length;j++)
+        for(var i=0;i < this.refreshRoomsOpts.length;i++)
         {
-            if(this.refreshOptChks[j].checkDOM.checked)
+            var o = this.refreshRoomsOpts[i],
+                t = "",
+                v = null;
+            if(o.selDOM)
             {
-                var o = this.refreshOptChks[j].opts,
-                    t = o._title;
-                if(t == null)
+                v = o.selDOM.value;
+                for(var j=0;j < o.selDOM.options.length;j++)
                 {
-                    t = (o._name || "") + j;
-                }
-                title = title == null ? t : title + "-" + t;
-                for(var n in o)
-                {
-                    if(n == "_name" || n == "_title" || n == "_checked")
+                    if(o.selDOM.options[j].value == v)
                     {
-                        continue;
+                        t = o.selDOM.options[j].text;
+                        break;
                     }
-                    opts[n] = o[n];
                 }
+            }
+            title = title == null ? t : title + "-" + t;
+            if(v != null)
+            {
+                opts[o.name] = v;
             }
         }
         if(title == null)
@@ -761,8 +786,10 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
                 {
                     s += "/" + roomsLst.totalRooms;
                 }
-                var d = new Date(roomsLst.refreshTime);
-                s += ",刷新时间=" + d.format();
+                var d = new Date(roomsLst.refreshTime),
+                    hour = d.getHours(),
+                    min = d.getMinutes();
+                s += ",刷新时间=" + String.toStr2(hour) + ":" + String.toStr2(min);
             } else 
             {
                 s = roomsLst.refreshTime > 0 ? "正在刷新.." : "数据待刷新";
@@ -958,7 +985,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.didi.DiDiLiveService.getRefreshRoomsOpts*/
     getRefreshRoomsOpts:function()
     {
-        return [{type:"hot",_title:"热门"},{type:"latest",_title:"最新"},{type:"nearby",_title:"附近"},{type:"vegan",_title:"vegan"},{type:"vip",_title:"收费"},{type:"lounge",_title:"lounge"},{_name:"Page",page:1,_title:"1"},{_name:"Page",page:2,_title:"2"},{_name:"Page",page:3,_title:"3"},{_name:"Page",page:4,_title:"4"},{_name:"Page",page:5,_title:"5"},{_name:"Page",page:6,_title:"6"}];
+        return [{name:"type",options:["hot:热门","latest:最新","nearby:附近","vegan","vip:收费","lounge"]},{name:"page",options:[1,2,3,4,5,6]}];
     },
     /*snsoftx.vlive.didi.DiDiLiveService.refreshRooms*/
     refreshRooms:function(rooms)
@@ -1222,7 +1249,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             header["X-Via-ESocks-Proxy"] = "default";
             var onSuccess = new Xjs.FuncCall(this.onAjaxSigninSuccess,this,[settings],2),
                 onError = new Xjs.FuncCall(this.onAjaxSigninFail,this,[settings],2);
-            this.ajaxGET("http://proxy.caoyuwu.top:1080/http-request/" + "https://" + settings.serverHost + "/home/user/sign_in?uid=" + userId + "&ver=" + snsoftx.vlive.didi.DiDiLiveService.AppVersion + "&lob=1",header,null,onSuccess,onError,2);
+            this.ajaxGET("http://proxy.caoyuwu.top:1080/https-request/" + settings.serverHost + "/home/user/sign_in?uid=" + userId + "&ver=" + snsoftx.vlive.didi.DiDiLiveService.AppVersion + "&lob=1",header,null,onSuccess,onError,2);
         }
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxSigninSuccess*/
