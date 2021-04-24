@@ -24,11 +24,21 @@ Xjs.apply(snsoftx.video.VideoPlay.prototype,{
     /*snsoftx.video.VideoPlay.init*/
     init:Xjs.emptyFn,
     /*snsoftx.video.VideoPlay.play*/
-    play:Xjs.emptyFn,
+    play:function(url)
+    {
+        this.videoElement.src = url;
+        this.videoElement.play();
+    },
     /*snsoftx.video.VideoPlay.pause*/
-    pause:Xjs.emptyFn,
+    pause:function()
+    {
+        this.videoElement.pause();
+    },
     /*snsoftx.video.VideoPlay.stop*/
-    stop:Xjs.emptyFn,
+    stop:function()
+    {
+        this.videoElement.pause();
+    },
     /*snsoftx.video.VideoPlay.onVideoError*/
     onVideoError:function(err)
     {
@@ -120,6 +130,21 @@ Xjs.apply(snsoftx.video.VideoPlay.prototype,{
         this.listener = l;
     }
 });
+Xjs.apply(snsoftx.video.VideoPlay,{
+    /*snsoftx.video.VideoPlay.$new*/
+    $new:function(type,domId,cfg,playUrl)
+    {
+        switch((type || "").toLowerCase())
+        {
+        case "hls":
+            return new snsoftx.video.HLSVideoPlay(domId,cfg,playUrl);
+        case "flv":
+            return new snsoftx.video.FLVVideoPlay(domId,cfg,playUrl);
+        default:
+            return new snsoftx.video.VideoPlay(domId,cfg,playUrl);
+        }
+    }
+});
 /*snsoftx/video/FLVVideoPlay.java*/
 snsoftx.video.FLVVideoPlay=function(domId,cfg,playUrl){
     snsoftx.video.FLVVideoPlay.superclass.constructor.call(this,domId,cfg,playUrl);
@@ -132,6 +157,14 @@ Xjs.extend(snsoftx.video.FLVVideoPlay,snsoftx.video.VideoPlay,{
     play:function(url)
     {
         this.destroy();
+        var _this = this;
+        Xjs.JsLoad.asynLoadJS("~/jslib/flvjs/flv.js").then(function(){
+            _this._play(url);
+        });
+    },
+    /*snsoftx.video.FLVVideoPlay._play*/
+    _play:function(url)
+    {
         this.flvPlayer = window.flvjs.createPlayer({type:"flv",url:url});
         this.flvPlayer.attachMediaElement(this.videoElement);
         this.flvPlayer.load();
@@ -140,7 +173,10 @@ Xjs.extend(snsoftx.video.FLVVideoPlay,snsoftx.video.VideoPlay,{
     /*snsoftx.video.FLVVideoPlay.pause*/
     pause:function()
     {
-        this.flvPlayer.pause();
+        if(this.flvPlayer)
+        {
+            this.flvPlayer.pause();
+        }
     },
     /*snsoftx.video.FLVVideoPlay.stop*/
     stop:function()
@@ -166,25 +202,37 @@ snsoftx.video.HLSVideoPlay=function(domId,cfg,playUrl){
 Xjs.extend(snsoftx.video.HLSVideoPlay,snsoftx.video.VideoPlay,{
   _js$className_:"snsoftx.video.HLSVideoPlay",
     /*snsoftx.video.HLSVideoPlay.init*/
-    init:function()
-    {
-        this.videoPlayer = window.videojs(this.videoElement,{},this.onVideoPlayReady.createDelegate(this));
-    },
+    init:Xjs.emptyFn,
     /*snsoftx.video.HLSVideoPlay.play*/
     play:function(url)
     {
+        var _this = this;
+        Xjs.JsLoad.asynLoadJS("~/jslib/videojs/video.js").then(function(){
+            _this._play(url);
+        });
+    },
+    /*snsoftx.video.HLSVideoPlay._play*/
+    _play:function(url)
+    {
+        if(!this.videoPlayer)
+        {
+            Xjs.DOM.addHeaderCSSLink("~/jslib/videojs/video-js.css");
+            this.videoPlayer = window.videojs(this.videoElement,{},this.onVideoPlayReady.createDelegate(this));
+        }
         this.videoPlayer.src(url);
         this.videoPlayer.play();
     },
     /*snsoftx.video.HLSVideoPlay.pause*/
     pause:function()
     {
-        this.videoPlayer.pause();
+        if(this.videoPlayer)
+            this.videoPlayer.pause();
     },
     /*snsoftx.video.HLSVideoPlay.stop*/
     stop:function()
     {
-        this.videoPlayer.pause();
+        if(this.videoPlayer)
+            this.videoPlayer.pause();
     },
     /*snsoftx.video.HLSVideoPlay.getVideoWidth*/
     getVideoWidth:function()

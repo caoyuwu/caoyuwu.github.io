@@ -2,6 +2,7 @@ Xjs.loadedXjs.push("vlive/VLive");
 /*snsoftx/vlive/VLive.java*/
 Xjs.namespace("snsoftx.vlive");
 snsoftx.vlive.VLive=function(service){
+    this.TouchDev = Xjs.TouchDev;
     this.service = service;
     service.msgListener = this;
     this.vliveTag = service.getVLiveTag() || "VLive";
@@ -118,6 +119,11 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     },
     /*snsoftx.vlive.VLiveService.getSettingSelections*/
     getSettingSelections:Xjs.nullFn,
+    /*snsoftx.vlive.VLiveService.getVideoPlayerType*/
+    getVideoPlayerType:function()
+    {
+        return this.videoPlayerType;
+    },
     /*snsoftx.vlive.VLiveService.getAjaxInvokeProxy*/
     getAjaxInvokeProxy:Xjs.nullFn,
     /*snsoftx.vlive.VLiveService.ajaxInvoke*/
@@ -444,7 +450,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
         this.showOtherMsgs();
         if(!this.videoPlay)
         {
-            if(window.flvjs)
+            if(this.service.getVideoPlayerType() == "flv")
                 this.videoPlay = new snsoftx.video.FLVVideoPlay("video-player",{fitSize:1});
             else 
                 this.videoPlay = new snsoftx.video.HLSVideoPlay("video-player",{fitSize:1});
@@ -830,6 +836,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
 Xjs.namespace("snsoftx.vlive.didi");
 snsoftx.vlive.didi.DiDiLiveService=function(){
     snsoftx.vlive.didi.DiDiLiveService.superclass.constructor.call(this);
+    this.videoPlayerType = "flv";
     this.emptyVideoSize = {width:544,height:960};
     this.bufSettings = {};
     {
@@ -1044,14 +1051,17 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     onAjaxPrepareVideo:function(s)
     {
         window.console.log("原始数据: %s",s);
-        var decoded = this.aesDecode(s);
-        window.console.log("解密后数据: %s",decoded);
-        this.onPrepareVideo(Xjs.JSON.parse(decoded));
+        var _this = this;
+        Xjs.JsLoad.asynLoadJS("https://cdn.bootcss.com/crypto-js/3.1.9-1/crypto-js.min.js").then(function(){
+            var decoded = _this.aesDecode(s);
+            window.console.log("解密后数据: %s",decoded);
+            _this.onPrepareVideo(Xjs.JSON.parse(decoded));
+        });
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxPrepareVideoFail*/
     onAjaxPrepareVideoFail:function(err)
     {
-        this.msgListener.onMessage("getvideo-fail","获取视频",err.getMessage());
+        this.msgListener.onMessage("getvideo-fail","获取视频",err.message);
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onPrepareVideo*/
     onPrepareVideo:function(o)

@@ -4,18 +4,20 @@
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<script src="./video.min.js"></script>
 <script type='text/javascript' src='../xjslib/xjs-base.js'></script>
 <script type='text/javascript' src='../xjslib/video/VideoPlay.js'></script>
 <link rel="icon" href="video-64.png"/>
-<link href="./video-js.min.css" rel="stylesheet">
+
 <!-- 
+<script src="../jslib/videojs/video.js"></script>
+<link href="../jslib/videojs/video-js.css" rel="stylesheet">
 <script src="../jslib/videojs-flash/2.1.1/videojs-flash.js"></script>
 -->
 <title>视频播放</title>
 <script type="text/javascript">
    /*
-    http://www.caoyuwu.top/video/VideoPlay.html
+    http://www.caoyuwu.top/video/VideoPlay.html#?type=hls
+    http://www.caoyuwu.top/video/VideoPlay.html#?type=flv
     http://www.caoyuwu.top/video/VideoPlay.html#?url=http%3A%2F%2Fivi.bupt.edu.cn%2Fhls%2Fcctv1hd.m3u8
   */
  // var consolePane ; 
@@ -29,7 +31,7 @@
 	  videoPlayer.play(url);
   };
   function stopVideoPlay(){
-	  videoPlayer.pause();
+	  videoPlayer.stop();
   };
    window.onload = function(){
 	   //consolePane = new Xjs.ui.MessagePane({dom:document.getElementById("Console")});
@@ -41,7 +43,8 @@
 	   {
 		   padding = {width:16};
 	   }
-	   videoPlayer = new snsoftx.video.HLSVideoPlay(null,{fitSize:1},url);
+	   videoPlayer = snsoftx.video.VideoPlay.$new(Xjs.getReqParameter("type"),null,{fitSize:1},url);
+		   // new snsoftx.video.HLSVideoPlay(null,{fitSize:1},url);
 	   
 	   document.getElementById("VideoPlayBtn").onclick = startVideoPlay;
 	   document.getElementById("VideoStopBtn").onclick = stopVideoPlay;
@@ -55,14 +58,16 @@
 
 <body><div id="InfoPane">
  
- <h4>HLS等播放视频 </h4>
+ <h4>播放视频 </h4>
 视频地址:<br>
 <textarea id="VideoURL" style="width:1000px;height:50px;border:1px solid blue;"></textarea> <br> 
  <button id="VideoPlayBtn">播放</button><button id="VideoStopBtn">停止</button><br>
  <div>
  http://localhost:8000/snsoft/touch-demos/oceans.mp4<br>
- http://localhost/live/test1.flv (不支持)<br>
+ http://localhost/live/test1.flv <br>
  http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8<br>
+ http://proxy.caoyuwu.top:1080/rtmp2flv/ivi.bupt.edu.cn:1935/livetv/cctv1hd<br>
+ rtmp://ivi.bupt.edu.cn:1935/livetv/cctv1hd (不支持) <br>
  </div>
  <div id="ErrInfo"></div>
  <div id="Console"></div>
