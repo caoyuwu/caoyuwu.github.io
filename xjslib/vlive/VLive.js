@@ -6,7 +6,9 @@ snsoftx.vlive.VLive=function(service){
     this.service = service;
     service.msgListener = this;
     this.vliveTag = service.getVLiveTag() || "VLive";
+    this.dbgInfoDOM = Xjs.DOM.findById("DebugInfoPane",null);
     this.selectSettingsDOM = Xjs.DOM.findById("SelectSetting",null);
+    this.popupMenuDOM = Xjs.DOM.findById("PopupMenu",null);
     if(this.selectSettingsDOM)
     {
         var a = service.getSettingSelections();
@@ -30,9 +32,17 @@ snsoftx.vlive.VLive=function(service){
             this.selectSettingsDOM.style.display = "none";
         }
     }
+    document.ontouchstart = Function.bindAsEventListener(this.onTouchStart,this);
+    document.ontouchend = Function.bindAsEventListener(this.onTouchEnd,this);
 };
 Xjs.apply(snsoftx.vlive.VLive.prototype,{
     bufUserNames:{},
+    _touchTime:0,
+    /*snsoftx.vlive.VLive.showDebugInfo*/
+    showDebugInfo:function(text)
+    {
+        Xjs.DOM.setTextContent(this.dbgInfoDOM,text);
+    },
     /*snsoftx.vlive.VLive.onSettingsSelChanged*/
     onSettingsSelChanged:function(e)
     {
@@ -104,7 +114,71 @@ Xjs.apply(snsoftx.vlive.VLive.prototype,{
         return this.bufUserNames[userId] || null;
     },
     /*snsoftx.vlive.VLive.updateViwers*/
-    updateViwers:Xjs.emptyFn
+    updateViwers:Xjs.emptyFn,
+    /*snsoftx.vlive.VLive.onTouchStart*/
+    onTouchStart:function(e)
+    {
+        if(!e.touches || e.touches.length <= 0 || e.touches.length > 1)
+        {
+            return;
+        }
+        var touch = e.touches[0];
+        this._touchXY = {x:touch.pageX,y:touch.pageY};
+        this.showPopupMenu(-1,-1);
+        this._touchTime = (new Date()).getTime();
+        this.startLongTouchTimer(true);
+    },
+    /*snsoftx.vlive.VLive.startLongTouchTimer*/
+    startLongTouchTimer:function(start)
+    {
+        if(this._timeLongTouch)
+        {
+            clearTimeout(this._timeLongTouch);
+            delete this._timeLongTouch;
+        }
+        if(start)
+        {
+            if(!this.fn$onLongTouch)
+            {
+                this.fn$onLongTouch = this.onLongTouch.createDelegate(this);
+            }
+            this._timeLongTouch = setTimeout(this.fn$onLongTouch,600);
+        }
+    },
+    /*snsoftx.vlive.VLive.onLongTouch*/
+    onLongTouch:function()
+    {
+        this.startLongTouchTimer(false);
+        if(this._touchXY)
+        {
+            this.showPopupMenu(this._touchXY.x,this._touchXY.y);
+        }
+    },
+    /*snsoftx.vlive.VLive.onTouchEnd*/
+    onTouchEnd:function(e)
+    {
+        this._touchTime = 0;
+        this.startLongTouchTimer(false);
+    },
+    /*snsoftx.vlive.VLive.showPopupMenu*/
+    showPopupMenu:function(x,y)
+    {
+        if(this.popupMenuDOM)
+        {
+            var px = x - 50,
+                py = y - 30;
+            if(px < 0)
+                px = 0;
+            if(py < 0)
+                py = 0;
+            if(x < 0 || y < 0)
+            {
+                px = -10000;
+            }
+            this.popupMenuDOM.style.left = px + "px";
+            this.popupMenuDOM.style.top = py + "px";
+        }
+    }
 });
 /*snsoftx/vlive/VLiveService.java*/
 snsoftx.vlive.VLiveService=function(){
@@ -459,7 +533,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
                 this.videoPlay.defaultVideoHeight = s.height;
             }
         }
-        if(this.videoPlay instanceof snsoftx.video.FLVVideoPlay && url.startsWith("rtmp://") && !(this.TouchDev > 0))
+        if(this.videoPlay instanceof snsoftx.video.FLVVideoPlay && url.startsWith("rtmp://"))
         {
             url = "http://proxy.caoyuwu.top:1080/rtmp2flv/" + url.substring(7);
             this.infoMsg("代理视频地址",url,null);
@@ -620,6 +694,7 @@ snsoftx.vlive.VLiveRoomList=function(service){
     Xjs.DOM.remove(this.roomItemDOM);
     this.refreshBtnDOM = Xjs.DOM.findById("RefreshBtn",null);
     this.renderLogoChkDOM = Xjs.DOM.findById("RenderUserLogo",null);
+    this.enterRoomDOM = Xjs.DOM.findById("EnterRoomBTN",null);
     var refresOptsPaneDOM = Xjs.DOM.findById("RefreshOptsPane",null),
         a = service.getRefreshRoomsOpts() || [];
     this.refreshRoomsOpts = a;
@@ -648,12 +723,15 @@ snsoftx.vlive.VLiveRoomList=function(service){
     this.refreshBtnDOM.onclick = Function.bindAsEventListener(this.oncmd_refresh,this,0,true);
     this.statusPaneDOM = Xjs.DOM.findById("StatusPane",null);
     ;
+    if(this.enterRoomDOM)
+    {
+        this.enterRoomDOM.onclick = Function.bindAsEventListener(this.oncmd_enterRoom,this,0,true);
+    }
     this.onRefreshOptsChanged();
     service.onInitListRooms();
 };
 Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
   _js$className_:"snsoftx.vlive.VLiveRoomList",
-    _lastClickTime:0,
     /*snsoftx.vlive.VLiveRoomList.getSelectedRoomes*/
     getSelectedRoomes:function()
     {
@@ -776,11 +854,6 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
             this.roomListDOM.appendChild(r.dom);
             if(this.TouchDev > 0)
             {
-                if(!this.fn$onRoomItemClick)
-                {
-                    this.fn$onRoomItemClick = Function.bindAsEventListener(this.onRoomItemClick,this);
-                }
-                r.dom.onclick = this.fn$onRoomItemClick;
             } else 
             {
                 if(!this.fn$onRoomItemDblClick)
@@ -830,36 +903,57 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
         return null;
     },
     /*snsoftx.vlive.VLiveRoomList.onRoomItemClick*/
-    onRoomItemClick:function(e)
+    onRoomItemClick:Xjs.emptyFn,
+    /*snsoftx.vlive.VLiveRoomList.oncmd_enterRoom*/
+    oncmd_enterRoom:function()
     {
-        var t = (new Date()).getTime(),
-            d = t - this._lastClickTime;
-        this._lastClickTime = t;
-        if(d < 1000)
-        {
-            this._lastClickTime = 0;
-            this.onRoomItemDblClick(e);
-        }
+        this.showPopupMenu(-1,-1);
+        this.enterRoom(this._touchRoom);
     },
-    /*snsoftx.vlive.VLiveRoomList.onRoomItemDblClick*/
-    onRoomItemDblClick:function(e)
+    /*snsoftx.vlive.VLiveRoomList.onTouchStart*/
+    onTouchStart:function(e)
+    {
+        if(this._touchRoom)
+            Xjs.DOM.removeClass(this._touchRoom.dom,"selected");
+        this._touchRoom = this.getRoomByMouseEv(e);
+        if(this._touchRoom)
+            Xjs.DOM.addClass(this._touchRoom.dom,"selected");
+        snsoftx.vlive.VLiveRoomList.superclass.onTouchStart.call(this,e);
+    },
+    /*snsoftx.vlive.VLiveRoomList.getRoomByMouseEv*/
+    getRoomByMouseEv:function(e)
     {
         var d = e.srcElement || e.target;
         for(;d && d != this.roomListDOM && (!d.id || !d.id.startsWith("Room_"));d = d.parentNode)
             ;
         if(d.id && d.id.startsWith("Room_"))
         {
-            var room = this.getRoomById(Number.obj2int(d.id.substring(5),0));
+            return this.getRoomById(Number.obj2int(d.id.substring(5),0));
+        }
+        return null;
+    },
+    /*snsoftx.vlive.VLiveRoomList.enterRoom*/
+    enterRoom:function(room)
+    {
+        if(room)
+        {
             window.console.log("进入 Room %s , user=%s:%s",room.roomId,room.userId,room.userName);
             window.open("Room.html#?rid=" + room.roomId + "&uid=" + room.userId,"_blank");
         }
+    },
+    /*snsoftx.vlive.VLiveRoomList.onRoomItemDblClick*/
+    onRoomItemDblClick:function(e)
+    {
+        {
+        }
+        this.enterRoom(this.getRoomByMouseEv(e));
     }
 });
 /*snsoftx/vlive/didi/DiDiLiveService.java*/
 Xjs.namespace("snsoftx.vlive.didi");
 snsoftx.vlive.didi.DiDiLiveService=function(){
     snsoftx.vlive.didi.DiDiLiveService.superclass.constructor.call(this);
-    this.videoPlayerType = Xjs.TouchDev > 0 ? "" : "flv";
+    this.videoPlayerType = "flv";
     this.emptyVideoSize = {width:544,height:960};
     this.bufSettings = {};
     {

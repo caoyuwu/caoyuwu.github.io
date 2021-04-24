@@ -71,6 +71,10 @@ button {
      margin:1px;
   }
   
+  .roomitem.selected {
+  border-color: red;
+  }
+  
   .roomitem  #RoomInfoPane {
     position:absolute;
     right:4px;
@@ -134,7 +138,18 @@ button {
   {
       color:blue;
   }
-  
+  #PopupMenu {
+  	border: 1px solid black;
+  	padding:2px;
+  	border-radius:3px;
+  	background-color: #cccccc;
+  	width:100px;
+  	position: fixed;
+  	z-index: 100;
+  }
+  #PopupMenu .ui-popupmenuitem {
+    padding:8px 2px;
+  }
 </style>
 
 <script type="text/javascript">
@@ -182,7 +197,10 @@ button {
     <span id="RoomIdx"></span>
   </div>
 </div>
-
+<div id="PopupMenu" style="left:-10000px;top:0px">
+  <div id="EnterRoomBTN" class="ui-popupmenuitem">进入...</div>
+  <div id="ExitBTN" class="ui-popupmenuitem">退出...</div>
+</div>
 </body>
 
 </html>
