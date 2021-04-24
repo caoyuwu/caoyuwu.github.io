@@ -450,10 +450,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
         this.showOtherMsgs();
         if(!this.videoPlay)
         {
-            if(this.service.getVideoPlayerType() == "flv")
-                this.videoPlay = new snsoftx.video.FLVVideoPlay("video-player",{fitSize:1});
-            else 
-                this.videoPlay = new snsoftx.video.HLSVideoPlay("video-player",{fitSize:1});
+            this.videoPlay = snsoftx.video.VideoPlay.$new(this.service.getVideoPlayerType(),null,{fitSize:1});
             this.videoPlay.setListener(this);
             var s = this.service.getEmptyVideoSize();
             if(s)
@@ -462,7 +459,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
                 this.videoPlay.defaultVideoHeight = s.height;
             }
         }
-        if(this.videoPlay instanceof snsoftx.video.FLVVideoPlay && url.startsWith("rtmp://"))
+        if(this.videoPlay instanceof snsoftx.video.FLVVideoPlay && url.startsWith("rtmp://") && !(this.TouchDev > 0))
         {
             url = "http://proxy.caoyuwu.top:1080/rtmp2flv/" + url.substring(7);
             this.infoMsg("代理视频地址",url,null);
@@ -651,12 +648,12 @@ snsoftx.vlive.VLiveRoomList=function(service){
     this.refreshBtnDOM.onclick = Function.bindAsEventListener(this.oncmd_refresh,this,0,true);
     this.statusPaneDOM = Xjs.DOM.findById("StatusPane",null);
     ;
-    this.fn$onRoomItemDblClick = Function.bindAsEventListener(this.onRoomItemDblClick,this);
     this.onRefreshOptsChanged();
     service.onInitListRooms();
 };
 Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
   _js$className_:"snsoftx.vlive.VLiveRoomList",
+    _lastClickTime:0,
     /*snsoftx.vlive.VLiveRoomList.getSelectedRoomes*/
     getSelectedRoomes:function()
     {
@@ -777,7 +774,21 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
                 r.logoDom.src = r.logoUrl;
             }
             this.roomListDOM.appendChild(r.dom);
-            r.dom.ondblclick = this.fn$onRoomItemDblClick;
+            if(this.TouchDev > 0)
+            {
+                if(!this.fn$onRoomItemClick)
+                {
+                    this.fn$onRoomItemClick = Function.bindAsEventListener(this.onRoomItemClick,this);
+                }
+                r.dom.onclick = this.fn$onRoomItemClick;
+            } else 
+            {
+                if(!this.fn$onRoomItemDblClick)
+                {
+                    this.fn$onRoomItemDblClick = Function.bindAsEventListener(this.onRoomItemDblClick,this);
+                }
+                r.dom.ondblclick = this.fn$onRoomItemDblClick;
+            }
         }
         if(this.statusPaneDOM)
         {
@@ -818,6 +829,18 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
         }
         return null;
     },
+    /*snsoftx.vlive.VLiveRoomList.onRoomItemClick*/
+    onRoomItemClick:function(e)
+    {
+        var t = (new Date()).getTime(),
+            d = t - this._lastClickTime;
+        this._lastClickTime = t;
+        if(d < 1000)
+        {
+            this._lastClickTime = 0;
+            this.onRoomItemDblClick(e);
+        }
+    },
     /*snsoftx.vlive.VLiveRoomList.onRoomItemDblClick*/
     onRoomItemDblClick:function(e)
     {
@@ -836,7 +859,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
 Xjs.namespace("snsoftx.vlive.didi");
 snsoftx.vlive.didi.DiDiLiveService=function(){
     snsoftx.vlive.didi.DiDiLiveService.superclass.constructor.call(this);
-    this.videoPlayerType = "flv";
+    this.videoPlayerType = Xjs.TouchDev > 0 ? "" : "flv";
     this.emptyVideoSize = {width:544,height:960};
     this.bufSettings = {};
     {
