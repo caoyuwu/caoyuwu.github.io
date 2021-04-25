@@ -169,7 +169,7 @@ Xjs.extend(snsoftx.video.FLVVideoPlay,snsoftx.video.VideoPlay,{
         if(!this._cfged)
         {
             this._cfged = true;
-            var c = window.flvjs.LoggingControl.getConfig();
+            var c = window.flvjs.LoggingControl;
             c.enableDebug = false;
             c.enableInfo = false;
             c.enableVerbose = false;
