@@ -163,9 +163,23 @@ Xjs.extend(snsoftx.video.FLVVideoPlay,snsoftx.video.VideoPlay,{
             _this._play(url);
         });
     },
+    /*snsoftx.video.FLVVideoPlay.flvConfig*/
+    flvConfig:function()
+    {
+        if(!this._cfged)
+        {
+            this._cfged = true;
+            var c = window.flvjs.LoggingControl.getConfig();
+            c.enableDebug = false;
+            c.enableInfo = false;
+            c.enableVerbose = false;
+            c.enableWarn = false;
+        }
+    },
     /*snsoftx.video.FLVVideoPlay._play*/
     _play:function(url)
     {
+        this.flvConfig();
         this.flvPlayer = window.flvjs.createPlayer({type:"flv",url:url});
         this.flvPlayer.attachMediaElement(this.videoElement);
         this.flvPlayer.load();
