@@ -151,6 +151,7 @@ snsoftx.video.FLVVideoPlay=function(domId,cfg,playUrl){
 };
 Xjs.extend(snsoftx.video.FLVVideoPlay,snsoftx.video.VideoPlay,{
   _js$className_:"snsoftx.video.FLVVideoPlay",
+    flvjsUrl:"https://cdn.bootcdn.net/ajax/libs/flv.js/1.5.0/flv.min.js",
     /*snsoftx.video.FLVVideoPlay.init*/
     init:Xjs.emptyFn,
     /*snsoftx.video.FLVVideoPlay.play*/
@@ -158,7 +159,7 @@ Xjs.extend(snsoftx.video.FLVVideoPlay,snsoftx.video.VideoPlay,{
     {
         this.destroy();
         var _this = this;
-        Xjs.JsLoad.asynLoadJS("~/jslib/flvjs/flv.js").then(function(){
+        Xjs.JsLoad.asynLoadJS(this.flvjsUrl).then(function(){
             _this._play(url);
         });
     },
