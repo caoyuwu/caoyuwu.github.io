@@ -533,7 +533,7 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
                 this.videoPlay.defaultVideoHeight = s.height;
             }
         }
-        if(this.videoPlay instanceof snsoftx.video.FLVVideoPlay && url.startsWith("rtmp://"))
+        if(url.startsWith("rtmp://"))
         {
             url = "http://proxy.caoyuwu.top:1080/rtmp2flv/" + url.substring(7);
             this.infoMsg("代理视频地址",url,null);
@@ -1337,6 +1337,11 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             case "sysmsg.alert":
             case "sysmsg":
                 this.msgListener.onMessage("",m.title,m.content);
+                return;
+            case "error":
+            case "error.token":
+            case "error.kicked":
+                this.msgListener.onMessage("err",m.title,m.content);
                 return;
             default:
                 window.console.log("接受到 %s",s);
