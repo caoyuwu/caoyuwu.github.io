@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+<title>Index</title>
+
+<script type="text/javascript">
+ function onEVal(){
+	 var s = document.getElementById("SCRIPT").value;
+	 var r = document.getElementById("RESULT");
+	 try {
+		 var v = window.eval(s);
+		 r.style.color = "";
+		 r.textContent = "执行结果 = "+v;
+	 } catch( ex ){
+		 r.style.color = "red";
+		 r.textContent = "执行错误 = "+ex;
+	 }
+ }
+  window.onload = function(){
+	  document.getElementById("EVALBTN").onclick = onEVal;
+  }
+</script>
+	
+</head>
+<body>
+<h1>JS-EVAL</h1>
+<textarea id="SCRIPT" style="width:100%;height:200px" ></textarea>
+<br>
+<button id="EVALBTN">执行</button>
+<hr>
+<div id="RESULT"></div>
+<hr>
+</body>
+</html>
