@@ -75,6 +75,7 @@ var hostGrps = function(){
 		"wallmama.com",
 		"lncn.org",
 		"fanqiangdang.com",
+		"j01.space", // 几鸡
 		// 其他x:
 		"r18.com",
 		"oidhfjg.com"  // didi-live
