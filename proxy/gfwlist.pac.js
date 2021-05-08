@@ -78,10 +78,15 @@ var hostGrps = function(){
 		"j01.space", // 几鸡
 		// 其他x:
 		"r18.com",
-		"oidhfjg.com"  // didi-live
+		"oidhfjg.com",  // didi-live
+		
+		// 爬的
+		"apollo.io",
+		
+		"***"  // 最后一个被忽略 
   ];
   var rootGrps = {};	
-		for (var i = 0; i < proxyHosts.length; i++){
+		for (var i = 0; i < proxyHosts.length-1; i++){
 			var a = proxyHosts[i].split("\.");
 			var m = rootGrps;
 			for(var j=a.length-1;j>=0;j--){
