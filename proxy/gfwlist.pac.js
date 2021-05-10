@@ -76,6 +76,7 @@ var hostGrps = function(){
 		"lncn.org",
 		"fanqiangdang.com",
 		"j01.space", // 几鸡
+		"tudog-a.pw", // 土豆云
 		// 其他x:
 		"r18.com",
 		"oidhfjg.com",  // didi-live
