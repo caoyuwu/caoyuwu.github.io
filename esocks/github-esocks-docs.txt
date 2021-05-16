@@ -3,7 +3,7 @@ wget https://www.caoyuwu.top/esocks/linux_amd64/esocks
 
 wget https://www.caoyuwu.top/esocks/config.json
 
-./esocks -DINBOUND_PORT=2080
+./esocks -DINBOUND_PORT=2080  > /dev/null  &
 
 ./esocks  > /dev/null  &
 ./esocks  > /tmp/esocks.log  &
