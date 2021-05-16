@@ -1,0 +1,59 @@
+{
+   "logLevel": "info",
+   "inbounds":[
+  {
+     "proxy":"socks",
+     //"host":"0.0.0.0",
+     "port":1080,
+     "outbound":"@default-outbounds"
+  }
+  /*
+  ,{
+     "proxy":"tproxy",
+     //"host":"0.0.0.0",
+     "port":1099,
+     "outbound":"@default-outbounds"
+  }
+  ,{
+     "proxy":"redirect",
+     //"host":"0.0.0.0",
+     "port":1098,
+     "outbound":"@default-outbounds"
+  }
+  */
+  ],
+  
+  
+   "outbounds":[
+     // 订阅方式:
+    {
+	"proxy":"group",
+	  "name":"outbound-1",
+     "subscribeURL":"https://...",
+     "remarks":"..."
+    },
+     // 直接定义节点
+     {
+       "proxy":"group","name":"default",
+       "subbounds":[
+         {
+	      "name":"esocks",
+	      "proxy":"${INBOUND_PROXY?esocks}",
+	      "host":"${OUTBOUND_HOST}",
+	      "port":${OUTBOUND_PORT},
+	      "package":"${OUTBOUND_PACKAGE?}", //"wsheader",
+	      "encodeKey":"${OUTBOUND_ENCODEKEY?default}"
+  		 },
+  		 {
+  		    "name":"direct",
+  		    "proxy":"direct"
+  		 }
+       ]  
+      }
+   ]
+   
+ }
+ 
+ /*
+ esocks -Ddefault-outbounds=direct -config config-c.json -loglv=trace
+ */
