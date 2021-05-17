@@ -510,6 +510,7 @@
  menus:[
     {label:"国家台",items:"tag:蜻蜓-国家台"},
     {label:"北京台",items:"tag:蜻蜓-北京台"},
+    {label:"网络台",items:"tag:蜻蜓-网络台"},
     {label:"音乐台",items:"tag:蜻蜓-音乐台"},
     {label:"曲艺台",items:"tag:蜻蜓-曲艺台"},
     {label:"文艺台",items:"tag:蜻蜓-文艺台"},
