@@ -1,0 +1,20 @@
+{
+  label:"直播", groupIdx:0,
+ 
+  channels :[
+   //
+  {id:"CCTV-01",num:"01",urls:[
+                                "[bupt高清]http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8",
+                               //rtmp://ivi.bupt.edu.cn:1935/livetv/cctv1hd
+                               // "[CNTV]cntv://cctv1",
+                               // "MIGU5|migu5://cctv1hd",
+                               "wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv1_2/index.m3u8",
+  								"[bupt标清]http://ivi.bupt.edu.cn/hls/cctv1.m3u8",
+  								"[sau高清]http://tv.sau.edu.cn/cctv1hd.m3u8",
+  								"[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV1-HD_2000.m3u8"
+  								]},
+ ],
+ menus:[
+    {label:"常看频道1",items:["CCTV-15","CCTV-01"]}
+  ]
+}    
