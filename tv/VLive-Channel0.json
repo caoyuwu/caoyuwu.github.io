@@ -1,6 +1,7 @@
 /*
- ln -s /snsoft90/snadk-srcx/docs/cao/tv/VLive-Channel0.json /temp/channel.json 
- http://192.168.1.19:8803
+ ln -s /Third-src/GitHUB/caoyuwu.github.io/tv/VLive-Channel0.json /temp/channel.json 
+ http://www.caoyuwu.top/tv/VLive-Channel0.json
+ 
 */
 {
   label:"直播", groupIdx:0,
