@@ -12,7 +12,7 @@
   								"[bupt标清]http://ivi.bupt.edu.cn/hls/cctv1.m3u8",
   								"[sau高清]http://tv.sau.edu.cn/cctv1hd.m3u8",
   								"[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV1-HD_2000.m3u8"
-  								]},
+  								]}
  ],
  menus:[
     {label:"常看频道1",items:["CCTV-15","CCTV-01"]}
