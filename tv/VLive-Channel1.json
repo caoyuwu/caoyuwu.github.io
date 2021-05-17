@@ -15,6 +15,6 @@
   								]}
  ],
  menus:[
-    {label:"常看频道1",items:["tag:cctv"]}
+    {label:"常看频道1",items:"tag:cctv"}
   ]
 }    
