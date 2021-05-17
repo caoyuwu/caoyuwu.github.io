@@ -490,40 +490,40 @@
              "蜻蜓|qingtingfm://386",
   			"http://ngcdn001.cnr.cn/live/zgzs/index.m3u8"
   			]}, 
-  {id:"CNR音乐之声",urls:[
+  {id:"CNR音乐之声",tag:"蜻蜓-国家台,蜻蜓-音乐台",urls:[
         "蜻蜓|qingtingfm://388",
       	"cnr.cn|http://ngcdn003.cnr.cn/live/yyzs/index.m3u8"
        ]},
       
-    {id:"北京音乐广播",urls:[  // fm97.4
+    {id:"北京音乐广播",tag:"蜻蜓-北京台,蜻蜓-音乐台",urls:[  // fm97.4
       "蜻蜓|qingtingfm://332"
       ]}, 
    {id:"北京文艺广播",urls:[  // fm87.6
       "蜻蜓|qingtingfm://333",
 		"http://123.56.16.201:1935/live/fm876/96K/tzwj_video.m3u8"
       ]},   
-   {id:"怀旧音乐广播",urls:[ //fm89.5
+   {id:"怀旧音乐广播",tag:"蜻蜓-北京台,蜻蜓-音乐台",urls:[ //fm89.5
       "蜻蜓|qingtingfm://20211619"
        ]},    
-  {id:"清晨音乐台",urls:[ //网络台
-      "蜻蜓|qingtingfm://4915"
-       ]},
-  {id:"怀集音乐之声",urls:[ //网络台
+  {id:"怀集音乐之声",tag:"蜻蜓-网络台,蜻蜓-音乐台",urls:[ //网络台
       "蜻蜓|qingtingfm://4804"
        ]},   
-   {id:"青苹果音乐台",urls:[ //网络台
+  {id:"清晨音乐台",tag:"蜻蜓-网络台,蜻蜓-音乐台",urls:[ //网络台
+      "蜻蜓|qingtingfm://4915"
+       ]},
+   {id:"青苹果音乐台",tag:"蜻蜓-网络台,蜻蜓-音乐台",urls:[ //网络台
       "蜻蜓|qingtingfm://4576"
        ]}, 
-    {id:"动听音乐台",urls:[ //网络台
+    {id:"动听音乐台",tag:"蜻蜓-网络台,蜻蜓-音乐台",urls:[ //网络台
       "蜻蜓|qingtingfm://5022107"
        ]},
-   {id:"郁南音乐台",urls:[ //网络台
+   {id:"郁南音乐台",tag:"蜻蜓-网络台,蜻蜓-音乐台",urls:[ //网络台
       "蜻蜓|qingtingfm://20026"
        ]},  
-   {id:"星河音乐",urls:[ //网络台
+   {id:"星河音乐",tag:"蜻蜓-网络台,蜻蜓-音乐台",urls:[ //网络台
       "蜻蜓|qingtingfm://20210755"
        ]},  
-   {id:"80后音悦台",urls:[ //网络台
+   {id:"80后音悦台",tag:"蜻蜓-网络台,蜻蜓-音乐台",urls:[ //网络台
       "蜻蜓|qingtingfm://20207761"
        ]},                       
    {id:"郑州怀旧好声音",urls:[ //郑州//fm107.9
@@ -881,7 +881,7 @@
   
   menus:[
     {label:"常看频道1",items:["CCTV-15","CCTV-03",
-    			"CNR音乐之声","怀旧音乐广播","北京音乐广播",
+    			"tag:蜻蜓-音乐台", //"CNR音乐之声","怀旧音乐广播","北京音乐广播",
     			"凤凰卫视","凤凰资讯",
     			"VOA",
     			"CCTV-09",
