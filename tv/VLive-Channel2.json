@@ -3,6 +3,7 @@
  
   channels :[
   
+"setChannelNum=1000",  
 {id:"CNR中国交通广播",tag:"蜻蜓-国家台",url:"qingtingfm://4985"},
 {id:"CNR中国之声",tag:"蜻蜓-国家台",url:"qingtingfm://386"},
 {id:"CRI环球资讯",tag:"蜻蜓-国家台",url:"qingtingfm://1005"},
