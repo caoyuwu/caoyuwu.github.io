@@ -3,7 +3,7 @@
  
   channels :[
    //
-  {id:"CCTV-01",num:"01",urls:[
+  {id:"CCTV-01",num:"01",tag:"cctv",urls:[
                                 "[bupt高清]http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8",
                                //rtmp://ivi.bupt.edu.cn:1935/livetv/cctv1hd
                                // "[CNTV]cntv://cctv1",
@@ -15,6 +15,6 @@
   								]}
  ],
  menus:[
-    {label:"常看频道1",items:["CCTV-15","CCTV-01"]}
+    {label:"常看频道1",items:["tag:cctv"]}
   ]
 }    
