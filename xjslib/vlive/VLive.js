@@ -983,7 +983,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         {
             var ajax = new Xjs.Ajax({method:"get",url:Xjs.ROOTPATH + "vlive/didi/Settings.json"});
             ajax.request();
-            this.allSettings = ajax.getResponse();
+            this.allSettings = ajax.getResponse(true);
         }
         var s = this.allSettings[settingType];
         if(!s.serverHost)
