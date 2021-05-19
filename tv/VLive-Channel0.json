@@ -829,10 +829,11 @@
   //测试:
    {id:"192.168.1.8/test1",num:"99800",url:"rtmp://192.168.1.8/live/test1"},
    {id:"苹果测试源",url:"http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear2/prog_index.m3u8"},
-   "oceans.mp4}http://o.snsoft.com.cn/demo/video/oceans.mp4",
+   "oceans.mp4|http://o.snsoft.com.cn/demo/video/oceans.mp4",
    //{id:"oceans.mp4",url:"/sdcard/temp/oceans.mp4"},
    "360x240_1.mp4|http://o.snsoft.com.cn/demo/video/SampleVideo_360x240_1.mp4",
-   {id:"局域网oceans.mp4",url:"http://192.168.137.1:8000/snsoft/touch-demos/oceans.mp4"},
+   {id:"局域网oceans.mp4",url:"http://192.168.3.17:8000/snsoft/video/oceans.mp4"},
+   
     "tvbus-CCTV1,tvbus://8bQsn6pTCh3bitB9Q65tMZ9Cab93f7REd2GS3mnp5hoeb8qRUR",
     "tvbus-中视新闻HD|tvbus://5R9W8Pyu2dnVpue6Jsfx74SJwa1Vn2VtWxuDHCWihBMMFkrCMeMr7Wz1hdFdQ",
    "p8p-卫视中文,p8p://user3.shusongw.mobi:16871/5f2e5c380006bb4b1d9169c58f9b4abe.ts",
@@ -862,6 +863,7 @@
     "MIGU3-CCTV1|migu3://cctv1hd",
     "MIGU5-CCTV1|migu5://cctv1hd",
     "QQLIVE-?|qqlive://100104000",
+    
     {id:"ERR_02",urls:["http://1",
    				"http://2",
    				"[OCEANS]http://o.snsoft.com.cn/demo/video/oceans.mp4",
@@ -874,9 +876,12 @@
     "ERR_03|[OCEANS]http://o.snsoft.com.cn/demo/video/oceans.mp4#[360x240_1]http://o.snsoft.com.cn/demo/video/SampleVideo_360x240_1.mp4",
       
       // 无效 99901-99999
-   
-   
-    "??|http://"
+    //"??|http://",
+"setChannelNum=99920",
+ 	{id:"1.mp4",url:"http://192.168.3.17:8000/snsoft/touch-demos/1.mp4"},
+ 	{id:"oceans.mp4",url:"http://192.168.3.17:8000/snsoft/video/oceans.mp4"},
+ 	"??|http://",
+    //"??|http://", 
   ], // end of channels
   
   menus:[
@@ -976,10 +981,9 @@
         items:[
              {label:"临时",items:["[99400-99599]"]}, 
              {label:"境外-",locked:1,items:["[99600-99799]"]}, 
-        	 {label:"无效频道",items:["[99901-99999]"]},
-        	 {label:"测试",items:["[99800-99899]"
-        ]
-     }
+        	 {label:"测试",items:["[99800-99899]"]},
+        	 {label:"无效频道",items:["[99901-99920]"]},
+        	 {label:"临时",loop:false,items:["[99921-99999]"]}
  //   {label:"所有频道",items:[] } ,
  //      {label:"其他频道",items:[]},
  
@@ -987,7 +991,8 @@
      //"苹果测试源","oceans.mp4","360x240_1.mp4",
        //   "局域网oceans.mp4",
         // "ERR_01","ERR_02"
-            ]}
+            ]
+           }
           
   ]	
 }

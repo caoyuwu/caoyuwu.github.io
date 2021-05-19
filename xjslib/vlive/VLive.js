@@ -955,7 +955,6 @@ snsoftx.vlive.didi.DiDiLiveService=function(){
     snsoftx.vlive.didi.DiDiLiveService.superclass.constructor.call(this);
     this.videoPlayerType = "flv";
     this.emptyVideoSize = {width:544,height:960};
-    this.bufSettings = {};
     {
         var s = Xjs.getReqParameter("s"),
             cfg = s == null || s == "" ? 0 : Number.parseInt(s);
@@ -980,23 +979,24 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     {
         if(!settingType)
             settingType = this.settingType;
-        var s = this.bufSettings[settingType];
-        if(!s)
+        if(!this.allSettings)
         {
-            s = {settingType:settingType};
-            var settings = new snsoftx.tools.LocalSettings$Settings(settingType + ".",snsoftx.vlive.didi.DiDiLiveService.LocalSettingItems);
-            for(var j=0;j < settings.items.length;j++)
-            {
-                var i = settings.items[j];
-                s[i.name] = settings.getItemValue(i.name);
-            }
-            if(s.serverHost == null)
-            {
-                s.serverHost = "api.oidhfjg.com";
-            }
+            var ajax = new Xjs.Ajax({method:"get",url:Xjs.ROOTPATH + "vlive/didi/Settings.json"});
+            ajax.request();
+            this.allSettings = ajax.getResponse();
+        }
+        var s = this.allSettings[settingType];
+        if(!s.serverHost)
+        {
+            s.serverHost = "api.oidhfjg.com";
+        }
+        if(!s.serverURL)
+        {
             s.serverURL = "https://" + s.serverHost + "/OpenAPI/v1/";
+        }
+        if(!s.websocketURL)
+        {
             s.websocketURL = "wss://" + s.serverHost + ":443";
-            this.bufSettings[settingType] = s;
         }
         return s;
     },
