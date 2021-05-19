@@ -986,6 +986,8 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             this.allSettings = ajax.getResponse(true);
         }
         var s = this.allSettings[settingType];
+        if(!s)
+            return null;
         if(!s.serverHost)
         {
             s.serverHost = "api.oidhfjg.com";
@@ -1360,7 +1362,10 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         for(var j=0;j < 10;j++)
         {
             var k = "DiDiLive" + (j == 0 ? "" : "" + j),
-                userId = window.localStorage[k + ".user_id"];
+                settings = this.getSettings(k);
+            if(!settings)
+                continue;
+            var userId = settings.user_id;
             if(!userId)
                 continue;
             var signinDate = window.localStorage[k + ".signinDate"];
@@ -1369,7 +1374,6 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
                 window.console.log("已签到： %s ",userId);
                 continue;
             }
-            var settings = this.getSettings(k);
             if(!settings.authToken)
             {
                 continue;
