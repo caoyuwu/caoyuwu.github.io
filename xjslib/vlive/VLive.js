@@ -984,6 +984,11 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             var ajax = new Xjs.Ajax({method:"get",url:Xjs.ROOTPATH + "vlive/didi/Settings.json"});
             ajax.request();
             this.allSettings = ajax.getResponse(true);
+            for(var k in this.allSettings)
+            {
+                var s = this.allSettings[k];
+                s.settingType = k;
+            }
         }
         var s = this.allSettings[settingType];
         if(!s)
@@ -1361,14 +1366,14 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         var ymd0 = (new Date()).format(2);
         for(var j=0;j < 10;j++)
         {
-            var k = "DiDiLive" + (j == 0 ? "" : "" + j),
-                settings = this.getSettings(k);
+            var settingType = "DiDiLive" + (j == 0 ? "" : "" + j),
+                settings = this.getSettings(settingType);
             if(!settings)
                 continue;
             var userId = settings.user_id;
             if(!userId)
                 continue;
-            var signinDate = window.localStorage[k + ".signinDate"];
+            var signinDate = window.localStorage[settingType + ".signinDate"];
             if(signinDate == ymd0)
             {
                 window.console.log("已签到： %s ",userId);
