@@ -145,36 +145,18 @@
   
   
   {id:"凤凰卫视",num:"22",urls:[
-          "f3322.net|http://hjc757.f3322.net:5555/fh.php?id=zw",
           "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/fhzw",
           "chinayungu.cn|http://yuniptvun100.chinayungu.cn:65530/live/fhzw/index.m3u8",
           "haust.edu,http://hdtv.haust.edu.cn/hls/fhzw.m3u8",
           "[58.200.131.2]rtmp://58.200.131.2:1935/livetv/fhzw",
-         // "jilu8.cn,http://hls.jilu8.cn/hls/fhzw.m3u8",
-         // "mitv,mitv://198.255.74.56:13296/5fa1a813000354dad5a31a8b6368b9b0.ts",
-         // "dszbdq.cn|http://hls111.dszbdq.cn/fhshow.php?id=2",
-         // "[qingk.cn]http://24tl.qingk.cn/live/fhws.flv",
-         // "[bj.chinamobile高清]http://ywotttv.bj.chinamobile.com/PLTV/88888888/224/3221225942/1.m3u8",
-          //"ifeng.com|http://liveali.ifeng.com/live/FHZW.m3u8",
          "凤凰秀|http://live.fengshows.com/live/PCC_500k/index.m3u8"  // 
          ]},
   {id:"凤凰资讯",num:"23",urls:[
-        "f3322.net,http://hjc757.f3322.net:5555/fh.php?id=zx",
         "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/fhzx",
          "chinayungu.cn,http://yuniptvun100.chinayungu.cn:65530/live/fhzx/index.m3u8",
         "haust.edu,http://hdtv.haust.edu.cn/hls/fhzx.m3u8",
         "58.200.131.2|rtmp://58.200.131.2:1935/livetv/fhzx"
-      //  "jilu8.cn,http://hls.jilu8.cn/hls/fhzx.m3u8",
-       // "mitv,mitv://198.255.74.56:13296/5fa1a813000276ffd5a31a5225355c68.ts",
-       // "dszbdq.cn|http://hls111.dszbdq.cn/fhshow.php?id=1",
-      //  "[qingk.cn]http://24tl.qingk.cn/live/fhzx.flv",
-       //"[bj.chinamobile高清]http://ywotttv.bj.chinamobile.com/PLTV/88888888/224/3221225949/1.m3u8",
-       // "ifeng.com|http://liveali.ifeng.com/live/FHZX.m3u8",
-        
-       // "http://ott.fj.chinamobile.com/PLTV/88888888/224/3221225901/index.m3u8",
-	//	"http://ott.js.chinamobile.com/PLTV/3/224/3221226923/index.m3u8",
-	//	"p2p://tb_dHZidXM6Ly8xYTc1WERtQVhnWGRKTjJrZHJHWURrWEZOeWdYc2FuTVlVUG9TN3dXM2JXZVVZZUV1ZQ=="
-      ]},
+       ]},
   {id:"凤凰电影",num:"24",urls:[
   		"haust.edu,http://hdtv.haust.edu.cn/hls/fhdy.m3u8",
           "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/fhdy",
