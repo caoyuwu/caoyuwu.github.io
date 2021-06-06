@@ -798,8 +798,10 @@
   "setChannelNum=98000",
   {id:"一百万个可能",url:"music163://29722582"},
   {id:"追光者",url:"music163://547282417"},
-  "飘洋过海来看你|music163://436016654",//部分
-  "飘洋过海来看你-qq|qqmusic://000xrO1b18mnwm",//部分
+  {id:"飘洋过海来看你", urls:[
+          "QQ|qqmusic://000xrO1b18mnwm",
+          "网易|music163://436016654",//部分
+         ]},
    "泉水叮咚响|qqmusic://0041SL2M1OqOmK", 
    "遇见|music163://287319",  // 部分, qq也限制
    "红豆-qq|qqmusic://001Bn9v83Ozs4k",
