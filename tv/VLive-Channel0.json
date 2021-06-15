@@ -1,10 +1,10 @@
 /*
  ln -s /Third-src/GitHUB/caoyuwu.github.io/tv/VLive-Channel0.json /link/VLive-Channel0.json 
  http://www.caoyuwu.top/tv/VLive-Channel0.json
- groupIdx:0,
+ 
 */
 {
-  label:"直播2", 
+  label:"直播", groupIdx:0,
  
   channels :[
    //
