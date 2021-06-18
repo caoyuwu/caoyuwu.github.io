@@ -901,7 +901,7 @@
    //"|music163://",
   // end 98199 音乐 
     "setChannelNum=98200",
-     "It I Love You & The Greatest|163mv://10885202",
+   //  "It I Love You & The Greatest|163mv://10885202",
     // end 98299 音乐 
 // 临时  99400
 "setChannelNum=99400",
@@ -1045,9 +1045,9 @@
        ]},   
     {label:"电台",items:["[800-849]","VOA音频"]},
     
-    {label:"音乐1",loop:true,items:"[98001-98199]"}, 
+    {label:"音乐",loop:true,items:"[98001-98199]"}, 
     
-    {label:"音乐2",loop:true,items:"[98200-98299]"}, 
+   // {label:"音乐2",loop:true,items:"[98200-98299]"}, 
     
     {label:"境外频道",items:["凤凰卫视","凤凰资讯","凤凰电影","星空卫视",
                   "[30-39]",
