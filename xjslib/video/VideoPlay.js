@@ -210,6 +210,82 @@ Xjs.extend(snsoftx.video.FLVVideoPlay,snsoftx.video.VideoPlay,{
         }
     }
 });
+/*snsoftx/video/HLS1VideoPlay.java*/
+snsoftx.video.HLS1VideoPlay=function(domId,cfg,playUrl){
+    snsoftx.video.HLS1VideoPlay.superclass.constructor.call(this,domId,cfg,playUrl);
+};
+Xjs.extend(snsoftx.video.HLS1VideoPlay,snsoftx.video.VideoPlay,{
+  _js$className_:"snsoftx.video.HLS1VideoPlay",
+    /*snsoftx.video.HLS1VideoPlay.init*/
+    init:Xjs.emptyFn,
+    /*snsoftx.video.HLS1VideoPlay.play*/
+    play:function(url)
+    {
+        var _this = this;
+        Xjs.JsLoad.asynLoadJS("~/jslib/videojs/video.js").then(function(){
+            _this._play(url);
+        });
+    },
+    /*snsoftx.video.HLS1VideoPlay._play*/
+    _play:function(url)
+    {
+        if(!this.videoPlayer)
+        {
+            Xjs.DOM.addHeaderCSSLink("~/jslib/videojs/video-js.css");
+            this.videoPlayer = window.videojs(this.videoElement,{},this.onVideoPlayReady.createDelegate(this));
+        }
+        this.videoPlayer.src(url);
+        this.videoPlayer.play();
+    },
+    /*snsoftx.video.HLS1VideoPlay.pause*/
+    pause:function()
+    {
+        if(this.videoPlayer)
+            this.videoPlayer.pause();
+    },
+    /*snsoftx.video.HLS1VideoPlay.stop*/
+    stop:function()
+    {
+        if(this.videoPlayer)
+            this.videoPlayer.pause();
+    },
+    /*snsoftx.video.HLS1VideoPlay.getVideoWidth*/
+    getVideoWidth:function()
+    {
+        if(this.videoPlayer)
+            return this.videoPlayer.videoWidth();
+        return this.videoElement.videoWidth;
+    },
+    /*snsoftx.video.HLS1VideoPlay.getVideoHeight*/
+    getVideoHeight:function()
+    {
+        if(this.videoPlayer)
+            return this.videoPlayer.videoHeight();
+        return this.videoElement.videoHeight;
+    },
+    /*snsoftx.video.HLS1VideoPlay.onVideoPlayReady*/
+    onVideoPlayReady:function()
+    {
+        this.videoPlayer.on("play",this.onVideoPlay.createDelegate(this));
+        this.videoPlayer.on("resize",this.onVideoResize.createDelegate(this));
+        this.videoPlayer.on("error",this.onVideoError.createDelegate(this));
+        window.console.log("videoPlayer.src = " + this.videoPlayer.src());
+        if(this.videoPlayer.src() != null)
+            this.videoPlayer.play();
+    },
+    /*snsoftx.video.HLS1VideoPlay.setVideoViewSize*/
+    setVideoViewSize:function(w,h)
+    {
+        if(!this.videoPlayer)
+        {
+            snsoftx.video.HLS1VideoPlay.superclass.setVideoViewSize.call(this,w,h);
+        } else 
+        {
+            this.videoPlayer.height(h);
+            this.videoPlayer.width(w);
+        }
+    }
+});
 /*snsoftx/video/HLSVideoPlay.java*/
 snsoftx.video.HLSVideoPlay=function(domId,cfg,playUrl){
     snsoftx.video.HLSVideoPlay.superclass.constructor.call(this,domId,cfg,playUrl);
@@ -222,67 +298,26 @@ Xjs.extend(snsoftx.video.HLSVideoPlay,snsoftx.video.VideoPlay,{
     play:function(url)
     {
         var _this = this;
-        Xjs.JsLoad.asynLoadJS("~/jslib/videojs/video.js").then(function(){
+        Xjs.JsLoad.asynLoadJS("https://cdn.jsdelivr.net/hls.js/latest/hls.min.js").then(function(){
             _this._play(url);
         });
     },
     /*snsoftx.video.HLSVideoPlay._play*/
     _play:function(url)
     {
-        if(!this.videoPlayer)
+        if(!this.hls)
         {
-            Xjs.DOM.addHeaderCSSLink("~/jslib/videojs/video-js.css");
-            this.videoPlayer = window.videojs(this.videoElement,{},this.onVideoPlayReady.createDelegate(this));
+            this.hls = new Hls();
+            this.fn$onVideoPlayReady = this.onVideoPlayReady.createDelegate(this);
         }
-        this.videoPlayer.src(url);
-        this.videoPlayer.play();
-    },
-    /*snsoftx.video.HLSVideoPlay.pause*/
-    pause:function()
-    {
-        if(this.videoPlayer)
-            this.videoPlayer.pause();
-    },
-    /*snsoftx.video.HLSVideoPlay.stop*/
-    stop:function()
-    {
-        if(this.videoPlayer)
-            this.videoPlayer.pause();
-    },
-    /*snsoftx.video.HLSVideoPlay.getVideoWidth*/
-    getVideoWidth:function()
-    {
-        if(this.videoPlayer)
-            return this.videoPlayer.videoWidth();
-        return this.videoElement.videoWidth;
-    },
-    /*snsoftx.video.HLSVideoPlay.getVideoHeight*/
-    getVideoHeight:function()
-    {
-        if(this.videoPlayer)
-            return this.videoPlayer.videoHeight();
-        return this.videoElement.videoHeight;
+        this.hls.attachMedia(this.videoElement);
+        this.hls.loadSource(url);
+        this.hls.on(Hls.Events.MEDIA_ATTACHED,this.fn$onVideoPlayReady);
     },
     /*snsoftx.video.HLSVideoPlay.onVideoPlayReady*/
     onVideoPlayReady:function()
     {
-        this.videoPlayer.on("play",this.onVideoPlay.createDelegate(this));
-        this.videoPlayer.on("resize",this.onVideoResize.createDelegate(this));
-        this.videoPlayer.on("error",this.onVideoError.createDelegate(this));
-        window.console.log("videoPlayer.src = " + this.videoPlayer.src());
-        if(this.videoPlayer.src() != null)
-            this.videoPlayer.play();
-    },
-    /*snsoftx.video.HLSVideoPlay.setVideoViewSize*/
-    setVideoViewSize:function(w,h)
-    {
-        if(!this.videoPlayer)
-        {
-            snsoftx.video.HLSVideoPlay.superclass.setVideoViewSize.call(this,w,h);
-        } else 
-        {
-            this.videoPlayer.height(h);
-            this.videoPlayer.width(w);
-        }
+        window.console.log("onVideoPlayReady...");
+        this.videoElement.play();
     }
 });
