@@ -535,7 +535,8 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
         }
         if(url.startsWith("rtmp://"))
         {
-            url = "https://proxy.caoyuwu.top:1443/rtmp2flv/" + url.substring(7);
+            var proxyServer = Xjs.ROOTPATH.startsWith("https://") ? "https://proxy.caoyuwu.top:1443" : "http://proxy.caoyuwu.top:1080";
+            url = proxyServer + "/rtmp2flv/" + url.substring(7);
             this.infoMsg("代理视频地址",url,null);
             this.addCpBtn("拷贝地址");
         }
@@ -1389,8 +1390,9 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             header["X-H-User-Agent"] = "Mozilla/5.0 (Linux; Android 9; AOSP on IA Emulator Build/PSR1.180720.117; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/69.0.3497.100 Mobile Safari/537.36";
             header["X-Via-ESocks-Proxy"] = "default";
             var onSuccess = new Xjs.FuncCall(this.onAjaxSigninSuccess,this,[settings],2),
-                onError = new Xjs.FuncCall(this.onAjaxSigninFail,this,[settings],2);
-            this.ajaxGET("https://proxy.caoyuwu.top:1443/https-request/" + settings.serverHost + "/home/user/sign_in?uid=" + userId + "&ver=" + snsoftx.vlive.didi.DiDiLiveService.AppVersion + "&lob=1",header,null,onSuccess,onError,2);
+                onError = new Xjs.FuncCall(this.onAjaxSigninFail,this,[settings],2),
+                proxyServer = Xjs.ROOTPATH.startsWith("https://") ? "https://proxy.caoyuwu.top:1443" : "http://proxy.caoyuwu.top:1080";
+            this.ajaxGET(proxyServer + "/https-request/" + settings.serverHost + "/home/user/sign_in?uid=" + userId + "&ver=" + snsoftx.vlive.didi.DiDiLiveService.AppVersion + "&lob=1",header,null,onSuccess,onError,2);
         }
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxSigninSuccess*/
