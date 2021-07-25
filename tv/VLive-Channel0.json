@@ -39,14 +39,11 @@
                              //  "[CNTV]cntv://cctv4",
                               "[标清]http://ivi.bupt.edu.cn/hls/cctv4.m3u8"]}, 
   {id:"CCTV-05",num:"05",urls:[ 
-                               "myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctv5_2/index.m3u8",  
-                                "mitv|mitv://147.135.39.171:9906/5defdaa20006951f6ea06d5b0b04771d.ts",
-                                "[bj.chinamobile]http://ywotttv.bj.chinamobile.com/PLTV/88888888/224/3221226256/1.m3u8",
- 			 					"[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV5-HD_2000.m3u8",
-                                "http://223.110.241.204:6610/cntv/live1/cctv-5/cctv-5",
+                               "111.63.117.13|http://111.63.117.13:6060/030000001000/CCTV-5/CCTV-5.m3u8",
+                 				"112.132.209.46|http://112.132.209.46/liveplay-kk.rtxapp.com/live/program/live/cctv5hd/4000000/mnf.m3u8",
+                 				"http://39.135.34.150:8080/000000001000/1000000001000004794/1.m3u8?xtkg",
                  				"[sau高清]http://tv.sau.edu.cn/cctv5hd.m3u8",
-                               "http://ivi.bupt.edu.cn/hls/cctv5hd.m3u8",
-                               "[CNTV]cntv://cctv5"
+                               "http://ivi.bupt.edu.cn/hls/cctv5hd.m3u8"
                                ]}, 
   {id:"CCTV-06",num:"06",urls:[
   								"[高清]http://ivi.bupt.edu.cn/hls/cctv6hd.m3u8",
