@@ -41,7 +41,8 @@
   {id:"CCTV-05",num:"05",urls:[ 
                                "111.63.117.13|http://111.63.117.13:6060/030000001000/CCTV-5/CCTV-5.m3u8",
                  				"112.132.209.46|http://112.132.209.46/liveplay-kk.rtxapp.com/live/program/live/cctv5hd/4000000/mnf.m3u8",
-                 				"http://39.135.34.150:8080/000000001000/1000000001000004794/1.m3u8?xtkg",
+                 				"39.135.34.150|http://39.135.34.150:8080/000000001000/1000000001000004794/1.m3u8?xtkg",
+                 				"223.110.245.151|http://223.110.245.151/ott.js.chinamobile.com/PLTV/3/224/3221227640/index.m3u8",
                  				"[sau高清]http://tv.sau.edu.cn/cctv5hd.m3u8",
                                "http://ivi.bupt.edu.cn/hls/cctv5hd.m3u8"
                                ]}, 
