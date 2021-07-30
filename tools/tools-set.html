@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+<title>工具</title>
+
+<script type="text/javascript">
+  function onDate1Add(){
+	  var dateReg = /^\d{4}-\d{1,2}-\d{1,2}$/;
+	  var numReg = /^-?\d+$/;
+	  var s1 = document.getElementById("DATE1").value.trim();
+	  var s2 = document.getElementById("NDAY1").value.trim();
+	  var val = "";
+	  if( dateReg.test(s1) && numReg.test(s2) ){
+		  var d = new Date(Date.parse(s1)+Number.parseInt(s2)*24*60*60*1000);
+		  var d0 = new Date();
+		  d0 = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate());
+		  //var wd = d.getDay();
+		  val = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()+" , 周"+"日一二三四五六".charAt(d.getDay())
+		     +", 距今天"+(d.getTime()-d0.getTime())/(24*60*60*1000)+"天";
+	  }		  
+	  document.getElementById("DATE1R").textContent = val;
+	  // 
+  }
+  window.onload = function(){
+	   document.getElementById("DATE1").onkeyup =  onDate1Add;
+	   document.getElementById("NDAY1").onkeyup =  onDate1Add;
+  }
+</script>
+	
+</head>
+<body>
+<h4>日期+天数</h4>
+<input id="DATE1" size="10">+<input id="NDAY1" size="2" style="text-align:center; " value="90">=<span id="DATE1R"></span>
+<hr>
+</body>
+</html>
