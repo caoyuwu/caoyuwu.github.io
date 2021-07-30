@@ -8,15 +8,21 @@
 
 <script type="text/javascript">
   function onDate1Add(){
-	  var dateReg = /^\d{4}-\d{1,2}-\d{1,2}$/;
+	  var dateReg1 = /^\d{4}-\d{1,2}-\d{1,2}$/;
 	  var numReg = /^-?\d+$/;
 	  var s1 = document.getElementById("DATE1").value.trim();
 	  var s2 = document.getElementById("NDAY1").value.trim();
+	  if( s2=="") s2 = "0";
+	  //console.log("s1=%s, s2=%s, typeof(s1)=%s",s1,s2,typeof(s1))
 	  var val = "";
-	  if( dateReg.test(s1) && numReg.test(s2) ){
-		  var d = new Date(Date.parse(s1)+Number.parseInt(s2)*24*60*60*1000);
+	  if( dateReg1.test(s1) && numReg.test(s2) ){
+		  var s1a = s1.split("-");
+		  var d = new Date(Number.parseInt(s1a[0]),Number.parseInt(s1a[1])-1,Number.parseInt(s1a[2]));
+		  d = new Date(d.getTime()+Number.parseInt(s2)*24*60*60*1000);
+		  //Date.parse(s1+" GMT+8")+Number.parseInt(s2)*24*60*60*1000);
 		  var d0 = new Date();
 		  d0 = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate());
+		  console.log("d=%s , d0=%s",d,d0);
 		  //var wd = d.getDay();
 		  val = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()+" , 周"+"日一二三四五六".charAt(d.getDay())
 		     +", 距今天"+(d.getTime()-d0.getTime())/(24*60*60*1000)+"天";
@@ -25,15 +31,17 @@
 	  // 
   }
   window.onload = function(){
-	   document.getElementById("DATE1").onkeyup =  onDate1Add;
-	   document.getElementById("NDAY1").onkeyup =  onDate1Add;
+	  var e = document.getElementById("DATE1"); 
+	   e.onkeyup = e.onchange = onDate1Add;
+	   e = document.getElementById("NDAY1");
+	   e.onkeyup = e.onchange = onDate1Add;
   }
 </script>
 	
 </head>
 <body>
 <h4>日期+天数</h4>
-<input id="DATE1" size="10">+<input id="NDAY1" size="2" style="text-align:center; " value="90">=<span id="DATE1R"></span>
+<input id="DATE1" type="date" size="10">+<input id="NDAY1" type="number" style="text-align:center;width:50px " value="90">=<span id="DATE1R"></span>
 <hr>
 </body>
 </html>
