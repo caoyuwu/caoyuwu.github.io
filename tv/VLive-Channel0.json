@@ -61,15 +61,16 @@
   								"[标清]http://ivi.bupt.edu.cn/hls/cctv7.m3u8"
   								]}, 
   {id:"CCTV-08",num:"08",urls:[
-  								"[高清]http://ivi.bupt.edu.cn/hls/cctv8hd.m3u8",
-  								"myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctv8_2/index.m3u8",
-  								"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv8_2/index.m3u8",
-  								//"[CNTV]cntv://cctv8",
-                                "[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV8-HD_2000.m3u8",
-                                "[标清]http://ivi.bupt.edu.cn/hls/cctv8.m3u8"
+					"[高清]http://ivi.bupt.edu.cn/hls/cctv8hd.m3u8",
+					"myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctv8_2/index.m3u8",
+					"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv8_2/index.m3u8",
+					//"[CNTV]cntv://cctv8",
+                    "[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV8-HD_2000.m3u8",
+                    "[标清]http://ivi.bupt.edu.cn/hls/cctv8.m3u8"
                                 ]}, 
   {id:"CCTV-09",num:"09",urls:[
 	"[bupt]http://ivi.bupt.edu.cn/hls/cctv9.m3u8",
+	  "myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctvjilu_2/index.m3u8",
 	"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctvjilu_2/index.m3u8",
 		 "[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV9-HD_2000.m3u8"
 		//"[CNTV]cntv://cctv9",	
@@ -81,16 +82,19 @@
 	    "[标清]http://ivi.bupt.edu.cn/hls/cctv10.m3u8"
 	    ]}, 
   {id:"CCTV-11",num:"11",urls:[
+   "myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctv11_2/index.m3u8",
   						"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv11_2/index.m3u8",
   							"[CNTV]cntv://cctv11",
   							"[标清]http://ivi.bupt.edu.cn/hls/cctv11.m3u8"]}, 
   {id:"CCTV-12",num:"12",urls:[
+  		"myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctv12_2/index.m3u8",
   					"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv12_2/index.m3u8",
   					//"[CNTV]cntv://cctv12",
   							"[标清]http://ivi.bupt.edu.cn/hls/cctv12.m3u8"
   							]}, 
   {id:"CCTV-13",num:"13",urls:[
                     "[bupt]http://ivi.bupt.edu.cn/hls/cctv13.m3u8",
+                    "myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctv13_2/index.m3u8",
                     "wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv13_2/index.m3u8",
                    "ifeng.com|http://liveali.ifeng.com/live/CCTV.m3u8",
 		  		"[CNTV]cntv://cctv13",
