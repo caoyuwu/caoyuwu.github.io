@@ -330,6 +330,7 @@
   		]},
   {id:"HBO",url:"http://218.202.220.2:5000/nn_live.ts?id=HBO"},
    {id:"凤凰香港",urls:[
+      "ifeng.com|http://zb.ios.ifeng.com:80/live/05QGDOFQJ28/index.m3u8",
       "f3322.net,http://hjc757.f3322.net:5555/fh.php?id=hk"
       
       ]},
