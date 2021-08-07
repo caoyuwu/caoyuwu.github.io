@@ -141,6 +141,7 @@
           "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/fhzw",
           "chinayungu.cn|http://yuniptvun100.chinayungu.cn:65530/live/fhzw/index.m3u8",
           "haust.edu,http://hdtv.haust.edu.cn/hls/fhzw.m3u8",
+          "223.110.245.138|http://223.110.245.138/ott.js.chinamobile.com/PLTV/3/224/3221226922/index.m3u8",
           "[58.200.131.2]rtmp://58.200.131.2:1935/livetv/fhzw",
          "凤凰秀|http://live.fengshows.com/live/PCC_500k/index.m3u8"  // 
          ]},
@@ -148,6 +149,7 @@
         "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/fhzx",
          "chinayungu.cn,http://yuniptvun100.chinayungu.cn:65530/live/fhzx/index.m3u8",
         "haust.edu,http://hdtv.haust.edu.cn/hls/fhzx.m3u8",
+        "223.110.245.137|http://223.110.245.137/ott.js.chinamobile.com/PLTV/3/224/3221226923/index.m3u8",
         "58.200.131.2|rtmp://58.200.131.2:1935/livetv/fhzx"
        ]},
   {id:"凤凰电影",num:"24",urls:[
