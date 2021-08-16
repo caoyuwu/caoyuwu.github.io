@@ -10,7 +10,8 @@ cp  /snsoft90/snadk-srcx/snadk-demos/snadkx-demo/web/xjslib_debug/x1room/X1Room.
 	ignorecase = true
 	precomposeunicode = true
 [remote "origin"]
-	url = https://github.com/caoyuwu/caoyuwu.github.io.git
+	#url = https://github.com/caoyuwu/caoyuwu.github.io.git
+	url = git@github.com:caoyuwu/caoyuwu.github.io.git
 	fetch = +refs/heads/*:refs/remotes/origin/*
 [branch "master"]
 	remote = origin
