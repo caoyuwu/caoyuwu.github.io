@@ -1,3 +1,20 @@
 
 cp  /snsoft90/snadk-src/snadk-ui/snadk-ui/web/xjslib_debug/xjs-base.js /Third-src/GitHUB/caoyuwu.github.io/xjslib/
 cp  /snsoft90/snadk-srcx/snadk-demos/snadkx-demo/web/xjslib_debug/x1room/X1Room.js  /Third-src/GitHUB/caoyuwu.github.io/x1room/
+
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+	precomposeunicode = true
+[remote "origin"]
+	url = https://github.com/caoyuwu/caoyuwu.github.io.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master
+[user]
+	name = caoyuwu@gmail.com
+	email = caoyuwu@gmail.com
