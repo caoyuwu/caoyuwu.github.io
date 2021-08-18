@@ -19,3 +19,6 @@ cp  /snsoft90/snadk-srcx/snadk-demos/snadkx-demo/web/xjslib_debug/x1room/X1Room.
 [user]
 	name = caoyuwu@gmail.com
 	email = caoyuwu@gmail.com
+	
+ffmpeg -i SquareDance1.mp4 -acodec copy -vcodec copy -f flv -y  SquareDance1.flv	
+scp SquareDance1.flv	_amd64/esocks router:/www/yy
