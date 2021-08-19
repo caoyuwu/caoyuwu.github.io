@@ -22,3 +22,13 @@ cp  /snsoft90/snadk-srcx/snadk-demos/snadkx-demo/web/xjslib_debug/x1room/X1Room.
 	
 ffmpeg -i SquareDance1.mp4 -acodec copy -vcodec copy -f flv -y  SquareDance1.flv	
 scp SquareDance1.flv	_amd64/esocks router:/www/yy
+
+http://192.168.1.1/yy/SquareDance1.flv	
+http://192.168.1.8/yy/SquareDance1.flv
+
+http://192.168.1.8/temp/SquareDance1.m3u8
+
+scp SquareDance1.m3u8	router:/www/yy
+scp SquareDance*.ts	 router:/www/yy
+
+	
