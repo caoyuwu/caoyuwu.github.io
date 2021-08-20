@@ -139,6 +139,7 @@
   
   {id:"凤凰卫视",num:"22",urls:[
           "ifeng.com|http://zb.ios.ifeng.com:80/live/05QGDA0CIRK/index.m3u8",
+          "playtv-live.ifeng.com|http://playtv-live.ifeng.com:80/live/06OLEGEGM4G.m3u8",
           "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/fhzw",
           "chinayungu.cn|http://yuniptvun100.chinayungu.cn:65530/live/fhzw/index.m3u8",
           "haust.edu,http://hdtv.haust.edu.cn/hls/fhzw.m3u8",
@@ -148,6 +149,7 @@
          ]},
   {id:"凤凰资讯",num:"23",urls:[
         "ifeng.com|http://zb.ios.ifeng.com:80/live/05QGCOB3T34/index.m3u8",
+        "playtv-live.ifeng.com|http://playtv-live.ifeng.com:80/live/06OLEEWQKN4_tv1.m3u8",
         "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/fhzx",
          "chinayungu.cn,http://yuniptvun100.chinayungu.cn:65530/live/fhzx/index.m3u8",
         "haust.edu,http://hdtv.haust.edu.cn/hls/fhzx.m3u8",
