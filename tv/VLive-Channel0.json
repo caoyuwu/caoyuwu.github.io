@@ -23,14 +23,15 @@
             			"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv2_2/index.m3u8",
   							//	"[CNTV]cntv://cctv2",
   								"[标清]http://ivi.bupt.edu.cn/hls/cctv2.m3u8",
-                               "[?高清]http://ivi.bupt.edu.cn/hls/cctv2hd.m3u8"]},
+                               "[?高清]http://ivi.bupt.edu.cn/hls/cctv2hd.m3u8"
+                               ]},
   {id:"CCTV-03",num:"03",urls:[ 
                             "[bupt高清]http://ivi.bupt.edu.cn/hls/cctv3hd.m3u8",
                             "myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctv3_2/index.m3u8",
                             "wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv3_2/index.m3u8",
                            // "[CNTV]cntv://cctv3",
                            "[标清]http://ivi.bupt.edu.cn/hls/cctv3.m3u8",
-                           "gansuyunshi|http://live.gansuyunshi.com:9090/live/CCTV3-HD_2000.m3u8"
+                           "111.63.117.13|http://111.63.117.13:6060/030000001000/CCTV-3/CCTV-3.m3u8"
                            ]},
   {id:"CCTV-04",num:"04",urls:[	
                                "[高清]http://ivi.bupt.edu.cn/hls/cctv4hd.m3u8",
