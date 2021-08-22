@@ -215,11 +215,19 @@
   
   // end 49
   // 卫视
-	{id:"北京卫视",num:"50",urls:["[bupt]http://ivi.bupt.edu.cn/hls/btv1hd.m3u8",
+	{id:"北京卫视",num:"50",urls:[
+	           "btime.com|http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s1/index.m3u8",
+	           "[bupt]http://ivi.bupt.edu.cn/hls/btv1hd.m3u8",
+				"[bestvcdn]http://shbu.live.bestvcdn.com.cn:8080/live/program/live/bjwshd/4000000/mnf.m3u8",
 	                             "[sau]http://tv.sau.edu.cn/btv1hd.m3u8"
 	                             ]},
-	{id:"东方卫视",num:"51",url:"http://ivi.bupt.edu.cn/hls/dfhd.m3u8"},
-	{id:"江苏卫视",num:"52",urls:["[bupt]http://ivi.bupt.edu.cn/hls/jshd.m3u8",
+	{id:"东方卫视",num:"51",urls:[
+	                "http://ivi.bupt.edu.cn/hls/dfhd.m3u8",
+	                "bestvcdn|http://shbu.live.bestvcdn.com.cn:8080/live/program/live/hddfws/4000000/mnf.m3u8"
+	                ]},
+	{id:"江苏卫视",num:"52",urls:[
+	  "[bupt]http://ivi.bupt.edu.cn/hls/jshd.m3u8",
+	  "bestvcdn|http://shbu.live.bestvcdn.com.cn:8080/live/program/live/jswshd/4000000/mnf.m3u8",
 	                             "[sau]http://tv.sau.edu.cn/jshd.m3u8"
 	                                 ]},
 	{id:"广东卫视",num:"53",url:"http://ivi.bupt.edu.cn/hls/gdhd.m3u8"},
@@ -228,12 +236,16 @@
 								 "rtmp://58.200.131.2:1935/livetv/hunantv"
 	 					   ]},
 	{id:"浙江卫视",num:"56",urls:[
+	        "http://hw-m-l.cztv.com/channels/lantian/channel01/1080p.m3u8",
 			"http://ivi.bupt.edu.cn/hls/zjhd.m3u8",
 			"http://39.135.53.195/ott.fj.chinamobile.com/PLTV/88888888/224/3221225934/1.m3u8"
 			]},
 	{id:"天津卫视",num:"57",url:"http://ivi.bupt.edu.cn/hls/tjhd.m3u8"},
 	{id:"深圳卫视",num:"60",url:"http://ivi.bupt.edu.cn/hls/szhd.m3u8"},
-	{id:"安徽卫视",num:"61",urls:["http://ivi.bupt.edu.cn/hls/ahhd.m3u8"
+	{id:"安徽卫视",num:"61",urls:[
+	         "ahtv.cn|http://zbbf2.ahtv.cn/live/749.m3u8",
+	         "bupt.edu.cn|http://ivi.bupt.edu.cn/hls/ahhd.m3u8",
+	        "bestvcdn|http://shbu.live.bestvcdn.com.cn:8080/live/program/live/ahwshd/4000000/mnf.m3u8"
 								]},
 	{id:"重庆卫视",num:"700",url:"http://ivi.bupt.edu.cn/hls/cqhd.m3u8"},
   	{id:"山西卫视",urls:["bupt|http://ivi.bupt.edu.cn/hls/sxrtv.m3u8",
@@ -246,15 +258,18 @@
   	{id:"陕西卫视",url:"http://ivi.bupt.edu.cn/hls/sxtv.m3u8"},
   	{id:"吉林卫视",url:"http://ivi.bupt.edu.cn/hls/jltv.m3u8"},
   	{id:"广西卫视",url:"http://ivi.bupt.edu.cn/hls/gxtv.m3u8"},
-  	{id:"河北卫视",urls:["hebtv.com|http://weblive.hebtv.com/live/hbws_bq/index.m3u8",
+  	{id:"河北卫视",urls:["hebtv.com|http://live2.plus.hebtv.com/hbwsx/hd/live.m3u8",
   						"bupt|http://ivi.bupt.edu.cn/hls/hebtv.m3u8"
   						]},
-  	{id:"四川卫视",urls:["bupt|http://ivi.bupt.edu.cn/hls/sctv.m3u8",
-  					"sctv.com|http://scgctvshow.sctv.com/scgc/sctv1deu5453w/3.m3u8"
+  	{id:"四川卫视",urls:[
+  					"http://scgctvshow.sctv.com/scgc/sctv1deu5453w/1.m3u8",
+  				"bupt|http://ivi.bupt.edu.cn/hls/sctv.m3u8"
   				]},
   	{id:"东南卫视",url:"http://ivi.bupt.edu.cn/hls/dntv.m3u8"},
   	{id:"厦门卫视",url:"http://ivi.bupt.edu.cn/hls/xmtv.m3u8"},
-  	{id:"云南卫视",urls:["bupt|http://ivi.bupt.edu.cn/hls/yntv.m3u8",
+  	{id:"云南卫视",urls:[
+  	          "http://hwzbout.yunshicloud.com/8xughf/e0bx15.m3u8",
+  	          "bupt|http://ivi.bupt.edu.cn/hls/yntv.m3u8",
   					   "yntv.cn|http://edge1.yntv.cn/channels/yntv/ynws/m3u8:sd/live"
   					   ]},
   	{id:"江西卫视",urls:["jxtvcn.com.cn|http://live02.jxtvcn.com.cn/live-jxtvcn/jxtv01.m3u8",
@@ -263,7 +278,10 @@
   	{id:"贵州卫视",urls:["http://ivi.bupt.edu.cn/hls/gztv.m3u8"
   					]},
   	{id:"内蒙古卫视",url:"http://ivi.bupt.edu.cn/hls/nmtv.m3u8"},
-  	{id:"青海卫视",url:"http://ivi.bupt.edu.cn/hls/qhtv.m3u8"},
+  	{id:"青海卫视",urls:[
+  	      "http://ivi.bupt.edu.cn/hls/qhtv.m3u8",
+  	      "http://live.geermurmt.com/qhws/sd/live.m3u8"
+  	      ]},
   	{id:"宁夏卫视",urls:["http://ivi.bupt.edu.cn/hls/nxtv.m3u8"
   				]},
   	{id:"甘肃卫视",urls:["http://ivi.bupt.edu.cn/hls/gstv.m3u8"
@@ -276,16 +294,45 @@
   
   
   // 730-749 : 地方频道	
-    {id:"BTV文艺",num:"730",url:"http://ivi.bupt.edu.cn/hls/btv2hd.m3u8"},
-	{id:"BTV科教",url:"http://ivi.bupt.edu.cn/hls/btv3.m3u8"},
-	{id:"BTV影视",url:"http://ivi.bupt.edu.cn/hls/btv4.m3u8"},
-	{id:"BTV财经",url:"http://ivi.bupt.edu.cn/hls/btv5.m3u8"},
-	{id:"BTV体育",url:"http://ivi.bupt.edu.cn/hls/btv6.m3u8"},
-	{id:"BTV生活",url:"http://ivi.bupt.edu.cn/hls/btv7.m3u8"},
-	{id:"BTV青年",url:"http://ivi.bupt.edu.cn/hls/btv8.m3u8"},
-	{id:"BTV新闻",url:"http://ivi.bupt.edu.cn/hls/btv9.m3u8"},
-	{id:"BTV少儿",url:"http://ivi.bupt.edu.cn/hls/btv10.m3u8"},
-	{id:"BTV纪实",url:"http://ivi.bupt.edu.cn/hls/btv11hd.m3u8"},
+    {id:"BTV文艺",num:"730",urls:[
+           "http://ivi.bupt.edu.cn/hls/btv2hd.m3u8",
+           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s2/index.m3u8"
+           ]},
+	{id:"BTV科教",urls:[
+           "http://ivi.bupt.edu.cn/hls/btv3.m3u8",
+           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s3/index.m3u8"
+           ]},
+	{id:"BTV影视",urls:[
+           "http://ivi.bupt.edu.cn/hls/btv4.m3u8",
+           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s4/index.m3u8"
+           ]},
+	{id:"BTV财经",urls:[
+           "http://ivi.bupt.edu.cn/hls/btv5.m3u8",
+           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s5/index.m3u8"
+           ]},
+	{id:"BTV体育",urls:[
+           "http://ivi.bupt.edu.cn/hls/btv6.m3u8",
+           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s6/index.m3u8"
+           ]},
+	{id:"BTV生活",urls:[
+           "http://ivi.bupt.edu.cn/hls/btv7.m3u8",
+           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s7/index.m3u8"
+           ]},
+	{id:"BTV青年",urls:[
+           "http://ivi.bupt.edu.cn/hls/btv8.m3u8",
+           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s8/index.m3u8"
+           ]},
+	{id:"BTV新闻",urls:[
+           "http://ivi.bupt.edu.cn/hls/btv9.m3u8",
+           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s9/index.m3u8"
+           ]},
+	{id:"BTV少儿",urls:[
+           "http://ivi.bupt.edu.cn/hls/btv10.m3u8",
+           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s10/index.m3u8"
+           ]},
+	{id:"BTV纪实",urls:[
+           "http://ivi.bupt.edu.cn/hls/btv11hd.m3u8"
+           ]},
 	//{id:"BTV国际",url:""},
 	
   // 750-799: 港台电视 HKS
