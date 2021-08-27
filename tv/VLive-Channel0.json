@@ -9,11 +9,11 @@
   channels :[
    //
   {id:"CCTV-01",num:"01",urls:[
+                               "myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8",
                                 "[bupt高清]http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8",
                                //rtmp://ivi.bupt.edu.cn:1935/livetv/cctv1hd
                                // "[CNTV]cntv://cctv1",
-                               "myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8",
-                               //"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv1_2/index.m3u8",
+                                //"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv1_2/index.m3u8",
   								"[bupt标清]http://ivi.bupt.edu.cn/hls/cctv1.m3u8",
   								"[sau高清]http://tv.sau.edu.cn/cctv1hd.m3u8",
   								"[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV1-HD_2000.m3u8"
@@ -94,8 +94,8 @@
   							"[标清]http://ivi.bupt.edu.cn/hls/cctv12.m3u8"
   							]}, 
   {id:"CCTV-13",num:"13",urls:[
-                    "[bupt]http://ivi.bupt.edu.cn/hls/cctv13.m3u8",
                     "myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctv13_2/index.m3u8",
+                    "[bupt]http://ivi.bupt.edu.cn/hls/cctv13.m3u8",
                     "wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv13_2/index.m3u8",
                    "ifeng.com|http://liveali.ifeng.com/live/CCTV.m3u8",
 		  		"[CNTV]cntv://cctv13",
@@ -108,15 +108,16 @@
   								"[CNTV]cntv://cctv14"
   								]},  
   {id:"CCTV-15",num:"15",urls:[
-  				"[bupt]http://ivi.bupt.edu.cn/hls/cctv15.m3u8",
   				"myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctv15_2/index.m3u8",
+  				"[bupt]http://ivi.bupt.edu.cn/hls/cctv15.m3u8",
   				"wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv15_2/index.m3u8",
   				"sousou2.top,http://sousou2.top/dl/migu.php?id=608807408",
   			//		"[CNTV]cntv://cctv15",
   				"[sau]http://tv.sau.edu.cn/cctv15.m3u8",
                "tv.cctv.com|http://cctvtxyw.liveplay.myqcloud.com/live/cctv15_1_md.m3u8" 
   				]}, 
-  {id:"CCTV5+", num:"17",urls:["[高清]http://ivi.bupt.edu.cn/hls/cctv5phd.m3u8"
+  {id:"CCTV5+", num:"17",urls:[
+        "[高清]http://ivi.bupt.edu.cn/hls/cctv5phd.m3u8"
   									]},
   	{id:"CETV1",num:"18",urls:[
   						"bupt|http://ivi.bupt.edu.cn/hls/cetv1.m3u8",
