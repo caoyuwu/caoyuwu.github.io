@@ -31,6 +31,7 @@
                             "wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv3_2/index.m3u8",
                            // "[CNTV]cntv://cctv3",
                            "[标清]http://ivi.bupt.edu.cn/hls/cctv3.m3u8",
+                           "39.134.115.163,http://39.134.115.163:8080/PLTV/88888910/224/3221225647/index.m3u8",
                            "111.63.117.13|http://111.63.117.13:6060/030000001000/CCTV-3/CCTV-3.m3u8"
                            ]},
   {id:"CCTV-04",num:"04",urls:[	
@@ -394,7 +395,7 @@
       "qwtvweb,http://s4567996.dns-1.qwtvweb.xyz/tv581.php?id=2"
     ]},
    { id:"香港J2",urls:[
-     "pp5p-0198.02686.cc,5p://0198.02686.cc:16871/5d1a6990000c457811bd52c53e48f6b9.ts",
+     "p5p-0198.02686.cc,p5p://0198.02686.cc:16871/5d1a6990000c457811bd52c53e48f6b9.ts",
      "qwtvweb,http://s4567996.dns-1.qwtvweb.xyz/tv581.php?id=4",
     "http://hls.hongxin123.com/918867252917/17977a3e8ec4406e898ca3a64fe2f155.flv"
     ] },
@@ -448,52 +449,42 @@
  "卫视合家欢|http://cloud-play.hhalloy.com/live/277056149034cc5fb133537bc411c2c9.flv",
  
   {id:"三立台湾",urls:[
-     "tvbus,tvbus://5bs16MgndrbAVgewPk3FnyB65GFG34CUgswUfMxVirdmUUJxnuv7Rx2Ly7CqF"
-  //http://cloud-play.hhalloy.com/live/e71635b53bb874a085b2a469802bbc81.flv",
   ]},
  {id:"中视新闻",urls:[
-     "tvbus|tvbus://5R9W8Pyu2dnVpue6Jsfx74SJwa1Vn2VtWxuDHCWihBMMFkrCMeMr7Wz1hdFdQ"
-    //"mrw.so|http://mrw.so/4RFEAk?DsjTV&ZhongShi/apk.m3u8",
-   // "hhalloy.com|http://cloud-play.hhalloy.com/live/75249ac8b464466a9c41c669bd27260a.flv"
    ]},
 
  {id:"中天综合",urls:[
-   "mitv://147.135.39.171:9906/5e7cf98b000f2c2a3dc37fc6663e2451.ts"
    ]},
    
 {id:"中天新闻",urls:[
-   "mitv,mitv://147.135.39.171:9906/5eec7db90008195bf160a77f5d316f05.ts"
    ]},
  {id:"中天娱乐",urls:[
-    "mitv://147.135.39.171:9906/5defdaa0000974136ea066475c980b2d.ts"
     ]},
  {id:"TVBS新闻台",urls:[
-     "mitv,mitv://147.135.39.171:9906/5ea4852100052c6fd83d1a840a5e74b2.ts",
-    "p2p,p2p://147.135.39.171:9906/5ea4852100052c6fd83d1a840a5e74b2.ts",
-    "http://seb.sason.top/sc/tvbsxw_fhd.m3u8"
-   // ,"hongxin123,http://hls.hongxin123.com/918867252917/600fa100755d4eb0aee2e37db9b0630b.flv" // forbidden
+    "p5p://0198.02686.cc:16871/5db05ca40003699da50b30c835589bf5.ts"
+   ]}, 
+{id:"TVBS欢乐",urls:[
+    "p5p://0198.02686.cc:16871/5dbad7cb0007c9accdfc423fb19c38d1.ts"
    ]}, 
 
 {
  id:"台视",urls:[
-   "mitv://147.135.39.171:9906/5e59fad5000832893b0c1fb83c050635.ts"
+   "p5p://0198.02686.cc:16871/5f2e53b0000e6e031d70187e387dbafc.ts"
  ]},
 {
  id:"中视",urls:[
-   "mitv://147.135.39.171:9906/5e7cf2610003655a3da780b8383c7868.ts"
+   "p5p://0198.02686.cc:16871/5f3656bb000a656c3cbbfa6d262e3d24.ts"
  ]}, 
 
 {id:"华视",urls:[
-    "mitv,mitv://147.135.39.171:9906/5e7cf2610009c2c53da7824e77346905.ts"
    ] }, 
 {id:"公视",urls:[
-    "mitv,mitv://147.135.39.171:9906/5e9e760d00082ccec09222e0768b3cba.ts"
    ] },   
 {id:"民视",urls:[
-    "mitv,mitv://147.135.39.171:9906/5ea4852c00050ce0d83d456d45c920f7.ts"
+    "p5p://0198.02686.cc:16871/5d8f08b60007eeea22db58419a492c10.ts"
    ] },    
 {id:"民视新闻台",urls:[
-     "mitv,mitv://147.135.39.171:9906/5ea522940007279ddaa4243912175fe1.ts",
+     
      "xuite.net|http://6.mms.vlog.xuite.net/hls/ftvtv/index.m3u8" // 需要翻墙
   ]},
  
@@ -995,7 +986,6 @@
    {id:"局域网oceans.mp4",url:"http://192.168.3.17:8000/snsoft/video/oceans.mp4"},
    
     "tvbus-CCTV1,tvbus://8bQsn6pTCh3bitB9Q65tMZ9Cab93f7REd2GS3mnp5hoeb8qRUR",
-    "tvbus-中视新闻HD|tvbus://5R9W8Pyu2dnVpue6Jsfx74SJwa1Vn2VtWxuDHCWihBMMFkrCMeMr7Wz1hdFdQ",
    "p8p-卫视中文,p8p://user3.shusongw.mobi:16871/5f2e5c380006bb4b1d9169c58f9b4abe.ts",
    "p8p-亚洲美食,p8p://user3.shusongw.mobi:16871/5f37db930000c98242aae3b8829cb3c8",
     "mitv-愛奇藝,mitv://147.135.39.171:9906/5e57755e00054af53132b22041d007fa.ts",
@@ -1060,8 +1050,8 @@
             "广场舞",
             "东方卫视","江苏卫视","广东卫视","安徽卫视",
             "民视新闻台","中天新闻","东森新闻",
-            "TVBS新闻台",
-            "中视新闻","寰宇新闻台",
+            "TVBS新闻台","TVBS欢乐",
+            "中视新闻","中视","寰宇新闻台",
             "中天综合","JET综合","纬来综合",
             "香港有线新闻","香港无线新闻","香港J2","香港VIV",
             "周星驰","周星驰2",
