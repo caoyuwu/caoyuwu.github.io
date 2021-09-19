@@ -862,7 +862,12 @@
                ]},  
    "王菲-传奇|163video://452AACEC830C631EA29BC8B3B9F92835",            
    "泉水叮咚响|qqvideo://t00165gm9lr#qqmusic://0041SL2M1OqOmK", 
-   "云朵-缘定今生|music163://502242171",
+   {id:"云朵-缘定今生",urls:[
+          "https://kvideo01.youju.sohu.com/68b10ec7-1902-4371-a6dc-b80ab11e436c2_0_0.mp4",
+          "youku://XNDM4NDY1ODUwNA==",
+          "https://gitee.com/caoyuwu/music/raw/master/云朵/缘定今生.m3u8",
+   		   "music163://502242171"
+   		]},	
    "云朵-天簌之爱|163video://98F7FFDA3955E434E5600753B0F08CCD#qqvideo://e0024onj8ni",
    "云朵-我的楼兰|qqvideo://f00127xazem",
    "云朵-青藏高原|163video://07AA58152562B8AD24F7A958F6767983",
