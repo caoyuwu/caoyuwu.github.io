@@ -142,6 +142,7 @@
   
   {id:"凤凰卫视",num:"22",urls:[
           "ifeng.com|http://zb.ios.ifeng.com:80/live/05QGDA0CIRK/index.m3u8",
+          "xiaojun.cyou|http://xiaojun.cyou/code/?code=iptv800&id=2",
           "playtv-live.ifeng.com|http://playtv-live.ifeng.com:80/live/06OLEGEGM4G.m3u8",
           "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/fhzw",
           "chinayungu.cn|http://yuniptvun100.chinayungu.cn:65530/live/fhzw/index.m3u8",
@@ -152,6 +153,7 @@
          ]},
   {id:"凤凰资讯",num:"23",urls:[
         "ifeng.com|http://zb.ios.ifeng.com:80/live/05QGCOB3T34/index.m3u8",
+        "xiaojun.cyou|http://xiaojun.cyou/code/?code=iptv800&id=3",
         "playtv-live.ifeng.com|http://playtv-live.ifeng.com:80/live/06OLEEWQKN4_tv1.m3u8",
         "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/fhzx",
          "chinayungu.cn,http://yuniptvun100.chinayungu.cn:65530/live/fhzx/index.m3u8",
@@ -365,8 +367,7 @@
  	"本港台|http://dlhls.cdn.zhanqi.tv/zqlive/123407_XhQs9.m3u8",
  	
   {id:"翡翠台",urls:[
-      "http://s4567996.dns-1.qwtvweb.xyz/tv581.php?id=3"
- 	,"hhalloy|http://cloud-play.hhalloy.com/live/b3a93cbbd1908e81783879747bb3090a.flv"
+  "http://xiaojun.cyou/code/?code=iptv800&id=1"
  					    ]},
  	"TVB星河|http://cloud-play.hhalloy.com/live/e70f35708baededbbd1d0963f76981a1.flv",	     
  {id:"人间卫视",urls:["http://61.222.191.53/live/Kevz6sWDy06HZgkD/index.m3u8?token=sU48S46uYNVcX5RC8hMjlg&time=1556463752192"
