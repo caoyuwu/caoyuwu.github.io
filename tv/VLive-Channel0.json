@@ -645,6 +645,7 @@
   "setChannelNum=9000",
 
   {id:"周星驰",urls:[
+      //"huyalive://11342412"
        "huyalive://22972199"
            //"sousou2.top,http://sousou2.top/dl/migu.php?id=623338112"
         //   "http://121.12.115.16/txdirect.hls.huya.com/src/1394575534-1394575534-5989656310331736064-2789274524-10057-A-0-1-imgplus.m3u8"
@@ -718,6 +719,9 @@
     //"http://tx.hls.huya.com/huyalive/1394565204-1394565204-5989611943319568384-2789253864-10057-A-0-1-imgplus.m3u8?wsSecret=cf65186ba278610a50255914e3dc4782&wsTime=5f352e56&fm=RFdxOEJjSjNoNkRKdDZUWV8kMF8kMV8kMl8kMw%3D%3D&ctype=tars_mobile&fs=bgct&&sphdcdn=al_7-tx_3-js_3-ws_7-bd_2-hw_2&sphdDC=huya&sphd=264_*&t=103",
   	//"http://121.12.115.16/txdirect.hls.huya.com/src/1394565204-1394565204-5989611943319568384-2789253864-10057-A-0-1.m3u8"
   	]},  
+  	{id:"雍正王朝",urls:[
+     "huyalive://11342439"
+  	]},
   {id:"康熙微服私访",urls:[
      "huyalive://11342418"
     //"http://121.12.115.16/txdirect.hls.huya.com/src/1250011-1250011-5368756364640256-2789274536-10057-A-0-1.m3u8"
@@ -730,9 +734,12 @@
     "huyalive://23749096"
    //"http://121.12.115.16/txdirect.hls.huya.com/src/1199561158071-1199561158071-5434346901866545152-2399122439598-10057-A-0-1.m3u8"
    ]},
- 
+ {id:"武林外传",urls:[
+    "huyalive://11352915"
+   ]},
  // 不常用电影
   {id:"陈翔六点半",num:9100,urls:[
+     "huyalive://cxldb",
      "http://lifutv.top/douyu.php?id=2132902"
      ]},
     // sousou2.top 
@@ -1104,7 +1111,8 @@
             //"李连杰",
             //"甄子丹",
             ,"铁齿铜牙纪晓岚"
-            //,"雍正王朝"
+            ,"武林外传"
+            ,"雍正王朝"
             ,"康熙微服私访"
             ,"封神榜1"
             //,"山西卫视",
