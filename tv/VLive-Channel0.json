@@ -462,6 +462,7 @@
  {id:"中天娱乐",urls:[
     ]},
  {id:"TVBS新闻台",urls:[
+    "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twtvbsxw",
     "p5p://0198.02686.cc:16871/5db05ca40003699da50b30c835589bf5.ts"
    ]}, 
 {id:"TVBS欢乐",urls:[
@@ -485,7 +486,7 @@
     "p5p://0198.02686.cc:16871/5d8f08b60007eeea22db58419a492c10.ts"
    ] },    
 {id:"民视新闻台",urls:[
-     
+     "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twmsxw",
      "xuite.net|http://6.mms.vlog.xuite.net/hls/ftvtv/index.m3u8" // 需要翻墙
   ]},
  
@@ -1145,7 +1146,8 @@
      }, 
                               
      {label:"电视剧",items:[
-          "[9200-9299]"
+    {label:"电视剧",items:"[9200-9299]"},
+    {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"}
        ]}, 
     {label:"相声/小品/娱乐",items:[
          "[9300-9399]"
