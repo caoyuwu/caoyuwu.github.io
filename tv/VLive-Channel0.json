@@ -1147,7 +1147,9 @@
                               
      {label:"电视剧",items:[
     {label:"电视剧",items:"[9200-9299]"},
-    {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"}
+   {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"},
+   {label:"临时频道2",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels2.txt"},
+   {label:"临时频道3",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels3.txt"}
        ]}, 
     {label:"相声/小品/娱乐",items:[
          "[9300-9399]"
