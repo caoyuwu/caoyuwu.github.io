@@ -417,11 +417,7 @@
   }, 
   
   {id:"东森新闻",urls:[
-            "http://s4567996.dns-1.qwtvweb.xyz/tv581.php?id=8",
-            "mrw.so|http://mrw.so/5l0lHo?DsjTV&DS_News/apk.m3u8",
-            "http://hls.hongxin123.com/918867252917/5cd1b2c9adb346a2a236b14726534019.flv", 
-            "http://cloud-play.hhalloy.com/live/b237f97b0e9e21e88e0bdaae40730332.flv", 
-  			"http://dibo.live:8080/live/pk10291/579365/206264.m3u8"
+   "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twdsxw"
  				      	]}, 
 
   		// 美亚电影
@@ -452,12 +448,16 @@
   {id:"三立台湾",urls:[
   ]},
  {id:"中视新闻",urls:[
+   "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twzsxw"
    ]},
-
+{id:"台视新闻",urls:[
+   "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twtsxw"
+   ]},
  {id:"中天综合",urls:[
    ]},
    
 {id:"中天新闻",urls:[
+  "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twztxw"
    ]},
  {id:"中天娱乐",urls:[
     ]},
