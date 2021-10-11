@@ -1038,7 +1038,7 @@
    {id:"局域网oceans.mp4",url:"http://192.168.3.17:8000/snsoft/video/oceans.mp4"},
     
     "CCTV1,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8",
-    "CCTV1代理,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8#?[proxy=*]",
+    "CCTV1代理,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8??[proxy=*]",
     
     {id:"ERR_02",urls:["http://1",
    				"http://2",
