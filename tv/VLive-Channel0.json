@@ -1039,7 +1039,8 @@
     
     "CCTV1,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8",
     "CCTV1代理,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8??[proxy=*]",
-    
+    {id:"CCTV1代理",urls:["http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8??[proxy=*]"]},
+    "Youtube,youtube://GYtC4dkDi38",
     {id:"ERR_02",urls:["http://1",
    				"http://2",
    				"[OCEANS]http://o.snsoft.com.cn/demo/video/oceans.mp4",
