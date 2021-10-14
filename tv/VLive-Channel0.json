@@ -205,14 +205,10 @@
          },
    {id:"CCTV-怀旧剧场",urls:["rtmp://58.200.131.2/livetv/hjjctv"]},
    {id:"CCTV-老故事",urls:[
-        "ye23.win,http://ye23.win/iptv/yfy.php?id=22020",
-   		"rtmp://58.200.131.2/livetv/lgstv"
+   "http://39.136.18.76/cdnrrs.gz.chinamobile.com/PLTV/88888888/224/3221225677/1/index.m3u8?fmt=ts2hls"
    		]},
     {id:"CCTV-风云音乐",urls:[
-       "sousou2.top,http://sousou2.top/dl/migu.php?id=623338072"
-    	//"125.210.152.18|http://125.210.152.18:9090/live/FYYY.m3u8",
-    	//"paymigu|http://player.paymigu.com/migu.php?id=618954956",
-    	//"ye23.win,http://ye23.win/iptv/yfy.php?id=51012"
+  "http://39.136.18.76/cdnrrs.gz.chinamobile.com/PLTV/88888888/224/3221225698/1/index.m3u8?fmt=ts2hls"
     		]},
     "CCTV-风云剧场|rtmp://58.200.131.2/livetv/fyjctv",
      "CCTV-天元围棋|rtmp://58.200.131.2/livetv/tywqtv",
