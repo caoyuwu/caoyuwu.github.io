@@ -456,12 +456,14 @@
    ]},
    
 {id:"中天新闻",urls:[
-  "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twztxw"
+  "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twztxw",
+  "http://v3948069e.live.126.net/live/myewtdtq55241913/40.flv"
    ]},
  {id:"中天娱乐",urls:[
     ]},
  {id:"TVBS新闻台",urls:[
     "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twtvbsxw",
+    "http://v3948069e.live.126.net/live/eyisbshx78425035/46.flv",
     "p5p://0198.02686.cc:16871/5db05ca40003699da50b30c835589bf5.ts"
    ]}, 
 {id:"TVBS欢乐",urls:[
@@ -486,6 +488,7 @@
    ] },    
 {id:"民视新闻台",urls:[
      "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twmsxw",
+     "http://v3948069e.live.126.net/live/cmcfizof46736198/36.flv",
      "xuite.net|http://6.mms.vlog.xuite.net/hls/ftvtv/index.m3u8" // 需要翻墙
   ]},
  
