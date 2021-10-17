@@ -203,14 +203,20 @@
          "chinamobile,http://dbiptv.sn.chinamobile.com/PLTV/88888890/224/3221226235/index.m3u8",  
          "rtmp://58.200.131.2/livetv/fxzltv"]
          },
-   {id:"CCTV-怀旧剧场",urls:["rtmp://58.200.131.2/livetv/hjjctv"]},
+   {id:"CCTV-怀旧剧场",urls:[
+   "cg01.hrtn.net,http://cg01.hrtn.net:9090/live/hjjc_1500.m3u8",
+     "rtmp://58.200.131.2/livetv/hjjctv"
+      ]},
    {id:"CCTV-老故事",urls:[
    "http://39.136.18.76/cdnrrs.gz.chinamobile.com/PLTV/88888888/224/3221225677/1/index.m3u8?fmt=ts2hls"
    		]},
     {id:"CCTV-风云音乐",urls:[
+     "http://cg01.hrtn.net:9090/live/fyyy_1500.m3u8",
   "http://39.136.18.76/cdnrrs.gz.chinamobile.com/PLTV/88888888/224/3221225698/1/index.m3u8?fmt=ts2hls"
     		]},
-    "CCTV-风云剧场|rtmp://58.200.131.2/livetv/fyjctv",
+   {id:"CCTV-风云剧场",urls:[
+        "http://cg01.hrtn.net:9090/live/fyjc_1500.m3u8"
+   		]},
      "CCTV-天元围棋|rtmp://58.200.131.2/livetv/tywqtv",
   "中国天气|http://hls.weathertv.cn/tslslive/qCFIfHB/hls/live_sd.m3u8",
   
@@ -402,12 +408,11 @@
     { id:"香港VIV",urls:[
       "http://s4567996.dns-1.qwtvweb.xyz/tv581.php?id=6"
     ]},
+ 
+ 	{id:"NOW新闻",urls:[
+ 	  "Now 新闻,http://iptv5.phoves.com.cn/api/mitv.php?id=18"
+     ]},
 
- 	"NOW直播台|http://hls.hongxin123.com/918867252917/e9f818c6d3474d45882cdb8d388cf6f4.flv",
- 	"NOW新闻|http://hls.hongxin123.com/918867252917/18ede6a29b124be6805ab9f153c75c6b.flv",
-
-
-   "寰宇综合|http://cloud-play.hhalloy.com/live/82b78befe54a601876654e1db3e3741a.flv",
   
   {id:"寰宇新闻台",urls:[
       "mitv-147.135.39.171,mitv://147.135.39.171:9906/5cc68d1700042feefadeb4a262de7324.ts",
