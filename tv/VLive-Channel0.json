@@ -374,7 +374,9 @@
   	"http://stream3.hnntv.cn/hnws/playlist.m3u8"
   	//"http://ivi.bupt.edu.cn/hls/lytv.m3u8"
   				]}, //旅游卫视
-  
+  {id:"南方卫视",urls:[
+    "http://111.20.45.153/dbiptv.sn.chinamobile.com/PLTV/88888888/224/3221226218/1.m3u8"
+  				]},
   
   // 730-749 : 地方频道	
     {id:"BTV文艺",num:"730",urls:[
@@ -1097,7 +1099,64 @@
   // end 98199 音乐 
     "setChannelNum=98200",
    //  "It I Love You & The Greatest|163mv://10885202",
-    // end 98299 音乐 
+ // end 98299 音乐 
+ 
+ // 984000-984999 : 地方台
+    "setChannelNum=984000",//地方台-上海 984000-984024
+    "setChannelNum=984025",//地方台-江苏 984025-984049
+    "setChannelNum=984050",//地方台-广东 984050
+"广州影视频道,http://aplay.gztv.com/sec/yingshi.m3u8",
+"广州综合频道,http://aplay.gztv.com/sec/zhonghe.m3u8",
+    "setChannelNum=984075",//地方台-? 984075
+    "setChannelNum=984100",//地方台-湖南 984100
+    "setChannelNum=984125",//地方台-浙江 984125
+    "setChannelNum=984150", //地方台-天津 984150
+    "setChannelNum=984175",//地方台-安徽 984175
+"安徽影视频道,http://zbbf2.ahtv.cn/live/756.m3u8",
+"安徽综艺频道,http://zbbf2.ahtv.cn/live/758.m3u8",
+"安徽公共频道,http://zbbf2.ahtv.cn/live/752.m3u8",
+"安徽国际频道,http://zbbf2.ahtv.cn/live/dab.m3u8",
+"安徽经济生活,http://zbbf2.ahtv.cn/live/750.m3u8",
+"安徽科教频道,http://zbbf2.ahtv.cn/live/754.m3u8",
+"安徽家家购物,http://zbbf2.ahtv.cn/live/da9.m3u8",  
+    "setChannelNum=984200",//地方台-重庆 984200
+    "setChannelNum=984225",//地方台-山西 984225
+    "setChannelNum=984250",//地方台-湖北 984250
+"湖北经视频道,http://app.cjyun.org/video/player/index?video=http://live.cjyun.org/hubeitv/s10008-live-hbjs.m3u8&sid=1&autoStart=1",
+"湖北影视频道,http://livesafe.hbtv.com.cn/hubeitv/s10008-live-hbys.m3u8?sign=8ae98ad5b95598e5b57ae3d67e12ee38&t=5fd9a352&sign=8ae98ad5b95598e5b57ae3d67e12ee38&t=5fd9a352",
+"湖北生活频道,http://app.cjyun.org/video/player/index?video=http://live.cjyun.org/hubeitv/s10008-live-hbsh.m3u8&sid=1&autoStart=1",
+"湖北综合频道,http://app.cjyun.org/video/player/index?video=http://live.cjyun.org/hubeitv/s10008-live-hbzh.m3u8&sid=1&autoStart=1",
+"湖北教育频道,http://app.cjyun.org/video/player/index?video=http://live.cjyun.org/hubeitv/s10008-live-hbjy.m3u8&sid=1&autoStart=1",
+"湖北中国交通,http://www.cctbn.com/live/hblive.html",
+"湖北垄上频道,http://app.cjyun.org/video/player/index?video=http://live.cjyun.org/hubeitv/s10008-live-hbls.m3u8&sid=1&autoStart=1",
+    "setChannelNum=984275",//地方台-黑龙江 984275
+    "setChannelNum=984300",//地方台-山东 984300
+    "setChannelNum=984325",//地方台-河南 984325
+    "setChannelNum=984350",//地方台-陕西 984350
+    "setChannelNum=984375",//地方台-吉林 984375
+    "setChannelNum=984400", //地方台-广西 984400
+    "setChannelNum=984425",//地方台-河北 984425
+    "setChannelNum=984450",//地方台-四川 984450
+"四川康巴卫视,http://scgctvshow.sctv.com/sdlive/kangba/1.m3u8",
+"四川新闻资讯,http://scgctvshow.sctv.com/hdlive/sctv4/1.m3u8",
+"四川经济频道,http://scgctvshow.sctv.com/hdlive/sctv3/1.m3u8",
+"四川影视文艺,http://scgctvshow.sctv.com/hdlive/sctv5/1.m3u8",
+"四川公共频道,http://scgctvshow.sctv.com/hdlive/sctv9/1.m3u8",
+"四川文化旅游,http://scgctvshow.sctv.com/hdlive/sctv2/1.m3u8", 
+    "setChannelNum=984475",//地方台-福建 984475
+    "setChannelNum=984500",//地方台-厦门 984500
+    "setChannelNum=984525",//地方台-云南 984525
+    "setChannelNum=984550",//地方台-甘肃 984550
+    "setChannelNum=984575",//地方台-江西 984575
+    "setChannelNum=984600",//地方台-贵州 984600
+    "setChannelNum=984625", //地方台-内蒙古 984625
+    "setChannelNum=984650",//地方台-青海 984650
+    "setChannelNum=984675",//地方台-宁夏 984675
+    "setChannelNum=984700",//地方台-甘肃 984700
+    "setChannelNum=984725",//地方台-新疆 984725
+    "setChannelNum=984750",//地方台-西藏 984750
+    "setChannelNum=984775",//地方台-海南 984775
+  // end 9849999 : 地方台
 // 临时  99400
 "setChannelNum=99400",
 "广场舞|http://router.lan/yy/SquareDance1.m3u8",
@@ -1187,8 +1246,42 @@
     {label:"卫视频道",items:[
  			"[50-69]","[700-729]"             
                 ]},                      
-    {label:"地方频道",items:["[730-749]"
-    						]},
+    {label:"地方频道",items:[
+        {label:"北京",items:["[730-749]"]},
+        //{label:"上海",items:["东方卫视","[984000-984024]"]},
+        //{label:"江苏",items:["江苏卫视","[984025-984049]"]},
+        {label:"广东",items:["广东卫视","南方卫视","[984050-984074]"]},
+        //{label:"湖南",items:["湖南卫视","[984100-984124]"]},
+        //{label:"浙江",items:["浙江卫视","[984125-984149]"]},
+        //{label:"天津",items:["天津卫视","[984150-984174]"]},
+        {label:"安徽",items:["安徽卫视","[984175-984199]"]},
+        //{label:"重庆",items:["重庆卫视","[984200-984224]"]},
+        //{label:"山西",items:["山西卫视","[984225-984249]"]},
+        {label:"湖北",items:["湖北卫视","[984250-984274]"]},
+        //{label:"黑龙江",items:["黑龙江卫视","[984275-984299]"]},
+        //{label:"山东",items:["山东卫视","[984300-984324]"]},
+        //{label:"河南",items:["河南卫视","[984325-984349]"]},
+        //{label:"陕西",items:["陕西卫视","[984350-984374]"]},
+        //{label:"吉林",items:["吉林卫视","[984375-984399]"]},
+        //{label:"广西",items:["广西卫视","[984400-984424]"]},
+        //{label:"河北",items:["河北卫视","[984425-984449]"]},
+        {label:"四川",items:["四川卫视","[984450-984474]"]},
+        //{label:"福建",items:["福建卫视","[984475-984499]"]},
+        //{label:"厦门",items:["厦门卫视","[984500-984524]"]},
+        //{label:"云南",items:["云南卫视","[984525-984549]"]},
+        //{label:"甘肃",items:["甘肃卫视","[984550-984574]"]},
+        //{label:"江西",items:["江西卫视","[984575-984599]"]},
+        //{label:"贵州",items:["贵州卫视","[984600-984624]"]},
+        //{label:"内蒙古",items:["内蒙古卫视","[984625-984649]"]},
+        //{label:"青海",items:["青海卫视","[984650-984674]"]},
+        //{label:"宁夏",items:["宁夏卫视","[984675-984699]"]},
+        //{label:"甘肃",items:["甘肃卫视","[984700-984724]"]},
+        //{label:"新疆",items:["新疆卫视","[984725-984749]"]},
+        //{label:"西藏",items:["西藏卫视","[984750-984774]"]},
+        //{label:"海南",items:["海南卫视","[984775-984799]"]},
+        {label:"其他",items:["[984800-984899]"]}
+        ]
+     },
    // {label:"数字频道",items:["[35-49]","[850-899]"]},
     {label:"电影频道",
        items:[{label:"1", items:["CHC高清电影","CHC动作电影",
