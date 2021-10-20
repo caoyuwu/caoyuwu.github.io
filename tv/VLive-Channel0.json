@@ -146,7 +146,7 @@
           "ifeng.com|http://zb.ios.ifeng.com:80/live/05QGDA0CIRK/index.m3u8",
           "xiaojun.cyou|http://xiaojun.cyou/code/?code=iptv800&id=2",
           "playtv-live.ifeng.com|http://playtv-live.ifeng.com:80/live/06OLEGEGM4G.m3u8",
-          "migutv://gangaotai/fenghuangxianggang",
+          //"migu123tv://gangaotai/fenghuangxianggang",
           "[bupt.edu]rtmp://ivi.bupt.edu.cn:1935/livetv/fhzw",
           "chinayungu.cn|http://yuniptvun100.chinayungu.cn:65530/live/fhzw/index.m3u8",
           "haust.edu,http://hdtv.haust.edu.cn/hls/fhzw.m3u8",
@@ -219,7 +219,7 @@
         "http://cg01.hrtn.net:9090/live/fyjc_1500.m3u8"
    		]},
    {id:"CCTV-天元围棋",urls:[
-      "migutv://tiyu/tianyuanweiqi",
+      "migu123tv://tiyu/tianyuanweiqi",
       "rtmp://58.200.131.2/livetv/tywqtv"
       ]},
   "中国天气|http://hls.weathertv.cn/tslslive/qCFIfHB/hls/live_sd.m3u8",
@@ -311,7 +311,7 @@
   	  "http://ivi.bupt.edu.cn/hls/jltv.m3u8"
   	  ]},
   	{id:"广西卫视",urls:[
-  	"http://223.110.241.137:6610/gitv/live1/G_JILIN/G_JILIN/.m3u8",
+  	"http://39.130.202.81:6610/gitv_live/G_GUANGXI-HD/G_GUANGXI-HD.m3u8",
   	   "http://ivi.bupt.edu.cn/hls/gxtv.m3u8"
   	  ]},
   	{id:"河北卫视",urls:[
