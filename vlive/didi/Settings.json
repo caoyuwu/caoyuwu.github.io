@@ -5,7 +5,7 @@ DiDiLive:{
   user_id:"46670330",
   user_name:"游客46670330",
   serverHost:"api.oidhfjg.com",
-  authToken:"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjowLCJsb2IiOjEsInVzZXJuYW1lIjoiMTM4MDEzNzc0ODkiLCJleHAiOjE2MzIwNzMxMzksImlhdCI6MTYyOTQ4MTEzOSwic3ViIjoiNDY2NzAzMzAifQ.5pa8Rim_97mFyfWuXkK5c9qFFxyfaro9r_SmH0bXPOL8RsbjRX5HtTZrDJr9nhiFXToeIpL5WZ1q2j2quVoCxQ",
+  authToken:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI0NjY3MDMzMCIsInVzZXJuYW1lIjoiMTM4MDEzNzc0ODkiLCJyb2xlIjowLCJsb2IiOjEsImlhdCI6MTYzNDk4MTYzMiwiZXhwIjoxNjM3NTczNjMyfQ.tYeOCJt5Faax-H-_JlUZ1oCyR5qzenSmA_2iu_UPW3ojD4AIY4zOn6j83jxv7O9Oc6UfD0Nmb3a7OBrLbc1MWQ",
   liveButter2:"4L0HHMyx728WLb9kOmYL2uzpIuwgqj6EeRwlJDDIcxNxQhO00KTdm9Kq1w/x/0JArMLY3dptRBvwYHs1QGItVC5TYterbEneffODKLkMCtfk/vmwVi7KwK/IsI2BaTtfV+NnuM86vQXCBnRedl0lYUKBQvKDf6FL4uMgjrShyN7MHlzdNjGY6zc+n+n4FN01",
   //options:0,
   ajaxInvokeProxy:null
