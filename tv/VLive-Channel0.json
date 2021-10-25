@@ -1116,8 +1116,12 @@
     "setChannelNum=984000",//地方台-上海 984000-984024
     "setChannelNum=984025",//地方台-江苏 984025-984049
     "setChannelNum=984050",//地方台-广东 984050
-"广州影视频道,http://aplay.gztv.com/sec/yingshi.m3u8",
-"广州综合频道,http://aplay.gztv.com/sec/zhonghe.m3u8",
+//"广州影视频道,http://aplay.gztv.com/sec/yingshi.m3u8",
+//"广州综合频道,http://aplay.gztv.com/sec/zhonghe.m3u8",
+"广州综合,http://womlive.cloud.wo.cn/tvlive/100084/otpzod_otpzod,100084_hls_pull_2000K_live.m3u8",
+"广州新闻,http://womlive.cloud.wo.cn/tvlive/100085/otpzod_otpzod,100085_hls_pull_2000K_live.m3u8",
+"广州影视,http://womlive.cloud.wo.cn/tvlive/100086/otpzod_otpzod,100086_hls_pull_2000K_live.m3u8",
+"广州法治,http://womlive.cloud.wo.cn/tvlive/100087/otpzod_otpzod,100087_hls_pull_2000K_live.m3u8",
     "setChannelNum=984075",//地方台-? 984075
     "setChannelNum=984100",//地方台-湖南 984100
     "setChannelNum=984125",//地方台-浙江 984125
