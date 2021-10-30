@@ -811,42 +811,42 @@
   
   "setChannelNum=9000",
 
-  {id:"周星驰",tag:"港片",urls:[
+  {id:"虎牙-周星驰",tag:"港片",urls:[
       //"huyalive://11342412"
        //"huyalive://22972199"
        "huyalive://11352916"
            //"sousou2.top,http://sousou2.top/dl/migu.php?id=623338112"
         //   "http://121.12.115.16/txdirect.hls.huya.com/src/1394575534-1394575534-5989656310331736064-2789274524-10057-A-0-1-imgplus.m3u8"
         ]},
-  {id:"周星驰2",tag:"港片",urls:[
+  {id:"虎牙-周星驰2",tag:"港片",urls:[
     "huyalive://23903085"
 //"http://121.12.115.16/txdirect.hls.huya.com/src/1449698986-1449698986-6226409733914361856-2847687634-10057-A-0-1.m3u8"
         ]},
-  {id:"周星驰3",tag:"港片",urls:[
+  {id:"虎牙-周星驰3",tag:"港片",urls:[
     "huyalive://23734196"
         ]},
  
-   {id:"林正英",tag:"港片",urls:[
+   {id:"虎牙-林正英",tag:"港片",urls:[
      "huyalive://11342421"
   //"http://121.12.115.16/txdirect.hls.huya.com/src/1199515315044-1199515315044-5237452600151900160-2399030753544-10057-A-0-1.m3u8",
   //"http://121.12.115.16/txdirect.hls.huya.com/src/1394575543-1394575543-5989656348986441728-2789274542-10057-A-0-1.m3u8"
      ]},
-{id:"林正英2",tag:"港片",urls:[
+{id:"虎牙-林正英2",tag:"港片",urls:[
      "huyalive://18441722"
      ]},
- {id:"五福星系列",tag:"港片",urls:[
+ {id:"虎牙-五福星系列",tag:"港片",urls:[
    "huyalive://11282233"
 //	"http://121.12.115.16/txdirect.hls.huya.com/src/1356780980-1356780980-5827329936934830080-2713685416-10057-A-0-1.m3u8"
 	]},
-  {id:"开心鬼",tag:"港片",urls:[
+  {id:"虎牙-开心鬼",tag:"港片",urls:[
   	"huyalive://11342423"
   	]},      
   	 
-  {id:"徐克导演",urls:[
-    "1huyalive://7341907"
+  {id:"虎牙-徐克导演",urls:[
+    "huyalive://7341907"
     ]},
     
- {id:"洪金宝",tag:"港片",urls:[
+ {id:"虎牙-洪金宝",tag:"港片",urls:[
 	"huyalive://11602084"
  				  ]},
  {id:"洪金宝2",tag:"港片",urls:[
@@ -870,90 +870,44 @@
  { id:"冯小刚",urls:[
  	"http://121.12.115.16/txdirect.hls.huya.com/src/1423782077-1423782077-6115097457345953792-2847687610-10057-A-0-1.m3u8"
  ]},
-{id:"金庸",tag:"港片",urls:[
+{id:"虎牙-金庸",tag:"港片",urls:[
   "huyalive://11602082"
  //"http://121.12.115.16/txdirect.hls.huya.com/src/1449584124-1449584124-6225916405380808704-2847687586-10057-A-0-1.m3u8"
   	]},
-  {id:"徐峥",urls:[
+  {id:"虎牙-徐峥",urls:[
   	"huyalive://11602043"
    // "http://121.12.115.16/txdirect.hls.huya.com/src/1524434085-1524434085-6547394539982684160-3048991626-10057-A-0-1.m3u8"
     ]},
-    {id:"沈腾",urls:[
+    {id:"虎牙-沈腾",urls:[
     "huyalive://11601968"
- //"http://121.12.115.16/txdirect.hls.huya.com/src/1524418085-1524418085-6547325820505948160-3048959626-10057-A-0-1.m3u8"
  ]},
-  {id:"铁齿铜牙纪晓岚",urls:[
-     "huyalive://11342396"
-    //"http://tx.hls.huya.com/huyalive/1394565204-1394565204-5989611943319568384-2789253864-10057-A-0-1-imgplus.m3u8?wsSecret=cf65186ba278610a50255914e3dc4782&wsTime=5f352e56&fm=RFdxOEJjSjNoNkRKdDZUWV8kMF8kMV8kMl8kMw%3D%3D&ctype=tars_mobile&fs=bgct&&sphdcdn=al_7-tx_3-js_3-ws_7-bd_2-hw_2&sphdDC=huya&sphd=264_*&t=103",
-  	//"http://121.12.115.16/txdirect.hls.huya.com/src/1394565204-1394565204-5989611943319568384-2789253864-10057-A-0-1.m3u8"
-  	]},  
-  	{id:"雍正王朝",urls:[
-     "huyalive://11342439"
-  	]},
-  {id:"康熙微服私访",urls:[
-     "huyalive://11342418"
-    //"http://121.12.115.16/txdirect.hls.huya.com/src/1250011-1250011-5368756364640256-2789274536-10057-A-0-1.m3u8"
-    ]},  
-    {id:"神医喜来乐",urls:[
-     "huyalive://11601978"
-  	]},
-  	"东北一家人,blive://22912887",
- {id:"女神系列",tag:"港片",urls:[
+  "虎牙-铁齿铜牙纪晓岚,huyalive://11342396",  
+  "虎牙-雍正王朝,huyalive://11342439",
+  "虎牙-康熙微服私访,huyalive://11342418",
+  "虎牙-神医喜来乐,huyalive://11601978",
+  "B-东北一家人,blive://22912887",
+  	
+ {id:"虎牙-女神系列",tag:"港片",urls:[
     "huyalive://11336571"
     //"http://121.12.115.16/txdirect.hls.huya.com/src/1388451591-1388451591-5963354175424167936-2777026638-10057-A-0-1.m3u8"
     ]},
- {id:"封神榜1",urls:[
-    "huyalive://23749096"
-   //"http://121.12.115.16/txdirect.hls.huya.com/src/1199561158071-1199561158071-5434346901866545152-2399122439598-10057-A-0-1.m3u8"
-   ]},
- {id:"武林外传",urls:[
-    "huyalive://11352915"
-   ]},
+ "虎牙-封神榜1,huyalive://23749096",
+   "虎牙-武林外传,huyalive://11352915",
     {id:"虎牙-僵尸片",tag:"港片",url:"huyalive://17875049"},
     {id:"虎牙-邱淑贞",tag:"港片",urls:["huyalive://11352949"]},
     {id:"虎牙港片2",tag:"港片",urls:["huyalive://11602058"]},
    {id:"虎牙港片3",tag:"港片",urls:["huyalive://23865025"]},
- // 不常用电影
+ // end 9099 不常用电影
+ 
   {id:"陈翔六点半",num:9100,urls:[
      "huyalive://cxldb",
      "http://lifutv.top/douyu.php?id=2132902"
      ]},
-    // sousou2.top 
-"高清影视|http://sousou2.top/dl/migu.php?id=617432318",
-"精品剧场|http://sousou2.top/dl/migu.php?id=615810094",
-"黄金剧场|http://sousou2.top/dl/migu.php?id=625155140",
-"军旅剧场|http://sousou2.top/dl/migu.php?id=625643517",
-"精品国产剧|http://sousou2.top/dl/migu.php?id=625574378",
-"乡村爱情剧场|http://sousou2.top/dl/migu.php?id=625774662",
-"激情夜场影院|http://sousou2.top/dl/migu.php?id=625188208",
-"红色谍战剧场|http://sousou2.top/dl/migu.php?id=634274665",
-"每日科幻电影|http://sousou2.top/dl/migu.php?id=625204865",
-"周星驰影院|http://sousou2.top/dl/migu.php?id=623338112",
-"追剧少女|http://sousou2.top/dl/migu.php?id=617432318",
-"怀旧老片|http://sousou2.top/dl/migu.php?id=621640582",
-"武侠剧场|http://sousou2.top/dl/migu.php?id=627198822",
-"动漫剧场|http://sousou2.top/dl/migu.php?id=627198751",
-"假期剧场|http://sousou2.top/dl/migu.php?id=627198692",
-"经典频道|http://sousou2.top/dl/migu.php?id=625542369",
-"精品剧场|http://sousou2.top/dl/migu.php?id=615810094",
-"四大名著剧场|http://sousou2.top/dl/migu.php?id=625498432",
-"东方电影高清|http://sousou2.top/dl/migu.php?id=623674834",
-"经典放映厅|http://sousou2.top/dl/migu.php?id=626157533",
-"射雕剧场|http://sousou2.top/dl/migu.php?id=625681367",
-"立面包青天|http://sousou2.top/dl/migu.php?id=625521420",
-"金庸频道|http://sousou2.top/dl/migu.php?id=625774640",
-"小戏骨剧场|http://sousou2.top/dl/migu.php?id=625526423",
-"华视火爆劲片|http://sousou2.top/dl/migu.php?id=624999147",
-"笑傲江湖|http://sousou2.top/dl/migu.php?id=625759558",
-"鹿鼎记|http://sousou2.top/dl/migu.php?id=625681368",
-"刘涛作品集|http://sousou2.top/dl/migu.php?id=625514969",
-"天龙八部集|http://sousou2.top/dl/migu.php?id=625703337",
-"盗墓方法论|http://sousou2.top/dl/migu.php?id=625525181",
+
 
  // end 不常看电影 9199
 // 电视剧 9200-9299
   "setChannelNum=9200",
-    "爱奇艺tvbus,tvbus://66FRpocmtD6gMwzcvdFBh66GfamAqyNA5s1b9FrEKnuUnjQXsQn7zs6YAR55g",
  
  // end 电视剧  9299
  
@@ -961,21 +915,21 @@
  
   // 相声/小品/娱乐 9300-9399
    "setChannelNum=9300",
- "相声小品精选,migu://625133682",
-  "SNH48剧场公演,migu://617432328",
-"综艺现场,migu://621640581",
-"最强综艺趴,migu://629942228",
+ "MIGU-相声小品精选,migu://625133682",
+  "MIGU-SNH48剧场公演,migu://617432328",
+"MIGU-综艺现场,migu://621640581",
+"MIGU-最强综艺趴,migu://629942228",
   
-"CIBN微电影,migu://692445956",
-"CIBN纪录片,migu://692446156",
-"CIBN综合,migu://692398009",
-"CIBN真人秀,migu://692445976",
-"CIBN风尚运动,migu://692399030",
-"CIBN时尚生活,migu://692402229",
-"Imode时尚频道,migu://665063310",
-"法治天地,migu://631095330",
-"四海钓鱼,migu://708231229",
-"北广环球旅游,migu://686484097",
+"MIGU-CIBN微电影,migu://692445956",
+"MIGU-CIBN纪录片,migu://692446156",
+"MIGU-CIBN综合,migu://692398009",
+"MIGU-CIBN真人秀,migu://692445976",
+"MIGU-CIBN风尚运动,migu://692399030",
+"MIGU-CIBN时尚生活,migu://692402229",
+"MIGU-Imode时尚频道,migu://665063310",
+"MIGU-法治天地,migu://631095330",
+"MIGU-四海钓鱼,migu://708231229",
+"MIGU-北广环球旅游,migu://686484097",
   
  // end 相声 9399
  
@@ -1441,13 +1395,13 @@
      {label:"常看频道2",items:[
             "广场舞",
             "东方卫视","江苏卫视","广东卫视","安徽卫视"
-            ,"铁齿铜牙纪晓岚"
-            ,"武林外传"
-            ,"雍正王朝"
-            ,"康熙微服私访"
-            ,"神医喜来乐"
-            ,"东北一家人"
-            ,"封神榜1"
+            ,"虎牙-铁齿铜牙纪晓岚"
+            ,"虎牙-武林外传"
+            ,"虎牙-雍正王朝"
+            ,"虎牙-康熙微服私访"
+            ,"虎牙-神医喜来乐"
+            ,"B-东北一家人"
+            ,"虎牙-封神榜1"
             //,"山西卫视",
             //,"本港台",
             //"成龙"
@@ -1506,7 +1460,7 @@
         ]
      },
    // {label:"数字频道",items:["[35-49]","[850-899]"]},
-    {label:"电影频道",
+    {label:"电影/电视剧",
        items:[{label:"1", items:["CHC高清电影","CHC动作电影",
     				"台湾星卫电影","TVB电影","龙华电影"
    				 ,"东森电影",
@@ -1514,16 +1468,25 @@
      				] 
               },
       		 {label:"2",items:["[9100-9199]"]},
-      		 {label:"咪咕剧场",items:["[985000-985099]"]}
-          ]      
-     }, 
-                              
-     {label:"电视剧",items:[
+      		 {label:"咪咕剧场",items:["[985000-985099]"]},
+      		 {label:"B-影音馆(01-03)",items:"@blive-list:10/33/1-3"},
+      		 {label:"B-影音馆(04-06)",items:"@blive-list:10/33/4-6"},
+      		 {label:"B-影音馆(07-09)",items:"@blive-list:10/33/7-9"},
+      		 {label:"B-影音馆(10-12)",items:"@blive-list:10/33/10-12"},
+      		 {label:"B-影音馆(13-15)",items:"@blive-list:10/33/13-15"},
+      		 {label:"B-影音馆(16-18)",items:"@blive-list:10/33/16-18"},
+      		 {label:"B-影音馆(19-21)",items:"@blive-list:10/33/19-21"},
+      		 {label:"B-影音馆(22-24)",items:"@blive-list:10/33/22-24"},
+      		 {label:"B-视频聊天(01-03)",items:"@blive-list:1/145/1-3"},
+      		 {label:"B-视频聊天(04-06)",items:"@blive-list:1/145/4-6"},
     {label:"电视剧",items:"[9200-9299]"},
    {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"},
    {label:"临时频道2",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels2.txt"},
    {label:"临时频道3",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels3.txt"}
-       ]}, 
+          ]      
+     }, 
+                              
+    // {label:"电视剧",items:[ ]}, 
     {label:"相声/小品/娱乐",items:[
          "[9300-9399]"
        ]},   
