@@ -619,12 +619,14 @@
    ]},
    
 {id:"中天新闻",urls:[
+  "mitv://ns2.hellotvvod.com:9906/d4f98ce4252a4c7896f1d1ab0f4b40c0",
   "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twztxw",
   "http://v3948069e.live.126.net/live/myewtdtq55241913/40.flv"
    ]},
  {id:"中天娱乐",urls:[
     ]},
  {id:"TVBS新闻台",urls:[
+    "mitv://ns2.hellotvvod.com:9906/683d617d5a204b008cc371b6c45ed1ee",
     "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twtvbsxw",
     "http://v3948069e.live.126.net/live/eyisbshx78425035/46.flv",
     "p5p://0198.02686.cc:16871/5db05ca40003699da50b30c835589bf5.ts"
