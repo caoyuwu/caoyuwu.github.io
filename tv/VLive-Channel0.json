@@ -641,6 +641,7 @@
  ]},
 {
  id:"中视",urls:[
+   "live.126.net,https://flv3948069e.live.126.net/live/1ab5adde2bc0f771f21690a8f0267943.flv",
    "p5p://0198.02686.cc:16871/5f3656bb000a656c3cbbfa6d262e3d24.ts"
  ]}, 
 
@@ -654,7 +655,7 @@
 {id:"民视新闻台",urls:[
      "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twmsxw",
      "http://v3948069e.live.126.net/live/cmcfizof46736198/36.flv",
-     "xuite.net|http://6.mms.vlog.xuite.net/hls/ftvtv/index.m3u8" // 需要翻墙
+     "xuite.net,http://6.mms.vlog.xuite.net/hls/ftvtv/index.m3u8" // 需要翻墙
   ]},
  
   
