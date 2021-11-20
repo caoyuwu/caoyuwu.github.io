@@ -135,6 +135,7 @@
                "tv.cctv.com|http://cctvtxyw.liveplay.myqcloud.com/live/cctv15_1_md.m3u8" 
   				]}, 
   {id:"CCTV-16", num:"16",urls:[
+        "olympicchannelchina.cn,https://live.olympicchannelchina.cn/aoyun/cctv16_1ud.m3u8",
         "myalicdn|https://cctvalih5ca.v.myalicdn.com/live/cctv16_2/index.m3u8"
   									]},	
   {id:"CCTV-17", num:"17",urls:[
