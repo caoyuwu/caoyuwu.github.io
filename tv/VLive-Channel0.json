@@ -579,7 +579,8 @@
   ]
   }, 
   
-  {id:"东森新闻",urls:[
+  {id:"东森新闻台",urls:[
+    "mitv://ns2.hellotvvod.com:9906/d98879e5737d4c44b3dd85bc349775e0",
    "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twdsxw"
  				      	]}, 
 
@@ -608,26 +609,27 @@
   ]},	
  "卫视合家欢|http://cloud-play.hhalloy.com/live/277056149034cc5fb133537bc411c2c9.flv",
  
-  {id:"三立台湾",urls:[
-  ]},
- {id:"中视新闻",urls:[
+
+ {id:"中视新闻台",urls:[
    "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twzsxw"
    ]},
 {id:"台视新闻",urls:[
    "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twtsxw"
    ]},
- {id:"中天综合",urls:[
+ {id:"中天综合台",urls:[
+ "mitv://ns2.hellotvvod.com:9906/a23f89fde21341f3b172046c02ad688c"
    ]},
    
-{id:"中天新闻",urls:[
-  "mitv://ns2.hellotvvod.com:9906/d4f98ce4252a4c7896f1d1ab0f4b40c0",
+{id:"中天新闻台",urls:[
+  "mitv://ns2.hellotvvod.com:9906/f2b61bbfc05e47f8916dcd2513b3a0f5",
   "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twztxw",
   "http://v3948069e.live.126.net/live/myewtdtq55241913/40.flv"
    ]},
- {id:"中天娱乐",urls:[
+ {id:"中天娱乐台",urls:[
+  "mitv://ns2.hellotvvod.com:9906/c23914b1e52c44a9b665e51f535d5b37"
     ]},
  {id:"TVBS新闻台",urls:[
-    "mitv://ns2.hellotvvod.com:9906/683d617d5a204b008cc371b6c45ed1ee",
+    "mitv://ns2.hellotvvod.com:9906/4c700aa999594ea5893d7eab1519f187",
     "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twtvbsxw",
     "http://v3948069e.live.126.net/live/eyisbshx78425035/46.flv",
     "p5p://0198.02686.cc:16871/5db05ca40003699da50b30c835589bf5.ts"
@@ -637,30 +639,48 @@
    ]}, 
 
 {
- id:"台视",urls:[
-   "p5p://0198.02686.cc:16871/5f2e53b0000e6e031d70187e387dbafc.ts"
+ id:"台视",tag:"台湾",urls:[
+   "mitv://ns2.hellotvvod.com:9906/0cde14d20638479189443549d1b1005f"
  ]},
 {
  id:"中视",urls:[
-   "live.126.net,https://flv3948069e.live.126.net/live/1ab5adde2bc0f771f21690a8f0267943.flv",
-   "p5p://0198.02686.cc:16871/5f3656bb000a656c3cbbfa6d262e3d24.ts"
+   "mitv://ns2.hellotvvod.com:9906/21fe3c316a13445a8a5b1f4afd39a5b1"
  ]}, 
 
 {id:"华视",urls:[
+ "mitv://ns2.hellotvvod.com:9906/fd73b217be314cf198807cc5d1d911b6"
    ] }, 
 {id:"公视",urls:[
+ "mitv://ns2.hellotvvod.com:9906/a1c2ecbcd3b64f3eb72ac9191b337cda"
    ] },   
 {id:"民视",urls:[
-    "p5p://0198.02686.cc:16871/5d8f08b60007eeea22db58419a492c10.ts"
+    "mitv://ns2.hellotvvod.com:9906/a1c2ecbcd3b64f3eb72ac9191b337cda"
    ] },    
 {id:"民视新闻台",urls:[
      "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twmsxw",
      "http://v3948069e.live.126.net/live/cmcfizof46736198/36.flv",
      "xuite.net,http://6.mms.vlog.xuite.net/hls/ftvtv/index.m3u8" // 需要翻墙
   ]},
- 
-  
-
+ {id:"三立新闻台",urls:[
+ "mitv://ns2.hellotvvod.com:9906/3fc8adf766954da4bc9908ecb81184bc"
+   ]},
+   {id:"三立台湾",urls:[
+  ]},
+   {id:"非凡新闻台",urls:[
+   "mitv://ns2.hellotvvod.com:9906/3801d29839174353a940a8c0cfae6e47"
+  ]},
+   {id:"年代新闻台",urls:[
+    "mitv://ns2.hellotvvod.com:9906/a412a974b1c24427ba506b9fcd95d77b"
+  ]},
+   {id:"壹电视新闻台",urls:[
+    "mitv://ns2.hellotvvod.com:9906/c111818e11e8420aaad164543387473c"
+  ]},
+   {id:"高点综合台",urls:[
+     "mitv://ns2.hellotvvod.com:9906/ab09bd3fc7f3412ea9d38b3cf68302b0"
+  ]},
+   {id:"超视",urls:[
+   "mitv://ns2.hellotvvod.com:9906/941259e9297d4a229c678f08b19f60f1"
+  ]},
 
 /*
   其余 转到 9700-9750
@@ -1449,10 +1469,10 @@
             //"李连杰",
             //"甄子丹",
             ,"冯小刚"
-            ,"民视新闻台","中天新闻","东森新闻"
+            ,"民视新闻台","中天新闻台","东森新闻台"
             ,"TVBS新闻台","TVBS欢乐"
-            ,"中视新闻","中视","寰宇新闻台"
-            ,"中天综合","JET综合","纬来综合"
+            ,"中视新闻台","中视","寰宇新闻台"
+            ,"中天综合台","JET综合","纬来综合"
             ,"香港有线新闻","香港无线新闻","香港J2","香港VIV"
          ]},		
     {label:"央视频道",items: [
@@ -1464,6 +1484,18 @@
                 ]},                      
     {label:"地方频道",items:[
         {label:"北京",items:["[730-749]"]},
+        {label:"台湾",items:[
+          "台视", //台湾电视事业股份有限公司
+          "中视", //中国电视事业股份有限公司
+          "华视",  //中华电视股份有限公司
+          "公视","民视",
+          "超视",
+          "东森新闻台","TVBS新闻台",
+          "中天新闻台","中视新闻台","台视新闻","中天综合台","中天娱乐台",
+          "TVBS欢乐",
+          "民视新闻台","三立新闻台","非凡新闻台",
+          "年代新闻台","壹电视新闻台","高点综合台",
+        	]},
         {label:"上海",items:["东方卫视","[984000-984024]"]},
         {label:"江苏",items:["江苏卫视","[984025-984049]"]},
         {label:"广东",items:["广东卫视","南方卫视","[984050-984074]"]},
