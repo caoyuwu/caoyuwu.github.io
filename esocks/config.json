@@ -1,3 +1,6 @@
+/*
+ * http://www.caoyuwu.top/esocks/config.json
+*/
 {
    "logLevel": "info",
    
@@ -5,7 +8,7 @@
      "proxy":"${INBOUND_PROXY?esocks}",
      "host":"${INBOUND_HOST?0.0.0.0}",
      "port":${INBOUND_PORT?80},
-     "package":"${INBOUND_PACKAGE?}",
+     "package":"${INBOUND_PACKAGE?wsheader}",
      "encodeKey":"${INBOUND_ENCODEKEY?default}"
   }]
 
