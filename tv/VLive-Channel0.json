@@ -513,6 +513,8 @@
           "rtmp://58.200.131.2:1935/livetv/fhdy"
     ]},
     
+   
+    
   {id:"CNBC新闻",urls:[
   		"CNBC官方源|https://cnbctv18-lh.akamaihd.net/i/cnbctv18_1@174868/index_5_av-p.m3u8?sd=10"
   ]},
@@ -1007,6 +1009,10 @@
 ]},
 "纬来电影|http://cloud-play.hhalloy.com/live/4f10b67646969a422a5490deaaabbc69.flv",
  
+  {id:"星空电影",urls:[
+        
+    ]},
+    
  {id:"TVB电影",urls:[
              "http://hls-ott-zhibo.wasu.tv/live/202/index.m3u8"
          ]},
