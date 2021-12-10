@@ -81,7 +81,7 @@ var hostGrps = function(){
 		// 其他x:
 		"r18.com", //日本
 		"oidhfjg.com",  // didi-live
-		"pornhub.com",
+		"pornhub.com", "naiadsystems.com","livehdcams.com",
 		// 爬的
 		"apollo.io",
 		
