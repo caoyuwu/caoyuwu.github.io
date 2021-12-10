@@ -79,9 +79,9 @@ var hostGrps = function(){
 		"j01.space", // 几鸡
 		"tudog-a.pw", // 土豆云
 		// 其他x:
-		"r18.com",
+		"r18.com", //日本
 		"oidhfjg.com",  // didi-live
-		
+		"pornhub.com",
 		// 爬的
 		"apollo.io",
 		
