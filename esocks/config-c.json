@@ -37,12 +37,12 @@
        "proxy":"group","name":"default",
        "subbounds":[
          {
-	      "name":"esocks",
-	      "proxy":"${INBOUND_PROXY?esocks}",
+	      "name":"socks",
+	      "proxy":"${INBOUND_PROXY?socks}",
 	      "host":"${OUTBOUND_HOST}",
 	      "port":${OUTBOUND_PORT},
-	      "package":"${OUTBOUND_PACKAGE?}", //"wsheader",
-	      "encodeKey":"${OUTBOUND_ENCODEKEY?default}"
+	      "package":"${OUTBOUND_PACKAGE?wsheader}", //"wsheader",
+	      "security":"${OUTBOUND_SECURITY?default}"
   		 },
   		 {
   		    "name":"direct",
