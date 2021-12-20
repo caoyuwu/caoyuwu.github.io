@@ -1,7 +1,7 @@
 /*
  ln -s /Third-src/GitHUB/caoyuwu.github.io/tv/VLive-Channel0.json /link/VLive-Channel0.json 
  http://www.caoyuwu.top/tv/VLive-Channel0.json
- 
+ 测试: VLiveChannel
 */
 {
   label:"直播", groupIdx:0,
@@ -1501,7 +1501,7 @@
           "中天新闻台","中视新闻台","台视新闻","中天综合台","中天娱乐台",
           "TVBS欢乐",
           "民视新闻台","三立新闻台","非凡新闻台",
-          "年代新闻台","壹电视新闻台","高点综合台",
+          "年代新闻台","壹电视新闻台","高点综合台"
         	]},
         {label:"上海",items:["东方卫视","[984000-984024]"]},
         {label:"江苏",items:["江苏卫视","[984025-984049]"]},
