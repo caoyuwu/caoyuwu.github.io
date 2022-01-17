@@ -3,6 +3,7 @@
  * http://www.caoyuwu.top/proxy/gfwlist.pac.js
  * http://localhost/doc/pac/gfwpac.pac.js
  * chrome://net-internals/#proxy : 重置代理
+ * http://www.caoyuwu.top/proxy/TestPac.html
  * 参考 
  * genpac 2.1.0 https://github.com/JinnLynn/genpac
 
