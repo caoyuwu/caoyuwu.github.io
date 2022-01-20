@@ -64,10 +64,11 @@ function prepareMediaSource(url){
 	                app_ver:"2.1.69",
 	                h265:1
 			};
+			/*
 			for(var nm in biz_params){
 				print(nm+" = "+biz_params[nm]);
 				print(nm+" = "+JSON.stringify(biz_params[nm]));
-			}
+			} */
 //print("2--------biz_params="+biz_params);			
 //print("2--------biz_params="+JSON.stringify(biz_params));			
 			var ad_params = {
