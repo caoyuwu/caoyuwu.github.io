@@ -23,9 +23,19 @@ function getToken(){
 	return "";
 }
 
+function extraceUrlHostAndPath(url){
+	var p = url.indexOf(":");
+	if( p<0 )
+		return null;
+	for(p++;p<url.length && url.charAt(p)=='/';p++)
+        ;
+    var p2 = url.indexOf('?',p+1);
+    return p2<0 ? url.substring(p) : url.substring(p,p2) ;
+}
+
 function prepareMediaSource(url){
 	print("url="+url);
-	var videoId = _ownerPCls.extraceUrlHostAndPath(url);
+	var videoId = extraceUrlHostAndPath(url);
 	var ts = Packages.java.lang.System.currentTimeMillis();
 	var tokenExoiredChecked = false;
 	var videoHeight = prefVideoHeight || 1080;
@@ -41,10 +51,11 @@ function prepareMediaSource(url){
 					ccode : "0502",
 					client_ip: "192.168.1.1",
 	                utid:"ULHDF1D3uWoCAXx/of4Zoglx",
-	                client_ts:(ts/1000).longValue(),
+	                client_ts:Math.floor(ts/1000),//.longValue(),
 	                version:"2.1.69",
 	                ckey:"140#yPQDSfl1zzF1hzo23zNb4pN8s7a612rhQyqHbs+HBzGI1SD8Qo2d/m8nlTEKeISfcVbKN6hqzznk+MSde6XxzBFhIHoqlQzx2DD3VthqzF+w2CiYlp1xzoObV2EqlSfLGV0I1wba7X5mYL69qukruAWMu+2SEkN4fzLjyrCIyMAvMkO6rdV2UD93x8/d0OwtKtribGx7YoxZVcenLBazjveOz1V0xhKJvo/zO8iiNozRVfT1pxuwoWF4ZphZUtcsylOABbdwxW4BiBVmw3WByVPAYgdzbSvSZh0KijslfTeqQcYajuq3yZ93H8IYT3b90Bjg92ftiq9+f80DcLyw1c4AsPYOiIuiaOZLv+Oxs+jcK8jjDhVB8wU0ktP8nrfy4IHKIcdHu78F2uGRGoJFroDYVBUGybeedOqb1dqLxZnSRBWqhYvFpRepGNgNRKYr6TWJ2OIYOh1ICb/OpUkIEMPfJghGuK3Bg+HWg7uMGBKE3o3tVi43XuRpVcnzgFzQ2LVt5ttvIqK4EhLLVzji48i6FJLwYtFbTFbSdDMhnD57fauPuzDTVvO6R4rN6szCGgWE9O8qNVBA7ZdT4RNwC/qSpD/uBOnOFjnyRAcKaTbXOYdyj6pF9co+0UNiTUTNuZN5Uq5SUgts7y82OctAENtlLWv/8mjigJbmq3Jb16TsiCLQv0+3Wn4lzPUTlU2Mb1FY31aRCJcZ9OB9DAINros2UUawROmC54VD1dH0Cg0SBIbFpMoVQeDpBoeaBFTxXf3KuhAqq5BQa3rlrwZ1HH4yfa6UZd0KUcKiQ4WK7/47N0xhseht/XpaLwTI7a02kYt2K8pNtILfUbal8DRVN5tHyDABSrleP5ZQJFYAz+15d3phuPlRfqTGnelV8DPO6E7j6cTARbVTu1INRx4llcNsOHbe/MjMvp1m7zhLspU8W7mw2i0ww1wayCEI+HAQvAzu91PX3fKhF25KGSLVQkVsjdJ/F2xih/2H9oOjuUjlkwpN63RiZSU4vwGAZclKR8Ts4F8Uz1Sa9LCViSb6dc46ebeDR86zxmhaF8Q5wIUPT+Ge65ycil3y3UewE1qRiw8aS5IRKNQCyudaT4oSTRM914aimZNiQ6LOmMExIa4YNjrs31tF76RzIqI932KUDrnb9cQyCxV/jduaHcIbG0Gd61wsFjxQXduEoxFM/V+QQ5SQIRgvbtl0MDR2BbL4l5q0CkrLq963KgfI6oW/4OAaGfi+Ua52g/2Jaxbul+hjr/5FoYKwIRm8uTsXRGdyG+ZNZ1/60y4wiZegAHvjsH6LXVT5Fs5ivJpWEy+="
 			};
+//print("1--------steal_params="+JSON.stringify(steal_params));			
 			var biz_params = {
 					vid:videoId,
 	                play_ability:16782592,// js 中给出的固定
@@ -53,8 +64,15 @@ function prepareMediaSource(url){
 	                app_ver:"2.1.69",
 	                h265:1
 			};
+			for(var nm in biz_params){
+				print(nm+" = "+biz_params[nm]);
+				print(nm+" = "+JSON.stringify(biz_params[nm]));
+			}
+//print("2--------biz_params="+biz_params);			
+//print("2--------biz_params="+JSON.stringify(biz_params));			
 			var ad_params = {
 			};
+//print("3--------ad_params="+JSON.stringify(ad_params));			
 			var data = JSON.stringify({
 				steal_params:JSON.stringify(steal_params),
 				biz_params:JSON.stringify(biz_params),
@@ -85,8 +103,9 @@ function prepareMediaSource(url){
 				Referer:"https://v.youku.com/v_show/id_"+videoId+".html"	
 			};
 			var url = Packages.snsoft.commons.net.HttpUtils.appendUrlParameters(URL, queryParams);
-			var c = (new (Java.type("snsoft.commons.net.HttpClient"))(new java.net.URL(url),header,0))
-            			.request();
+			var c = _owner.newHttpClient(url,header,0x400).request();
+				//(new (Java.type("snsoft.commons.net.HttpClient"))(new java.net.URL(url),header,0))
+            		//	.request();
 			retText = c.getContentAsString().trim();
 		}
 		if( !retText.startsWith("mtopjsonp1({") || !retText.endsWith("})") ) {
