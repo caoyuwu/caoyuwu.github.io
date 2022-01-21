@@ -25,7 +25,7 @@ function getToken(){
 	}
 	return "";
 }
-
+/*
 function extraceUrlHostAndPath(url){
 	var p = url.indexOf(":");
 	if( p<0 )
@@ -35,13 +35,18 @@ function extraceUrlHostAndPath(url){
     var p2 = url.indexOf('?',p+1);
     return p2<0 ? url.substring(p) : url.substring(p,p2) ;
 }
+//*/
 
 function prepareMediaSource(url,params){
-	print("url="+url);
-	var videoId = extraceUrlHostAndPath(url);
+	var videoId = ""+utils.getUrlHostAndPath(url);
+	 // Java的String 做 JSON.stringify 有问题!
+	//var videoId = extraceUrlHostAndPath(url);
+	   // 
+print("url="+url+" ;   videoId="+videoId);
 	var ts = Packages.java.lang.System.currentTimeMillis();
 	var tokenExoiredChecked = false;
 	var videoHeight = prefVideoHeight || 1080;
+//print("ts="+ts);	
 	for(;;){
 		var token = getToken();
 		if( token==null ){
@@ -58,6 +63,7 @@ function prepareMediaSource(url,params){
 	                version:"2.1.69",
 	                ckey:"140#yPQDSfl1zzF1hzo23zNb4pN8s7a612rhQyqHbs+HBzGI1SD8Qo2d/m8nlTEKeISfcVbKN6hqzznk+MSde6XxzBFhIHoqlQzx2DD3VthqzF+w2CiYlp1xzoObV2EqlSfLGV0I1wba7X5mYL69qukruAWMu+2SEkN4fzLjyrCIyMAvMkO6rdV2UD93x8/d0OwtKtribGx7YoxZVcenLBazjveOz1V0xhKJvo/zO8iiNozRVfT1pxuwoWF4ZphZUtcsylOABbdwxW4BiBVmw3WByVPAYgdzbSvSZh0KijslfTeqQcYajuq3yZ93H8IYT3b90Bjg92ftiq9+f80DcLyw1c4AsPYOiIuiaOZLv+Oxs+jcK8jjDhVB8wU0ktP8nrfy4IHKIcdHu78F2uGRGoJFroDYVBUGybeedOqb1dqLxZnSRBWqhYvFpRepGNgNRKYr6TWJ2OIYOh1ICb/OpUkIEMPfJghGuK3Bg+HWg7uMGBKE3o3tVi43XuRpVcnzgFzQ2LVt5ttvIqK4EhLLVzji48i6FJLwYtFbTFbSdDMhnD57fauPuzDTVvO6R4rN6szCGgWE9O8qNVBA7ZdT4RNwC/qSpD/uBOnOFjnyRAcKaTbXOYdyj6pF9co+0UNiTUTNuZN5Uq5SUgts7y82OctAENtlLWv/8mjigJbmq3Jb16TsiCLQv0+3Wn4lzPUTlU2Mb1FY31aRCJcZ9OB9DAINros2UUawROmC54VD1dH0Cg0SBIbFpMoVQeDpBoeaBFTxXf3KuhAqq5BQa3rlrwZ1HH4yfa6UZd0KUcKiQ4WK7/47N0xhseht/XpaLwTI7a02kYt2K8pNtILfUbal8DRVN5tHyDABSrleP5ZQJFYAz+15d3phuPlRfqTGnelV8DPO6E7j6cTARbVTu1INRx4llcNsOHbe/MjMvp1m7zhLspU8W7mw2i0ww1wayCEI+HAQvAzu91PX3fKhF25KGSLVQkVsjdJ/F2xih/2H9oOjuUjlkwpN63RiZSU4vwGAZclKR8Ts4F8Uz1Sa9LCViSb6dc46ebeDR86zxmhaF8Q5wIUPT+Ge65ycil3y3UewE1qRiw8aS5IRKNQCyudaT4oSTRM914aimZNiQ6LOmMExIa4YNjrs31tF76RzIqI932KUDrnb9cQyCxV/jduaHcIbG0Gd61wsFjxQXduEoxFM/V+QQ5SQIRgvbtl0MDR2BbL4l5q0CkrLq963KgfI6oW/4OAaGfi+Ua52g/2Jaxbul+hjr/5FoYKwIRm8uTsXRGdyG+ZNZ1/60y4wiZegAHvjsH6LXVT5Fs5ivJpWEy+="
 			};
+			//org.mozilla.javascript.NativeJSON
 //print("1--------steal_params="+JSON.stringify(steal_params));			
 			var biz_params = {
 					vid:videoId,
@@ -71,7 +77,7 @@ function prepareMediaSource(url,params){
 			for(var nm in biz_params){
 				print(nm+" = "+biz_params[nm]);
 				print(nm+" = "+JSON.stringify(biz_params[nm]));
-			} */
+			}// */
 //print("2--------biz_params="+biz_params);			
 //print("2--------biz_params="+JSON.stringify(biz_params));			
 			var ad_params = {

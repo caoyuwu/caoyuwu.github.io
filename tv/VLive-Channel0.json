@@ -1593,6 +1593,7 @@
              {label:"境外-",locked:1,items:["[99600-99799]"]}, 
         	 {label:"测试",items:["[99800-99899]"]},
         	 {label:"无效频道",items:["[99901-99920]"]},
+        	 {label:"测试目录",items:"@test-menu-list:list/001/002"},
         	 {label:"临时",loop:false,items:["[99921-99999]"]}
  //   {label:"所有频道",items:[] } ,
  //      {label:"其他频道",items:[]},
