@@ -104,10 +104,7 @@ function prepareMediaSource(url){
 				Referer:"https://v.youku.com/v_show/id_"+videoId+".html"	
 			};
 			var url = Packages.snsoft.commons.net.HttpUtils.appendUrlParameters(URL, queryParams);
-			var c = _owner.newHttpClient(url,header,0x400).request();
-				//(new (Java.type("snsoft.commons.net.HttpClient"))(new java.net.URL(url),header,0))
-            		//	.request();
-			retText = c.getContentAsString().trim();
+			retText = _owner.httpGetAsString(url,header).trim();
 		}
 		if( !retText.startsWith("mtopjsonp1({") || !retText.endsWith("})") ) {
             throw "返回数据错误-"+retText;
