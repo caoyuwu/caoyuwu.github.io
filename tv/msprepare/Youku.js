@@ -3,7 +3,10 @@
  * http://localhost/caoyuwu.github.io/tv/msprepare/Youku.js
  * http://www.caoyuwu.top/tv/msprepare/Youku.js
  * var _owner;
+ * youku|youku2,http://www.caoyuwu.top/tv/msprepare/Youku.js
  */
+//print("user="+_owner.getParameter("user")+",id="+_owner.getParameter("id"));
+
 var prefVideoHeight = 1080;
 var APPKEY = "24679788";
 var YKPid = "20160317PLF000211"; // 固定值， 来自 js
@@ -33,7 +36,7 @@ function extraceUrlHostAndPath(url){
     return p2<0 ? url.substring(p) : url.substring(p,p2) ;
 }
 
-function prepareMediaSource(url){
+function prepareMediaSource(url,params){
 	print("url="+url);
 	var videoId = extraceUrlHostAndPath(url);
 	var ts = Packages.java.lang.System.currentTimeMillis();
@@ -104,7 +107,7 @@ function prepareMediaSource(url){
 				Referer:"https://v.youku.com/v_show/id_"+videoId+".html"	
 			};
 			var url = Packages.snsoft.commons.net.HttpUtils.appendUrlParameters(URL, queryParams);
-			retText = _owner.httpGetAsString(url,header).trim();
+			retText = utils.httpGetAsString(url,header).trim();
 		}
 		if( !retText.startsWith("mtopjsonp1({") || !retText.endsWith("})") ) {
             throw "返回数据错误-"+retText;
