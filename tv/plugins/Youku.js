@@ -44,6 +44,7 @@ function prepareMediaSource(url,params){
 	//var videoId = extraceUrlHostAndPath(url);
 	   // 
 //print("====url="+url+" ;   videoId="+videoId);
+utils.showToast("====url="+url+" ;   videoId="+videoId);
 	var ts = utils.currentTime();//Packages.java.lang.System.currentTimeMillis();
 	var tokenExoiredChecked = false;
 	var videoHeight = prefVideoHeight || 1080;
