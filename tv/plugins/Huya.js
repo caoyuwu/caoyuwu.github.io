@@ -1,6 +1,7 @@
 
 /*
   https://www.huya.com/XXXXX => huyalive://XXXXX
+  huyalive://11352916
  */
 var cacheLiveStreamInfo = {}; 
 var LiveStreamInfo = function(){}
