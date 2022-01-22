@@ -6,8 +6,8 @@ youku,Youku.js
 [menu]youtube-list,Youtube.js
 youtube,Youtube.js
 
+[menu]blive-list,Bilibili.js
 blive,Bilibili.js
-blive-list,Bilibili.js
 
 #huyalive,Huya.js
 #mgtv,MGTV.js
