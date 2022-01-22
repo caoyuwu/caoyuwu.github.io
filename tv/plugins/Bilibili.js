@@ -9,13 +9,15 @@ https://live.bilibili.com/XXXXX => blive://XXXXX
 //var JS_CodecExtraNMPATH =   ["url_info",0,"extra"];
 function prepareMediaSource(url,params){
 	var liveId = ""+utils.getUrlHostAndPath(url);
-  	var html = utils.httpGetAsString("https://live.bilibili.com/"+liveId);
+	var headers = {Accept:"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"};
+  	var html = utils.httpGetAsString("https://live.bilibili.com/"+liveId,headers);
+  	  //  https://live.bilibili.com/6694373
   	var JSPrefix = "<script>window.__NEPTUNE_IS_MY_WAIFU__=";
   	var p1 = html.indexOf(JSPrefix);
-  	var p2 = p1<0 ? -1 : html.indexOf("</script>",p1+JSPrefix.length());
+  	var p2 = p1<0 ? -1 : html.indexOf("</script>",p1+JSPrefix.length);
    	if( p2<0 )
             return null;
-    var jsText = html.substring(p1+JSPrefix.length(),p2);
+    var jsText = html.substring(p1+JSPrefix.length,p2);
         // System.out.println(jsText);
      return parseUrlFromJSText(jsText);
 }
