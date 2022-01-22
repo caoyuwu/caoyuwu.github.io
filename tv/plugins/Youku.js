@@ -1,5 +1,6 @@
 
 /*
+  youku://XNDM4NDY1ODUwNA==
  * http://localhost/caoyuwu.github.io/tv/msprepare/Youku.js
  * http://www.caoyuwu.top/tv/msprepare/Youku.js
  * var _owner;
@@ -42,8 +43,8 @@ function prepareMediaSource(url,params){
 	 // Java的String 做 JSON.stringify 有问题!
 	//var videoId = extraceUrlHostAndPath(url);
 	   // 
-print("url="+url+" ;   videoId="+videoId);
-	var ts = Packages.java.lang.System.currentTimeMillis();
+//print("====url="+url+" ;   videoId="+videoId);
+	var ts = utils.currentTime();//Packages.java.lang.System.currentTimeMillis();
 	var tokenExoiredChecked = false;
 	var videoHeight = prefVideoHeight || 1080;
 //print("ts="+ts);	

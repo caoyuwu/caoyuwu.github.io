@@ -1,7 +1,10 @@
 #
 # @http://192.168.1.8/caoyuwu.github.io/tv/plugins/list.txt
 #
-youku1|youku2,Youku.js
+youku,Youku.js
+
+[menu]youtube-list,Youtube.js
+youtube,Youtube.js
 
 #blive,Bilibili.js
 #huyalive,Huya.js
