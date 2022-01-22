@@ -1,8 +1,8 @@
 
 /*
   youku://XNDM4NDY1ODUwNA==
- * http://localhost/caoyuwu.github.io/tv/msprepare/Youku.js
- * http://www.caoyuwu.top/tv/msprepare/Youku.js
+ * http://localhost/caoyuwu.github.io/tv/plugins/Youku.js
+ * http://www.caoyuwu.top/tv/plugins/Youku.js
  * var _owner;
  * youku|youku2,http://www.caoyuwu.top/tv/msprepare/Youku.js
  */
@@ -44,7 +44,7 @@ function prepareMediaSource(url,params){
 	//var videoId = extraceUrlHostAndPath(url);
 	   // 
 //print("====url="+url+" ;   videoId="+videoId);
-utils.showToast("====url="+url+" ;   videoId="+videoId);
+//utils.showToast("====url="+url+" ;   videoId="+videoId);
 	var ts = utils.currentTime();//Packages.java.lang.System.currentTimeMillis();
 	var tokenExoiredChecked = false;
 	var videoHeight = prefVideoHeight || 1080;
