@@ -13,8 +13,10 @@ huyalive,Huya.js
 
 yylive,YYLive.js
 
-#mgtv,MGTV.js
-#migu|migu123tv,Migu.js
+migu|migu123tv,Migu.js
+
+mgtv,MGTV.js
+
 #music163|163music|163mv|mv163|163video|video163,Music163.js
 #qingtingfm,QingtingFM.js
 #qqmusic|qqmv,QQ.js
