@@ -58,7 +58,7 @@ function  geLiveURL( sid, cid) {
             avp_parameter: avp_parameter
 	}; //postData
 	var queryParams = {
-		uid:"0",
+		uid:"0",  // 写成整数0时,手机appendUrlParameters会变成0.0
         cid:cid,
         sid:sid,
         appid:"0",
