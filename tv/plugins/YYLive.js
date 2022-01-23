@@ -1,5 +1,6 @@
 /*
 https://www.yy.com/95017956/95017956 => yylive://95017956
+yylive://95017956
 */
 function prepareMediaSource(url,params){
 	var mediaId = ""+utils.getUrlHostAndPath(url);
@@ -57,20 +58,23 @@ function  geLiveURL( sid, cid) {
             avp_parameter: avp_parameter
 	}; //postData
 	var queryParams = {
-		uid:0,
+		uid:"0",
         cid:cid,
         sid:sid,
-        appid:0,
+        appid:"0",
         sequence:tm,
         encode:"json"
 	};
 	var url = Packages.snsoft.commons.net.HttpUtils.appendUrlParameters("https://stream-manager.yy.com/v3/channel/streams", queryParams);
+	//var httpHeaders = {
+	//"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
+	//};
 	var text = utils.httpPostAsString(
 	         url,
-	         null,
+	   //      httpHeaders,
 	         "application/json;charset=utf-8",
-	         postData,
-	         0x400
+	         JSON.stringify(postData)
+	     //    0 //0x400
 		);
  //print("text="+text);		
    var retVal = JSON.parse(text);

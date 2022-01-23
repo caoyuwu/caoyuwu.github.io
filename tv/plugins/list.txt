@@ -11,7 +11,7 @@ blive,Bilibili.js
 
 huyalive,Huya.js
 
-yylive,YYiLive.js
+yylive,YYLive.js
 
 #mgtv,MGTV.js
 #migu|migu123tv,Migu.js
