@@ -17,8 +17,10 @@ migu|migu123tv,Migu.js
 
 mgtv,MGTV.js
 
+qingtingfm,QingtingFM.js
+
+
 #music163|163music|163mv|mv163|163video|video163,Music163.js
-#qingtingfm,QingtingFM.js
 #qqmusic|qqmv,QQ.js
 
 
