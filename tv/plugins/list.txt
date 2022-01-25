@@ -20,8 +20,9 @@ mgtv,MGTV.js
 qingtingfm,QingtingFM.js
 
 
-#music163|163music|163mv|mv163|163video|video163,Music163.js
-#qqmusic|qqmv,QQ.js
+music163|163music|163mv|mv163|163video|video163,Music163.js
+
+qqmusic|qqmv,QQ.js
 
 
 [menu]test-menu-list,TestMenuList.js,x=1&y=2
