@@ -36,37 +36,50 @@ window.window = window;
 this.self = window;
 
 
-build_cmd5x = function(module, exports, __webpack_require__) {
+var build_cmd5x = function(module, exports, __webpack_require__) {
     var _qdb = function(e, t) {
+    	//console.log("_qdb : e=%s,t=%s",e,t);
         var n, r = _qda[e -= 0];
-        void 0 === _qdb.BeEAsi && ((n = function() {
-            var e;
-            try {
-                e = Function('return (function() {}.constructor("return this")( ));')()
-            } catch (t) {
-                e = window
-            }
-            return e
-        }()).atob || (n.atob = function(e) {
+        void 0 === _qdb.BeEAsi && 
+        (
+        		//n = window;//
+        	  /*
+        		(n = function() {
+	            var e;
+	            try {
+	                e = Function('return (function() {}.constructor("return this")( ));')()
+	            } catch (t) {
+	                e = window
+	            }
+	              return e
+           }()).atob 
+           */
+        /*|| (n.atob = function(e) {
                 for (var t, n, r = String(e).replace(/=+$/, ""), i = 0, o = 0, a = ""; n = r.charAt(o++); ~n && (t = i % 4 ? 64 * t + n : n,
                 i++ % 4) ? a += String.fromCharCode(255 & t >> (-2 * i & 6)) : 0)
-                    n = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=".indexOf(n);
+                    n = "ABCDEFGHIJKLMNOPQRSTUVWXYZ/dash?tvid=8485811691506600&bid=600&vid=40c2bd99fbabed1d387da08362c406b6&src=01010031010000000000&vt=0&rs=1&uid=628184907449420&ori=pcw&ps=1&k_uid=c55d485ee178762fe5e2135b9bddf52d&pt=0&d=0&s=&lid=&cf=&ct=&authKey=f40ce2573fa9c0ae20742471fb3232d8&k_tag=1&ost=0&ppt=0&dfp=a0373263bc4e6a45538738180efbee117e17a685d4a066dc60d1c316825045623c&locale=zh_cn&prio=%7B%22ff%22%3A%22f4v%22%2C%22code%22%3A2%7D&pck=7beFNi8KSGasx94870BzsDHSKGhfCR6VFBGZt7QSgKsQ81m1yfqm1sKKm2u4B6KBwm3Am3ta3&k_err_retries=0&up=&qd_v=2&tm=1625942640119&qdy=a&qds=0&k_ft1=706436220846084&k_ft4=36283952406532&k_ft5=1&bop=%7B%22version%22%3A%2210.0%22%2C%22dfp%22%3A%22a0373263bc4e6a45538738180efbee117e17a685d4a066dc60d1c316825045623c%22%7D&ut=0opqrstuvwxyz0123456789+/=".indexOf(n);
                 return a
             }
-        ),
+        )*/
+        		 /*
+        		  *   base64 decode
+        		  */ 
             _qdb.CrWsXc = function(e) {
+            	//console.log("CrWsXc : e=%s",e);
                 for (var t = atob(e), n = [], r = 0, i = t.length; r < i; r++)
                     n += "%" + ("00" + t.charCodeAt(r).toString(16)).slice(-2);
+                //console.log("CrWsXc : n=%s",n);
                 return decodeURIComponent(n)
             }
             ,
             _qdb.uNcQSs = {},
-            _qdb.BeEAsi = !0);
+            _qdb.BeEAsi = !0
+        );
         var i = _qdb.uNcQSs[e];
         return void 0 === i ? (r = _qdb.CrWsXc(r),
             _qdb.uNcQSs[e] = r) : r = i,
             r
-    };
+    }; //_qdb
     function _qd_az() {
         var aA = function(e) {
             for (var t in e)
@@ -78,9 +91,17 @@ build_cmd5x = function(module, exports, __webpack_require__) {
             return eval(aE)
         }
             , aF = function(e) {
-            // console.log('start');
-            if ('mwlCr' !== 'UdOHx')
-                return typeof ArrayBuffer === 'undefined' ? 'iloveiqiyi' : aU['ccall']('cmd5x', 'string', ['string'], [e]);
+             //console.log('start -cmd5x');
+            if ('mwlCr' !== 'UdOHx') 
+            {
+            	var f = aU['ccall'];
+            	return f('cmd5x', 'string', ['string'], [e]);
+            	//var f_cmd5x = aU._cmd5x;
+            	//return f_cmd5x(e);
+                //return typeof ArrayBuffer === 'undefined' ? 'iloveiqiyi' 
+                 //        : aU['ccall']('cmd5x', 'string', ['string'], [e]);
+            }
+            /*
             b[na >> 2] = ma,
                 ma = 0 | b[15],
                 ma ? (w = ma + 4 | 0,
@@ -88,13 +109,17 @@ build_cmd5x = function(module, exports, __webpack_require__) {
                     oa = w) : (b[na + 4 >> 2] = na,
                     oa = 60),
                 b[oa >> 2] = na
-        }
+             */   
+        } // end cmd5x
             , aI = function() {
             var e = {};
             e['qd_v'] = 2,
                 e.tm = (new Date)['getTime']();
             var t = window;
-            for (var n in typeof t['navigator'] === 'undefined' ? e['qdy'] = "u" : e['qdy'] = 'function%20javaEnabled%28%29%20%7B%20%5Bnative%20code%5D%20%7D' === escape(t['navigator']['javaEnabled']['toString']()) ? "a" : "i",
+            for (var n in typeof t['navigator'] === 'undefined' ? e['qdy'] = "u" 
+             // 'function javaEnabled() { [native code] }'
+            : e['qdy'] = 'function%20javaEnabled%28%29%20%7B%20%5Bnative%20code%5D%20%7D' === escape(t['navigator']['javaEnabled']['toString']()) 
+            		? "a" : "i",
                 e['qds'] = 0,
                 t)
                 if ('YhZmy' != 'YhZmy')
@@ -352,7 +377,7 @@ build_cmd5x = function(module, exports, __webpack_require__) {
                 , g5 = !1
                 , gc = typeof atob === 'function' ? atob : function(e) {
                 if ('gbOmz' == 'gbOmz') {
-                    var t, n, r, i, o, a, s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=', u = "", c = 0;
+                    var t, n, r, i, o, a, s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ/dash?tvid=8485811691506600&bid=600&vid=40c2bd99fbabed1d387da08362c406b6&src=01010031010000000000&vt=0&rs=1&uid=628184907449420&ori=pcw&ps=1&k_uid=c55d485ee178762fe5e2135b9bddf52d&pt=0&d=0&s=&lid=&cf=&ct=&authKey=f40ce2573fa9c0ae20742471fb3232d8&k_tag=1&ost=0&ppt=0&dfp=a0373263bc4e6a45538738180efbee117e17a685d4a066dc60d1c316825045623c&locale=zh_cn&prio=%7B%22ff%22%3A%22f4v%22%2C%22code%22%3A2%7D&pck=7beFNi8KSGasx94870BzsDHSKGhfCR6VFBGZt7QSgKsQ81m1yfqm1sKKm2u4B6KBwm3Am3ta3&k_err_retries=0&up=&qd_v=2&tm=1625942640119&qdy=a&qds=0&k_ft1=706436220846084&k_ft4=36283952406532&k_ft5=1&bop=%7B%22version%22%3A%2210.0%22%2C%22dfp%22%3A%22a0373263bc4e6a45538738180efbee117e17a685d4a066dc60d1c316825045623c%22%7D&ut=0opqrstuvwxyz0123456789+/=', u = "", c = 0;
                     e = e['replace'](/[^A-Za-z0-9\+\/\=]/g, "");
                     do {
                         t = s['indexOf'](e['charAt'](c++)) << 2 | (i = s['indexOf'](e['charAt'](c++))) >> 4,
@@ -386,7 +411,7 @@ build_cmd5x = function(module, exports, __webpack_require__) {
                 gF.j = eU,
                 gF.k = dQ;
             var gG = function(gH, gI, dD) {
-                'use asm';
+                //'use asm';
                 var gK = new (gH['Int8Array'])(dD)
                     , gL = new (gH['Int32Array'])(dD)
                     , gM = new (gH['Uint8Array'])(dD)
@@ -8238,7 +8263,7 @@ build_cmd5x = function(module, exports, __webpack_require__) {
             var a = c4(e)
                 , s = []
                 , u = 0;
-            if (r)
+            if (r) // 参数
                 for (var c = 0; c < r['length']; c++) {
                     var l = o[n[c]];
                     l ? (0 === u && (u = sh()),
@@ -8579,7 +8604,7 @@ build_cmd5x = function(module, exports, __webpack_require__) {
             var counter = 0;
             for (var e = 27218; ; ) {
                 counter ++;
-
+          //   console.log("counter=%d,e=%d",counter,e);
                 switch (e) {
                     case 52924:
                         !A || aA(A) ? 'rdhnu' === 'dHJNw' ? (b[qa >> 2] = pa,
@@ -9691,7 +9716,7 @@ build_cmd5x = function(module, exports, __webpack_require__) {
                             e += -19559;
                         break;
                     case 7783:
-                        A = A['userAgent'],
+                        A = " ";//A['userAgent'],
                             e += 24636;
                         break;
                     case 950:
@@ -9727,7 +9752,8 @@ build_cmd5x = function(module, exports, __webpack_require__) {
                         e += 920;
                         break;
                     case 13141:
-                        A = t['document'],
+                        A = t['document'];
+                        //console.log("t['document']=%s",t['document']);
                             e += 11034;
                         break;
                     case 3753:
@@ -10021,7 +10047,8 @@ build_cmd5x = function(module, exports, __webpack_require__) {
                         e += -3653;
                         break;
                     case 55986:
-                        D = D['hostname'] || 'localhost',
+                        D = "www.iqiyi.com";
+                        	//D['hostname'] || 'localhost';
                             e += -47202;
                         break;
                     case 23776:
@@ -10407,7 +10434,7 @@ build_cmd5x = function(module, exports, __webpack_require__) {
                             e += -15947;
                         break;
                     case 13053:
-                        l = A['domain'],
+                        l = "iqiyi.com";//A['domain'],
                             e += 13298;
                         break;
                     case 40401:
@@ -10764,13 +10791,14 @@ build_cmd5x = function(module, exports, __webpack_require__) {
                 Ba = _,
                 Ca = _ + 8 | 0
         }
-    }
+    } //_qd_az
     _qd_az()
 };
 var cmd5x_exports = {};
 build_cmd5x(null, cmd5x_exports);
 
 var cmd5x = cmd5x_exports.cmd5x;
+
 
 function prepareMediaSource(url,params){
 	var s;

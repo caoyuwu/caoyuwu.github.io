@@ -57,7 +57,7 @@ function prepareMediaSource(url,params){
             abroad:""
             }
         }
-        var getVideoURL = Packages.snsoft.commons.net.HttpUtils.appendUrlParameters( APIURL+"/player/video", queryParams);
+        var getVideoURL = utils.appendUrlParameters( APIURL+"/player/video", queryParams);
 //print("getVideoURL="+getVideoURL);
        // HttpClient httpClient = new HttpClient(getVideoURL,header,0);
         var text =  utils.httpGetAsString(getVideoURL,header,0);
@@ -90,7 +90,7 @@ function prepareMediaSource(url,params){
     	abroad:""
     }
     //httpClient = new HttpClient(HttpUtils.appendUrlParameters(APIURL+"/player/getSource", queryParams),header,0);
-   	var getSourceUrl = Packages.snsoft.commons.net.HttpUtils.appendUrlParameters(APIURL+"/player/getSource", queryParams);
+   	var getSourceUrl = utils.appendUrlParameters(APIURL+"/player/getSource", queryParams);
  // print("getSourceUrl="+getSourceUrl);
     text =  utils.httpGetAsString(
         getSourceUrl,

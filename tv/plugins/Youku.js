@@ -13,13 +13,14 @@ var APPKEY = "24679788";
 var YKPid = "20160317PLF000211"; // 固定值， 来自 js
 var HOMEURL =  "https://acs.youku.com";
 var URL = HOMEURL+"/h5/mtop.youku.play.ups.appinfo.get/1.1/"; 
-var HomeURL = new java.net.URL(HOMEURL);
+//var HomeURL = new java.net.URL(HOMEURL);
 var lastInitCookiesTime;
 
 function getToken(){
-	var c = Packages.snsoft.commons.net.HttpCookiesStore.impl.getHttpCookie(HomeURL, "_m_h5_tk");
-	if( c ){
-		var s = c.getValue();
+	//var c = snsoft.commons.net.HttpCookiesStore.impl.getHttpCookie(HOMEURL, "_m_h5_tk");
+	var s = utils.getHttpCookie(HOMEURL, "_m_h5_tk");
+	if( s ){
+		//var s = c.getValue();
 //print("_m_h5_tk="+s);		
 		var p = s.indexOf("_");
 		return p>=0 ? s.substring(0,p) : s;
@@ -45,7 +46,7 @@ function prepareMediaSource(url,params){
 	   // 
 //print("====url="+url+" ;   videoId="+videoId);
 //utils.showToast("====url="+url+" ;   videoId="+videoId);
-	var ts = utils.currentTime();//Packages.java.lang.System.currentTimeMillis();
+	var ts = utils.currentTime();//
 	var tokenExoiredChecked = false;
 	var videoHeight = prefVideoHeight || 1080;
 //print("ts="+ts);	
@@ -90,11 +91,11 @@ function prepareMediaSource(url,params){
 				biz_params:JSON.stringify(biz_params),
 				ad_params:JSON.stringify(ad_params),
 			});
-			var sign = Packages.snsoft.commons.security.MessageDigestUtils.md5Hex(token+"&"+ts+"&"+APPKEY+"&"+data).toLowerCase();
+			var sign = utils.md5Hex(token+"&"+ts+"&"+APPKEY+"&"+data).toLowerCase();
 			var queryParams = {
 					jsv:"2.5.8",
 	                appKey: APPKEY,
-	                t: ts,
+	                t: ""+ts,
 	                sign: sign,
 	                api: "mtop.youku.play.ups.appinfo.get",
 	                v: "1.1",
@@ -114,14 +115,15 @@ function prepareMediaSource(url,params){
 			var header = {
 				Referer:"https://v.youku.com/v_show/id_"+videoId+".html"	
 			};
-			var url = Packages.snsoft.commons.net.HttpUtils.appendUrlParameters(URL, queryParams);
+			var url = utils.appendUrlParameters(URL, queryParams);
+//print("url="+url);			
 			retText = utils.httpGetAsString(url,header).trim();
 		}
 		if( !retText.startsWith("mtopjsonp1({") || !retText.endsWith("})") ) {
             throw "返回数据错误-"+retText;
         }
 	//print("返回="+retText);	
-		var retVals = JSON.parse(retText.substring(11,retText.length()-1));
+		var retVals = JSON.parse(retText.substring(11,retText.length-1));
 		var retCodes = retVals.ret;
 		var retCode = retCodes[0];
 		var p = retCode.indexOf(":");

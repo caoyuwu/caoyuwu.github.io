@@ -62,10 +62,10 @@ function  geLiveURL( sid, cid) {
         cid:cid,
         sid:sid,
         appid:"0",
-        sequence:tm,
+        sequence:""+tm,
         encode:"json"
 	};
-	var url = Packages.snsoft.commons.net.HttpUtils.appendUrlParameters("https://stream-manager.yy.com/v3/channel/streams", queryParams);
+	var url = utils.appendUrlParameters("https://stream-manager.yy.com/v3/channel/streams", queryParams);
 	//var httpHeaders = {
 	//"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
 	//};

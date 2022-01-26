@@ -73,7 +73,7 @@ function loadMenus(url,params){
     var vCh = [];
         for(var page=fromPage;page<=toPage;page++) {
             queryParams.page = ""+page; // 避免 appendUrlParameters 中 变成 1.0
-            var url = Packages.snsoft.commons.net.HttpUtils.appendUrlParameters("https://api.live.bilibili.com/xlive/web-interface/v1/second/getList", queryParams);
+            var url = utils.appendUrlParameters("https://api.live.bilibili.com/xlive/web-interface/v1/second/getList", queryParams);
             //HttpClient httpClient = new HttpClient(url,headers,0);
             // httpClient.request().getContentAsString();
             
