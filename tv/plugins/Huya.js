@@ -83,7 +83,7 @@ LiveStreamInfo.prototype.buildPlayHlsURL = function(){
 var UID = 1199589329355;
 var  M_HomeURL = "https://m.huya.com";
 function prepareMediaSource(url,params){
-	var roomid = ""+utils.getUrlHostAndPath(url);
+	var roomid = utils.getUrlHostAndPath(url); //"" +
 	var liveStreamInfo = cacheLiveStreamInfo[roomid];
 	if( liveStreamInfo==null ) {
             var url = M_HomeURL + "/" + roomid;

@@ -20,7 +20,7 @@ function initCookies(){
 
 function prepareMediaSource(url,params){
    initCookies();
-   var videoId = ""+utils.getUrlHostAndPath(url);
+   var videoId = utils.getUrlHostAndPath(url);
  //print("==Youtube==url="+url+" ;   videoId="+videoId);  
    var videoHeight = DefaultPrefVideoHeight;
    var postData = {

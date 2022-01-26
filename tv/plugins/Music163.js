@@ -29,7 +29,7 @@ function protocol2Type(protocol){
 	return -1;
 }
 function prepareMediaSource(url,params){
-	return buildLiveUrl(protocol2Type(""+utils.getUrlProtocol(url)),""+utils.getUrlHostAndPath(url));
+	return buildLiveUrl(protocol2Type(utils.getUrlProtocol(url)),utils.getUrlHostAndPath(url));
 }
 
 

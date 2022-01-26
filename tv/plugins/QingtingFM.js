@@ -4,7 +4,7 @@ https://www.qingting.fm/radios/XXXXX => qingtingfm://XXXXX
 https://www.qingting.fm/radiopage : 生成 播放地址:
 */
 function prepareMediaSource(url,params){
-	  var channel_id =  ""+utils.getUrlHostAndPath(url);
+	  var channel_id =  utils.getUrlHostAndPath(url);
  //print("====channel_id="+channel_id);	  
 	  var path = "/live/"+channel_id+"/64k.mp3";
 	  var urlEncodedPath = encodeURIComponent(path);//java.net.URLEncoder.encode(path,"UTF-8");

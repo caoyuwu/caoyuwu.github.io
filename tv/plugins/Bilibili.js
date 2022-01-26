@@ -8,7 +8,7 @@ https://live.bilibili.com/XXXXX => blive://XXXXX
 //var JS_CodecHostNMPATH =   ["url_info",0,"host"];
 //var JS_CodecExtraNMPATH =   ["url_info",0,"extra"];
 function prepareMediaSource(url,params){
-	var liveId = ""+utils.getUrlHostAndPath(url);
+	var liveId = utils.getUrlHostAndPath(url);//"" +
 	var headers = {Accept:"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"};
   	var html = utils.httpGetAsString("https://live.bilibili.com/"+liveId,headers);
   	  //  https://live.bilibili.com/6694373
@@ -72,7 +72,8 @@ function loadMenus(url,params){
  //print("fromPage="+fromPage+",toPage="+toPage);   
     var vCh = [];
         for(var page=fromPage;page<=toPage;page++) {
-            queryParams.page = ""+page; // 避免 appendUrlParameters 中 变成 1.0
+  // print("=================page="+page);     
+            queryParams.page = page; // "" + 避免 appendUrlParameters 中 变成 1.0
             var url = utils.appendUrlParameters("https://api.live.bilibili.com/xlive/web-interface/v1/second/getList", queryParams);
             //HttpClient httpClient = new HttpClient(url,headers,0);
             // httpClient.request().getContentAsString();

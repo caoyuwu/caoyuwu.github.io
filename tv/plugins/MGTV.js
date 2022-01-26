@@ -13,10 +13,10 @@ var HttpUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.3
 
 function prepareMediaSource(url,params){
    var filebitrate = 795;
-	var videoId = ""+utils.getUrlHostAndPath(url);
+	var videoId = utils.getUrlHostAndPath(url); //"" +
 // 标清:584, 高清:795, 超清:1392,蓝光:3328
-        var did = ""+utils.getConfigPreference("MGTV.DID",_DID);
-        var suuid = ""+utils.getConfigPreference("MGTV.SUUID",_SUUID);
+        var did = utils.getConfigPreference("MGTV.DID",_DID); //"" +
+        var suuid = utils.getConfigPreference("MGTV.SUUID",_SUUID);"" +
  print("did="+did+",suuid="+suuid);       
         var header ={
         	 "User-Agent":HttpUserAgent,
@@ -30,7 +30,7 @@ function prepareMediaSource(url,params){
             var cxid = "";
             var timestamp = utils.currentTimeSeconds();//System.currentTimeMillis()/1000;
             var tk2S = "did="+did+"|pno="+pno+"|ver=0.3.0301|clit="+timestamp;
-          var tk2 =  ""+utils.base64Encode(tk2S);
+          var tk2 =  utils.base64Encode(tk2S); //"" +
              //Base64.encodeToString(tk2S.getBytes(StandardCharsets.UTF_8),Base64.NO_WRAP)//.trim()
    /*{
      var s = "abc+++11///22===xyz";

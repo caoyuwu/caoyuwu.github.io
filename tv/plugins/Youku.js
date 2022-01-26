@@ -40,7 +40,7 @@ function extraceUrlHostAndPath(url){
 //*/
 
 function prepareMediaSource(url,params){
-	var videoId = ""+utils.getUrlHostAndPath(url);
+	var videoId = utils.getUrlHostAndPath(url); //"" +
 	 // Java的String 做 JSON.stringify 有问题!
 	//var videoId = extraceUrlHostAndPath(url);
 	   // 
@@ -95,7 +95,7 @@ function prepareMediaSource(url,params){
 			var queryParams = {
 					jsv:"2.5.8",
 	                appKey: APPKEY,
-	                t: ""+ts,
+	                t: ts, //"" +
 	                sign: sign,
 	                api: "mtop.youku.play.ups.appinfo.get",
 	                v: "1.1",

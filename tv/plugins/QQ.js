@@ -23,8 +23,8 @@ function protocol2Type(protocol){
 }
 
 function prepareMediaSource(url,params){
-	return buildUrl(protocol2Type(""+utils.getUrlProtocol(url)),
-			""+utils.getUrlHostAndPath(url));
+	return buildUrl(protocol2Type(utils.getUrlProtocol(url)),
+			utils.getUrlHostAndPath(url));
 }
 
 var encNonce="CJBPACrRuNy7";
@@ -38,7 +38,7 @@ function genSign( postBody){
 }
 
 
-var _UIN = 908377347;
+var _UIN = "908377347";
 
 function buildReqBody(type,songId){
     comm = {
@@ -50,7 +50,7 @@ function buildReqBody(type,songId){
     notice:0,
     platform:"yqq.json",
     needNewCode:1,
-    uin:""+utils.getConfigPreference("QQ.UIN",_UIN), //QQ 👌908377347;
+    uin:utils.getConfigPreference("QQ.UIN",_UIN), //QQ 👌908377347;
     g_tk_new_20200303:1390962086,
     g_tk:1390962086
     };
@@ -104,7 +104,7 @@ function buildReq1(type,songId){
 		var req1_Params = {
 			songmid:[songId],
 		    songtype:[0],
-		    uin:""+utils.getConfigPreference("QQ.UIN",""+_UIN),  // QQ 👌908377347;
+		    uin:utils.getConfigPreference("QQ.UIN",_UIN),  // QQ 👌908377347;
 		    loginflag:1,
 		    platform:"20"	
 		};

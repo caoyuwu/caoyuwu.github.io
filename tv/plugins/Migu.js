@@ -11,7 +11,7 @@ http://m.migu123.com/tv/beijingweishi.html
 */
 
 function prepareMediaSource(url,params){
-    var mediaId = ""+utils.getUrlHostAndPath(url);
+    var mediaId = utils.getUrlHostAndPath(url); //"" +
     if( url.startsWith("migu123tv:") ){
     	return buildMigu123TV(mediaId);	
     }

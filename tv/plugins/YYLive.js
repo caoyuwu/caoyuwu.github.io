@@ -3,7 +3,7 @@ https://www.yy.com/95017956/95017956 => yylive://95017956
 yylive://95017956
 */
 function prepareMediaSource(url,params){
-	var mediaId = ""+utils.getUrlHostAndPath(url);
+	var mediaId = utils.getUrlHostAndPath(url);
 	return geLiveURL(mediaId,mediaId);
 }
 
@@ -62,7 +62,7 @@ function  geLiveURL( sid, cid) {
         cid:cid,
         sid:sid,
         appid:"0",
-        sequence:""+tm,
+        sequence:tm, //"" +
         encode:"json"
 	};
 	var url = utils.appendUrlParameters("https://stream-manager.yy.com/v3/channel/streams", queryParams);
