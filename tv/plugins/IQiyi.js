@@ -10784,6 +10784,8 @@ var cmd5x = cmd5x_exports.cmd5x;
  *    iqiyi://5514589391771500/87f0c7a5a36c47c856ff18db1e6d9a9b
  *    免费：黑玫瑰1（https://www.iqiyi.com/v_19rrj66djw.html） ：
  *        iqiyi://91065200/152e3d42fe8511dfaa6aa4badb2c35a1 
+        纪晓岚第四部第1集:
+          iqiyi://91711600/155bcb7cfe8511dfaa6aa4badb2c35a1
  */
 function prepareMediaSource(url,params){
 	var mediaIdA = utils.getUrlHostAndPath(url).split("/");
