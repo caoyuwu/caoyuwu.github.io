@@ -31,7 +31,7 @@ window = {
         hostname: 'www.iqiyi.com'
     },
 };
-
+_debug = false;
 window.window = window;
 this.self = window;
 
@@ -10785,7 +10785,7 @@ var cmd5x = cmd5x_exports.cmd5x;
  *    免费：黑玫瑰1（https://www.iqiyi.com/v_19rrj66djw.html） ：
  *        iqiyi://91065200/152e3d42fe8511dfaa6aa4badb2c35a1 
         纪晓岚第四部第1集:
-          iqiyi://91711600/155bcb7cfe8511dfaa6aa4badb2c35a1
+          iqiyi://91711600/155bcb7cfe8511dfaa6aa4badb2c35a1  (m3u8)
  */
 function prepareMediaSource(url,params){
 	var mediaIdA = utils.getUrlHostAndPath(url).split("/");
@@ -10847,7 +10847,9 @@ function prepareMediaSource(url,params){
 	//print("vurl="+vurl);
 	//{"msg":"This sign is not correct.","data":{"ctl":{"num":6,"vf":"1116672efcfeca9497f82b98d1736b85130","uip":"124.127.161.254","uid":""},"p":{"mt":0}},"code":"A00001"}
 	var text = utils.httpGetAsString(vurl);
-//print("返回值="+text);
+if(_debug )	{
+ print("返回值="+text);
+ }
 	var retVal = JSON.parse(text);
 	if(retVal.code!="A00000" ){
 		throw retVal.code+":"+retVal.msg;
@@ -10884,8 +10886,13 @@ function prepareMediaSource(url,params){
 	}
 	if( !m3u8 )
 		return null;
-	var data = encodeURIComponent(m3u8);
-	return "http://127.0.0.1:8803/data/m3u8-"+data;
+if(_debug )	{
+print("m3u8="+m3u8);
+}		
+    var id = utils.addLocalHttpTmpRes("application/x-mpegURL",m3u8,60);
+    return "http://127.0.0.1:8803/tmpres/"+id;
+	//var data = encodeURIComponent(m3u8);
+	//return "http://127.0.0.1:8803/data/m3u8-"+data;
 	/*
 	print(("http://127.0.0.1:8803/b64data/m3u8-"+data).length);	
 	var data = utils.base64UrlEncode(m3u8);
