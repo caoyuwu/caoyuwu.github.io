@@ -10882,12 +10882,16 @@ function prepareMediaSource(url,params){
 	}
 	if( !m3u8 )
 		return null;
+	var data = encodeURIComponent(m3u8);
+	return "http://127.0.0.1:8803/b64data/m3u8-"+data;
+	/*
+	print(("http://127.0.0.1:8803/b64data/m3u8-"+data).length);	
 	var data = utils.base64UrlEncode(m3u8);
 //print(data);	
 //print(data.length) // 26632
 	//return "data:application/x-mpegURL;base64,"+data;
 	return "http://127.0.0.1:8803/b64data/m3u8-"+data;
- 
+ 	*/
 //print("m3u8="+m3u8);
 	//return m3u8 ? "data:application/x-mpegURL;base64,"+utils.base64Encode(m3u8)
 	//		    : null 
