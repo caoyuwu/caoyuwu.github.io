@@ -10772,7 +10772,126 @@ build_cmd5x(null, cmd5x_exports);
 
 var cmd5x = cmd5x_exports.cmd5x;
 
+/*
+ var r = url_with_dash_but_vf.replace(new RegExp("^(http|https)://" + "cache.video.iqiyi.com","ig"), "");
+    false && (r = r.replace("/3ea/420a8433732a6c99d1eae98fea69e55d", "")),
+        n = cmd5x_exports.cmd5x(r);
+    return url_with_dash_but_vf + "&vf=" + n;
+ */
+/*
+ * @params url iqiyi://tvid/vid  (tvid,vid ：从源码 html页面获取)
+ *    iqiyi://1115511883132700/8f224bb8eeb732facfd76a4f417f23e9
+ *    iqiyi://5514589391771500/87f0c7a5a36c47c856ff18db1e6d9a9b
+ *    免费：黑玫瑰1（https://www.iqiyi.com/v_19rrj66djw.html） ：
+ *        iqiyi://91065200/152e3d42fe8511dfaa6aa4badb2c35a1 
+ */
 function prepareMediaSource(url,params){
+	var mediaIdA = utils.getUrlHostAndPath(url).split("/");
+	if( mediaIdA.length!=2 ){
+		throw "无效格式"+url;
+	}
+	var tvid = mediaIdA[0],vid = mediaIdA[1];
+	var uid = ""; // # 未登陆是空 ， 628184907449420
+	var k_uid = "7b9c0ea721478f746f95746a399f22ca";//未确定来源
+	var dfp = "a0dbb2689f62a145bfa242c7ccf29520ceced46dea7e67713f6ccc70b1515732c7";//未确定来源
+	var pck = "";
+	var tm = (new Date()).getTime();
+//tm = 1643264398640;	
+	var authkey = utils.md5Hex("d41d8cd98f00b204e9800998ecf8427e"+tm+tvid).toLowerCase();
+//print("authkey="+authkey);	
+	var params = {
+            "tvid": tvid,  //# 值可变， 源码可得值
+            "bid": "600",  //# 1080P 600  超清值为500，  高清值为300
+            "vid": vid,  //# 值可变， 源码可得值
+            "src": "01010031010000000000",
+            "vt": "0",
+            "rs": "1",
+            "uid": uid, // # 未登陆是空 ， 628184907449420
+            "ori": "pcw",
+            "ps": "0",  //# 超清值为0，  高清值为 1
+            "k_uid": k_uid,
+           // # 未登陆是 40828cdfb5dbdb55492bd373d1720881     c55d485ee178762fe5e2135b9bddf52d
+            "pt": "0",
+            "d": "0",
+            "s": "",
+            "lid": "",
+            "cf": "",
+            "ct": "",
+            "authKey": authkey,  //# 变化值 md5("d41d8cd98f00b204e9800998ecf8427e"+tm+tvid) 测试为真
+            "k_tag": "1",
+            "ost": "undefined",//"0",  //# 超清值为 0 ， 高清值为 undefined
+            "ppt": "undefined",//"0",  //# 超清值为 0 ， 高清值为 undefined
+            "dfp": dfp, 
+            //# 可能固定，也可能变，待观察
+            "locale": "zh_cn",
+            "prio": '{"ff":"f4v","code":2}',
+            "pck": pck,
+            "k_err_retries": "0",
+            "up": "",
+            "qd_v": "2",
+            "tm": tm,  //# 这个值还不能随便给时间戳，估计与其他值有联系， 这里一变，其他值也应要变
+            "qdy": "a",
+            "qds": "0",
+            "k_ft1": "706436220846084",
+            "k_ft4": "1162183859249156",
+            "k_ft5": "262145",
+            "bop": '{"version":"10.0","dfp":"'+dfp+'"}',
+            "ut": "0"
+            //"vf": vf, // # 变化值
+        };
+	var path = utils.appendUrlParameters("/dash",params);
+	//print(path);
+	var vurl = "https://cache.video.iqiyi.com"+path+"&vf="+cmd5x(path);
+	//print("vurl="+vurl);
+	//{"msg":"This sign is not correct.","data":{"ctl":{"num":6,"vf":"1116672efcfeca9497f82b98d1736b85130","uip":"124.127.161.254","uid":""},"p":{"mt":0}},"code":"A00001"}
+	var text = utils.httpGetAsString(vurl);
+//print("返回值="+text);
+	var retVal = JSON.parse(text);
+	if(retVal.code!="A00000" ){
+		throw retVal.code+":"+retVal.msg;
+	}
+	var videoA = retVal.data.program.video;
+	/*
+	 * 先查找有没有 f4v :
+	 */
+	var f4vPath = null;
+	for(var i=0;i<(videoA?videoA.length:0);i++){
+		var video = videoA[i];
+		if( video.fs && video.fs.length && video.fs[0].l ){
+			f4vPath = video.fs[0].l;
+			break;
+		}
+	}
+	if( f4vPath ){
+	//print("f4vPath="+f4vPath);
+	    var dd = retVal.data.dd;
+	    if( !dd )
+	    	return null;
+	    var text = utils.httpGetAsString(dd+f4vPath);
+	    retVal = JSON.parse(text);
+	    //print("返回值2="+text);
+		return retVal.l;
+	}
+	var m3u8 = null;
+	for(var i=0;i<(videoA?videoA.length:0);i++){
+		var video = videoA[i];
+		if( video.m3u8 && video.m3u8.startsWith("#EXTM3U") ){
+			m3u8 = video.m3u8; 
+			break;
+		}
+	}
+	if( !m3u8 )
+		return null;
+	var data = utils.base64UrlEncode(m3u8);
+//print(data);	
+//print(data.length) // 26632
+	return "http://127.0.0.1:8803/b64data/m3u8-"+data;
+ 
+//print("m3u8="+m3u8);
+	//return m3u8 ? "data:application/x-mpegURL;base64,"+utils.base64Encode(m3u8)
+	//		    : null 
+	//		 ;
+	/*
 	var s;
 	s="/dash?tvid=2844981450629600&bid=600&vid=&src=01010031010000000000&vt=0&rs=1&uid=&ori=pcw&ps=0&k_uid=70e2ad253d9f6fa8446303e48108d9c8&pt=0&d=0&s=&lid=&cf=&ct=&authKey=b3c5f07d918d0ab96a7baf8f4b20ec47&k_tag=1&ost=0&ppt=0&dfp=a1185151c02900478480e3d159b34b7ae0b51d1cb67d9b613356eef70adca0407b&locale=zh_cn&prio=%7B%22ff%22%3A%22f4v%22%2C%22code%22%3A2%7D&pck=&k_err_retries=0&up=&qd_v=2&tm=1635328632214&qdy=a&qds=0&k_ft1=706436220846084&k_ft4=1162183859249156&k_ft5=262145&bop=%7B%22version%22%3A%2210.0%22%2C%22dfp%22%3A%22a1185151c02900478480e3d159b34b7ae0b51d1cb67d9b613356eef70adca0407b%22%7D&ut=0";
 	 print(cmd5x(s)+",71663044926a3faaa85bc14663d599f5");
@@ -10785,6 +10904,6 @@ function prepareMediaSource(url,params){
 	 
 	 s="/jp/dash?tvid=6912764464325400&bid=200&vid=ac04c8fefe2f42879a81f3eda6b301b9&src=02020031010000000000&vt=0&rs=1&uid=&ori=h5&ps=0&k_uid=5cd2c307ed623ee27c80d805925bffd2&pt=0&d=0&s=&lid=&cf=&ct=&authKey=a91ea02d5c838fa5597d982853983995&k_tag=1&ost=0&ppt=0&dfp=e1afcced3069014fdf8728c7ee072c0438c702ab361ca5ab3bc493333ce939f2c8&locale=zh_cn&prio=%7B%22ff%22%3A%22f4v%22%2C%22code%22%3A2%7D&pck=&k_err_retries=0&up=&qd_v=2&tm=1635347253229&qdy=a&qds=0&k_ft1=141287244169220&k_ft4=67117060&k_ft5=262145&bop=%7B%22version%22%3A%2210.0%22%2C%22dfp%22%3A%22e1afcced3069014fdf8728c7ee072c0438c702ab361ca5ab3bc493333ce939f2c8%22%7D&callback=Q7804b0d11819492675a600c7ec3b44e2&ut=0";
 	 print(cmd5x(s)+",7bccdc4f327dbfdf4112d9422b798293");
-	 
+	 */
 	 return null;
 }
