@@ -10777,22 +10777,12 @@ var cmd5x = cmd5x_exports.cmd5x;
     false && (r = r.replace("/3ea/420a8433732a6c99d1eae98fea69e55d", "")),
         n = cmd5x_exports.cmd5x(r);
     return url_with_dash_but_vf + "&vf=" + n;
- */
+*/
+
 /*
- * @params url iqiyi://tvid/vid  (tvid,vid ：从源码 html页面获取)
- *    iqiyi://1115511883132700/8f224bb8eeb732facfd76a4f417f23e9
- *    iqiyi://5514589391771500/87f0c7a5a36c47c856ff18db1e6d9a9b
- *    免费：黑玫瑰1（https://www.iqiyi.com/v_19rrj66djw.html） ：
- *        iqiyi://91065200/152e3d42fe8511dfaa6aa4badb2c35a1 
-        纪晓岚第四部第1集:
-          iqiyi://91711600/155bcb7cfe8511dfaa6aa4badb2c35a1  (m3u8)
- */
-function prepareMediaSource(url,params){
-	var mediaIdA = utils.getUrlHostAndPath(url).split("/");
-	if( mediaIdA.length!=2 ){
-		throw "无效格式"+url;
-	}
-	var tvid = mediaIdA[0],vid = mediaIdA[1];
+*/
+function getVideo(tvid,vid){
+
 	var uid = ""; // # 未登陆是空 ， 628184907449420
 	var k_uid = "7b9c0ea721478f746f95746a399f22ca";//未确定来源
 	var dfp = "a0dbb2689f62a145bfa242c7ccf29520ceced46dea7e67713f6ccc70b1515732c7";//未确定来源
@@ -10876,6 +10866,9 @@ if(_debug )	{
 	    //print("返回值2="+text);
 		return retVal.l;
 	}
+	/*
+	 检查 m3u8 :
+	*/
 	var m3u8 = null;
 	for(var i=0;i<(videoA?videoA.length:0);i++){
 		var video = videoA[i];
@@ -10884,13 +10877,57 @@ if(_debug )	{
 			break;
 		}
 	}
-	if( !m3u8 )
-		return null;
 if(_debug )	{
 print("m3u8="+m3u8);
 }		
-    var id = utils.addLocalHttpTmpRes("application/x-mpegURL",m3u8,60);
-    return "http://127.0.0.1:8803/tmpres/"+id;
+	return m3u8;
+}
+
+function httpGetStream(params){
+    var tvid = params.tvid,vid = params.vid;
+//print("======httpGetStream : tvid="+tvid+",vid="+vid);	    
+	var url = tvid && vid ? getVideo(tvid,vid) : null;
+//print("======httpGetStream : url="+url);	
+	if( !url ){
+	    return {status:404}; 
+	}
+	if( url.startsWith("#EXTM3U") ){
+	    return {
+	        contentType: "application/vnd.apple.mpegurl",
+	        //contentType:"application/x-mpegURL",
+	        content:url
+	    };
+	}
+	return {
+	    status:302,
+	    headers:{
+	       Location: url
+	    }
+	};
+}
+/*
+ * @params url iqiyi://tvid/vid  (tvid,vid ：从源码 html页面获取)
+ *    iqiyi://1115511883132700/8f224bb8eeb732facfd76a4f417f23e9
+ *    iqiyi://5514589391771500/87f0c7a5a36c47c856ff18db1e6d9a9b
+ *    免费：黑玫瑰1（https://www.iqiyi.com/v_19rrj66djw.html） ：
+ *        iqiyi://91065200/152e3d42fe8511dfaa6aa4badb2c35a1 
+        纪晓岚第四部第1集:
+          iqiyi://91711600/155bcb7cfe8511dfaa6aa4badb2c35a1  (m3u8)
+ */
+function prepareMediaSource(url,params){
+   var p = url.indexOf(":");
+    var protocol = p>0 ? url.substring(0,p) : null;
+	var mediaIdA = utils.getUrlHostAndPath(url).split("/");
+	if( mediaIdA.length!=2 || !protocol ){
+		throw "无效格式"+url;
+	}
+	var tvid = mediaIdA[0],vid = mediaIdA[1];
+	//st-snsoft.android.vlive.util.ScriptExecutors.httpRequest?tvid=111&&vid=222
+	return "http://127.0.0.1:8803/uiinvoke/st-snsoft.android.vlive.util.ScriptExecutors.httpRequest/"
+	+protocol+".httpGetStream?tvid="+tvid+"&vid="+vid
+	 ;
+   // var id = utils.addLocalHttpTmpRes("application/x-mpegURL",m3u8,60);
+   // return "http://127.0.0.1:8803/tmpres/"+id;
 	//var data = encodeURIComponent(m3u8);
 	//return "http://127.0.0.1:8803/data/m3u8-"+data;
 	/*
@@ -10905,7 +10942,10 @@ print("m3u8="+m3u8);
 	//return m3u8 ? "data:application/x-mpegURL;base64,"+utils.base64Encode(m3u8)
 	//		    : null 
 	//		 ;
-	/*
+}
+
+
+/*
 	var s;
 	s="/dash?tvid=2844981450629600&bid=600&vid=&src=01010031010000000000&vt=0&rs=1&uid=&ori=pcw&ps=0&k_uid=70e2ad253d9f6fa8446303e48108d9c8&pt=0&d=0&s=&lid=&cf=&ct=&authKey=b3c5f07d918d0ab96a7baf8f4b20ec47&k_tag=1&ost=0&ppt=0&dfp=a1185151c02900478480e3d159b34b7ae0b51d1cb67d9b613356eef70adca0407b&locale=zh_cn&prio=%7B%22ff%22%3A%22f4v%22%2C%22code%22%3A2%7D&pck=&k_err_retries=0&up=&qd_v=2&tm=1635328632214&qdy=a&qds=0&k_ft1=706436220846084&k_ft4=1162183859249156&k_ft5=262145&bop=%7B%22version%22%3A%2210.0%22%2C%22dfp%22%3A%22a1185151c02900478480e3d159b34b7ae0b51d1cb67d9b613356eef70adca0407b%22%7D&ut=0";
 	 print(cmd5x(s)+",71663044926a3faaa85bc14663d599f5");
@@ -10919,5 +10959,3 @@ print("m3u8="+m3u8);
 	 s="/jp/dash?tvid=6912764464325400&bid=200&vid=ac04c8fefe2f42879a81f3eda6b301b9&src=02020031010000000000&vt=0&rs=1&uid=&ori=h5&ps=0&k_uid=5cd2c307ed623ee27c80d805925bffd2&pt=0&d=0&s=&lid=&cf=&ct=&authKey=a91ea02d5c838fa5597d982853983995&k_tag=1&ost=0&ppt=0&dfp=e1afcced3069014fdf8728c7ee072c0438c702ab361ca5ab3bc493333ce939f2c8&locale=zh_cn&prio=%7B%22ff%22%3A%22f4v%22%2C%22code%22%3A2%7D&pck=&k_err_retries=0&up=&qd_v=2&tm=1635347253229&qdy=a&qds=0&k_ft1=141287244169220&k_ft4=67117060&k_ft5=262145&bop=%7B%22version%22%3A%2210.0%22%2C%22dfp%22%3A%22e1afcced3069014fdf8728c7ee072c0438c702ab361ca5ab3bc493333ce939f2c8%22%7D&callback=Q7804b0d11819492675a600c7ec3b44e2&ut=0";
 	 print(cmd5x(s)+",7bccdc4f327dbfdf4112d9422b798293");
 	 */
-	 return null;
-}
