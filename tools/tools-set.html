@@ -30,18 +30,43 @@
 	  document.getElementById("DATE1R").textContent = val;
 	  // 
   }
+  function onExprCalc(){
+	  var s = document.getElementById("EXPR_CALC").value;
+		 var r = document.getElementById("EXPR_RESULT");
+		 try {
+			 var v = window.eval(s);
+			 r.style.color = "";
+			 r.textContent = "执行结果 = "+v;
+		 } catch( ex ){
+			 r.style.color = "red";
+			 r.textContent = "执行错误 = "+ex;
+		 }
+  }
   window.onload = function(){
+	  //[1] 日期
 	  var e = document.getElementById("DATE1"); 
 	   e.onkeyup = e.onchange = onDate1Add;
 	   e = document.getElementById("NDAY1");
 	   e.onkeyup = e.onchange = onDate1Add;
+	   //2:
+      e = document.getElementById("EXPR_CALC");
+      e.onkeyup = e.onchange = onExprCalc;
+	   
   }
 </script>
 	
 </head>
 <body>
-<h4>日期+天数</h4>
+<h3>1:计算器</h3>
+<textarea id="EXPR_CALC" style="width:100%;height:50px" ></textarea>
+<br>
+<hr>
+<div id="EXPR_RESULT"></div>
+<hr>
+
+<h3>2:日期+天数</h3>
 <input id="DATE1" type="date" size="10">+<input id="NDAY1" type="number" style="text-align:center;width:50px " value="90">=<span id="DATE1R"></span>
 <hr>
+
 </body>
 </html>
