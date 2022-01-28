@@ -10891,17 +10891,20 @@ function httpGetStream(params){
 	if( !url ){
 	    return {status:404}; 
 	}
+	//url = url.trim();
 	if( url.startsWith("#EXTM3U") ){
 	    return {
-	        contentType: "application/vnd.apple.mpegurl",
-	        //contentType:"application/x-mpegURL",
-	        content:url
+	        //contentType: "application/vnd.apple.mpegurl",
+	        contentType:"application/x-mpegURL",
+	        content: url
+	        //,headers: { "Access-Control-Allow-Origin": "*"}
 	    };
 	}
 	return {
 	    status:302,
 	    headers:{
 	       Location: url
+	       //,"Access-Control-Allow-Origin": "*"
 	    }
 	};
 }
@@ -10922,26 +10925,20 @@ function prepareMediaSource(url,params){
 		throw "无效格式"+url;
 	}
 	var tvid = mediaIdA[0],vid = mediaIdA[1];
+	{
+	   url = getVideo(tvid,vid);
+	   if( url.startsWith("#EXTM3U") ){
+	      var id = utils.addLocalHttpTmpRes("application/x-mpegURL",url,300,"m3u8");
+	      return "http://127.0.0.1:8803/tmpres/"+id;
+	   }
+	   return url;
+	}
+	/*
 	//st-snsoft.android.vlive.util.ScriptExecutors.httpRequest?tvid=111&&vid=222
 	return "http://127.0.0.1:8803/uiinvoke/st-snsoft.android.vlive.util.ScriptExecutors.httpRequest/"
-	+protocol+".httpGetStream?tvid="+tvid+"&vid="+vid
+	+protocol+".httpGetStream.m3u8?tvid="+tvid+"&vid="+vid
 	 ;
-   // var id = utils.addLocalHttpTmpRes("application/x-mpegURL",m3u8,60);
-   // return "http://127.0.0.1:8803/tmpres/"+id;
-	//var data = encodeURIComponent(m3u8);
-	//return "http://127.0.0.1:8803/data/m3u8-"+data;
-	/*
-	print(("http://127.0.0.1:8803/b64data/m3u8-"+data).length);	
-	var data = utils.base64UrlEncode(m3u8);
-//print(data);	
-//print(data.length) // 26632
-	//return "data:application/x-mpegURL;base64,"+data;
-	return "http://127.0.0.1:8803/b64data/m3u8-"+data;
- 	*/
-//print("m3u8="+m3u8);
-	//return m3u8 ? "data:application/x-mpegURL;base64,"+utils.base64Encode(m3u8)
-	//		    : null 
-	//		 ;
+	 */
 }
 
 
