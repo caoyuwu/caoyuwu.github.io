@@ -1560,7 +1560,7 @@
 	      		 {label:"B视频聊天04",items:"@blive-list:1/145/4-6"}
 	      	   ]},
 	         { label:"YY直播",items:[
-	             {label:"手机直播","@yylive-list:others/mobilelive"}
+	             {label:"手机直播",items:"@yylive-list:others/mobilelive"}
 	            ]}, 
 	         { label:"虎牙直播",items:[
 	            ]},      		 
