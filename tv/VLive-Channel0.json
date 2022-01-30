@@ -1569,6 +1569,10 @@
 	               {label:"综合",items:"@yylive-list:others"}
 	            ]}, 
 	         { label:"虎牙直播",items:[
+	         	{label:"一起看",items:"@huyalive-list:g/2135"},
+	         	{label:"颜值",items:"@huyalive-list:g/2168"},
+	         	{label:"星秀",items:"@huyalive-list:g/1663"}
+	             //{label:"",items:"@huyalive-list:"},
 	            ]},      		 
     {label:"电视剧",items:"[9200-9299]"},
    {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"},
