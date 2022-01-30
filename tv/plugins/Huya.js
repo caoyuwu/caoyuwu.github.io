@@ -146,3 +146,36 @@ function  extractStreamInfoFromMHNFInit(hnfInit){
     }
     return s;
 }
+
+/*
+  g/2135 => https://m.huya.com/g/2135
+    <script> window.HNF_GLOBAL_INIT = {
+    ]} </script>
+         
+*/
+function loadMenus(path,params){
+	var headers = {
+	   "User-Agent": "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
+	};
+	var html = utils.httpGetAsString("https://m.huya.com/"+path,headers);
+	var text = extractQuotedStr(html,"window.HNF_GLOBAL_INIT","</script>");
+	if( !text || !(text=text.trim()).startsWith("=") )
+		return null;
+	var m = JSON.parse(text.substring(1).trim());
+	var v = [];
+	for(var i=0;i<m.liveList.length;i++){
+	   var live = m.liveList[i];
+	   var id = live.sAction;
+	   if( !id || id.charAt(0)!='/' )
+	       continue;
+//print(live.sTitle+","+"huyalive:/"+id);	       
+	   v.push({url:"huyalive:/"+id,title:live.sTitle});    
+	}
+	return v;
+}
+
+function extractQuotedStr(s,prefix,suffix){
+  var p1 = s.indexOf(prefix);
+  var p2 = p1>=0 ? s.indexOf(suffix,p1+prefix.length) : null;
+  return p2>0 ? s.substring(p1+prefix.length,p2) : null;
+}

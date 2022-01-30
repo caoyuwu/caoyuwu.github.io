@@ -3,16 +3,13 @@
 #
 youku,Youku.js
 
-[menu]youtube-list,Youtube.js
-youtube,Youtube.js
+youtube|youtube-list,Youtube.js
 
-[menu]blive-list,Bilibili.js
-blive,Bilibili.js
+blive|blive-list,Bilibili.js
 
-huyalive,Huya.js
+huyalive|huyalive-list,Huya.js
 
-yylive,YYLive.js
-[menu]yylive-list,YYLive.js
+yylive|yylive-list,YYLive.js
 
 migu|migu123tv,Migu.js
 

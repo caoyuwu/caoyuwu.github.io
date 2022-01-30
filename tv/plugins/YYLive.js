@@ -129,19 +129,19 @@ function loadMenus(path,params){
 	    }
 	    var liText = html.substring(0,p2+5);
 	    html = html.substring(p2+5).trim();
-	    var id = extractStr1(liText,'data-sid="','"');
+	    var id = extractQuotedStr(liText,'data-sid="','"');
 	    if( !id ){
 	       continue;
 	    }
-	    var title = extractStr1(liText,'<h3 class="play-title">','</h3>')
-	       +"("+extractStr1(liText,'<h3 class="play-user">','</h3>')+")";
+	    var title = extractQuotedStr(liText,'<h3 class="play-title">','</h3>')
+	       +"("+extractQuotedStr(liText,'<h3 class="play-user">','</h3>')+")";
 	     //title = title.replaceAll(",","-");  
 //print(title+","+"yylive:"+id);	       
 	    v.push({title:title,url:"yylive:"+id});   
 	}
 	return v;
 }
-function extractStr1(s,prefix,suffix){
+function extractQuotedStr(s,prefix,suffix){
   var p1 = s.indexOf(prefix);
   var p2 = p1>=0 ? s.indexOf(suffix,p1+prefix.length) : null;
   return p2>0 ? s.substring(p1+prefix.length,p2) : null;
