@@ -1,6 +1,9 @@
 /*
 https://www.yy.com/95017956/95017956 => yylive://95017956
 yylive://95017956
+? https://www.yy.com/others/zonghe
+? 一起看: https://www.yy.com/others/yqk/
+https://wap.yy.com/others/mobilelive
 */
 function prepareMediaSource(url,params){
 	var mediaId = utils.getUrlHostAndPath(url);
@@ -100,4 +103,46 @@ function  geLiveURL( sid, cid) {
             */
         }
         return null;		
+}
+
+/*  
+   path  : others/mobilelive
+*/
+function loadMenus(path,params){
+	var headers = {
+	   "User-Agent": "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
+	};
+	var html = utils.httpGetAsString("https://wap.yy.com/"+path,headers);
+	//print("html="+html);
+	var v = [];
+	var ulStart = "<ul class=\"share-recommend-list\">";
+	var p1 =  html.indexOf(ulStart);
+	var p2 = p1>0 ? html.indexOf("</ul>",p1) : -1;
+	if( p2<0 ){
+		return null;
+	}
+	html  = html.substring(p1+ulStart.length,p2).trim();
+	for(;html.startsWith("<li");){
+	    p2 = html.indexOf("</li>");
+	    if( p2<0 ){
+	       break;
+	    }
+	    var liText = html.substring(0,p2+5);
+	    html = html.substring(p2+5).trim();
+	    var id = extractStr1(liText,'data-sid="','"');
+	    if( !id ){
+	       continue;
+	    }
+	    var title = extractStr1(liText,'<h3 class="play-title">','</h3>')
+	       +"("+extractStr1(liText,'<h3 class="play-user">','</h3>')+")";
+	     //title = title.replaceAll(",","-");  
+//print(title+","+"yylive:"+id);	       
+	    v.push({title:title,url:"yylive:"+id});   
+	}
+	return v;
+}
+function extractStr1(s,prefix,suffix){
+  var p1 = s.indexOf(prefix);
+  var p2 = p1>=0 ? s.indexOf(suffix,p1+prefix.length) : null;
+  return p2>0 ? s.substring(p1+prefix.length,p2) : null;
 }

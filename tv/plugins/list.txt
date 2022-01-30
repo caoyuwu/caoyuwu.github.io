@@ -12,6 +12,7 @@ blive,Bilibili.js
 huyalive,Huya.js
 
 yylive,YYLive.js
+[menu]yylive-list,YYLive.js
 
 migu|migu123tv,Migu.js
 
