@@ -1560,7 +1560,13 @@
 	      		 {label:"B视频聊天04",items:"@blive-list:1/145/4-6"}
 	      	   ]},
 	         { label:"YY直播",items:[
-	             {label:"手机直播",items:"@yylive-list:others/mobilelive"}
+	             {label:"手机直播",items:"@yylive-list:others/mobilelive"},
+	             {label:"热门",items:"@yylive-list:"},
+	             {label:"颜值",items:"@yylive-list:pretty"},
+	             {label:"音乐",items:"@yylive-list:singing"},
+	             {label:"脱口秀",items:"@yylive-list:show"},
+	              {label:"现场",items:"@yylive-list:star"},
+	               {label:"综合",items:"@yylive-list:others"}
 	            ]}, 
 	         { label:"虎牙直播",items:[
 	            ]},      		 
