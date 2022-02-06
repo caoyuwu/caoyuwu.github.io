@@ -38,9 +38,10 @@
                            "39.134.115.163,http://39.134.115.163:8080/PLTV/88888910/224/3221225647/index.m3u8",
                            "111.63.117.13|http://111.63.117.13:6060/030000001000/CCTV-3/CCTV-3.m3u8"
                            ]},
-  {id:"CCTV-04",num:"04",urls:[	
+  {id:"CCTV-04",num:"04",urls:[
+                       "cctv.cn-4K,http://liveop.cctv.cn/hls/4KHD/playlist.m3u8",	
                          "migu://672924435",
-                               "[高清]http://ivi.bupt.edu.cn/hls/cctv4hd.m3u8",
+                             //  "[高清]http://ivi.bupt.edu.cn/hls/cctv4hd.m3u8",
                                "myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctv4_2/index.m3u8",
                                "wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv4_2/index.m3u8",
                              //  "[CNTV]cntv://cctv4",
