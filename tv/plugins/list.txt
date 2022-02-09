@@ -26,4 +26,6 @@ qqmusic|qqmv,QQ.js
 
 iqiyi,IQiyi.js
 
+douyulive|douyulive-list,Douyu.js
+
 [menu]test-menu-list,TestMenuList.js,x=1&y=2
