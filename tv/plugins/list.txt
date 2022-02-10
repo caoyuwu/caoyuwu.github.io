@@ -28,4 +28,4 @@ iqiyi,IQiyi.js
 
 douyulive|douyulive-list,Douyu.js
 
-[menu]test-menu-list,TestMenuList.js,x=1&y=2
+testvideo|test-menu-list,Test.js,x=1&y=2
