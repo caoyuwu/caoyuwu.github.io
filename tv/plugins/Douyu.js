@@ -107,8 +107,56 @@ function prepareMediaSource(url,params){
 	return retVal.data.url;
 }
 
+/*
+ * https://m.douyu.com/list/room?type=yqk
+ * douyulive-list:yqk/1
+ * path==yqk/1
+ */
 
-
+function loadMenus(path,params){
+	var headers = {
+	  "User-Agent": "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30",
+	};	
+	var fromPage = 1, toPage = 1 , type = path;
+	var p = type.indexOf("/");
+	if( p>0 ){
+		page = path.substring(p+1);
+		type = path.substring(0,p);
+		p = page.indexOf("-");
+		if( p>0 ){
+			fromPage = parseInt(page.substring(0,p));
+			toPage = parseInt(page.substring(p+1));
+		} else
+		{
+			fromPage = toPage = parseInt(page);
+		}
+	}
+	//print("fromPage="+fromPage+"("+typeof(fromPage)+")"+",toPage="+toPage);	
+	var vCh = [];
+	//return;
+	//https://m.douyu.com/api/room/list?page=1&type=yqk
+	for(var page=fromPage;page<=toPage;page++){
+		var text = utils.httpGetAsString("https://m.douyu.com/api/room/list?page="+page+"&type="+type,headers);
+		var retVal = JSON.parse(text);
+		if( retVal.code ){
+			throw retVal.code+":"+retVal.data;
+		}
+		for(var i=0;i<retVal.data.list.length;i++){
+			var r = retVal.data.list[i];
+			vCh.push({title:r.roomName,url:"douyulive://"+r.rid});
+		}
+		if( page>=retVal.data.pageCount ){
+			break;
+		}
+	}
+	return vCh;
+	/*
+	 * {"code":0,"data":{"pageCount":144,"nowPage":2000,"cate2Id":208,"list":[]}
+	 * :[{"rid":9220456,"vipId":0,"roomName":"【万合天宜】王大锤情怀上线",
+	 */
+//print("text="+text);
+	
+}
 /*
 https://www.sanshuifeibing.com/posts/8146e2c4.html
 */
