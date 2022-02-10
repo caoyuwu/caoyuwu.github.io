@@ -61,6 +61,9 @@ function prepareMediaSource(url,params){
 	var tt = Math.floor(date.getTime()/1000); //utils.currentTimeSeconds();//
     var ver = "22107261"
 //tt=1644476811;	
+    /*
+     * did : 从抓取请求中提取， 含义未知
+     */	
     var did = "12725c0bc0fe95fac35a399400031631";
 	var postParams = buildQueryParams(rid,did,tt)+"&ver="+ver+"&rid="+rid+"&rate=-1&un=un";
 	//var postParams = "v=250120220210&did=12725c0bc0fe95fac35a399400031631&tt=1644476811&sign=69a197a4a592cef889027e78ca235973&ver=22107261&rid=9220456&rate=-1&un=un";
