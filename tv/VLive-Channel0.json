@@ -1585,7 +1585,15 @@
 	             {label:"颜值01",items:"@douyulive-list:yz/1-5"},
 	             {label:"颜值06",items:"@douyulive-list:yz/6-10"},
 	             {label:"颜值11",items:"@douyulive-list:yz/11-15"},
-	             {label:"颜值16",items:"@douyulive-list:yz/16-20"}
+	             {label:"颜值16",items:"@douyulive-list:yz/16-20"},
+	             {label:"户外01",items:"@douyulive-list:HW/1-5"},
+	             {label:"户外06",items:"@douyulive-list:HW/6-10"},
+	             {label:"户外11",items:"@douyulive-list:HW/11-15"},
+	             {label:"户外16",items:"@douyulive-list:HW/16-20"},
+	             {label:"二次元01",items:"@douyulive-list:ecy/1-5"},
+	             {label:"二次元06",items:"@douyulive-list:ecy/6-10"},
+	             {label:"二次元11",items:"@douyulive-list:ecy/11-15"},
+	             {label:"二次元16",items:"@douyulive-list:ecy/16-20"}
 	            ]},
     {label:"电视剧",items:"[9200-9299]"},
    {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"},
