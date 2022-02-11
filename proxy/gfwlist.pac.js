@@ -78,6 +78,7 @@ var hostGrps = function(){
 		"lncn.org",
 		"fanqiangdang.com",
 		"bulink.xyz",
+		"niaoyun.me",
 		"j01.space", // 几鸡
 		"tudog-a.pw", // 土豆云
 		// 其他x:
