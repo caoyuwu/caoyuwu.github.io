@@ -154,11 +154,14 @@ button {
 
 <script type="text/javascript">
 /*
- * http://www.caoyuwu.top/vlive/List.html
+ * http://www.caoyuwu.top/vlive/List.html?vlive=DiDi
+   http://localhost/caoyuwu.github.io/vlive/List.html?vlive=DiDi
+   http://localhost/caoyuwu.github.io/vlive/List.html?vlive=Jsyl
  */
   window.onload = function(){
-	 var s = new snsoftx.vlive.didi.DiDiLiveService();
-	 new snsoftx.vlive.VLiveRoomList(s); 
+	// var s = new snsoftx.vlive.didi.DiDiLiveService();
+	// new snsoftx.vlive.VLiveRoomList(s); 
+	  snsoftx.vlive.VLiveRoomList.init();
  };
 </script>
 

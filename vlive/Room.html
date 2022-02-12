@@ -123,14 +123,15 @@ button {
 <script type="text/javascript">
 /*
  * http://www.caoyuwu.top/vlive/List.html
- http://ipv6-localhost:8000/snsoft/vlive/Room.html#?rid=1255588338&uid=18162201
+ http://localhost/caoyuwu.github.io/vlive/Room.html#?rid=1255588338&uid=18162201&vlive=DiDi
  */
   window.onload = function()
   {
-	 if( window.videojs )
-		  videojs.options.flash.swf = Xjs.ROOTPATH+"jslib/videojs-swf/5.4.1/video-js.swf";
-	 var s = new snsoftx.vlive.didi.DiDiLiveService();
-		window.room = new snsoftx.vlive.VLiveRoom(s); 
+	 //if( window.videojs )
+	//	  videojs.options.flash.swf = Xjs.ROOTPATH+"jslib/videojs-swf/5.4.1/video-js.swf";
+	 //var s = new snsoftx.vlive.didi.DiDiLiveService();
+	//	window.room = new snsoftx.vlive.VLiveRoom(s); 
+	  snsoftx.vlive.VLiveRoom.init();
  };
 </script>
 
