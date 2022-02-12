@@ -26,7 +26,7 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.jsyl.JsylLiveService.getRefreshRoomsOpts*/
     getRefreshRoomsOpts:function()
     {
-        return [{name:"type",options:["100:颜值","200:热门","300:收费","500:附近","400:海外"]},{name:"page",options:[1,2,3,4,5,6]}];
+        return [{name:"type",options:["200:热门","100:颜值","300:收费","500:附近","400:海外"]},{name:"page",options:[1,2,3,4,5,6]}];
     },
     /*snsoftx.vlive.jsyl.JsylLiveService.refreshRooms*/
     refreshRooms:function(rooms)
@@ -189,6 +189,149 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
             this.msgListener.onMessage("getvideo-fail","获取视频","未获取到视频地址" + (data.online == 0 ? ":该用户离线" : ""));
         }
     },
+    /*snsoftx.vlive.jsyl.JsylLiveService.setRoomInfo*/
+    setRoomInfo:function(roomId,userId)
+    {
+        if(this.userId == userId && this.roomId == roomId)
+            return;
+        snsoftx.vlive.jsyl.JsylLiveService.superclass.setRoomInfo.call(this,roomId,userId);
+        if(this.getUserProfile(this.userId) == null)
+        {
+            this.prepareUserProfile();
+        }
+    },
+    /*snsoftx.vlive.jsyl.JsylLiveService.getUserProfile*/
+    getUserProfile:function(id)
+    {
+        return this.userProfiles ? this.userProfiles[id] : null;
+    },
+    /*snsoftx.vlive.jsyl.JsylLiveService.prepareUserProfile*/
+    prepareUserProfile:function()
+    {
+        var settings = this.getCurrentSettings(),
+            params = {flowToken:settings.token,flowUserId:this.userId};
+        this.httpGet(settings.server1URL + "live/user/profile",params,new Xjs.FuncCall(this.onAjaxGetUserProfile,this),null,0);
+    },
+    /*snsoftx.vlive.jsyl.JsylLiveService.onAjaxGetUserProfile*/
+    onAjaxGetUserProfile:function(o)
+    {
+        if(!o.data)
+            return;
+        var data1 = Xjs.JSON.parse(o.data),
+            data = data1.data;
+        if(!data || !data.id)
+            return;
+        if(!this.userProfiles)
+        {
+            this.userProfiles = {};
+        }
+        this.userProfiles[data.id] = data;
+        if(data.nickname && data.id == this.userId)
+        {
+            this.msgListener.onMessage("win-title",null,data.nickname);
+        }
+        if(this.pendingNotifyLoginOkUID && this.pendingNotifyLoginOkUID.indexOf(data.id) >= 0)
+        {
+            this.notifyLoginOk(null);
+        }
+    },
+    /*snsoftx.vlive.jsyl.JsylLiveService.onWebSocketOpen*/
+    onWebSocketOpen:function(ev)
+    {
+        snsoftx.vlive.jsyl.JsylLiveService.superclass.onWebSocketOpen.call(this,ev);
+        var settings = this.getCurrentSettings();
+        this.sendWebSocketMessage({device_id:settings.device_id,issued:"lite",lob:1,_method_:"BindUid",plat:"android",rid:1,jwt_token:settings.authToken,user_id:settings.user_id,ver:snsoftx.vlive.jsyl.JsylLiveService.AppVersion});
+        this.sendWebSocketMessage({avatartime:"0",device_id:settings.device_id,levelid:"1",_method_:"login",prompt_time:0,rollmsg_time:0,room_id:this.roomId,jwt_token:settings.authToken,user_id:settings.user_id,user_name:settings.user_name});
+    },
+    /*snsoftx.vlive.jsyl.JsylLiveService.notifyLoginOk*/
+    notifyLoginOk:function(loginUserID)
+    {
+        if(loginUserID)
+            this._loginUserID = loginUserID;
+        var data = this.getUserProfile(this.userId);
+        if(!data)
+        {
+            if(!this.pendingNotifyLoginOkUID)
+            {
+                this.pendingNotifyLoginOkUID = [];
+            }
+            if(this.pendingNotifyLoginOkUID.indexOf(this.userId) < 0)
+            {
+                this.pendingNotifyLoginOkUID.push(this.userId);
+            }
+            return;
+        }
+        this.msgListener.onMessage("login","登录",this._loginUserID + "登入 RoomId=" + this.roomId + ",User " + this.userId + ":" + data.nickname + "," + data.province);
+        this.msgListener.onMessage("win-title",null,data.nickname);
+        if(this.pendingNotifyLoginOkUID)
+        {
+            this.pendingNotifyLoginOkUID.remove(this.userId,false);
+        }
+    },
+    /*snsoftx.vlive.jsyl.JsylLiveService.onWebSocketMessage*/
+    onWebSocketMessage:function(ev)
+    {
+        var s = ev.data,
+            m = Xjs.JSON.parse(s);
+        if(m.type)
+            switch(m.type)
+            {
+            case "ping":
+                this.sendWebSocketMessage({device:"android",_method_:"pong"});
+                return;
+            case "login_ok":
+                this.notifyLoginOk(m.user_id);
+                return;
+            case "onLineClient":
+                var cusers = m.client_list,
+                    a = new Array(cusers ? cusers.length : 0);
+                for(var j=0;j < a.length;j++)
+                {
+                    var u = cusers[j];
+                    a[j] = {userId:u.user_id,level:u.levelid,role:u.role};
+                }
+                this.msgListener.updateViwers(m.viewer_num + "/" + m.all_num,a);
+                return;
+            case "legend_hall_win":
+                return;
+            case "sendGiftNews":
+                this.msgListener.onMessage("sys",m.title,m.fromUserDesc + m.fromUserName + "=>" + m.toUserName + " : " + m.giftName);
+                return;
+            case "sendGift":
+                this.msgListener.onMessage("buf-username",m.from_user_id,m.from_client_name);
+                this.msgListener.onMessage("sys",m.from_client_name + "的礼物",m.giftName);
+                return;
+            case "SendPubMsg":
+                this.msgListener.onMessage("buf-username",m.from_user_id,m.from_client_name);
+                this.msgListener.onMessage("",m.from_client_name,m.content);
+                return;
+            case "toy":
+                return;
+            case "peerage_join":
+                this.msgListener.onMessage("sys",m.title,m.user_nickname + ":" + m.desc);
+                return;
+            case "peerage_login":
+                this.msgListener.onMessage("buf-username",m.user_id,m.nick_name);
+                return;
+            case "nameCardNews":
+                return;
+            case "chargeTimeRoom":
+                return;
+            case "changeRoomNotice":
+            case "sysmsg.alert":
+            case "sysmsg":
+                this.msgListener.onMessage("",m.title,m.content);
+                return;
+            case "error":
+            case "error.token":
+            case "error.kicked":
+                this.msgListener.onMessage("err",m.title,m.content);
+                return;
+            default:
+                window.console.log("接受到 %s",s);
+                return;
+            }
+    },
     /*snsoftx.vlive.jsyl.JsylLiveService.getLocalSettingsDef*/
     getLocalSettingsDef:Xjs.nullFn,
     /*snsoftx.vlive.jsyl.JsylLiveService.httpGet*/
@@ -200,9 +343,9 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
         {
             header["access-token"] = settings.accessToken;
         }
-        if(settings.jwtToken)
+        if(settings.authToken)
         {
-            header["jwt-token"] = settings.jwtToken;
+            header["jwt-token"] = settings.authToken;
         }
         if(settings.device_id)
         {
@@ -254,7 +397,7 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
         }
         if(!s.websocketURL)
         {
-            s.websocketURL = "wss://notify.uidfhdf.com:443";
+            s.websocketURL = "wss://api.jsdn0.xyz:443";
         }
         return s;
     }
