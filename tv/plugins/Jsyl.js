@@ -83,7 +83,9 @@ function loadMenus(path,params){
 	    var userId = li.id;
 		//	r.roomId = li.curroomnum;
 		var userName = li.nickname;
-		var title = li.roomTitle || "";
+		var title = li.nickname;//li.roomTitle || "";
+		if( li.roomTitle )
+		  title += "-"+li.roomTitle;
 		var province = li.province;
 		var city = li.city;
 		var online = li.online;
