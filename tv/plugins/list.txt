@@ -31,4 +31,6 @@ douyulive|douyulive-list,Douyu.js
 
 douyinlive|douyinlive-list,Douyin.js
 
+jsyllive|jsyllive-list,Jsyl.js
+
 testvideo|test-menu-list,Test.js,x=1&y=2
