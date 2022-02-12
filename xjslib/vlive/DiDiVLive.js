@@ -105,7 +105,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         {
             header["X-Live-Butter2"] = settings.liveButter2;
         }
-        this.ajaxPOST(settings.serverURL + path,header,params,null,onSuccess,onError,opts & 4 ? 1 : 0);
+        this.ajaxGET(settings.serverURL + path,header,params,onSuccess,onError,opts & 4 ? 1 : 0);
     },
     /*snsoftx.vlive.didi.DiDiLiveService.onAjaxRoomsLoaded*/
     onAjaxRoomsLoaded:function(rooms,o)
