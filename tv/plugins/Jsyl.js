@@ -67,7 +67,7 @@ function loadMenus(path,params){
 	    "vest-code":VestCode
 	};	
 	var url = utils.appendUrlParameters("https://api.jsdn0.xyz/live/studio/list",params);
-	var text = utils.httpGetAsString(url,headers);
+	var text = utils.httpGetAsString(url,headers,0x480);
 	print(text);
 	var data = JSON.parse(text);
 	if( data.code ){
