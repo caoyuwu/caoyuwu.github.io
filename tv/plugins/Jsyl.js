@@ -1,9 +1,10 @@
 /*
 
 */
-var JSYL_token = "d79709285951d7c9fd4ec36ac783979e";
+var JSYL_token = "7d6f38335b9c0efa2d034c8782df13cd";
+var JSYL_authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIzOTE0NDM2OSIsInVzZXJuYW1lIjoiKzEzNjM5MTQwNSIsInJvbGUiOjAsImxvYiI6MSwiaWF0IjoxNjQ0NzM2MDc0LCJleHAiOjE2NDczMjgwNzR9.fj--2uIg9h7of2vWgW_aXyck9Amck4Va4rWzQlkyX-RCysSkBW0a298SNzDoRU58FGMZVb78VzIsJNBXdkaGVg";
+
 var JSYL_accessToken = "c515f632-5858-4b99-86b3-c20a3c0ecb2f";
-var JSYL_authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIzOTE0NDM2OSIsInVzZXJuYW1lIjoiKzEzNjM5MTQwNSIsInJvbGUiOjAsImxvYiI6MSwiaWF0IjoxNjQ0NTk2MTMwLCJleHAiOjE2NDcxODgxMzB9.M7XxhH8Boy_bs2ZVGXNMjF0c9u5LtS-nDjcv6Kz3ANuntLFFrsQg3igBSOYrqYD5n3KbH5EHIyJhFci3-N6ZGQ";
 var JSYL_liveButter2 = "YxE4NA+07NjzfqbSEcFMk+QGYlRdlFydY0q8Cbq6W4fKDuqCjw2bj3wSpASCBMN6lR6mSQBc66LfkTzEWe2KyHuQephq1P4difqyiuUrYXtxvlSxBvbeKy6I9GfOQgtAmOZm4Uw1uRRBVODVQfTDlsA8jLo61xhVEvQBSMBF9Ol5VMwaG26VKONqmXUn+y6z4mwQxFBb20nxHBmmxvBWdniIsX/FPwQI/mafnfp8AdI=";
 
 function prepareMediaSource(url,params){
