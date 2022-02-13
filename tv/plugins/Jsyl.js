@@ -1,5 +1,5 @@
 /*
-
+  http://www.caoyuwu.top/tv/plugins/Jsyl.js
 */
 var JSYL_token = "7d6f38335b9c0efa2d034c8782df13cd";
 var JSYL_authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIzOTE0NDM2OSIsInVzZXJuYW1lIjoiKzEzNjM5MTQwNSIsInJvbGUiOjAsImxvYiI6MSwiaWF0IjoxNjQ0NzM2MDc0LCJleHAiOjE2NDczMjgwNzR9.fj--2uIg9h7of2vWgW_aXyck9Amck4Va4rWzQlkyX-RCysSkBW0a298SNzDoRU58FGMZVb78VzIsJNBXdkaGVg";
