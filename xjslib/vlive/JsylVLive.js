@@ -107,7 +107,7 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
     getWebsocketURL:function()
     {
         var settings = this.getCurrentSettings();
-        return settings.websocketURL + "/ws?jwt_token=" + settings.authToken;
+        return settings.websocketURL + "?jwt_token=" + settings.authToken;
     },
     /*snsoftx.vlive.jsyl.JsylLiveService.enterRoom*/
     enterRoom:function()
@@ -397,7 +397,7 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
         }
         if(!s.websocketURL)
         {
-            s.websocketURL = "wss://api.jsdn0.xyz:443";
+            s.websocketURL = "wss://cywqfzo8.shdkw1o.com/ws";
         }
         return s;
     }
