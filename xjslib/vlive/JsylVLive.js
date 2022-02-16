@@ -240,8 +240,9 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
     {
         snsoftx.vlive.jsyl.JsylLiveService.superclass.onWebSocketOpen.call(this,ev);
         var settings = this.getCurrentSettings();
-        this.sendWebSocketMessage({device_id:settings.device_id,issued:"lite",lob:1,_method_:"BindUid",plat:"android",rid:1,jwt_token:settings.authToken,user_id:settings.user_id,ver:snsoftx.vlive.jsyl.JsylLiveService.AppVersion});
-        this.sendWebSocketMessage({avatartime:"0",device_id:settings.device_id,levelid:"1",_method_:"login",prompt_time:0,rollmsg_time:0,room_id:this.roomId,jwt_token:settings.authToken,user_id:settings.user_id,user_name:settings.user_name});
+        this.sendWebSocketMessage({_method_:"BindUid",device_id:settings.device_id,issued:"pusher",jwt_token:settings.authToken,lob:1,plat:"android",rid:1,user_id:settings.user_id,ver:snsoftx.vlive.jsyl.JsylLiveService.AppVersion});
+        var t0 = (new Date()).getTime();
+        this.sendWebSocketMessage({_method_:"login",avatartime:"" + Math.floor(t0 / 1000),device_id:settings.device_id,jwt_token:settings.authToken,levelid:"0",prompt_time:"" + t0,rollmsg_time:"" + t0,room_id:this.roomId,user_id:settings.user_id,user_name:settings.user_name});
     },
     /*snsoftx.vlive.jsyl.JsylLiveService.notifyLoginOk*/
     notifyLoginOk:function(loginUserID)
@@ -403,7 +404,7 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
     }
 });
 Xjs.apply(snsoftx.vlive.jsyl.JsylLiveService,{
-    AppVersion:"2.0.29",
+    AppVersion:"3.9.7",
     Platform:"100",
     VestCode:"200"
 });

@@ -53,7 +53,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         }
         if(!s.websocketURL)
         {
-            s.websocketURL = "wss://" + s.serverHost + ":443";
+            s.websocketURL = "wss://" + s.serverHost + ":443/ws";
         }
         return s;
     },
@@ -180,7 +180,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     getWebsocketURL:function()
     {
         var settings = this.getCurrentSettings();
-        return settings.websocketURL + "/ws?jwt_token=" + settings.authToken + "&ver=1.9.8.2";
+        return settings.websocketURL + "?jwt_token=" + settings.authToken + "&ver=" + snsoftx.vlive.didi.DiDiLiveService.AppVersion;
     },
     /*snsoftx.vlive.didi.DiDiLiveService.setRoomInfo*/
     setRoomInfo:function(roomId,userId)
