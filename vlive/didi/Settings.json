@@ -1,4 +1,5 @@
 [
+/*
 {
   settingTitle:"138-xxxx-xxxx",
   device_id:"feeb632063289bfa",
@@ -10,25 +11,38 @@
   //options:0,
   ajaxInvokeProxy:null
 },
+*/
 {
-  settingTitle:"+14752981765",
-  device_id:"EMULATOR30X1X5X0",
-  user_id:"96743700",
-  user_name:"游客96743700",
-  serverHost:"api.oidhfjg.com",
-  authToken:"",
-  liveButter2:"",
+  settingTitle:"138-xxxx-xxxx",
+  device_id:"562dbe815c135067",
+  user_id:"82513132",
+  user_name:"游客37530928",
+  serverHost:null,
+  // token :flowToken
+  token:"dd584d4dd4c1176d96d3b503770c23e5",
+  // authToken : jwtToken
+  authToken:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI4MjUxMzEzMiIsInVzZXJuYW1lIjoiKzEzNzUzMDkyOCIsInJvbGUiOjAsImxvYiI6MSwiaWF0IjoxNjQ1Mjc0NjczLCJleHAiOjE2NDc4NjY2NzN9.NgXX3pRcrxlNAj5ODGvtFFEjTgc0QO4gUeSciV_Iu8Gf1Q_e5xdurHJ8_t2KlhuluUPgUxQraKQkSpo15-uzUQ",
+  
+  accessToken:"e43cfbb1-532f-4322-bd73-23e82b615431",
+  liveButter2:"YxE4NA+07NjzfqbSEcFMk+QGYlRdlFydY0q8Cbq6W4fKDuqCjw2bj3wSpASCBMN6lR6mSQBc66LfkTzEWe2KyHuQephq1P4difqyiuUrYXtxvlSxBvbeKy6I9GfOQgtAmOZm4Uw1uRRBVODVQfTDlsA8jLo61xhVEvQBSMBF9Ol5VMwaG26VKONqmXUn+y6z4mwQxFBb20nxHBmmxvBWdniIsX/FPwQI/mafnfp8AdI=",
   //options:0,
   ajaxInvokeProxy:null
 },
+/*
+*/
 {
-  settingTitle:"+15025120341",
-  device_id:"EMULATOR30X1X5X0",
-  user_id:"72735643",
-  user_name:"游客72735643",
-  serverHost:"api.oidhfjg.com",
-  authToken:"",
-  liveButter2:"",
+  settingTitle:"配置2",
+  device_id:"a7ce9654ccfac3eb",
+  user_id:"39144369",
+  user_name:"游客36391405",
+  serverHost:null,
+  // token :flowToken
+  token:"fe2314876ff2bf6b3cf813a274510412",
+  // authToken : jwtToken
+  authToken:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIzOTE0NDM2OSIsInVzZXJuYW1lIjoiKzEzNjM5MTQwNSIsInJvbGUiOjAsImxvYiI6MSwiaWF0IjoxNjQ1MjM4NDgwLCJleHAiOjE2NDc4MzA0ODB9.Q7NjmECo59C_La8KwdRUy-YqfTTOCc0eE9THvuXtfXEhFiFohmprQwNb5AtDgXAx1P9SB_VN14boJDYjGVtAsQ",
+  
+  accessToken:"c515f632-5858-4b99-86b3-c20a3c0ecb2f",
+  liveButter2:"YxE4NA+07NjzfqbSEcFMk+QGYlRdlFydY0q8Cbq6W4fKDuqCjw2bj3wSpASCBMN6lR6mSQBc66LfkTzEWe2KyHuQephq1P4difqyiuUrYXtxvlSxBvbeKy6I9GfOQgtAmOZm4Uw1uRRBVODVQfTDlsA8jLo61xhVEvQBSMBF9Ol5VMwaG26VKONqmXUn+y6z4mwQxFBb20nxHBmmxvBWdniIsX/FPwQI/mafnfp8AdI=",
   //options:0,
   ajaxInvokeProxy:null
 }

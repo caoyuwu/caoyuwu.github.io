@@ -814,7 +814,7 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     {
         if(!this.allSettings)
         {
-            var ajax = new Xjs.Ajax({method:"get",url:Xjs.ROOTPATH + "vlive/jsyl/Settings.json"});
+            var ajax = new Xjs.Ajax({method:"get",url:Xjs.ROOTPATH + "vlive/" + this.name.toLowerCase() + "/Settings.json"});
             ajax.request();
             this.allSettings = ajax.getResponse(true);
         }
