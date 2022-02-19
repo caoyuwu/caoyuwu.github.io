@@ -4,17 +4,9 @@ Xjs.namespace("snsoftx.vlive.didi");
 snsoftx.vlive.didi.DiDiLiveService=function(){
     snsoftx.vlive.didi.DiDiLiveService.superclass.constructor.call(this);
     this.videoPlayerType = "flv";
+    this.name = "DiDi";
     this.emptyVideoSize = {width:544,height:960};
-    {
-        var s = Xjs.getReqParameter("s"),
-            cfg = s == null || s == "" ? 0 : Number.parseInt(s);
-        if(isNaN(cfg) || cfg < 0 || cfg >= 10)
-        {
-            throw new Error("参数 s 错误");
-        }
-        this.settingType = "DiDiLive" + (cfg == 0 ? "" : "" + cfg);
-        window.console.log("settingType = %s",this.settingType);
-    }
+    this.initSettingType();
     var s = this.getCurrentSettings();
     if(s.options !== undefined)
     {
@@ -27,19 +19,9 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.didi.DiDiLiveService.getSettings*/
     getSettings:function(settingType)
     {
-        if(!settingType)
+        if(typeof(settingType) != "number")
             settingType = this.settingType;
-        if(!this.allSettings)
-        {
-            var ajax = new Xjs.Ajax({method:"get",url:Xjs.ROOTPATH + "vlive/didi/Settings.json"});
-            ajax.request();
-            this.allSettings = ajax.getResponse(true);
-            for(var k in this.allSettings)
-            {
-                var s = this.allSettings[k];
-                s.settingType = k;
-            }
-        }
+        this.loadAllSettings();
         var s = this.allSettings[settingType];
         if(!s)
             return null;
@@ -66,23 +48,6 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     getAjaxInvokeProxy:function()
     {
         return this.getCurrentSettings().ajaxInvokeProxy;
-    },
-    /*snsoftx.vlive.didi.DiDiLiveService.getSettingSelections*/
-    getSettingSelections:function()
-    {
-        var a = [],
-            retNul = true;
-        for(var j=0;j < 10;j++)
-        {
-            var k = "DiDiLive" + (j == 0 ? "" : "" + j);
-            if(window.localStorage[k + ".user_id"] != null)
-            {
-                a.push([k,j == 0 ? "缺省" : "配置" + j]);
-                if(j > 0)
-                    retNul = false;
-            }
-        }
-        return retNul ? null : a;
     },
     /*snsoftx.vlive.didi.DiDiLiveService.getLocalSettingsDef*/
     getLocalSettingsDef:function()
@@ -411,7 +376,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
         var ymd0 = (new Date()).format(2);
         for(var j=0;j < 10;j++)
         {
-            var settingType = "DiDiLive" + (j == 0 ? "" : "" + j),
+            var settingType = j,
                 settings = this.getSettings(settingType);
             if(!settings)
                 continue;

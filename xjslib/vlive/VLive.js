@@ -17,9 +17,9 @@ snsoftx.vlive.VLive=function(service){
             for(var j=0;j < a.length;j++)
             {
                 var o = document.createElement("option");
-                o.value = a[j][0];
-                o.text = a[j][1];
-                if(o.value == service.settingType)
+                o.value = j;
+                o.text = a[j];
+                if(j == service.settingType)
                 {
                     o.selected = true;
                 }
@@ -790,14 +790,46 @@ snsoftx.vlive.VLiveService=function(){
 };
 Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     options:1,
+    /*snsoftx.vlive.VLiveService.initSettingType*/
+    initSettingType:function()
+    {
+        var s = Xjs.getReqParameter("s");
+        this.settingType = s == null || s == "" ? 0 : Number.parseInt(s);
+        if(isNaN(this.settingType) || this.settingType < 0 || this.settingType >= 10)
+        {
+            throw new Error("参数 s 错误");
+        }
+        window.console.log("settingType = %s",this.settingType);
+    },
     /*snsoftx.vlive.VLiveService.setSettingType*/
     setSettingType:function(type)
     {
+        if(typeof(type) == "sting")
+            type = parseInt(type);
         window.console.log("配置类型切换为 ： %s",type);
         this.settingType = type;
     },
+    /*snsoftx.vlive.VLiveService.loadAllSettings*/
+    loadAllSettings:function()
+    {
+        if(!this.allSettings)
+        {
+            var ajax = new Xjs.Ajax({method:"get",url:Xjs.ROOTPATH + "vlive/jsyl/Settings.json"});
+            ajax.request();
+            this.allSettings = ajax.getResponse(true);
+        }
+    },
     /*snsoftx.vlive.VLiveService.getSettingSelections*/
-    getSettingSelections:Xjs.nullFn,
+    getSettingSelections:function()
+    {
+        this.loadAllSettings();
+        var a = new Array(this.allSettings.length);
+        for(var j=0;j < a.length;j++)
+        {
+            a[j] = j == 0 ? "缺省" : "配置" + j;
+        }
+        return a.length <= 1 ? null : a;
+    },
     /*snsoftx.vlive.VLiveService.getVideoPlayerType*/
     getVideoPlayerType:function()
     {

@@ -1,5 +1,5 @@
+[
 {
-DiDiLive:{
   settingTitle:"138-xxxx-xxxx",
   device_id:"feeb632063289bfa",
   user_id:"46670330",
@@ -10,7 +10,7 @@ DiDiLive:{
   //options:0,
   ajaxInvokeProxy:null
 },
-DiDiLive1:{
+{
   settingTitle:"+14752981765",
   device_id:"EMULATOR30X1X5X0",
   user_id:"96743700",
@@ -21,7 +21,7 @@ DiDiLive1:{
   //options:0,
   ajaxInvokeProxy:null
 },
-DiDiLive2:{
+{
   settingTitle:"+15025120341",
   device_id:"EMULATOR30X1X5X0",
   user_id:"72735643",
@@ -32,4 +32,4 @@ DiDiLive2:{
   //options:0,
   ajaxInvokeProxy:null
 }
-}
+]

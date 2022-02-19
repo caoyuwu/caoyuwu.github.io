@@ -4,17 +4,9 @@ Xjs.namespace("snsoftx.vlive.jsyl");
 snsoftx.vlive.jsyl.JsylLiveService$AjaxReturnData1=function(){};
 snsoftx.vlive.jsyl.JsylLiveService=function(){
     this.videoPlayerType = "flv";
+    this.name = "Jsyl";
     this.emptyVideoSize = {width:544,height:960};
-    {
-        var s = Xjs.getReqParameter("s"),
-            cfg = s == null || s == "" ? 0 : Number.parseInt(s);
-        if(isNaN(cfg) || cfg < 0 || cfg >= 10)
-        {
-            throw new Error("参数 s 错误");
-        }
-        this.settingType = "JsylLive" + (cfg == 0 ? "" : "" + cfg);
-        window.console.log("settingType = %s",this.settingType);
-    }
+    this.initSettingType();
     var s = this.getCurrentSettings();
     if(s.options !== undefined)
     {
@@ -372,19 +364,9 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.jsyl.JsylLiveService.getSettings*/
     getSettings:function(settingType)
     {
-        if(!settingType)
+        if(typeof(settingType) != "number")
             settingType = this.settingType;
-        if(!this.allSettings)
-        {
-            var ajax = new Xjs.Ajax({method:"get",url:Xjs.ROOTPATH + "vlive/jsyl/Settings.json"});
-            ajax.request();
-            this.allSettings = ajax.getResponse(true);
-            for(var k in this.allSettings)
-            {
-                var s = this.allSettings[k];
-                s.settingType = k;
-            }
-        }
+        this.loadAllSettings();
         var s = this.allSettings[settingType];
         if(!s)
             return null;
