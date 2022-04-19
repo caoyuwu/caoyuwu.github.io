@@ -52,6 +52,8 @@ var hostGrps = function(){
 		"t.me",
 		
 		"netflix.com",
+		
+		"discord.com",
 
 		"wikipedia.org",
 		"utvlive.top",	
