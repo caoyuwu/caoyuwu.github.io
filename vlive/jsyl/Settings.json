@@ -17,7 +17,8 @@
   accessToken:"fa2bd753-77e5-4807-a651-91800395b4a7",
   liveButter2:"YxE4NA+07NjzfqbSEcFMk+QGYlRdlFydY0q8Cbq6W4fKDuqCjw2bj3wSpASCBMN6lR6mSQBc66LfkTzEWe2KyHuQephq1P4difqyiuUrYXtxvlSxBvbeKy6I9GfOQgtAmOZm4Uw1uRRBVODVQfTDlsA8jLo61xhVEvQBSMBF9Ol5VMwaG26VKONqmXUn+y6z4mwQxFBb20nxHBmmxvBWdniIsX/FPwQI/mafnfp8AdI=",
   //options:0,
-  ajaxInvokeProxy:null
+  ajaxInvokeProxy:"http://proxy.caoyuwu.top:1080"
+ // ajaxInvokeProxy:null
 },
 /*
 来自 VirtualXPosed

@@ -15,6 +15,11 @@ snsoftx.vlive.jsyl.JsylLiveService=function(){
 };
 Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
   _js$className_:"snsoftx.vlive.jsyl.JsylLiveService",
+    /*snsoftx.vlive.jsyl.JsylLiveService.getAjaxInvokeProxy*/
+    getAjaxInvokeProxy:function()
+    {
+        return this.getCurrentSettings().ajaxInvokeProxy;
+    },
     /*snsoftx.vlive.jsyl.JsylLiveService.getRefreshRoomsOpts*/
     getRefreshRoomsOpts:function()
     {
