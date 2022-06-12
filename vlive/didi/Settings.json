@@ -1,17 +1,23 @@
 [
-/*
 {
-  settingTitle:"138-xxxx-xxxx",
-  device_id:"feeb632063289bfa",
-  user_id:"46670330",
-  user_name:"游客46670330",
-  serverHost:"api.oidhfjg.com",
-  authToken:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIzOTE0NDM2OSIsInVzZXJuYW1lIjoiKzEzNjM5MTQwNSIsInJvbGUiOjAsImxvYiI6MSwiaWF0IjoxNjQ0NTk2MTMwLCJleHAiOjE2NDcxODgxMzB9.M7XxhH8Boy_bs2ZVGXNMjF0c9u5LtS-nDjcv6Kz3ANuntLFFrsQg3igBSOYrqYD5n3KbH5EHIyJhFci3-N6ZGQ",
+  settingTitle:"配置1",
+  device_id:"a7ce9654ccfac3eb",
+  user_id:"39144369",
+  user_name:"游客36391405",
+  serverHost:null,
+    
+  // token :flowToken
+  token:"cc5c96032dcef05344eda7dce8748c90",
+  // authToken : jwtToken
+  authToken:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIzOTE0NDM2OSIsInVzZXJuYW1lIjoiKzEzNjM5MTQwNSIsInJvbGUiOjAsImxvYiI6MSwiaWF0IjoxNjUzMzE1MDA1LCJleHAiOjE2NTU5MDcwMDV9.KNNRko_rTrpbc09bvWgnyXrk6b2I7GjbsI4hQ4DNvLzJ_9lbtSGzzetnuQNC4aEJWowYG8Dtlr_WefZHmotOlw",
+  
+  accessToken:"fa2bd753-77e5-4807-a651-91800395b4a7",
   liveButter2:"YxE4NA+07NjzfqbSEcFMk+QGYlRdlFydY0q8Cbq6W4fKDuqCjw2bj3wSpASCBMN6lR6mSQBc66LfkTzEWe2KyHuQephq1P4difqyiuUrYXtxvlSxBvbeKy6I9GfOQgtAmOZm4Uw1uRRBVODVQfTDlsA8jLo61xhVEvQBSMBF9Ol5VMwaG26VKONqmXUn+y6z4mwQxFBb20nxHBmmxvBWdniIsX/FPwQI/mafnfp8AdI=",
   //options:0,
+ // ajaxInvokeProxy:"http://proxy.caoyuwu.top:1080",
   ajaxInvokeProxy:null
 },
-*/
+
 {
   settingTitle:"138-xxxx-xxxx",
   device_id:"562dbe815c135067",
@@ -24,24 +30,6 @@
   authToken:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI4MjUxMzEzMiIsInVzZXJuYW1lIjoiKzEzNzUzMDkyOCIsInJvbGUiOjAsImxvYiI6MSwiaWF0IjoxNjQ1Mjc0NjczLCJleHAiOjE2NDc4NjY2NzN9.NgXX3pRcrxlNAj5ODGvtFFEjTgc0QO4gUeSciV_Iu8Gf1Q_e5xdurHJ8_t2KlhuluUPgUxQraKQkSpo15-uzUQ",
   
   accessToken:"e43cfbb1-532f-4322-bd73-23e82b615431",
-  liveButter2:"YxE4NA+07NjzfqbSEcFMk+QGYlRdlFydY0q8Cbq6W4fKDuqCjw2bj3wSpASCBMN6lR6mSQBc66LfkTzEWe2KyHuQephq1P4difqyiuUrYXtxvlSxBvbeKy6I9GfOQgtAmOZm4Uw1uRRBVODVQfTDlsA8jLo61xhVEvQBSMBF9Ol5VMwaG26VKONqmXUn+y6z4mwQxFBb20nxHBmmxvBWdniIsX/FPwQI/mafnfp8AdI=",
-  //options:0,
-  ajaxInvokeProxy:null
-},
-/*
-*/
-{
-  settingTitle:"配置2",
-  device_id:"a7ce9654ccfac3eb",
-  user_id:"39144369",
-  user_name:"游客36391405",
-  serverHost:null,
-  // token :flowToken
-  token:"fe2314876ff2bf6b3cf813a274510412",
-  // authToken : jwtToken
-  authToken:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIzOTE0NDM2OSIsInVzZXJuYW1lIjoiKzEzNjM5MTQwNSIsInJvbGUiOjAsImxvYiI6MSwiaWF0IjoxNjQ1MjM4NDgwLCJleHAiOjE2NDc4MzA0ODB9.Q7NjmECo59C_La8KwdRUy-YqfTTOCc0eE9THvuXtfXEhFiFohmprQwNb5AtDgXAx1P9SB_VN14boJDYjGVtAsQ",
-  
-  accessToken:"c515f632-5858-4b99-86b3-c20a3c0ecb2f",
   liveButter2:"YxE4NA+07NjzfqbSEcFMk+QGYlRdlFydY0q8Cbq6W4fKDuqCjw2bj3wSpASCBMN6lR6mSQBc66LfkTzEWe2KyHuQephq1P4difqyiuUrYXtxvlSxBvbeKy6I9GfOQgtAmOZm4Uw1uRRBVODVQfTDlsA8jLo61xhVEvQBSMBF9Ol5VMwaG26VKONqmXUn+y6z4mwQxFBb20nxHBmmxvBWdniIsX/FPwQI/mafnfp8AdI=",
   //options:0,
   ajaxInvokeProxy:null
