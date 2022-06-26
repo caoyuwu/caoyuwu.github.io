@@ -10,10 +10,11 @@
   serverHost:null,
     
   // token :flowToken
-  token:"cc5c96032dcef05344eda7dce8748c90",
+  token:"c2a15cd43878c1a94c2ced44a1a3ee0",
   // authToken : jwtToken
-  authToken:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIzOTE0NDM2OSIsInVzZXJuYW1lIjoiKzEzNjM5MTQwNSIsInJvbGUiOjAsImxvYiI6MSwiaWF0IjoxNjUzMzE1MDA1LCJleHAiOjE2NTU5MDcwMDV9.KNNRko_rTrpbc09bvWgnyXrk6b2I7GjbsI4hQ4DNvLzJ_9lbtSGzzetnuQNC4aEJWowYG8Dtlr_WefZHmotOlw",
+  authToken:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIzOTE0NDM2OSIsInVzZXJuYW1lIjoiKzEzNjM5MTQwNSIsInJvbGUiOjAsImxvYiI6MSwiaWF0IjoxNjU1Mjg4NzE1LCJleHAiOjE2NTc4ODA3MTV9.4v10OvwTHkvv4rRkyPPeprW6zecbX1CAo062ph6KZKNGNDEmyAztpZBURmqS0kx2-fv9YL0NKb7fgOeBe9ZbVg",
   
+  // 固定?
   accessToken:"fa2bd753-77e5-4807-a651-91800395b4a7",
   liveButter2:"YxE4NA+07NjzfqbSEcFMk+QGYlRdlFydY0q8Cbq6W4fKDuqCjw2bj3wSpASCBMN6lR6mSQBc66LfkTzEWe2KyHuQephq1P4difqyiuUrYXtxvlSxBvbeKy6I9GfOQgtAmOZm4Uw1uRRBVODVQfTDlsA8jLo61xhVEvQBSMBF9Ol5VMwaG26VKONqmXUn+y6z4mwQxFBb20nxHBmmxvBWdniIsX/FPwQI/mafnfp8AdI=",
   //options:0,
