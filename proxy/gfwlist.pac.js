@@ -56,6 +56,7 @@ var hostGrps = function(){
 		"discord.com",
 		
 		"tiktok.com",
+		"tiktokcdn.com",
 
 		"wikipedia.org",
 		"utvlive.top",	
