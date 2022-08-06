@@ -14,11 +14,19 @@ function prepareMediaSource(url,params){
 	/*
 	https://api2.4gtv.tv/Channel/GetChannel/31
 	*/
+	var fs4GTV_ID;
+	var p = cid.lastIndexOf(".");
+	if( p>0 ){
+	    fs4GTV_ID = cid.substring(0,p);
+	  cid = cid.substring(p+1);
+	} else
+	{
 	var text = utils.httpGetAsString("https://api2.4gtv.tv/Channel/GetChannel/"+cid,null,0x80|0x400);
 	// 0x400 : 加 WebSearchUtils.getRequestHeaders
 	var retVal = JSON.parse(text);
-	var fs4GTV_ID = retVal.Data ? retVal.Data.fs4GTV_ID : null;
-	//print("fs4GTV_ID="+fs4GTV_ID);
+	 fs4GTV_ID = retVal.Data ? retVal.Data.fs4GTV_ID : null;
+	 }
+	//print("fs4GTV_ID="+fs4GTV_ID);  // 4gtv-4gtv003.1
 	if( !fs4GTV_ID )
 	   return null;
 	   
@@ -45,13 +53,15 @@ function prepareMediaSource(url,params){
    var flstURLs = retVal.flstURLs;
    if( !flstURLs || flstURLs.length==0 )
      return null;
+     /*
     for(var i=0;i<flstURLs.length;i++){
        var s = flstURLs[i];
        if( s.indexOf(".4gtv.tv")>0 ){
        	 return s;
        }
-    } 
-    return flstURLs[0];
+    }  */
+    var url = flstURLs[0];
+    return url ? {url:url,proxy:"*"} : null;  	  
 }
 
 
