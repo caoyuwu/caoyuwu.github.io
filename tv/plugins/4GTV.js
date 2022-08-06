@@ -72,7 +72,7 @@ function prepareMediaSource(url,params){
        print(flstURLs[i]);
     }
     */
-   print("url="+url);
+  // print("url="+url);
     return url ? {url:url,proxy:"*"} : null;  	  
 }
 
