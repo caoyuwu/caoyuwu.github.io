@@ -59,7 +59,7 @@ function prepareMediaSource(url,params){
    if( !flstURLs || flstURLs.length==0 )
      return null;
      var url = flstURLs[0];
-     //*
+     /*
     for(var i=0;i<flstURLs.length;i++){
        var s = flstURLs[i];
        if( s.indexOf(".4gtv.tv")>0 ){
