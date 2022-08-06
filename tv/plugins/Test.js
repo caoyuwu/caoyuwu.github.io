@@ -1,5 +1,7 @@
 /*
 testvideo://1
+测试:
+ JSMediaDataSourcePrepare.main
 */
 function prepareMediaSource(url,params){
 	print("prepareMediaSource : url="+url+"; params="+params);

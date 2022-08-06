@@ -70,6 +70,7 @@ var hostGrps = function(){
 		"githubusercontent.com",
 		"apkpure.com",
 		"blogger.com",
+		"4gtv.tv", // 台湾电视
 		/*
 		,"arukas.io",	
 		"io",
