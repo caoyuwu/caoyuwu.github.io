@@ -1,6 +1,10 @@
 /*
  https://www.4gtv.tv/channel
- 4gtv://xxx 
+ 4gtv://1 
+ 4gtv://4gtv-4gtv003.1  ( asset_id.channel_id
+ https://www.4gtv.tv/channel_sub.html?channelSet_id=1&asset_id=litv-ftv13&channel_id=31
+   =>
+   (4gtv-4gtv003 : 来自 
  
  参考: http://kjol.cc/4gtv真实视频获取.html/comment-page-1
 */
@@ -30,7 +34,7 @@ function prepareMediaSource(url,params){
 	if( !fs4GTV_ID )
 	   return null;
 	   
-	var value = '{"fnCHANNEL_ID":1,"fsASSET_ID":"'+fs4GTV_ID+'","fsDEVICE_TYPE":"pc","clsIDENTITY_VALIDATE_ARUS":{"fsVALUE":""}}';    
+	var value = '{"fnCHANNEL_ID":'+cid+',"fsASSET_ID":"'+fs4GTV_ID+'","fsDEVICE_TYPE":"pc","clsIDENTITY_VALIDATE_ARUS":{"fsVALUE":""}}';    
 //	var evalue = utils.aesEncode(AES_IV,AES_Key,value);
 	//print("evalue="+evalue);
 	var postData = {
@@ -43,12 +47,12 @@ function prepareMediaSource(url,params){
    	  postData,
    	  0x80|0x400
    );
-   //print("text="+text);
+   //print("2-text="+text);
    retVal = JSON.parse(text);
    if( !retVal.Data )
      return null;
    text = utils.aesDecode(AES_IV,AES_Key,retVal.Data); 
-  // print("text="+text);
+   //print("3-text="+text);
    retVal = JSON.parse(text);
    var flstURLs = retVal.flstURLs;
    if( !flstURLs || flstURLs.length==0 )
@@ -61,6 +65,7 @@ function prepareMediaSource(url,params){
        }
     }  */
     var url = flstURLs[0];
+   // print("url="+url);
     return url ? {url:url,proxy:"*"} : null;  	  
 }
 
