@@ -5,7 +5,8 @@
  https://www.4gtv.tv/channel_sub.html?channelSet_id=1&asset_id=litv-ftv13&channel_id=31
    =>
    (4gtv-4gtv003 : 来自 
- 
+ ??[proxy=*]
+??[proxy=default]
  参考: http://kjol.cc/4gtv真实视频获取.html/comment-page-1
 */
 
@@ -57,15 +58,21 @@ function prepareMediaSource(url,params){
    var flstURLs = retVal.flstURLs;
    if( !flstURLs || flstURLs.length==0 )
      return null;
+     var url = flstURLs[0];
      /*
     for(var i=0;i<flstURLs.length;i++){
        var s = flstURLs[i];
        if( s.indexOf(".4gtv.tv")>0 ){
-       	 return s;
+       	 url = s;
+       	 break;
        }
-    }  */
-    var url = flstURLs[0];
-   // print("url="+url);
+    }  //*/
+    /*
+    for(var i=0;i<flstURLs.length;i++){
+       print(flstURLs[i]);
+    }
+    */
+   //print("url="+url);
     return url ? {url:url,proxy:"*"} : null;  	  
 }
 

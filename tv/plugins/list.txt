@@ -8,6 +8,10 @@ youtube|youtube-list,Youtube.js
 
 blive|blive-list,Bilibili.js
 
+
+https://4gtvfreepc-mozai.4gtv.tv/stream0.m3u8?token=k2YwsbUdFbAcxk9e2WMWag&expires=1659804354&refer=Njk2NGMwYTktMzlhZS00ODE3LThiNmYtYjY3YjQ5YTkxODdl&token1=TlNYG3OnBOKDC4IFYK9fNA&expires1=1659804354&y=0&vt=
+#EXT-X-STREAM-INF:BANDWIDTH=1086000,AVERAGE-BANDWIDTH=987000,CODECS="mp4a.40.2,avc1.64001F",RESOLUTION=854x480
+
 huyalive|huyalive-list,Huya.js
 
 yylive|yylive-list,YYLive.js

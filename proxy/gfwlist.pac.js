@@ -71,6 +71,7 @@ var hostGrps = function(){
 		"apkpure.com",
 		"blogger.com",
 		"4gtv.tv", // 台湾电视
+		"hinet.net", // 4gtv.tv 使用的视频地址
 		/*
 		,"arukas.io",	
 		"io",

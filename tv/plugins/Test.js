@@ -1,5 +1,7 @@
 /*
 testvideo://1
+??[proxy=*]
+??[proxy=default]
 测试:
  JSMediaDataSourcePrepare.main
 */
