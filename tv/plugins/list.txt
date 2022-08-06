@@ -33,4 +33,6 @@ douyinlive|douyinlive-list,Douyin.js
 
 jsyllive|jsyllive-list,Jsyl.js
 
+4gtv|4gtv-list,4GTV.js
+
 testvideo|test-menu-list,Test.js,x=1&y=2
