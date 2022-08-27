@@ -34,6 +34,8 @@ var hostGrps = function(){
 		"ggpht.com",
 		"ytimg.com",
 		"googlevideo.com",
+		//googleusercontent.com
+		//googlesyndication.com
 		"youtu.be",
 
 		"facebook.com",
