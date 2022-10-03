@@ -87,10 +87,7 @@ var hostGrps = function(){
 		"wallmama.com",
 		"lncn.org",
 		"fanqiangdang.com",
-		"bulink.xyz",
-		"niaoyun.me",
-		"j01.space", // 几鸡
-		"tudog-a.pw", // 土豆云
+		"v2rayssr.com",
 		// 其他x:
 		"r18.com", //日本
 		"oidhfjg.com",  // didi-live
