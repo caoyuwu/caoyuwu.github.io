@@ -70,7 +70,7 @@ function prepareMediaSource(url,params){
         //System.out.println("curl -i -H \"Referer:http://m.miguvideo.com\" -H \"User-Agent:Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30\" \""+url+"\"");
         //System.out.println();
     }
- print("videoUrl="+videoUrl);
+ //print("videoUrl="+videoUrl);
     return {url:videoUrl,headers:headers};
 }
 
