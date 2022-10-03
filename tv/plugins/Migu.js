@@ -4,10 +4,11 @@
 http://m.migu123.com/tv/beijingweishi.html
   => migu123tv://tv/beijingweishi
   
-[2]
+[2] http://m.miguvideo.com/
   =>migu://
    cctv1,migu://608807420
    cctv2,migu://672926537
+   cctv15,migu://673168223
 */
 
 function prepareMediaSource(url,params){
@@ -48,14 +49,28 @@ function prepareMediaSource(url,params){
         // ddCalcu=a900efc11f8441eaf66f90d85e4b3ba9914d
         var ddCalcu = buildDDCalcu(videoUrl);
         if( ddCalcu!=null ) {
-            videoUrl += "&ddCalcu="+ddCalcu;//+"&crossdomain=www";
+           // videoUrl += "&ddCalcu="+ddCalcu;//+"&crossdomain=www";
+           /*
+             2022-10-03 : 改为 从 ... &crossdomain=www 返回中获取
+               Fix 重定向的播放地址 https://mgsp.live.miguvideo.com: 播放有问题,
+                   需要改为   https://mgsp-ali.live.miguvideo.com:443
+                 原因不明
+           */
+            videoUrl = utils.httpGetAsString(videoUrl + "&ddCalcu="+ddCalcu+"&crossdomain=www",headers,0);
+        	if ( videoUrl.startsWith("https://mgsp.live.miguvideo.com") ){
+        	videoUrl = "https://mgsp-ali"+videoUrl.substring(12);
+        	}
+        	/*
+        	  https://mgsp.live.miguvideo.com:
+        	*/
         }
+        
         //print("ddCalcu = "+ddCalcu);
         //System.out.println();
         //System.out.println("curl -i -H \"Referer:http://m.miguvideo.com\" -H \"User-Agent:Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30\" \""+url+"\"");
         //System.out.println();
     }
-  //print("videoUrl="+videoUrl);
+ print("videoUrl="+videoUrl);
     return {url:videoUrl,headers:headers};
 }
 
@@ -104,6 +119,10 @@ function buildDDCalcu(url){
        // url + "&ddCalcu=" + v
 }
 
+
+/*
+  for migu123tv://
+*/
 function buildMigu123TV(mediaId){
     var text = utils.httpGetAsString("http://mini.javaa.cn/wap/" + mediaId + ".html");
 	var p1 = text.indexOf("src='");
