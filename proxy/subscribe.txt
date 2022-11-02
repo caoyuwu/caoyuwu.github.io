@@ -30,11 +30,8 @@
 #
 # https://t.me/SSRSUB TG代理订阅分享
 #
-trojan://9010950e-8e09-486a-bf96-3b0cf22097b4@hk2.sanfen001.pics:443?security=tls&sni=hk1.sanfen001.pics&type=tcp&headerType=none#%40SSRSUB-T01-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Asuo.yt%2Fssrsub
-trojan://9010950e-8e09-486a-bf96-3b0cf22097b4@hk1.sanfen001.pics:443?security=tls&sni=hk1.sanfen001.pics&type=tcp&headerType=none#%40SSRSUB-T02-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Asuo.yt%2Fssrsub
-trojan://9010950e-8e09-486a-bf96-3b0cf22097b4@tw1.sanfen001.pics:443?security=tls&sni=tw1.sanfen001.pics&type=tcp&headerType=none#%40SSRSUB-T03-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Asuo.yt%2Fssrsub
-trojan://6064db30-b46e-432d-bbec-f12b947422a2@1024hk02.tfzhc.top:80?security=tls&type=tcp&headerType=none#%40SSRSUB-T04-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Asuo.yt%2Fssrsub
-trojan://9010950e-8e09-486a-bf96-3b0cf22097b4@tw1.sanfen001.pics:443?security=tls&type=tcp&headerType=none#%40SSRSUB-T05-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Asuo.yt%2Fssrsub
+trojan://645fc4e7-e3a3-4e82-8abd-2d71324894c4@ssrsub.t1.asuka.buzz:852?security=tls&sni=d76bb35696.wns.windows.com&type=tcp&headerType=none#%F0%9F%87%BA%F0%9F%87%B8%20%40SSRSUB-%E7%BE%8E%E5%9B%BDT01-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Adlj.tf%2Fssrsub
+trojan://645fc4e7-e3a3-4e82-8abd-2d71324894c4@ssrsub.t2.asuka.buzz:852?security=tls&sni=d76bb35696.wns.windows.com&type=tcp&headerType=none#%F0%9F%87%BA%F0%9F%87%B8%20%40SSRSUB-%E7%BE%8E%E5%9B%BDT02-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Adlj.tf%2Fssrsub
 
 #
 # 其他
