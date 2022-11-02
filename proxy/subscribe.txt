@@ -30,11 +30,9 @@
 #
 # https://t.me/SSRSUB TG代理订阅分享
 #
-trojan://645fc4e7-e3a3-4e82-8abd-2d71324894c4@ssrsub.t1.asuka.buzz:852?security=tls&sni=d76bb35696.wns.windows.com&type=tcp&headerType=none#%F0%9F%87%BA%F0%9F%87%B8%20%40SSRSUB-%E7%BE%8E%E5%9B%BDT01-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Adlj.tf%2Fssrsub
-trojan://645fc4e7-e3a3-4e82-8abd-2d71324894c4@ssrsub.t2.asuka.buzz:852?security=tls&sni=d76bb35696.wns.windows.com&type=tcp&headerType=none#%F0%9F%87%BA%F0%9F%87%B8%20%40SSRSUB-%E7%BE%8E%E5%9B%BDT02-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Adlj.tf%2Fssrsub
 
 #
 # 其他
 #
-vmess://ewogICJ2IjogIjIiLAogICJwcyI6ICIiLAogICJhZGQiOiAiNDUuOC4yMi43NSIsCiAgInBvcnQiOiA2NTUxNiwKICAiaWQiOiAiZTBlNjQwY2QtMDk5Ni00MDk5LTkwYjAtOTcwMWRhYjk2NDQxIiwKICAiYWlkIjogMCwKICAibmV0IjogInRjcCIsCiAgInR5cGUiOiAibm9uZSIsCiAgImhvc3QiOiAiIiwKICAicGF0aCI6ICIiLAogICJ0bHMiOiAibm9uZSIKfQ==
- 
+vmess://eyJob3N0IjoiIiwicGF0aCI6IiIsInRscyI6IiIsImFkZCI6IjYuMy4yLjIiLCJwb3J0Ijo0NDMsImFpZCI6MCwibmV0IjoidGNwIiwidHlwZSI6Im5vbmUiLCJ2IjoiMiIsInBzIjoiY3hrdjIueHl6IiwiaWQiOiJmOGY3NmE2Mi05YzA5LTNhMTktOTdhNi0zZmU3ZjFmMTJjZjAifQ==
+vmess://eyJob3N0IjoiODMxdHcuZng2Njg4LnRvcCIsInBhdGgiOiJcL3JheSIsInRscyI6InRscyIsImFkZCI6IjgzMXR3LmZ4NjY4OC50b3AiLCJwb3J0Ijo0NDMsImFpZCI6MiwibmV0Ijoid3MiLCJ0eXBlIjoibm9uZSIsImluc2lkZV9wb3J0IjoiNDQzIiwidiI6IjIiLCJwcyI6IuWPsOa5vjIiLCJpZCI6ImY4Zjc2YTYyLTljMDktM2ExOS05N2E2LTNmZTdmMWYxMmNmMCJ9
