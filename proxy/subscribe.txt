@@ -27,6 +27,14 @@
 # https://lncn.org/
 #
 
+#
+# https://t.me/SSRSUB TG代理订阅分享
+#
+trojan://9010950e-8e09-486a-bf96-3b0cf22097b4@hk2.sanfen001.pics:443?security=tls&sni=hk1.sanfen001.pics&type=tcp&headerType=none#%40SSRSUB-T01-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Asuo.yt%2Fssrsub
+trojan://9010950e-8e09-486a-bf96-3b0cf22097b4@hk1.sanfen001.pics:443?security=tls&sni=hk1.sanfen001.pics&type=tcp&headerType=none#%40SSRSUB-T02-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Asuo.yt%2Fssrsub
+trojan://9010950e-8e09-486a-bf96-3b0cf22097b4@tw1.sanfen001.pics:443?security=tls&sni=tw1.sanfen001.pics&type=tcp&headerType=none#%40SSRSUB-T03-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Asuo.yt%2Fssrsub
+trojan://6064db30-b46e-432d-bbec-f12b947422a2@1024hk02.tfzhc.top:80?security=tls&type=tcp&headerType=none#%40SSRSUB-T04-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Asuo.yt%2Fssrsub
+trojan://9010950e-8e09-486a-bf96-3b0cf22097b4@tw1.sanfen001.pics:443?security=tls&type=tcp&headerType=none#%40SSRSUB-T05-%E4%BB%98%E8%B4%B9%E6%8E%A8%E8%8D%90%3Asuo.yt%2Fssrsub
 
 #
 # 其他
