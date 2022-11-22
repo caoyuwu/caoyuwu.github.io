@@ -381,7 +381,7 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
         }
         if(!s.server2URL)
         {
-            s.server2URL = "https://notify.uidfhdf.com/";
+            s.server2URL = "https://notify.hhnt.xyz/";
         }
         if(!s.websocketURL)
         {
