@@ -29,6 +29,7 @@ var hostGrps = function(){
 		"goo.gl",
 		"g.co",
 		"googlesource.com",
+		"google.co.kr",
 
 		"youtube.com",
 		"ggpht.com",
