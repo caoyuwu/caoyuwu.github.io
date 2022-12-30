@@ -166,7 +166,7 @@ function startMessage(s, userId){
 			return;
 		utils.onMessage(null,"开始消息");
 		_msgSocketInv = setInterval(_onInterval,3000);
-	} else
+	} else if( _msgSocketInv!=null )
 	{
 		clearInterval(_msgSocketInv);
 		_msgSocketInv = null;
