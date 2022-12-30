@@ -156,7 +156,7 @@ function loadMenus(path,params){
 }
 
 //var  _msgSocketStarted = -1;
-var _msgSocketInv;
+var _msgSocketInv = null;
 function startMessage(s, userId){
 	if( s==0 ){
 		s = _msgSocketInv==null ? 1 : -1;
@@ -164,13 +164,13 @@ function startMessage(s, userId){
 	if( s>0 ){
 		if( _msgSocketInv!=null )
 			return;
-		utils.onMessage(null,"开始消息");
+		utils.onMessage(null,userId+"-开始消息");
 		_msgSocketInv = setInterval(_onInterval,3000);
 	} else if( _msgSocketInv!=null )
 	{
 		clearInterval(_msgSocketInv);
 		_msgSocketInv = null;
-		utils.onMessage(null,"消息关闭");
+		utils.onMessage(null,userId+"-消息关闭");
 		utils.onMessage("_cmd","closed");
 	}
 }
