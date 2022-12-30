@@ -157,7 +157,7 @@ function loadMenus(path,params){
 
 //var  _msgSocketStarted = -1;
 var _msgSocketInv = null;
-function startMessage(s, userId){
+function startMessage(userId,s){
 	if( s==0 ){
 		s = _msgSocketInv==null ? 1 : -1;
 	} 
