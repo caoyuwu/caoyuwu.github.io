@@ -168,9 +168,9 @@ function startMessage(s, userId){
 		_msgSocketInv = setInterval(_onInterval,3000);
 	} else if( _msgSocketInv!=null )
 	{
-		utils.onMessage(null,"消息关闭");
 		clearInterval(_msgSocketInv);
 		_msgSocketInv = null;
+		utils.onMessage(null,"消息关闭");
 		utils.onMessage("_cmd","closed");
 	}
 }
