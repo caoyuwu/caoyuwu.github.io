@@ -162,7 +162,13 @@ function _onInterval(){
 	utils.onMessage("测试",_msgUserId+" - "+new Date());
 }
 function startMessage(userId,s){
-utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s+",_msgSocketInv="+_msgSocketInv+",_onInterval="+_onInterval+",setInterval="+setInterval);
+utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
+  +",_msgSocketInv="+_msgSocketInv
+  +",_onInterval="+this._onInterval
+  +",setInterval="+this.setInterval
+  +",WebSocket="+this.WebSocket
+  +",JSON="+this.JSON
+  );
 	if( s==0 ){
 		s = _msgSocketInv==null ? 1 : -1;
 	} 
