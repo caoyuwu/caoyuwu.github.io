@@ -157,11 +157,12 @@ function loadMenus(path,params){
 
 //var  _msgSocketStarted = -1;
 var _msgUserId;
-var _msgSocketInv = null;
+var _msgSocketInv = 0;
 function _onInterval(){
 	utils.onMessage("测试",_msgUserId+" - "+new Date());
 }
 function startMessage(userId,s){
+/*
 utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
   +",_msgSocketInv="+_msgSocketInv
   +",_onInterval="+this._onInterval
@@ -169,20 +170,22 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
   +",WebSocket="+this.WebSocket
   +",JSON="+this.JSON
   );
+  */
 	if( s==0 ){
-		s = _msgSocketInv==null ? 1 : -1;
+		s = _msgSocketInv<20 ? 1 : -1;
 	} 
 	if( s>0 ){
-		if( _msgSocketInv!=null )
-			return;
+		//if( _msgSocketInv!=null )
+		//	return;
+		_msgSocketInv++;
 		_msgUserId = userId;
-		utils.onMessage(null,userId+"-开始消息");
-		_msgSocketInv = setInterval(_onInterval,3000);
-		utils.onMessage(null,userId+"- _msgSocketInv="+_msgSocketInv);
-	} else if( _msgSocketInv!=null )
+		utils.onMessage(null,userId+"-开始消息-"+_msgSocketInv);
+		//_msgSocketInv = 1;//setInterval(_onInterval,3000);
+		//utils.onMessage(null,userId+"- _msgSocketInv="+_msgSocketInv);
+	} else if( _msgSocketInv>0 )
 	{
-		clearInterval(_msgSocketInv);
-		_msgSocketInv = null;
+		//clearInterval(_msgSocketInv);
+		_msgSocketInv = 0;
 		utils.onMessage(null,userId+"-消息关闭");
 		utils.onMessage("_cmd","closed");
 	}
