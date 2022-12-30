@@ -164,11 +164,13 @@ function startMessage(s, userId){
 	if( s>0 ){
 		if( _msgSocketInv!=null )
 			return;
+		utils.onMessage(null,"开始消息");
 		_msgSocketInv = setInterval(_onInterval,3000);
 	} else
 	{
 		clearInterval(_msgSocketInv);
 		_msgSocketInv = null;
+		utils.onMessage("_cmd","closed");
 	}
 }
 
