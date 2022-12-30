@@ -5,6 +5,8 @@ testvideo://1
 ??[proxy=default]
 测试:
  JSMediaDataSourcePrepare.main
+参数：
+  _scriptURL 
 */
 function prepareMediaSource(url,params){
 	print("prepareMediaSource : url="+url+"; params="+params);

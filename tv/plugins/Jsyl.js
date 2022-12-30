@@ -1,30 +1,67 @@
 /*
   http://www.caoyuwu.top/tv/plugins/Jsyl.js
+  参考：
+   JsylLiveService
 */
-var JSYL_token = "dd584d4dd4c1176d96d3b503770c23e5";
-var JSYL_authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI4MjUxMzEzMiIsInVzZXJuYW1lIjoiKzEzNzUzMDkyOCIsInJvbGUiOjAsImxvYiI6MSwiaWF0IjoxNjQ1Mjc0NjczLCJleHAiOjE2NDc4NjY2NzN9.NgXX3pRcrxlNAj5ODGvtFFEjTgc0QO4gUeSciV_Iu8Gf1Q_e5xdurHJ8_t2KlhuluUPgUxQraKQkSpo15-uzUQ";
 
-var JSYL_accessToken = "e43cfbb1-532f-4322-bd73-23e82b615431";
-var JSYL_liveButter2 = "YxE4NA+07NjzfqbSEcFMk+QGYlRdlFydY0q8Cbq6W4fKDuqCjw2bj3wSpASCBMN6lR6mSQBc66LfkTzEWe2KyHuQephq1P4difqyiuUrYXtxvlSxBvbeKy6I9GfOQgtAmOZm4Uw1uRRBVODVQfTDlsA8jLo61xhVEvQBSMBF9Ol5VMwaG26VKONqmXUn+y6z4mwQxFBb20nxHBmmxvBWdniIsX/FPwQI/mafnfp8AdI=";
+/*
+  String token; // studio/list 中 flowToken 获取
+	     String accessToken; // 登录信息, Header 中获取
+	     // jwtToken == authToken
+		 String authToken , liveButter2;
+	String server1URL, // server1URL = "https://api.jsdn0.xyz/";
+		 server2URL,  // server2URL = "https://notify.hhnt.xyz/";
+	 	   websocketURL; // "wss://cywqfzo8.shdkw1o.com/ws";	 
+ */
+var JSYL_Settings = null;
+function getSettings() {
+	if( !JSYL_Settings ){
+		/*
+		 * http://www.caoyuwu.top/vlive/jsyl/Settings.json
+		 */
+		var url = utils.toAbsoluteURL(_scriptURL,"../../vlive/jsyl/Settings.json");
+		
+		var text = utils.httpGetAsString(url,{});
+	//print("text="+text);	
+		var data = eval(text);
+		JSYL_Settings = data[0];
+	//print("JSYL_Settings="+JSON.stringify(JSYL_Settings));
+		if( !JSYL_Settings.server1URL ){
+			JSYL_Settings.server1URL = "https://api.jsdn0.xyz/";
+		}
+		if( !JSYL_Settings.server2URL ){
+			JSYL_Settings.server2URL = "https://notify.hhnt.xyz/";
+		}
+		if( !JSYL_Settings.websocketURL ){
+			JSYL_Settings.websocketURL = "wss://cywqfzo8.shdkw1o.com/ws";
+		}
+	}
+	return JSYL_Settings;
+}
+
+function getSetting(name){
+	return getSettings()[name];
+}
 
 function prepareMediaSource(url,params){
   var userId = utils.getUrlHostAndPath(url);
   var params = {
-     "token":utils.getConfigPreference("JSYL.token",JSYL_token),
+     "token":getSetting("token"),//utils.getConfigPreference("JSYL.token",JSYL_token),
      "uid":userId
   };
-  var authToken = utils.getConfigPreference("JSYL.authToken",JSYL_authToken);
+  var authToken = getSetting("authToken");//utils.getConfigPreference("JSYL.authToken",JSYL_authToken);
   var headers = {
-	    "access-token":utils.getConfigPreference("JSYL.accessToken",JSYL_accessToken),
+	    "access-token":getSetting("accessToken"),//utils.getConfigPreference("JSYL.accessToken",JSYL_accessToken),
 	    "jwt-token":authToken,
 	    "Authorization": "Bearer "+authToken,
-	    "X-Live-Butter2":utils.getConfigPreference("JSYL.liveButter2",JSYL_liveButter2),
+	    "X-Live-Butter2":getSetting("liveButter2"),//utils.getConfigPreference("JSYL.liveButter2",JSYL_liveButter2),
 	    "times":new Date().getTime(),
 	    "platform":Platform,
 	    "app-version":AppVersion,
 	    "vest-code":VestCode
 	};	
-	var url = utils.appendUrlParameters("https://notify.uidfhdf.com/OpenAPI/v1/Private/getPrivateLimit",params);
+  // "https://notify.uidfhdf.com/
+	var url = utils.appendUrlParameters(getSetting("server2URL")+"OpenAPI/v1/Private/getPrivateLimit",params);
 	var text = utils.httpGetAsString(url,headers);
 	//print(text);
 	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
@@ -38,20 +75,27 @@ function prepareMediaSource(url,params){
 	return data.stream.pull_url ;
 }
 
-var AppVersion = "2.0.29";
+var AppVersion = "3.9.7";//"2.0.29";
 var Platform = "100";
 var VestCode = "200";
+
 /*  
-   path  : 100
+   path  : 100 100/1
+        "200:热门",
+		"100:颜值",
+		"300:收费",
+		"500:附近",
+		"400:海外",
 */
 function loadMenus(path,params){
   var p = path.indexOf("/");
   var type = p<0 ? path : path.substring(0,p);
   var page = p<0 ? 1 : parseInt(path.substring(p+1));
-  var authToken = utils.getConfigPreference("JSYL.authToken",JSYL_authToken);
+ // var authToken = utils.getConfigPreference("JSYL.authToken",JSYL_authToken);
+  var authToken = getSetting("authToken");//
   var params = {
 				"type": type,
-				"flowToken": utils.getConfigPreference("JSYL.token",JSYL_token),
+				"flowToken": getSetting("token"),//utils.getConfigPreference("JSYL.token",JSYL_token),
 				"latitude":"","latitude":"",
 				"page": page,
 				"size": 50
@@ -59,15 +103,15 @@ function loadMenus(path,params){
 				//,"t",new js.Date().getTime()
 		};
 	var headers = {
-	    "access-token":utils.getConfigPreference("JSYL.accessToken",JSYL_accessToken),
+	    "access-token":getSetting("accessToken"),//utils.getConfigPreference("JSYL.accessToken",JSYL_accessToken),
 	    "jwt-token":authToken,
 	    "times":new Date().getTime(),
 	    "platform":Platform,
 	    "app-version":AppVersion,
 	    "vest-code":VestCode
 	};	
-	var url = utils.appendUrlParameters("https://api.jsdn0.xyz/live/studio/list",params);
-	var text = utils.httpGetAsString(url,headers,0x480);
+	var url = utils.appendUrlParameters(getSetting("server1URL")+"live/studio/list",params);
+	var text = utils.httpGetAsString(url,headers,0x400); // 0x80 : 代理  
 	print(text);
 	var data = JSON.parse(text);
 	if( data.code ){
