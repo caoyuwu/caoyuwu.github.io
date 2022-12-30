@@ -72,6 +72,9 @@ function prepareMediaSource(url,params){
 	   throw data.code+":"+data.msg;
 	}
 	data = data.data;
+	if( !data.stream )
+		return null;
+	
 	return data.stream.pull_url ;
 }
 
@@ -144,11 +147,32 @@ function loadMenus(path,params){
 			title += "-("+	online+")";
 		}
 	//print(title+","+userId);	
-		vCh.push({title:title,url:"jsyllive://"+userId});
+		vCh.push({title:title,url:"jsyllive://"+userId,msgSocketArgs:[userId]});
 	}
 	return vCh;
 //	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
 	//text = utils.aesDecode(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
 //	print(text);
+}
+
+//var  _msgSocketStarted = -1;
+var _msgSocketInv;
+function startMessage(s, userId){
+	if( s==0 ){
+		s = _msgSocketInv==null ? 1 : -1;
+	} 
+	if( s>0 ){
+		if( _msgSocketInv!=null )
+			return;
+		_msgSocketInv = setInterval(_onInterval,3000);
+	} else
+	{
+		clearInterval(_msgSocketInv);
+		_msgSocketInv = null;
+	}
+}
+
+function _onInterval(){
+	utils.onMessage("测试",userId+" - "+new Date());
 }
 
