@@ -156,7 +156,11 @@ function loadMenus(path,params){
 }
 
 //var  _msgSocketStarted = -1;
+var _msgUserId;
 var _msgSocketInv = null;
+function _onInterval(){
+	utils.onMessage("测试",_msgUserId+" - "+new Date());
+}
 function startMessage(userId,s){
 utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s+",_msgSocketInv="+_msgSocketInv);
 	if( s==0 ){
@@ -165,6 +169,7 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s+",_msgSocketI
 	if( s>0 ){
 		if( _msgSocketInv!=null )
 			return;
+		_msgUserId = userId;
 		utils.onMessage(null,userId+"-开始消息");
 		_msgSocketInv = setInterval(_onInterval,3000);
 		utils.onMessage(null,userId+"- _msgSocketInv="+_msgSocketInv);
@@ -177,7 +182,5 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s+",_msgSocketI
 	}
 }
 
-function _onInterval(){
-	utils.onMessage("测试",userId+" - "+new Date());
-}
+
 
