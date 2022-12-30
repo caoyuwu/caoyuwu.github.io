@@ -158,7 +158,7 @@ function loadMenus(path,params){
 //var  _msgSocketStarted = -1;
 var _msgSocketInv = null;
 function startMessage(userId,s){
-utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s);
+utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s+",_msgSocketInv="+_msgSocketInv);
 	if( s==0 ){
 		s = _msgSocketInv==null ? 1 : -1;
 	} 
