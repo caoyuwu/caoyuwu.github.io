@@ -158,6 +158,7 @@ function loadMenus(path,params){
 //var  _msgSocketStarted = -1;
 var _msgSocketInv = null;
 function startMessage(userId,s){
+utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s);
 	if( s==0 ){
 		s = _msgSocketInv==null ? 1 : -1;
 	} 
@@ -166,6 +167,7 @@ function startMessage(userId,s){
 			return;
 		utils.onMessage(null,userId+"-开始消息");
 		_msgSocketInv = setInterval(_onInterval,3000);
+		utils.onMessage(null,userId+"- _msgSocketInv="+_msgSocketInv);
 	} else if( _msgSocketInv!=null )
 	{
 		clearInterval(_msgSocketInv);
