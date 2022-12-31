@@ -165,6 +165,9 @@ function onWebSocketEvent(id,type,msg,code){
 			break;
 		case "onclose":
 			utils.onMessage(null,id+"-消息关闭");
+			if( _msgWebSocket && _msgWebSocket.getId()==id ){
+				_msgWebSocket = null;
+			}
 			break;
 		case "onerror":	
 			utils.onMessage("错误",code+":"+msg);
