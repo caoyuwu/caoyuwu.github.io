@@ -45,6 +45,11 @@ function getSetting(name){
 
 function prepareMediaSource(url,params){
   var userId = utils.getUrlHostAndPath(url);
+  var p = userId.indexOf("/");
+  if( p>0 ){
+	  // roomId = userId.substring(0,p);
+	  userId = userId.substring(p+1);
+  }
   var params = {
      "token":getSetting("token"),//utils.getConfigPreference("JSYL.token",JSYL_token),
      "uid":userId
@@ -129,7 +134,7 @@ function loadMenus(path,params){
 	for(var i=0;i<list.length;i++){
 	    var li = list[i];
 	    var userId = li.id;
-		//	r.roomId = li.curroomnum;
+		var roomId = li.curroomnum;
 		var userName = li.nickname;
 		var title = li.nickname;//li.roomTitle || "";
 		if( li.roomTitle )
@@ -147,7 +152,7 @@ function loadMenus(path,params){
 			title += "-("+	online+")";
 		}
 	//print(title+","+userId);	
-		vCh.push({title:title,url:"jsyllive://"+userId,msgSocketArgs:[userId]});
+		vCh.push({title:title,url:"jsyllive://"+roomId+"/"+userId,msgSocketArgs:[roomId+"/"+userId]});
 	}
 	return vCh;
 //	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
@@ -180,6 +185,11 @@ function onWebSocketEvent(id,type,msg,code){
 }
 function onWebSocketOpen(id){
 	utils.onMessage(null,id+"-消息打开");
+	var p = id.indexOf("/");
+	if( p<=0 )
+		return;
+	var roomId = id.substring(0,p);
+	
 	var m = {
 			"_method_":"BindUid",
 			"device_id": getSetting("device_id"),
@@ -201,7 +211,7 @@ function onWebSocketOpen(id){
 	    	"levelid": "0",
 	    	"prompt_time":""+t0,
 	    	"rollmsg_time":""+t0,
-	    	"room_id":id,// 
+	    	"room_id":roomId,// 
 			"user_id":getSetting("user_id"),
 			"user_name":getSetting("user_name")	
 	};
@@ -256,7 +266,7 @@ function onWebSocketMessage(id,s){
 
 var _msgWebSocket ; 
 
-function startMessage(userId,s){
+function startMessage(id,s){
 /*
 utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
   +",_msgSocketInv="+_msgSocketInv
@@ -273,7 +283,7 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
 		//if( _msgSocketInv!=null )
 		//	return;
 		if( _msgWebSocket ){
-			if( _msgWebSocket.getId()==userId ){
+			if( _msgWebSocket.getId()==id ){
 				return;
 			}
 			try { _msgWebSocket.close();} catch( e ){}
@@ -281,7 +291,7 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
 		}
 		var url = getSetting("websocketURL")+"?jwt_token="+getSetting("authToken");
 		//utils.onMessage(null,userId+"-打开WS: "+url);
-		_msgWebSocket = utils.newJWebSocket(userId,url);
+		_msgWebSocket = utils.newJWebSocket(id,url);
 		//_msgWebSocket.userId = userId;
 		//_msgUserId = userId;
 		//utils.onMessage(null,userId+"-开始消息-"+_msgSocketInv);
