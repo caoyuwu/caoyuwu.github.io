@@ -161,7 +161,7 @@ function onWebSocketEvent(id,type,msg,code){
 	//utils.onMessage("测试",_msgUserId+"-"+type+":"+msg);
 	switch( type ){
 		case "onopen":
-			utils.onMessage(null,id+"-消息打开");
+			onWebSocketOpen(id);
 			break;
 		case "onclose":
 			utils.onMessage(null,id+"-消息关闭");
@@ -177,6 +177,37 @@ function onWebSocketEvent(id,type,msg,code){
 			onWebSocketMessage(id,msg);
 			break;
 	}
+}
+function onWebSocketOpen(id){
+	utils.onMessage(null,id+"-消息打开");
+	var m = {
+			"_method_":"BindUid",
+			"device_id": getSetting("device_id"),
+			"issued":"pusher",//"lite",
+			"jwt_token":getSetting("authToken"),
+			"lob":1,
+			"plat":"android",
+			"rid":1,
+			"user_id":getSetting("user_id"),
+			"ver":AppVersion//"1.9.8.2"
+	};			
+	_msgWebSocket.send(JSON.stringify(m));
+	var t0 = utils.currentTime();
+	m = {
+			"_method_":"login",
+			"avatartime", ""+(Math.floor(t0/1000)),
+	    	"device_id", getSetting("device_id"),//settings.device_id,
+			"jwt_token",getSetting("authToken"),//settings.authToken,
+	    	"levelid", "0",
+	    	"prompt_time",""+t0,
+	    	"rollmsg_time",""+t0,
+	    	"room_id",id,// 
+			"user_id",getSetting("user_id"),
+			"user_name",getSetting("user_name")	
+	};
+	utils.onMessage(null,JSON.stringify(m));	
+	_msgWebSocket.send(JSON.stringify(m));
+	
 }
 function onWebSocketMessage(id,s){
 	 m = JSON.parse(s);
