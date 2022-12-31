@@ -161,10 +161,10 @@ function onWebSocketEvent(id,type,msg,code){
 	//utils.onMessage("测试",_msgUserId+"-"+type+":"+msg);
 	switch( type ){
 		case "onopen":
-			utils.onMessage(null,"消息打开");
+			utils.onMessage(null,id+"-消息打开");
 			break;
 		case "onclose":
-			utils.onMessage(null,"消息关闭");
+			utils.onMessage(null,id+"-消息关闭");
 			break;
 		case "onerror":	
 			utils.onMessage("错误",code+":"+msg);
