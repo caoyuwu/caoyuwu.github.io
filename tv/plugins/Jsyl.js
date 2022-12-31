@@ -174,7 +174,7 @@ function onWebSocketEvent(type,msg,code){
 			break;
 	}
 }
-var _msgSocketInv = 0;
+//var _msgSocketInv = 0;
 
 var _msgWebSocket ; 
 
