@@ -195,20 +195,21 @@ function onWebSocketOpen(id){
 	var t0 = utils.currentTime();
 	m = {
 			"_method_":"login",
-			"avatartime", ""+(Math.floor(t0/1000)),
-	    	"device_id", getSetting("device_id"),//settings.device_id,
-			"jwt_token",getSetting("authToken"),//settings.authToken,
-	    	"levelid", "0",
-	    	"prompt_time",""+t0,
-	    	"rollmsg_time",""+t0,
-	    	"room_id",id,// 
-			"user_id",getSetting("user_id"),
-			"user_name",getSetting("user_name")	
+			"avatartime": ""+(Math.floor(t0/1000)),
+	    	"device_id": getSetting("device_id"),//settings.device_id,
+			"jwt_token":getSetting("authToken"),//settings.authToken,
+	    	"levelid": "0",
+	    	"prompt_time":""+t0,
+	    	"rollmsg_time":""+t0,
+	    	"room_id":id,// 
+			"user_id":getSetting("user_id"),
+			"user_name":getSetting("user_name")	
 	};
 	utils.onMessage(null,JSON.stringify(m));	
 	_msgWebSocket.send(JSON.stringify(m));
 	
 }
+
 function onWebSocketMessage(id,s){
 	 m = JSON.parse(s);
 	 utils.onMessage("m.type",""+m.type);
