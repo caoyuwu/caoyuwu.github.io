@@ -186,8 +186,9 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
 	{
 		//clearInterval(_msgSocketInv);
 		_msgSocketInv = 0;
-		utils.onMessage(null,userId+"-消息关闭");
+		//utils.onMessage(null,userId+"-消息关闭");
 		utils.onMessage("_cmd","closed");
+		utils.onMessage("_cmd","clear");
 	}
 }
 
