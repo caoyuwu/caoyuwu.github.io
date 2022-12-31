@@ -60,7 +60,8 @@ function prepareMediaSource(url,params){
 	    "jwt-token":authToken,
 	    "Authorization": "Bearer "+authToken,
 	    "X-Live-Butter2":getSetting("liveButter2"),//utils.getConfigPreference("JSYL.liveButter2",JSYL_liveButter2),
-	    "times":new Date().getTime(),
+	    "device-no":getSetting("device_id"),
+	    "times":utils.currentTime(),//new Date().getTime(),
 	    "platform":Platform,
 	    "app-version":AppVersion,
 	    "vest-code":VestCode
@@ -71,7 +72,7 @@ function prepareMediaSource(url,params){
 	//print(text);
 	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
 	text = utils.aesDecode(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
-	//print(text);
+print(text);
 	var data = JSON.parse(text);
 	if( data.code ){
 	   throw data.code+":"+data.msg;
@@ -215,14 +216,14 @@ function onWebSocketOpen(id){
 			"user_id":getSetting("user_id"),
 			"user_name":getSetting("user_name")	
 	};
-	utils.onMessage(null,JSON.stringify(m));	
+	//utils.onMessage(null,JSON.stringify(m));	
 	_msgWebSocket.send(JSON.stringify(m));
 	
 }
 
 function onWebSocketMessage(id,s){
 	 m = JSON.parse(s);
-	 utils.onMessage("m.type",""+m.type);
+	 //utils.onMessage("m.type",""+m.type);
 	 if( m.type )switch( m.type ){
 	 	case "ping":
 	 		if( _msgWebSocket ){
