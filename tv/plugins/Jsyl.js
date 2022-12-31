@@ -157,10 +157,27 @@ function loadMenus(path,params){
 
 //var  _msgSocketStarted = -1;
 var _msgUserId;
-var _msgSocketInv = 0;
-function _onInterval(){
-	utils.onMessage("测试",_msgUserId+" - "+new Date());
+function onWebSocketEvent(type,msg,code){
+	//utils.onMessage("测试",_msgUserId+"-"+type+":"+msg);
+	switch( type ){
+		case "onopen":
+			utils.onMessage(null,_msgUserId+"-"+"消息打开");
+			break;
+		case "onclose":
+			utils.onMessage(null,_msgUserId+"-"+"消息关闭");
+			break;
+		case "onerror":	
+			utils.onMessage("错误",code+":"+msg);
+			break;
+		case "onmessage":
+			utils.onMessage("消息",_msgUserId+"-"+msg);
+			break;
+	}
 }
+var _msgSocketInv = 0;
+
+var _msgWebSocket ; 
+
 function startMessage(userId,s){
 /*
 utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
@@ -172,23 +189,35 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
   );
   */
 	if( s==0 ){
-		s = _msgSocketInv<20 ? 1 : -1;
+		s = _msgWebSocket ? -1 : 1;//_msgSocketInv<20 ? 1 : -1;
 	} 
 	if( s>0 ){
 		//if( _msgSocketInv!=null )
 		//	return;
-		_msgSocketInv++;
-		_msgUserId = userId;
-		utils.onMessage(null,userId+"-开始消息-"+_msgSocketInv);
+		if( _msgWebSocket ){
+			if( _msgWebSocket.userId==userId ){
+				return;
+			}
+			try { _msgWebSocket.close();} catch( e ){}
+			_msgWebSocket = null;
+		}
+		var url = getSetting("websocketURL")+"?jwt_token="+getSetting("authToken");
+		utils.onMessage(null,userId+"-打开WS: "+url);
+		_msgWebSocket = utils.newJWebSocket(url);
+		_msgWebSocket.userId = userId;
+		//_msgUserId = userId;
+		//utils.onMessage(null,userId+"-开始消息-"+_msgSocketInv);
 		//_msgSocketInv = 1;//setInterval(_onInterval,3000);
 		//utils.onMessage(null,userId+"- _msgSocketInv="+_msgSocketInv);
-	} else if( _msgSocketInv>0 )
+	} else if( _msgWebSocket )
 	{
+		try { _msgWebSocket.close();} catch( e ){}
+		_msgWebSocket = null;
 		//clearInterval(_msgSocketInv);
-		_msgSocketInv = 0;
+		//_msgSocketInv = 0;
 		//utils.onMessage(null,userId+"-消息关闭");
-		utils.onMessage("_cmd","closed");
-		utils.onMessage("_cmd","clear");
+		//utils.onMessage("_cmd","closed");
+		//utils.onMessage("_cmd","clear");
 	}
 }
 
