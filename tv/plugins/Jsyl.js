@@ -72,7 +72,8 @@ function prepareMediaSource(url,params){
 	//print(text);
 	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
 	text = utils.aesDecode(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
-print(text);
+	//print(text);
+//utils.onMessage(null,text);
 	var data = JSON.parse(text);
 	if( data.code ){
 	   throw data.code+":"+data.msg;
