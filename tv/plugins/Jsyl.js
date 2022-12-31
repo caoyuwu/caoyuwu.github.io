@@ -171,7 +171,7 @@ function onWebSocketEvent(id,type,msg,code){
 			break;
 		case "onmessage":
 			//utils.onMessage("消息",_msgUserId+"-"+msg);
-			onWebSocketMessage(id,s);
+			onWebSocketMessage(id,msg);
 			break;
 	}
 }
