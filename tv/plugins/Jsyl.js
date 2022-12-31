@@ -212,7 +212,7 @@ function onWebSocketMessage(id,s){
 		case "error":
 		case "error.token":
 		case "error.kicked":
-			utils.onMessage("错误",m.title,m.content);
+			utils.onMessage(m.title,m.content);
 			break;
 	 }
 }
@@ -244,7 +244,7 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
 			_msgWebSocket = null;
 		}
 		var url = getSetting("websocketURL")+"?jwt_token="+getSetting("authToken");
-		utils.onMessage(null,userId+"-打开WS: "+url);
+		//utils.onMessage(null,userId+"-打开WS: "+url);
 		_msgWebSocket = utils.newJWebSocket(userId,url);
 		//_msgWebSocket.userId = userId;
 		//_msgUserId = userId;
