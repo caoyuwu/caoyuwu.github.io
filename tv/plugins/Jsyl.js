@@ -156,23 +156,65 @@ function loadMenus(path,params){
 }
 
 //var  _msgSocketStarted = -1;
-var _msgUserId;
-function onWebSocketEvent(type,msg,code){
+
+function onWebSocketEvent(id,type,msg,code){
 	//utils.onMessage("测试",_msgUserId+"-"+type+":"+msg);
 	switch( type ){
 		case "onopen":
-			utils.onMessage(null,_msgUserId+"-"+"消息打开");
+			utils.onMessage(null,"消息打开");
 			break;
 		case "onclose":
-			utils.onMessage(null,_msgUserId+"-"+"消息关闭");
+			utils.onMessage(null,"消息关闭");
 			break;
 		case "onerror":	
 			utils.onMessage("错误",code+":"+msg);
 			break;
 		case "onmessage":
-			utils.onMessage("消息",_msgUserId+"-"+msg);
+			//utils.onMessage("消息",_msgUserId+"-"+msg);
+			onWebSocketMessage(id,s);
 			break;
 	}
+}
+function onWebSocketMessage(id,s){
+	 m = JSON.parse(s);
+	 if( m.type )switch( m.type ){
+	 	case "ping":
+	 		if( _msgWebSocket ){
+	 			_msgWebSocket.send(JSON.stringify({"device":"android","_method_":"pong"}));
+	 		}
+	 		break; 
+	 	case "login_ok":
+	 		utils.onMessage("登录",id+"-登录成功");
+	 		break;
+	 	case "onLineClient":
+	 		break;
+	 	case "legend_hall_win":
+	 		break;
+	 	case "sendGiftNews":
+	 		utils.onMessage(m.title,m.fromUserDesc+m.fromUserName+"=>"+m.toUserName+" : "+m.giftName);
+	 		break;
+	 	case "sendGift":
+	 		utils.onMessage(m.from_client_name+"的礼物",m.giftName);
+	 		break;
+	 	case "SendPubMsg":
+	 		utils.onMessage(m.from_client_name,m.content);
+	 		break;
+	 	case "toy":
+	 	case "peerage_join":
+	 	case "peerage_login":
+	 	case "nameCardNews":
+	 	case "chargeTimeRoom":
+	 		break;
+	 	case "changeRoomNotice":
+		case "sysmsg.alert":
+		case "sysmsg":
+			//break;
+		case "error":
+		case "error.token":
+		case "error.kicked":
+			utils.onMessage("错误",m.title,m.content);
+			break;
+	 }
 }
 //var _msgSocketInv = 0;
 
@@ -195,7 +237,7 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
 		//if( _msgSocketInv!=null )
 		//	return;
 		if( _msgWebSocket ){
-			if( _msgWebSocket.userId==userId ){
+			if( _msgWebSocket.getId()==userId ){
 				return;
 			}
 			try { _msgWebSocket.close();} catch( e ){}
@@ -203,8 +245,8 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
 		}
 		var url = getSetting("websocketURL")+"?jwt_token="+getSetting("authToken");
 		utils.onMessage(null,userId+"-打开WS: "+url);
-		_msgWebSocket = utils.newJWebSocket(url);
-		_msgWebSocket.userId = userId;
+		_msgWebSocket = utils.newJWebSocket(userId,url);
+		//_msgWebSocket.userId = userId;
 		//_msgUserId = userId;
 		//utils.onMessage(null,userId+"-开始消息-"+_msgSocketInv);
 		//_msgSocketInv = 1;//setInterval(_onInterval,3000);
