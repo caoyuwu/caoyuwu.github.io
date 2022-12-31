@@ -177,6 +177,7 @@ function onWebSocketEvent(id,type,msg,code){
 }
 function onWebSocketMessage(id,s){
 	 m = JSON.parse(s);
+	 utils.onMessage("m.type",""+m.type);
 	 if( m.type )switch( m.type ){
 	 	case "ping":
 	 		if( _msgWebSocket ){
