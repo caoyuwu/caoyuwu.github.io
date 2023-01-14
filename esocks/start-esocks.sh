@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/sh
 
 #nohup /usr/sbin/sshd -D -e -f /etc/ssh/sshd_config  > /dev/null  &
 
