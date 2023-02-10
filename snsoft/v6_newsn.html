@@ -1,3 +1,7 @@
+<!DOCTYPE html>
+<!-- 
+http://caoyuwu.eu.org/snsoft/v6_newsn.html
+ -->
 <html>
 <head>
  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -50,6 +54,7 @@
 		if( year!=0 && month!=0 )
 		{
 		    if(year<2002) year=2002;
+		    if( year>2023 ) year-= 20; // 2023-02-10 : 
            if( year>2050 ) throw new Error();
 		    ym = (year-2002)*12+(month-1);
 		}
