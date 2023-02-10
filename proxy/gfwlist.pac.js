@@ -61,6 +61,8 @@ var hostGrps = function(){
 		"tiktok.com",
 		"tiktokcdn.com",
 		"tiktokv.com",
+		
+		"openai.com",
 
 		"wikipedia.org",
 		"utvlive.top",	
