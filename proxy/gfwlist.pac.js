@@ -1,9 +1,9 @@
 /*
  * docs/开发环境/GfwHost.txt
- * http://www.caoyuwu.top/proxy/gfwlist.pac.js
+ * http://caoyuwu.eu.org/proxy/gfwlist.pac.js
  * http://localhost/doc/pac/gfwpac.pac.js
  * chrome://net-internals/#proxy : 重置代理
- * http://www.caoyuwu.top/proxy/TestPac.html
+ * http://caoyuwu.eu.org/proxy/TestPac.html
  * 参考 
  * genpac 2.1.0 https://github.com/JinnLynn/genpac
 
@@ -13,8 +13,8 @@
    http://findproxyforurl.com/pac-functions/
  */
 
-var proxy = 'SOCKS5 proxy.caoyuwu.top:1080; DIRECT';
-//var proxy = 'PROXY proxy.caoyuwu.top:1087; DIRECT';
+var proxy = 'SOCKS5 proxy.caoyuwu.eu.org:1080; DIRECT';
+//var proxy = 'PROXY proxy.caoyuwu.eu.org:1087; DIRECT';
 
 var hostGrps = function(){
   var proxyHosts = [
