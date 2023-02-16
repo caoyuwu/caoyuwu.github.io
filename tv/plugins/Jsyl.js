@@ -43,6 +43,7 @@ function getSetting(name){
 	return getSettings()[name];
 }
 
+var bkMediaSource = {};
 function prepareMediaSource(url,params){
   var userId = utils.getUrlHostAndPath(url);
   var p = userId.indexOf("/");
@@ -72,7 +73,7 @@ function prepareMediaSource(url,params){
 	//print(text);
 	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
 	text = utils.aesDecode(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
-	//print(text);
+//print(text);
 //utils.onMessage(null,text);
 	var data = JSON.parse(text);
 	if( data.code ){
@@ -80,9 +81,9 @@ function prepareMediaSource(url,params){
 	}
 	data = data.data;
 	if( !data.stream )
-		return null;
-	
-	return data.stream.pull_url ;
+		return bkMediaSource[userId];
+	//data.stream.pull_url;
+	return bkMediaSource[userId] = data.stream.pull_url ;
 }
 
 var AppVersion = "3.9.7";//"2.0.29";
