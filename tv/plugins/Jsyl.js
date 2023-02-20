@@ -25,6 +25,10 @@ function getSettings() {
 	//print("text="+text);	
 		var data = eval(text);
 		JSYL_Settings = data[0];
+		/*
+		 * 小红帽中： https://camcord.shdkw1o.com/OpenAPI/v1/config/getappconfig
+		 *   获取
+		 */
 	//print("JSYL_Settings="+JSON.stringify(JSYL_Settings));
 		if( !JSYL_Settings.server1URL ){
 			JSYL_Settings.server1URL = "https://api.jsdn0.xyz/";
