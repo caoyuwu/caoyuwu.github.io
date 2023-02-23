@@ -47,6 +47,9 @@ function getSetting(name){
 	return getSettings()[name];
 }
 
+/*
+  jsyllive://1536065711/68007597
+*/
 var bkMediaSource = {};
 function prepareMediaSource(url,params){
   var userId = utils.getUrlHostAndPath(url);
