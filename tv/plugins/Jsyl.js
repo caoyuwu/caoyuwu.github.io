@@ -39,7 +39,7 @@ function getSettings() {
 		}
 		if( !JSYL_Settings.websocketURL ){
 			//JSYL_Settings.websocketURL = "wss://cywqfzo8.shdkw1o.com/ws";
-			JSYL_Settings.websocketURL = "wss://api.haoyijiatc.com/ws";
+			JSYL_Settings.websocketURL = "https://q6icqldt.mascotones.com/ws";
 		}
 	}
 	return JSYL_Settings;
