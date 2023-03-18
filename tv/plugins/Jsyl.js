@@ -1,5 +1,5 @@
 /*
-  http://www.caoyuwu.top/tv/plugins/Jsyl.js
+  http://caoyuwu.eu.org/tv/plugins/Jsyl.js
   参考：
    JsylLiveService
 */
