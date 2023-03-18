@@ -39,7 +39,7 @@ function getSettings() {
 		}
 		if( !JSYL_Settings.websocketURL ){
 			//JSYL_Settings.websocketURL = "wss://cywqfzo8.shdkw1o.com/ws";
-			JSYL_Settings.websocketURL = "wss://q6icqldt.mascotones.com/ws";
+			JSYL_Settings.websocketURL = "wss://q6icqldt.mascotones.com/ws"; //小红帽中抓取的
 		}
 	}
 	return JSYL_Settings;

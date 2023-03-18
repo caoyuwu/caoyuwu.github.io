@@ -385,7 +385,7 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
         }
         if(!s.websocketURL)
         {
-            s.websocketURL = "wss://api.haoyijiatc.com/ws";
+            s.websocketURL = "wss://q6icqldt.mascotones.com/ws";
         }
         return s;
     }
