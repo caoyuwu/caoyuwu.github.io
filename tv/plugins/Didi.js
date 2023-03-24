@@ -17,7 +17,7 @@ var DIDI_Settings = null;
 function getSettings() {
 	if( !DIDI_Settings ){
 		/*
-		 * http://caoyuwu.eu.top/vlive/didi/Settings.json
+		 * http://caoyuwu.eu.org/vlive/didi/Settings.json
 		 */
 		var url = utils.toAbsoluteURL(_scriptURL,"../../vlive/didi/Settings.json");
 		
