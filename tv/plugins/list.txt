@@ -36,6 +36,7 @@ douyulive|douyulive-list,Douyu.js
 douyinlive|douyinlive-list,Douyin.js
 
 jsyllive|jsyllive-list,Jsyl.js
+didilive|didilive-list,Didi.js
 
 4gtv|4gtv-list,4GTV.js
 

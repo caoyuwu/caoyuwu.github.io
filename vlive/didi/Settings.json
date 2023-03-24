@@ -1,21 +1,21 @@
 [
 {
-  settingTitle:"配置1",
+  settingTitle:"13801377489",
   device_id:"a7ce9654ccfac3eb",
   user_id:"39144369",
   user_name:"游客36391405",
-  serverHost:null,
     
   // token :flowToken
-  token:"cc5c96032dcef05344eda7dce8748c90",
+ // token:"cc5c96032dcef05344eda7dce8748c90",
   // authToken : jwtToken
-  authToken:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIzOTE0NDM2OSIsInVzZXJuYW1lIjoiKzEzNjM5MTQwNSIsInJvbGUiOjAsImxvYiI6MSwiaWF0IjoxNjUzMzE1MDA1LCJleHAiOjE2NTU5MDcwMDV9.KNNRko_rTrpbc09bvWgnyXrk6b2I7GjbsI4hQ4DNvLzJ_9lbtSGzzetnuQNC4aEJWowYG8Dtlr_WefZHmotOlw",
+  authToken:"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI0NjY3MDMzMCIsInVzZXJuYW1lIjoiMTM4MDEzNzc0ODkiLCJyb2xlIjowLCJsb2IiOjEsImlhdCI6MTY3OTMyNzI1NiwiZXhwIjoxNjgxOTE5MjU2fQ.VwAMDnUE4bEu7fyjIVsEXl4UjHsixh_8Upuf5acFc5_uRjeE7rFmd2c8w37J1oQ4wuFQPrmLlItKpn9nHK4sag",
   
-  accessToken:"fa2bd753-77e5-4807-a651-91800395b4a7",
-  liveButter2:"YxE4NA+07NjzfqbSEcFMk+QGYlRdlFydY0q8Cbq6W4fKDuqCjw2bj3wSpASCBMN6lR6mSQBc66LfkTzEWe2KyHuQephq1P4difqyiuUrYXtxvlSxBvbeKy6I9GfOQgtAmOZm4Uw1uRRBVODVQfTDlsA8jLo61xhVEvQBSMBF9Ol5VMwaG26VKONqmXUn+y6z4mwQxFBb20nxHBmmxvBWdniIsX/FPwQI/mafnfp8AdI=",
+  liveButter2:"4L0HHMyx728WLb9kOmYL2uzpIuwgqj6EeRwlJDDIcxNxQhO00KTdm9Kq1w/x/0JArMLY3dptRBvwYHs1QGItVC5TYterbEneffODKLkMCtfk/vmwVi7KwK/IsI2BaTtfV+NnuM86vQXCBnRedl0lYUKBQvKDf6FL4uMgjrShyN5AECr4t56GO40jYFA2rDhzihLIJm6GSrrE0G0cuy5hIg==",
+  
+//  accessToken:"fa2bd753-77e5-4807-a651-91800395b4a7",
+//  serverHost:null,
   //options:0,
- // ajaxInvokeProxy:"http://proxy.caoyuwu.top:1080",
-  ajaxInvokeProxy:null
+  ajaxInvokeProxy:"http://proxy.caoyuwu.eu.org:1080"
 },
 
 {

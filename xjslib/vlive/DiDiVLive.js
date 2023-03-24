@@ -27,7 +27,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             return null;
         if(!s.serverHost)
         {
-            s.serverHost = "api.oidhfjg.com";
+            s.serverHost = "q6icqldt.mascotones.com";
         }
         if(!s.serverURL)
         {
@@ -417,6 +417,6 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     }
 });
 Xjs.apply(snsoftx.vlive.didi.DiDiLiveService,{
-    AppVersion:"1.9.9",
+    AppVersion:"1.12.2",
     LocalSettingItems:[{name:"settingTitle"},{name:"device_id"},{name:"user_id"},{name:"user_name"},{name:"serverHost",defaultValue:"api.oidhfjg.com"},{name:"authToken",height:50},{name:"liveButter2",height:50},{name:"options",width:50},{name:"ajaxInvokeProxy"}]
 });

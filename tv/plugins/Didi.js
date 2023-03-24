@@ -1,7 +1,7 @@
 /*
-  http://caoyuwu.eu.org/tv/plugins/Jsyl.js
+  http://caoyuwu.eu.org/tv/plugins/Didi.js
   参考：
-   JsylLiveService
+   DidiLiveService
 */
 
 /*
@@ -13,37 +13,36 @@
 		 server2URL,  // server2URL = "https://notify.hhnt.xyz/";
 	 	   websocketURL; // "wss://cywqfzo8.shdkw1o.com/ws";	 
  */
-var JSYL_Settings = null;
+var DIDI_Settings = null;
 function getSettings() {
-	if( !JSYL_Settings ){
+	if( !DIDI_Settings ){
 		/*
-		 * http://www.caoyuwu.top/vlive/jsyl/Settings.json
+		 * http://caoyuwu.eu.top/vlive/didi/Settings.json
 		 */
-		var url = utils.toAbsoluteURL(_scriptURL,"../../vlive/jsyl/Settings.json");
+		var url = utils.toAbsoluteURL(_scriptURL,"../../vlive/didi/Settings.json");
 		
 		var text = utils.httpGetAsString(url,{});
 	//print("text="+text);	
 		var data = eval(text);
-		JSYL_Settings = data[0];
+		var s = DIDI_Settings = data[0];
 		/*
 		 * 小红帽中： https://notify.hhnt.xyz/OpenAPI/v1/config/getappconfig
 		 *   获取
 		 */
-	//print("JSYL_Settings="+JSON.stringify(JSYL_Settings));
-		if( !JSYL_Settings.server1URL ){
+	//print("DIDI_Settings="+JSON.stringify(DIDI_Settings));
+		if( !s.serverHost ) {
+			s.serverHost = "q6icqldt.mascotones.com";
+		}
+		if( !s.serverURL ){
 		    // GET live/studio/list
-			JSYL_Settings.server1URL = "https://api.jsdn0.xyz/";
+			s.serverURL = "https://"+s.serverHost+"/OpenAPI/v1/";
 		}
-		if( !JSYL_Settings.server2URL ){
-		    // OpenAPI/v1/Private/getPrivateLimit
-			JSYL_Settings.server2URL = "https://notify.hhnt.xyz/";
-		}
-		if( !JSYL_Settings.websocketURL ){
-			//JSYL_Settings.websocketURL = "wss://cywqfzo8.shdkw1o.com/ws";
-			JSYL_Settings.websocketURL = "wss://q6icqldt.mascotones.com/ws"; //小红帽中抓取的
+		if( !s.websocketURL ){
+			//DIDI_Settings.websocketURL = "wss://cywqfzo8.shdkw1o.com/ws";
+			s.websocketURL = "wss://"+s.serverHost+"/ws"; //小红帽中抓取的
 		}
 	}
-	return JSYL_Settings;
+	return DIDI_Settings;
 }
 
 function getSetting(name){
@@ -51,7 +50,33 @@ function getSetting(name){
 }
 
 /*
-  jsyllive://1536065711/68007597
+   * opts#1 : 不需要  Authorization
+	 * opts#2 : 需要  LiveButter2
+	 * opts#4 : 内容需要解密
+*/
+function httpGet(path,params,opts){
+	var url = utils.appendUrlParameters(getSetting("serverURL")+path,params);
+    //"Private/getPrivateLimit",params);
+    var authToken = getSetting("authToken");
+    var liveButter2 = getSetting("liveButter2");
+    var header = {};//"Authorization", this.authToken);
+		if( authToken && !(opts&1) )
+			header.Authorization = "Bearer "+authToken;
+		if( opts&2 ) {
+			header["X-Live-Butter2"] = liveButter2;
+		}
+	var text = utils.httpGetAsString(url,header);
+//print(text);
+	if( opts&4 ){
+	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
+	text = utils.aesDecode(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
+	}
+print(text);
+//utils.onMessage(null,text);
+	return JSON.parse(text);
+}
+/*
+  didilive://1536065711/68007597
 */
 var bkMediaSource = {};
 function prepareMediaSource(url,params){
@@ -62,86 +87,54 @@ function prepareMediaSource(url,params){
 	  userId = userId.substring(p+1);
   }
   var params = {
-     "token":getSetting("token"),//utils.getConfigPreference("JSYL.token",JSYL_token),
+     //"token":getSetting("token"),//utils.getConfigPreference("DID.token",JSYL_token),
      "uid":userId
   };
-  var authToken = getSetting("authToken");//utils.getConfigPreference("JSYL.authToken",JSYL_authToken);
-  var headers = {
-	    "access-token":getSetting("accessToken"),//utils.getConfigPreference("JSYL.accessToken",JSYL_accessToken),
-	    "jwt-token":authToken,
-	    "Authorization": "Bearer "+authToken,
-	    "X-Live-Butter2":getSetting("liveButter2"),//utils.getConfigPreference("JSYL.liveButter2",JSYL_liveButter2),
-	    "device-no":getSetting("device_id"),
-	    "times":utils.currentTime(),//new Date().getTime(),
-	    "platform":Platform,
-	    "app-version":AppVersion,
-	    "vest-code":VestCode
-	};	
-  // "https://notify.uidfhdf.com/
-	var url = utils.appendUrlParameters(getSetting("server2URL")+"OpenAPI/v1/Private/getPrivateLimit",params);
-	var text = utils.httpGetAsString(url,headers);
-	//print(text);
-	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
-	text = utils.aesDecode(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
-//print(text);
-//utils.onMessage(null,text);
-	var data = JSON.parse(text);
+  
+	var data = httpGet("private/getPrivateLimit",params,2|4);
 	if( data.code ){
 	   throw data.code+":"+data.msg;
 	}
 	data = data.data;
 	if( !data.stream )
-		return bkMediaSource[userId];
+		return null;//bkMediaSource[userId];
 	//data.stream.pull_url;
-	return bkMediaSource[userId] = data.stream.pull_url ;
+	return  data.stream.pull_url ; //bkMediaSource[userId] =
 }
 
-var AppVersion = "3.9.7";//"2.0.29";
-var Platform = "100";
-var VestCode = "200";
+var AppVersion = "1.12.2";//"2.0.29";
+//var Platform = "100";
+//var VestCode = "200";
 
 /*  
    path  : 100 100/1
-        "200:热门",
-		"100:颜值",
-		"300:收费",
-		"500:附近",
-		"400:海外",
+       "hot:热门",//
+		"latest:最新", //
+		"nearby:附近", //
+		"vegan", //
+		"vip:收费",//
+		"lounge"
 */
 function loadMenus(path,params){
   var p = path.indexOf("/");
   var type = p<0 ? path : path.substring(0,p);
   var page = p<0 ? 1 : parseInt(path.substring(p+1));
  // var authToken = utils.getConfigPreference("JSYL.authToken",JSYL_authToken);
-  var authToken = getSetting("authToken");//
-  var params = {
-				"type": type,
-				"flowToken": getSetting("token"),//utils.getConfigPreference("JSYL.token",JSYL_token),
-				"latitude":"","latitude":"",
-				"page": page,
-				"size": 50
-				//"order","time"
+	var params = {
+				page:page,
+				size:50,
+				order:"time",
+				isPk:0
 				//,"t",new js.Date().getTime()
-		};
-	var headers = {
-	    "access-token":getSetting("accessToken"),//utils.getConfigPreference("JSYL.accessToken",JSYL_accessToken),
-	    "jwt-token":authToken,
-	    "times":new Date().getTime(),
-	    "platform":Platform,
-	    "app-version":AppVersion,
-	    "vest-code":VestCode
-	};	
-	var url = utils.appendUrlParameters(getSetting("server1URL")+"live/studio/list",params);
-	var text = utils.httpGetAsString(url,headers,0x400); // 0x80 : 代理  
-	print(text);
-	var data = JSON.parse(text);
+				};
+	var data = httpGet("anchor/"+type,params,2);
 	if( data.code ){
 	   throw data.code+":"+data.msg;
 	}
-	data = JSON.parse(data.data);
+	/*data = data.data;
 	if( data.code ){
 	   throw data.code+":"+data.msg;
-	}
+	} */
 	var list = data.data.list;
 	var vCh = [];
 	for(var i=0;i<list.length;i++){
@@ -164,8 +157,8 @@ function loadMenus(path,params){
 		if( online>0 ) {
 			title += "-("+	online+")";
 		}
-	//print(title+","+userId);	
-		vCh.push({title:title,url:"jsyllive://"+roomId+"/"+userId,msgSocketArgs:[roomId+"/"+userId]});
+print(title+","+userId);	
+		vCh.push({title:title,url:"didilive://"+roomId+"/"+userId,msgSocketArgs:[roomId+"/"+userId]});
 	}
 	return vCh;
 //	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
