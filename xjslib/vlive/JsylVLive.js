@@ -31,8 +31,25 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
         var settings = this.getCurrentSettings(),
             opts = rooms.refreshParams || {},
             type = opts.type || "100",
-            params = {type:type,flowToken:settings.token,latitude:"",latitude:"",page:this.curPage = opts.page || 1,size:50};
-        this.httpGet(settings.server1URL + "live/studio/list",params,new Xjs.FuncCall(this.onAjaxRoomsLoaded,this,[rooms],2),new Xjs.FuncCall(this.msgListener.onRoomsLoadFail,this.msgListener,[rooms],2),1);
+            params = {type:type,flowToken:settings.token,latitude:"",latitude:"",page:this.curPage = opts.page || 1,size:50},
+            header = {};
+        if(settings.accessToken)
+        {
+            header["access-token"] = settings.accessToken;
+        }
+        if(settings.authToken)
+        {
+            header["jwt-token"] = settings.authToken;
+        }
+        if(settings.device_id)
+        {
+            header["device-no"] = settings.device_id;
+        }
+        header.times = "" + (new Date()).getTime();
+        header.platform = snsoftx.vlive.jsyl.JsylLiveService.Platform;
+        header["app-version"] = snsoftx.vlive.jsyl.JsylLiveService.AppVersion;
+        header["vest-code"] = snsoftx.vlive.jsyl.JsylLiveService.VestCode;
+        this.httpGet(settings.server1URL + "live/studio/list",params,new Xjs.FuncCall(this.onAjaxRoomsLoaded,this,[rooms],2),new Xjs.FuncCall(this.msgListener.onRoomsLoadFail,this.msgListener,[rooms],2),1,header);
     },
     /*snsoftx.vlive.jsyl.JsylLiveService.onAjaxRoomsLoaded*/
     onAjaxRoomsLoaded:function(rooms,o)
@@ -121,7 +138,7 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
     {
         var settings = this.getCurrentSettings(),
             params = {token:settings.token,uid:this.userId};
-        this.httpGet(settings.server2URL + "OpenAPI/v1/Private/getPrivateLimit",params,new Xjs.FuncCall(this.onAjaxPrepareVideo,this),new Xjs.FuncCall(this.onAjaxPrepareVideoFail,this),2 | 4);
+        this.httpGet(settings.server2URL + "OpenAPI/v1/Private/getPrivateLimit",params,new Xjs.FuncCall(this.onAjaxPrepareVideo,this),new Xjs.FuncCall(this.onAjaxPrepareVideoFail,this),2 | 4,null);
     },
     /*snsoftx.vlive.jsyl.JsylLiveService.onAjaxPrepareVideoFail*/
     onAjaxPrepareVideoFail:function(err)
@@ -207,7 +224,7 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
     {
         var settings = this.getCurrentSettings(),
             params = {flowToken:settings.token,flowUserId:this.userId};
-        this.httpGet(settings.server1URL + "live/user/profile",params,new Xjs.FuncCall(this.onAjaxGetUserProfile,this),null,0);
+        this.httpGet(settings.server1URL + "live/user/profile",params,new Xjs.FuncCall(this.onAjaxGetUserProfile,this),null,0,null);
     },
     /*snsoftx.vlive.jsyl.JsylLiveService.onAjaxGetUserProfile*/
     onAjaxGetUserProfile:function(o)
@@ -333,26 +350,14 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.jsyl.JsylLiveService.getLocalSettingsDef*/
     getLocalSettingsDef:Xjs.nullFn,
     /*snsoftx.vlive.jsyl.JsylLiveService.httpGet*/
-    httpGet:function(url,params,onSuccess,onError,opts)
+    httpGet:function(url,params,onSuccess,onError,opts,exHeaders)
     {
         var settings = this.getCurrentSettings(),
             header = {};
-        if(settings.accessToken)
+        if(exHeaders)
         {
-            header["access-token"] = settings.accessToken;
+            Xjs.apply(header,exHeaders);
         }
-        if(settings.authToken)
-        {
-            header["jwt-token"] = settings.authToken;
-        }
-        if(settings.device_id)
-        {
-            header["device-no"] = settings.device_id;
-        }
-        header.times = "" + (new Date()).getTime();
-        header.platform = snsoftx.vlive.jsyl.JsylLiveService.Platform;
-        header["app-version"] = snsoftx.vlive.jsyl.JsylLiveService.AppVersion;
-        header["vest-code"] = snsoftx.vlive.jsyl.JsylLiveService.VestCode;
         if(settings.authToken && !(opts & 1))
             header.Authorization = "Bearer " + settings.authToken;
         if(opts & 2)

@@ -67,10 +67,11 @@ function prepareMediaSource(url,params){
   };
   var authToken = getSetting("authToken");//utils.getConfigPreference("JSYL.authToken",JSYL_authToken);
   var headers = {
-	    "access-token":getSetting("accessToken"),//utils.getConfigPreference("JSYL.accessToken",JSYL_accessToken),
-	    "jwt-token":authToken,
 	    "Authorization": "Bearer "+authToken,
 	    "X-Live-Butter2":getSetting("liveButter2"),//utils.getConfigPreference("JSYL.liveButter2",JSYL_liveButter2),
+		
+	    "access-token":getSetting("accessToken"),//utils.getConfigPreference("JSYL.accessToken",JSYL_accessToken),
+	    "jwt-token":authToken,
 	    "device-no":getSetting("device_id"),
 	    "times":utils.currentTime(),//new Date().getTime(),
 	    "platform":Platform,
