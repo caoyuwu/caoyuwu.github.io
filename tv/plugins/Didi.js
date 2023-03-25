@@ -2,6 +2,9 @@
   http://caoyuwu.eu.org/tv/plugins/Didi.js
   参考：
    DidiLiveService
+  app下载:
+    https://xhm.live 
+    https://github.com/XHM6/1
 */
 
 /*
@@ -27,6 +30,7 @@ function getSettings() {
 		var s = DIDI_Settings = data[0];
 		/*
 		 * 小红帽中： https://notify.hhnt.xyz/OpenAPI/v1/config/getappconfig
+		      https://q6icqldt.mascotones.com/OpenAPI/v1/config/getappconfig
 		 *   获取
 		 */
 	//print("DIDI_Settings="+JSON.stringify(DIDI_Settings));
