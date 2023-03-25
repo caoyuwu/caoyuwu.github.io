@@ -69,7 +69,7 @@ function prepareMediaSource(url,params){
   var headers = {
 	    "Authorization": "Bearer "+authToken,
 	    "X-Live-Butter2":getSetting("liveButter2"),//utils.getConfigPreference("JSYL.liveButter2",JSYL_liveButter2),
-		
+		/*
 	    "access-token":getSetting("accessToken"),//utils.getConfigPreference("JSYL.accessToken",JSYL_accessToken),
 	    "jwt-token":authToken,
 	    "device-no":getSetting("device_id"),
@@ -77,6 +77,7 @@ function prepareMediaSource(url,params){
 	    "platform":Platform,
 	    "app-version":AppVersion,
 	    "vest-code":VestCode
+	    */
 	};	
   // "https://notify.uidfhdf.com/
 	var url = utils.appendUrlParameters(getSetting("server2URL")+"OpenAPI/v1/Private/getPrivateLimit",params);
