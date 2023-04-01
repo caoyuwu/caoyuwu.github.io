@@ -1,16 +1,13 @@
 #
-# @http://www.caoyuwu.top/tv/plugins/list.txt
+# @http://caoyuwu.eu.org/tv/plugins/list.txt
 # @http://192.168.1.8/caoyuwu.github.io/tv/plugins/list.txt
+# MediaResolverPlugins
 #
 youku,Youku.js
 
 youtube|youtube-list,Youtube.js
 
 blive|blive-list,Bilibili.js
-
-
-https://4gtvfreepc-mozai.4gtv.tv/stream0.m3u8?token=k2YwsbUdFbAcxk9e2WMWag&expires=1659804354&refer=Njk2NGMwYTktMzlhZS00ODE3LThiNmYtYjY3YjQ5YTkxODdl&token1=TlNYG3OnBOKDC4IFYK9fNA&expires1=1659804354&y=0&vt=
-#EXT-X-STREAM-INF:BANDWIDTH=1086000,AVERAGE-BANDWIDTH=987000,CODECS="mp4a.40.2,avc1.64001F",RESOLUTION=854x480
 
 huyalive|huyalive-list,Huya.js
 
@@ -39,5 +36,7 @@ jsyllive|jsyllive-list,Jsyl.js
 didilive|didilive-list,Didi.js
 
 4gtv|4gtv-list,4GTV.js
+
+nettvpro|nettvpro-list,NettvPro.js
 
 testvideo|test-menu-list,Test.js,x=1&y=2
