@@ -22,15 +22,27 @@ function prepareMediaSource(url,params){
      	        continue;
      	    var onClick = ea[i].getAttribute("onClick"); 
      	    //frame('/player/play.html?url=https://v3.mediacast.hk/webcast/bshdlive-pc/playlist.m3u8&amp;t=video','100%','650')"
-     	    if( !onClick || !onClick.startsWith("frame('/player/play.html?url=") ){
+     	    if( !onClick || !onClick.startsWith("frame('/player/play.html?") ){
      	       continue;
      	    }
-     	    var url = onClick.substring(29);
-     	    var p = url.indexOf("'");
+     	    var s = onClick.substring(25);
+     	    var p = s.indexOf("'");
      	    if( p<0 )
      	       continue;
-     	    return url.substring(0,p).replaceAll("&amp;","&");
-     	   // var title = ea[i].getAllNodeValue();
+     	      // print(s.substring(0,p).replaceAll("&amp;","&"));
+     	    var a = s.substring(0,p).replaceAll("&amp;","&").split("&");
+     	   //  print(a.join(" ; "));
+     	    var url = null;
+     	    for(var j=0;j<a.length;j++){
+     	        if( a[j].startsWith("url=") ) {
+     	           url = a[j].substring(4);
+     	           break;
+     	        }
+     	    }
+     	   if(url) 
+     	   	return decodeURIComponent(url);
+     	   
+     	   
     }
     return null;
 }
