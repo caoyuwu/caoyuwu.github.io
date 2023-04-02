@@ -1,5 +1,5 @@
 /*
-http://www.caoyuwu.top/tv/plugins/
+http://caoyuwu.eu.org/tv/plugins/
 testvideo://1
 ??[proxy=*]
 ??[proxy=default]
