@@ -87,7 +87,7 @@ function loadMenus(path,params){
      	        href = href.substring(0,href.length-1);  
      	  	else if( href.endsWith(".html") ) 
      	        href = href.substring(0,href.length-5);       
-     	    var url = deep>0 ? ("nettvpro-list:"+href+(deep>1 ? "/"+(deep-1) : ""))
+     	    var url = deep>0 ? ("@nettvpro-list:"+href+(deep>1 ? "/"+(deep-1) : ""))
      	                    : ("nettvpro:"+href);  
      	    var title = ea[i].getAllNodeValue();
      	   print(i+" : "+title+","+url); 
