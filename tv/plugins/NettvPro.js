@@ -61,8 +61,8 @@ function prepareMediaSource(url,params){
   cctv
   hongkong
 */
-function loadMenus(path,params){
-    // path == ""
+function loadMenus(url,params){
+	var path = utils.getUrlHostAndPath(url);
     var p = path.lastIndexOf("/");
     var deep = 0;
   //print("path = "+path+", p="+p+",path.length="+path.length);  
