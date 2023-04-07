@@ -11,6 +11,7 @@ function prepareMediaSource(url,params){
 	if( !path.endsWith(".html") ) {
 	   path += ".html";
 	}
+	var  urls = [];
 	var DocSelector1 = " > body > div.container-fluid  > div > div.main-container > section  >div > div.row";
 	
 	var html = utils.httpGetAsString("https://www.nettvpro.live/"+path);
@@ -40,12 +41,15 @@ function prepareMediaSource(url,params){
      	           break;
      	        }
      	    }
-     	   if(url) 
-     	   	return decodeURIComponent(url);
+     	   if(url) {
+     		  var title = ea[i].getAllNodeValue();
+     		 urls.push({title:title,url:decodeURIComponent(url)});
+     	   	//	return decodeURIComponent(url);
+     	   }
      	   
      	   
     }
-    return null;
+    return urls;
 }
 
 /*

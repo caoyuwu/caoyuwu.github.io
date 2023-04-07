@@ -110,7 +110,8 @@ var VestCode = "200";
 		"500:附近",
 		"400:海外",
 */
-function loadMenus(path,params){
+function loadMenus(url,params){
+  var path = utils.getUrlHostAndPath(url);
   var p = path.indexOf("/");
   var type = p<0 ? path : path.substring(0,p);
   var page = p<0 ? 1 : parseInt(path.substring(p+1));

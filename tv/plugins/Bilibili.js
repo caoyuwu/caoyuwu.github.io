@@ -50,7 +50,8 @@ blive-list:10/33/1-3
 */
 function loadMenus(url,params){
   //Number.parseInt("11a")
-  	var a = url.split("/");
+	var path = utils.getUrlHostAndPath(url);
+  	var a = path.split("/");
   	if( a.length!=3 )
   		throw "无效参数"+url;
     var parent_area_id = a[0], area_id = a[1];

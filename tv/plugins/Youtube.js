@@ -77,6 +77,7 @@ function extractUrlFromStreamFmts(streamFmts, videoHeight){
 }
 
 function loadMenus(url,params){
+	var path = utils.getUrlHostAndPath(url);
    initCookies();
    var text = utils.httpGetAsString("https://www.youtube.com",0x80|0x400);
    var p1 = text.indexOf("var ytInitialData = {");

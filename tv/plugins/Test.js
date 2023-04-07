@@ -22,6 +22,7 @@ function prepareMediaSource(url,params){
 
 
 function loadMenus(url,params){
+	var path = utils.getUrlHostAndPath(url);
   print("TestMenuList: url = "+url);
   print("TestMenuList: params = "+params);//JSON.stringify(params));
 	return [
