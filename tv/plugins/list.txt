@@ -18,7 +18,7 @@ migu|migu123tv,Migu.js
 mgtv,MGTV.js
 
 qingtingfm,QingtingFM.js
-
+ximalayaradio,Ximalaya.js
 
 music163|163music|163mv|mv163|163video|video163,Music163.js
 
