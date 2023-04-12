@@ -687,19 +687,24 @@
        ]},
       
     {id:"北京音乐广播",tag:"蜻蜓-北京台,蜻蜓-音乐台",urls:[  // fm97.4
+      "喜马拉雅|ximalayaradio://95",
       "蜻蜓|qingtingfm://332"
       ]}, 
    {id:"北京文艺广播",urls:[  // fm87.6
+      "喜马拉雅|ximalayaradio://94",
       "蜻蜓|qingtingfm://333",
 		"http://123.56.16.201:1935/live/fm876/96K/tzwj_video.m3u8"
       ]},   
-   {id:"怀旧音乐广播",tag:"蜻蜓-北京台,蜻蜓-音乐台",urls:[ //fm89.5
+   {id:"959年代音乐",tag:"蜻蜓-北京台,蜻蜓-音乐台",urls:[ //959年代音乐怀旧好声音
+      "喜马拉雅|ximalayaradio://964",
       "蜻蜓|qingtingfm://20211619"
        ]},    
   {id:"怀集音乐之声",tag:"蜻蜓-网络台,蜻蜓-音乐台",urls:[ //网络台
+  		"喜马拉雅|ximalayaradio://966",
       "蜻蜓|qingtingfm://4804"
        ]},   
   {id:"清晨音乐台",tag:"蜻蜓-网络台,蜻蜓-音乐台",urls:[ //网络台
+  		"喜马拉雅|ximalayaradio://1011",
       "蜻蜓|qingtingfm://4915"
        ]},
    {id:"青苹果音乐台",tag:"蜻蜓-网络台,蜻蜓-音乐台",urls:[ //网络台
