@@ -11,12 +11,11 @@
 #  https://free-ss.site/
 #
 
-vless://6c807b90-6f45-4f51-b098-e6ca684047e5@xray1.ibgfw.top:2053?encryption=none&security=tls&type=ws&host=&path=/wDSo9PBA/#xray1.ibgfw.top%3A2053
-vless://a547bd65-fa27-428e-ac9e-53d12b7995c5@xray1.ibgfw.top:2053?encryption=none&security=tls&type=ws&host=&path=/wDSo9PBA/#xray1.ibgfw.top%3A2053
-vless://a6949cde-fcdb-4e93-bc68-074144f41460@xray1.ibgfw.top:2053?encryption=none&security=tls&type=ws&host=&path=/wDSo9PBA/#xray1.ibgfw.top%3A2053
-vless://18e45ab2-e4db-45dd-99b2-1b977f8d4ae1@xray1.ibgfw.top:2053?encryption=none&security=tls&type=ws&host=&path=/wDSo9PBA/#xray1.ibgfw.top%3A2053
-vless://bb320227-5b4d-4e08-bb7d-527931a19c0a@xray1.ibgfw.top:2053?encryption=none&security=tls&type=ws&host=&path=/wDSo9PBA/#xray1.ibgfw.top%3A2053
-
+vless://7f735f97-2519-4d61-a7c2-d94d45a1a3cf@xray1.ibgfw.top:2053?encryption=none&security=tls&type=ws&host=&path=/wDSo9PBA/#xray1.ibgfw.top%3A2053
+vless://4e8a7d64-6d56-4cba-a5b2-3d28f0053f56@xray1.ibgfw.top:2053?encryption=none&security=tls&type=ws&host=&path=/wDSo9PBA/#xray1.ibgfw.top%3A2053
+vless://cc206cb7-8d41-442b-ad93-f50f5463e2af@xray1.ibgfw.top:2053?encryption=none&security=tls&type=ws&host=&path=/wDSo9PBA/#xray1.ibgfw.top%3A2053
+vless://81184d62-ac84-4c19-8588-5780d595fa3f@xray1.ibgfw.top:2053?encryption=none&security=tls&type=ws&host=&path=/wDSo9PBA/#xray1.ibgfw.top%3A2053
+vless://b8ab8eeb-13b8-46c0-bdd8-9460f1afe683@xray1.ibgfw.top:2053?encryption=none&security=tls&type=ws&host=&path=/wDSo9PBA/#xray1.ibgfw.top%3A2053
 
 vless://502d3d3a-c70c-472d-8d09-36a25991ac57@xray.wefuckgfw.tk:2083?encryption=none&security=tls&type=ws&host=&path=/4TLoIulw/#xray.wefuckgfw.tk%3A2083
 vless://85b3a84e-a939-4be0-b35c-80e8c9b0f1c8@xray.wefuckgfw.tk:2083?encryption=none&security=tls&type=ws&host=&path=/4TLoIulw/#xray.wefuckgfw.tk%3A2083
