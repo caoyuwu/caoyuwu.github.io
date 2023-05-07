@@ -21,7 +21,6 @@ vless://502d3d3a-c70c-472d-8d09-36a25991ac57@xray.wefuckgfw.tk:2083?encryption=n
 vless://85b3a84e-a939-4be0-b35c-80e8c9b0f1c8@xray.wefuckgfw.tk:2083?encryption=none&security=tls&type=ws&host=&path=/4TLoIulw/#xray.wefuckgfw.tk%3A2083
 vless://274bed7a-29ef-462a-8123-19e84612ab3c@xray.wefuckgfw.tk:2083?encryption=none&security=tls&type=ws&host=&path=/4TLoIulw/#xray.wefuckgfw.tk%3A2083
 
-vless://d7a32525-16d7-d153-6076-2808c44bdea0@www.kernels.bid:443?encryption=none&security=tls&type=ws&host=&path=/ws#www.kernels.bid%3A443
 
 #
 # Telegram https://t.me/V2List
@@ -55,4 +54,3 @@ vless://d7a32525-16d7-d153-6076-2808c44bdea0@www.kernels.bid:443?encryption=none
 #
 # 其他
 #
-ss://YWVzLTEyOC1nY206MjAyMjExMDAwMDAwMDAwMDAwMDAwMDMw@virmach.jp.securevpn.cc:1030?plugin=obfs-local%3Bobfs%3Dhttp%3Bobfs-host%3Dsecurevpn.cc%3Bfast-open%3Dtrue#%F0%9F%87%AF%F0%9F%87%B5%20VirMach
