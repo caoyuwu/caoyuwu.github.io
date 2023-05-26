@@ -1,4 +1,5 @@
 /*
+ *   http://caoyuwu.eu.org/tv/plugins/DSJ.js
 */
 var httpHeaders = {
 		generation : "com.dianshijia.newlive",
@@ -75,7 +76,8 @@ var  protoMenuMsgFields =[{index:1,name:'id'},
 	//var t0 = utils.currentTime();
 	var url = "http://api.dianshihome.com/api/v6/channels?ts="+utils.currentTime();
 	var retVal = utils.httpGet4Protobuf(url,getHttpHeaders(),8,protoMenuMsgFields);
-	print("retVal = "+retVal);	
+	print("retVal = "+retVal);
+	utils.log("DSJ",""+retVal);
 	return retVal;
 }
 	
