@@ -1,5 +1,6 @@
 /*
  *   http://caoyuwu.eu.org/tv/plugins/DSJ.js
+ *   http://172.20.0.20/caoyuwu.github.io/tv/plugins/DSJ.js
 */
 var httpHeaders = {
 		generation : "com.dianshijia.newlive",
@@ -31,7 +32,18 @@ var httpHeaders = {
 function getHttpHeaders(){
 	return httpHeaders;
 }
+
+/*
+ * dsj-urls://cctv1
+ */
+function loadUrls(url,params)
+{
+	var chId = utils.getUrlHostAndPath(url);
+	print("获取频道 URL : chId = "+chId);
+}
+
 function loadMenus(url,params){
+	//utils.log("DSJ.loadMenus","url = "+url); 
 	var protoItemMsgFields = [{index:1,name:'id'},
 		{index:2,name:'title'},
 		{index:3},
@@ -45,7 +57,7 @@ function loadMenus(url,params){
 		{index:12},
 		{index:14},
 		{index:15},
-		{index:16},
+		{index:16,name:'tags'}, // ",adChannel,yougou,fenchengpindao"
 		{index:17,name:'logURL'},
 		{index:18,name:'title2'},
 		{index:19,name:'name'},
@@ -75,10 +87,30 @@ var  protoMenuMsgFields =[{index:1,name:'id'},
 		
 	//var t0 = utils.currentTime();
 	var url = "http://api.dianshihome.com/api/v6/channels?ts="+utils.currentTime();
+//url="http://172.20.0.20/temp/channels-list.proto";	
 	var retVal = utils.httpGet4Protobuf(url,getHttpHeaders(),8,protoMenuMsgFields);
-	utils.log("DSJ",""+retVal);
-	print("retVal = "+retVal);
-	return retVal;
+	//utils.log("DSJ.loadMenus",""+retVal);
+	//print("retVal = "+JSON.stringify(retVal));
+	var menus = [];
+	for(var i=0;i<retVal.length ;i++){
+		var m1 = retVal[i];
+		if( !m1.items )
+			continue;
+	//print("m1.items.length = "+m1.items.length);
+	//print("mi.items[0] = "+mi.items[0]);
+		var mi = {title:m1.title,items:[]};
+		for(var j=0;j<m1.items.length;j++){
+			var tags = m1.items[j].tags;//,adChannel,
+			if( tags ){
+				if( tags.indexOf(",adChannel,")>=0 ){
+					continue;
+				}
+			}
+			mi.items.push({url:"@dsj-urls://"+m1.items[j].id,title:m1.items[j].title});
+		}
+		menus.push(mi);
+	}
+	return menus;
 }
 	
 	
