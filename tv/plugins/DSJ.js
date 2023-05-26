@@ -76,8 +76,8 @@ var  protoMenuMsgFields =[{index:1,name:'id'},
 	//var t0 = utils.currentTime();
 	var url = "http://api.dianshihome.com/api/v6/channels?ts="+utils.currentTime();
 	var retVal = utils.httpGet4Protobuf(url,getHttpHeaders(),8,protoMenuMsgFields);
-	print("retVal = "+retVal);
 	utils.log("DSJ",""+retVal);
+	print("retVal = "+retVal);
 	return retVal;
 }
 	
