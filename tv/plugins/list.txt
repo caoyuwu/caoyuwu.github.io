@@ -37,7 +37,7 @@ didilive|didilive-list,Didi.js
 
 4gtv|4gtv-list,4GTV.js
 
-nettvpro-urls|nettvpro-list,NettvPro.js
+nettvpro|nettvpro-urls|nettvpro-list,NettvPro.js
 dsj|dsj-urls|dsj-list,DSJ.js
 
 testvideo|test-menu-list,Test.js,x=1&y=2

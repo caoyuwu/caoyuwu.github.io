@@ -6,7 +6,6 @@ http://caoyuwu.eu.org/tv/plugins/NettvPro.js
 /*
    nettvpro://hongkong/146 => view-source:https://www.nettvpro.live/hongkong/146.html
 */
-//function prepareMediaSource(url,params)
 function loadUrls(url,params)
 {
 	var path = utils.getUrlHostAndPath(url);
@@ -64,6 +63,10 @@ function loadUrls(url,params)
      	   
     }
     return urls;
+}
+function prepareMediaSource(url,params){
+  var urls = loadUrls(url,params);
+  return urls && urls.length>0 ? urls[0].url : null;
 }
 
 /*
