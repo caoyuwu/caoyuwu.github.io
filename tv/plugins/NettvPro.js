@@ -14,19 +14,26 @@ function loadUrls(url,params)
 	   path += ".html";
 	}
 	var  urls = [];
-	var DocSelector1 = " > body > div.container-fluid  > div > div.main-container > section  >div > div.row";
 	
 	var html = utils.httpGetAsString("https://www.nettvpro.live/"+path);
+
+//	var DocSelector1 = " > body > div.container-fluid  > div > div.main-container > section  >div > div.row";
+	var DocSelector1 = " > body > div#wrapper  div.main_content div.video-info ";
     var doc = utils.newHTMLDocument(html);
-    var ea = doc.getBody().querySelectorAll(DocSelector1+" ul.video-meta li a");
+    var ea = doc.getBody().querySelectorAll(DocSelector1+" ul li a");
   //  print("ea.length = "+ea.length);
     for(var i=0;i<ea.length;i++){
      	    var href = ea[i].getAttribute("href");
      	    if( !href || href!="javascript:void(0);" ) 
      	        continue;
-     	    var onClick = ea[i].getAttribute("onClick"); 
+     	    var onClick = ea[i].getAttribute("onClick");
+     	    // frame('/player/ckx2.html?url 
      	    //frame('/player/play.html?url=https://v3.mediacast.hk/webcast/bshdlive-pc/playlist.m3u8&amp;t=video','100%','650')"
-     	    if( !onClick || !onClick.startsWith("frame('/player/play.html?") ){
+     	    if( !onClick || 
+     	       ( !onClick.startsWith("frame('/player/play.html?")
+     	         && !onClick.startsWith("frame('/player/ckx2.html?")
+     	       )
+     	        ){
      	       continue;
      	    }
      	    var s = onClick.substring(25);
@@ -64,6 +71,7 @@ function loadUrls(url,params)
   hongkong
 */
 function loadMenus(url,params){
+   utils.addHttpCookies("https://www.nettvpro.live",{PHPSESSID:"grsud0cn3mg375sdhj3p891vj7"});
 	var path = utils.getUrlHostAndPath(url);
     var p = path.lastIndexOf("/");
     var deep = 0;
@@ -75,7 +83,8 @@ function loadMenus(url,params){
             path = path.substring(0,p);
         }
     }
-    var DocSelector1 = " > body > div.container-fluid  > div > div.main-container > div.row";
+   // var DocSelector1 = " > body > div.container-fluid  > div > div.main-container > div.row";
+   var DocSelector1 = " > body > div#wrapper  div.main_content ";
     
   // print("path = "+path+", deep="+deep+",");  
      //   throw new Error("无效参数 :"+path);
@@ -84,18 +93,19 @@ function loadMenus(url,params){
     for(var pageIdx=1;pageIdx<=totalPages;pageIdx++){
     var doc ;
     try {
-       var html = utils.httpGetAsString("https://www.nettvpro.live/"+path+(pageIdx>1?"/list_"+pageIdx+".html":""));
+       var html = utils.httpGetAsString("https://www.nettvpro.live/"+path+(pageIdx>1?"/list_"+pageIdx+".html":""),0x408);
+  // print( html );   
        doc = utils.newHTMLDocument(html);
      } catch( ex ){
          if( pageIdx>1 ) continue;
         throw ex;
      }
-    var ea =doc.getBody().querySelectorAll(DocSelector1+
-        ( deep>0 ? " > div.col-md-4 div.video-item-card > div.video-thumb  a"
-    	       :"> div.col-md-8 section div.video-item-card div.video-content a"
-    	  )
-    	 ) ; 
-  //print("ea.length = "+ea.length);
+     var selector = DocSelector1+
+        ( deep>0 ? " div.nav-channal ul >li  a"
+    	       :" div.channals-list   a"
+    	  );
+    var ea = doc.getBody().querySelectorAll(selector) ; 
+  //print("ea.length = "+ea.length+", deep"+deep+", selector="+selector);
      	for(var i=0;i<ea.length;i++){
      	    var href = ea[i].getAttribute("href");
      	    if( !href || href=="" ) 
@@ -109,11 +119,12 @@ function loadMenus(url,params){
      	    var url = deep>0 ? ("@nettvpro-list:"+href+(deep>1 ? "/"+(deep-1) : ""))
      	                    : ("@nettvpro-urls:"+href);  
      	    var title = ea[i].getAllNodeValue();
-     	   print(i+" : "+title+","+url); 
+     	    if( title ) title = title.trim();
+     	  // print(i+" : "+title+","+url); 
      	    a.push({url:url,title:title});      
      	}  // for ea
      	if( deep==0 && pageIdx==1 ){
-     	    var ea =doc.getBody().querySelectorAll(DocSelector1+" > div.col-md-8 section nav.navigation li a");
+     	    var ea =doc.getBody().querySelectorAll(DocSelector1+" ul.uk-pagination  li a");
      		for(var i=0;i<ea.length;i++){
      		    var href = ea[i].getAttribute("href");
      	    	if( !href || !href.startsWith("list_") || !href.endsWith(".html")) 
@@ -123,7 +134,7 @@ function loadMenus(url,params){
      	           totalPages = n;
      	        }
      		} // for ea
-     		print("总页数 = "+totalPages);
+     	//	print("总页数 = "+totalPages);
      	} //deep==0 && pageIdx==1
     } // for( pageIdx
      return a;
