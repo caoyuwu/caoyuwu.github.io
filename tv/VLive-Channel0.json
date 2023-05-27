@@ -156,7 +156,7 @@
    //      "凤凰秀|http://live.fengshows.com/live/PCC_500k/index.m3u8"  // 
          ]},
   {id:"凤凰资讯",num:"23",urls:[
-        "ifeng.com|https://playtimeshift-live.ifeng.com/timeshift/live/06OLEEWQKN4/timeshift.m3u8?txKbps=702",
+        "ifeng.com|https://playtimeshift-live.ifeng.com/timeshift/live/06OLEEWQKN4/timeshift.m3u8?txKbps=702&delay=1",
         "nettvpro://hongkong/146"	
        ]},
   
