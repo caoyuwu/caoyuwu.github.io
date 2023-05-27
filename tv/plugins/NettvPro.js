@@ -36,20 +36,25 @@ function loadUrls(url,params)
      	        ){
      	       continue;
      	    }
+   //print("onClick="+onClick);  	    
      	    var s = onClick.substring(25);
      	    var p = s.indexOf("'");
      	    if( p<0 )
      	       continue;
      	      // print(s.substring(0,p).replaceAll("&amp;","&"));
-     	    var a = s.substring(0,p).replaceAll("&amp;","&").split("&");
+     	   // var a = s.substring(0,p).replaceAll("&amp;","&").split("&");
      	   //  print(a.join(" ; "));
      	    var url = null;
+     	    s =  s.substring(0,p);
+     	    if( s.startsWith("url=") )
+     	       url = s.substring(4).replaceAll("&amp;","&");
+     	       /*
      	    for(var j=0;j<a.length;j++){
      	        if( a[j].startsWith("url=") ) {
      	           url = a[j].substring(4);
      	           break;
      	        }
-     	    }
+     	    } */
      	   if(url) {
      		  var title = ea[i].getAllNodeValue();
      		 urls.push({title:title,url:decodeURIComponent(url)});
