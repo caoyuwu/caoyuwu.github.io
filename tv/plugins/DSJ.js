@@ -2,24 +2,27 @@
  *   http://caoyuwu.eu.org/tv/plugins/DSJ.js
  *   http://172.20.0.20/caoyuwu.github.io/tv/plugins/DSJ.js
 */
+var UUID = "f5a1c51d97972e4934a38803de3ec982";
+var REGION = "110000";
+var ISP = "mobile";
 var httpHeaders = {
 		generation : "com.dianshijia.newlive",
 		ispCode : "4",
-		cityCode : "110000",
+		cityCode : REGION,
 		"User-Agent" : "Dsj/Client1.2",
 		hwBrand : "HUAWEI",
 		appVerName : "3.5.18",
 		hwAndroidId : "feeb632063289bfa",
 		language : "en_HK",
 		userid : "",
-		uuid : "f5a1c51d97972e4934a38803de3ec982",
+		uuid : UUID,
 		deviceId : "e1079286b32946ca",
 		routerMac : "020000000000",
 		platform : "1",
 		appVerCode : "428",
 		hwMac : "426C544E6AFD",
 		authorization : "",
-		areaCode : "110000",
+		areaCode : REGION,//"110000",
 		lastuserid : "",
 		hwModel : "HMA-AL00",
 		cuuid : "3db2a8b160c3ae7af2356f5355fdd519",
@@ -38,8 +41,53 @@ function getHttpHeaders(){
  */
 function loadUrls(url,params)
 {
-	var chId = utils.getUrlHostAndPath(url);
-	print("获取频道 URL : chId = "+chId);
+	var channel_id = utils.getUrlHostAndPath(url);
+	print("获取频道 URL : chId = "+channel_id);
+	var tm = utils.currentTime();
+	var sign = utils.md5LowerCaseHex(channel_id+tm+UUID+REGION+ISP);
+	var url = "http://api.dianshihome.com/gslb/channel/stream" +
+	    // "http://gslb.dianshihome.com/gslb/streams"
+		"?region="+REGION //110000
+		+"&isp="+ISP //mobile
+		+"&tm="+tm
+		+"&uuid="+UUID  //f5a1c51d97972e4934a38803de3ec982
+		+"&sign="+sign //24ac1cd8638c8c7b91bbfd62025fadf1
+		+"&ver=1.0.8&channel_id="+channel_id
+		;
+	var protoItemMsgFields = [
+		 {index:1,name:'id'},
+		 {index:2,name:'url'},
+		 {index:3,name:'title'},
+		 {index:6},
+		 {index:7},
+		 {index:8,name:'title2'}
+		 ];
+	var  protoMsgFields =[
+		 {index:1,name:'urls',type:protoItemMsgFields},
+		 {index:2,name:'urls2',type:protoItemMsgFields},
+		 {index:4}
+		];
+	var retVal = utils.httpGet4Protobuf(url,getHttpHeaders(),8,protoMsgFields);
+//print("retVal = "+retVal.urls.length+","+retVal.urls2.length);//JSON.stringify(retVal));
+	
+	var  urls = [];
+	var _a;
+	var _added = {};
+	if( _a = _toArray(retVal.urls2) ) for(var i=0;i<_a.length;i++){
+		//print(i+":"+_a[i].url);	
+		if(!_a[i].url || _added[_a[i].url] )
+			continue;
+		_added[_a[i].url] = true;
+		urls.push({title:_a[i].title||_a[i].title2,url:_a[i].url});
+	}
+	if( _a = _toArray(retVal.urls) ) for(var i=0;i<_a.length;i++){
+		//print(i+":"+_a[i].url);
+		if(!_a[i].url || _added[_a[i].url] )
+			continue;
+		_added[_a[i].url] = true;
+		urls.push({title:_a[i].title||_a[i].title2,url:_a[i].url});
+	}
+	return urls; 
 }
 
 function loadMenus(url,params){
@@ -112,6 +160,11 @@ var  protoMenuMsgFields =[{index:1,name:'id'},
 	}
 	return menus;
 }
-	
+
+function _toArray(o){
+	if( o==null || o instanceof Array || o.length>0 )
+		return o;
+	return [o];
+}
 	
 	
