@@ -131,7 +131,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.didi.DiDiLiveService.getRefreshRoomsOpts*/
     getRefreshRoomsOpts:function()
     {
-        return [{name:"type",options:["hot:热门","latest:最新","nearby:附近","vegan","vip:收费","lounge"]},{name:"page",options:[1,2,3,4,5,6]}];
+        return [{name:"type",options:["hot:热门","latest:最新","nearby:附近","vegan","vip:收费","lounge","onlineFriends:关注"]},{name:"page",options:[1,2,3,4,5,6]}];
     },
     /*snsoftx.vlive.didi.DiDiLiveService.refreshRooms*/
     refreshRooms:function(rooms)

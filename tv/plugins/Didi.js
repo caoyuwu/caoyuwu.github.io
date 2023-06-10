@@ -142,7 +142,7 @@ function loadMenus(url,params){
 	} */
 	var list = data.data.list;
 	var vCh = [];
-	for(var i=0;i<list.length;i++){
+	if(list) for(var i=0;i<list.length;i++){
 	    var li = list[i];
 	    var userId = li.id;
 		var roomId = li.curroomnum;
@@ -153,6 +153,7 @@ function loadMenus(url,params){
 		var province = li.province;
 		var city = li.city;
 		var online = li.online;
+		var lim = li.limit;
 		if( province && province!="保密") {
 			title += "-"+	province;
 		}
@@ -162,7 +163,11 @@ function loadMenus(url,params){
 		if( online>0 ) {
 			title += "-("+	online+")";
 		}
-print(title+","+userId);	
+		if( lim ) {
+		   //prerequisite =  lim.prerequisite 
+		   //lim.ptname
+		}		
+//print(title+","+userId);	
 		vCh.push({title:title,url:"didilive://"+roomId+"/"+userId,msgSocketArgs:[roomId+"/"+userId]});
 	}
 	return vCh;
