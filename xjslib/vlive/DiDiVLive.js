@@ -27,7 +27,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             return null;
         if(!s.serverHost)
         {
-            s.serverHost = "q6icqldt.mascotones.com";
+            s.serverHost = "lmwu6n.mascotones.com";
         }
         if(!s.serverURL)
         {
