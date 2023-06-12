@@ -37,7 +37,13 @@ function getHttpHeaders(){
 }
 
 /*
- * dsj-urls://cctv1
+  dsj-urls://cctv1
+  data {
+  streams {
+    id: "105523"
+    url: "Pkb+qlLrePyu5r8IRFqLyN+VdkVZuAiKOAcE0++5qihC67w33cgnwlVTWGPqd8YGqKBu3zJgm8kC4YqIYoD65YzRi99TrFsxzjWo+lTAv/Aq0RTqYel0uKuJTtXne+JEe2zw1rQz/yhRuO70RC39hw=="
+    definition: "\351\253\230\346\270\205"
+  }
  */
 function loadUrls(url,params)
 {
