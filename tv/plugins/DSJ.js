@@ -44,6 +44,11 @@ function getHttpHeaders(){
     url: "Pkb+qlLrePyu5r8IRFqLyN+VdkVZuAiKOAcE0++5qihC67w33cgnwlVTWGPqd8YGqKBu3zJgm8kC4YqIYoD65YzRi99TrFsxzjWo+lTAv/Aq0RTqYel0uKuJTtXne+JEe2zw1rQz/yhRuO70RC39hw=="
     definition: "\351\253\230\346\270\205"
   }
+  [{title:"标清",
+   url:"migu3://608807420"},
+   {title:"标清",url:"p2p://tb_dHZidXM6Ly8xODNnQWlyYzdxQ1RnR1REOTd4UU5KdDVNV202NmFCZjhSNEVRSFR2RmRRWVoyVG9Zc2tMdXc0aFZrRGty"},
+   {title:"标清",url:"p2p://tb_dHZidXM6Ly8xMjRlYUs1RVNoOEhpNUZnajJHSHNWUVU2TW54aFlQWHBHY2JlalNrbXd5OHNzVkZkVnFBd3BKYXlFSkRaSg=="},
+   {title:"标清",url:"mgak://265183188/265183189"}]
  */
 function loadUrls(url,params)
 {
@@ -79,19 +84,21 @@ function loadUrls(url,params)
 	var  urls = [];
 	var _a;
 	var _added = {};
-	if( _a = _toArray(retVal.urls2) ) for(var i=0;i<_a.length;i++){
-		//print(i+":"+_a[i].url);	
-		if(!_a[i].url || _added[_a[i].url] )
-			continue;
-		_added[_a[i].url] = true;
-		urls.push({title:_a[i].title||_a[i].title2,url:_a[i].url});
-	}
-	if( _a = _toArray(retVal.urls) ) for(var i=0;i<_a.length;i++){
+	var urlsA = [_toArray(retVal.urls2),_toArray(retVal.urls)];
+	for(var j=0;j<urlsA.length;j++){
+	if( _a = urlsA[j] ) for(var i=0;i<_a.length;i++){
 		//print(i+":"+_a[i].url);
-		if(!_a[i].url || _added[_a[i].url] )
+		var url = _a[i].url;
+		if( url ) {
+			var  cryptKey = (channel_id+"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00").substring(0,16);
+			//if( )
+			url = utils.decrypt("AES/ECB/PKCS7Padding",null,cryptKey,url); 
+		}
+		if(!url || _added[url] )
 			continue;
-		_added[_a[i].url] = true;
-		urls.push({title:_a[i].title||_a[i].title2,url:_a[i].url});
+		_added[url] = true;
+		urls.push({title:_a[i].title||_a[i].title2,url:url});
+	}
 	}
 	return urls; 
 }
