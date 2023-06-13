@@ -13,7 +13,7 @@ huyalive|huyalive-list,Huya.js
 
 yylive|yylive-list,YYLive.js
 
-migu|migu123tv,Migu.js
+migu|migu3|migu123tv,Migu.js
 
 mgtv,MGTV.js
 
