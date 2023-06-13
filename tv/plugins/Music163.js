@@ -119,9 +119,9 @@ var EK_3 = "0CoJUm6Qyw8W8jud";
 var EncSecKey="c7399b736dd9cb241a1c8b5b66325b059eda5eea6654b851696b7a4f8cc9fc4135be6f0acb506a666275b48ded191b9c4cc0067594e8f80c3ac3475bf79d87cbc16946955c67b7d10010f4d24fad7b119c6e78b017b2d42bafc9b4f9c5e5675738ca8d7499f060df4ce82b1d4b4480bcd73e9a0cde5a365d4c100d36fc7b17ec";
 function newHttpPostParams(params){
 	var randomKey = newRandomStr(16);
-	var aesEncodeParams = utils.aesEncode(AES_IV,EK_3,params);
+	var aesEncodeParams = utils.aescbcEncrypt(AES_IV,EK_3,params);
     //  System.out.format("EK_3(%s) - 加密后：%s \n",EK_3,aesEncodeParams);
-         aesEncodeParams = utils.aesEncode(AES_IV,randomKey,aesEncodeParams); //J9FsJ9hrKj1VN9S5
+         aesEncodeParams = utils.aescbcEncrypt(AES_IV,randomKey,aesEncodeParams); //J9FsJ9hrKj1VN9S5
       return {
     	  encText : aesEncodeParams,
     	  encSecKey : EncSecKey

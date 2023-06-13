@@ -36,10 +36,10 @@ function prepareMediaSource(url,params){
 	   return null;
 	   
 	var value = '{"fnCHANNEL_ID":'+cid+',"fsASSET_ID":"'+fs4GTV_ID+'","fsDEVICE_TYPE":"pc","clsIDENTITY_VALIDATE_ARUS":{"fsVALUE":""}}';    
-//	var evalue = utils.aesEncode(AES_IV,AES_Key,value);
+//	var evalue = utils.aescbcEncrypt(AES_IV,AES_Key,value);
 	//print("evalue="+evalue);
 	var postData = {
-	  "value" : utils.aesEncode(AES_IV,AES_Key,value)
+	  "value" : utils.aescbcEncrypt(AES_IV,AES_Key,value)
 	};
 	var text = utils.httpPostAsString(
    	  "https://api2.4gtv.tv/Channel/GetChannelUrl3",
@@ -52,7 +52,7 @@ function prepareMediaSource(url,params){
    retVal = JSON.parse(text);
    if( !retVal.Data )
      return null;
-   text = utils.aesDecode(AES_IV,AES_Key,retVal.Data); 
+   text = utils.aescbcDecrypt(AES_IV,AES_Key,retVal.Data); 
    //print("3-text="+text);
    retVal = JSON.parse(text);
    var flstURLs = retVal.flstURLs;

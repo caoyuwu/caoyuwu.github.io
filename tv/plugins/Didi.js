@@ -74,7 +74,7 @@ function httpGet(path,params,opts){
 //print(text);
 	if( opts&4 ){
 	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
-	text = utils.aesDecode(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
+	text = utils.aescbcDecrypt(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
 	}
 print(text);
 //utils.onMessage(null,text);
@@ -173,7 +173,7 @@ function loadMenus(url,params){
 	}
 	return vCh;
 //	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
-	//text = utils.aesDecode(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
+	//text = utils.aescbcDecrypt(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
 //	print(text);
 }
 

@@ -84,7 +84,7 @@ function prepareMediaSource(url,params){
 	var text = utils.httpGetAsString(url,headers);
 	//print(text);
 	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
-	text = utils.aesDecode(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
+	text = utils.aescbcDecrypt(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
 //print(text);
 //utils.onMessage(null,text);
 	var data = JSON.parse(text);
@@ -171,8 +171,8 @@ function loadMenus(url,params){
 		vCh.push({title:title,url:"jsyllive://"+roomId+"/"+userId,msgSocketArgs:[roomId+"/"+userId]});
 	}
 	return vCh;
-//	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
-	//text = utils.aesDecode(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
+//	var authTokenMD5 = utils.md5LowerCaseHex(authToken);aescbcDecrypt
+	//text = utils.aescbcDecrypt(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
 //	print(text);
 }
 
