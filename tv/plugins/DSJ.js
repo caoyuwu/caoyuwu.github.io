@@ -49,6 +49,10 @@ function getHttpHeaders(){
    {title:"标清",url:"p2p://tb_dHZidXM6Ly8xODNnQWlyYzdxQ1RnR1REOTd4UU5KdDVNV202NmFCZjhSNEVRSFR2RmRRWVoyVG9Zc2tMdXc0aFZrRGty"},
    {title:"标清",url:"p2p://tb_dHZidXM6Ly8xMjRlYUs1RVNoOEhpNUZnajJHSHNWUVU2TW54aFlQWHBHY2JlalNrbXd5OHNzVkZkVnFBd3BKYXlFSkRaSg=="},
    {title:"标清",url:"mgak://265183188/265183189"}]
+   
+   大头儿子小头爸爸 => dsj://zjv_clv3v6771wsg
+   
+   
  */
 function loadUrls(url,params)
 {
