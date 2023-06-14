@@ -76,19 +76,20 @@ function loadUrls(url,params)
 	var  protoMsgFields =[
 		 {index:1,name:'urls',type:protoItemMsgFields},
 		 {index:2,name:'urls2',type:protoItemMsgFields},
+		 {index:3},
 		 {index:4}
 		];
 	var retVal = utils.httpGet4Protobuf(url,getHttpHeaders(),8,protoMsgFields);
 //print("retVal = "+retVal.urls.length+","+retVal.urls2.length);//JSON.stringify(retVal));
-	
+//print("retVal = "+JSON.stringify(retVal));
 	var  urls = [];
 	var _a;
 	var _added = {};
 	var urlsA = [_toArray(retVal.urls2),_toArray(retVal.urls)];
 	for(var j=0;j<urlsA.length;j++){
 	if( _a = urlsA[j] ) for(var i=0;i<_a.length;i++){
-		//print(i+":"+_a[i].url);
 		var url = _a[i].url;
+	//print(i+" : "+url);
 		if( url ) {
 			var  cryptKey = (channel_id+"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00").substring(0,16);
 			//if( )
