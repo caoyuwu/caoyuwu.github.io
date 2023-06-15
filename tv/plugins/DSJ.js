@@ -95,7 +95,14 @@ function loadUrls(url,params)
 			//if( )
 			url = utils.decrypt("AES/ECB/PKCS7Padding",null,cryptKey,url); 
 		}
-		if(!url || _added[url] )
+		if(!url  )
+			continue;
+		if( url.startsWith("p2p://tb_") )try {
+			url = utils.base64Decode(url.substring(9));
+		}catch( ex){
+			print(""+ex);
+		}	 
+		if( _added[url] )
 			continue;
 		_added[url] = true;
 		urls.push({title:_a[i].title||_a[i].title2,url:url});
