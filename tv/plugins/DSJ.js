@@ -109,7 +109,10 @@ function loadUrls(url,params)
 		if( _added[url] )
 			continue;
 		_added[url] = true;
-		urls.push({title:_a[i].title||_a[i].title2,url:url});
+		var title = _a[i].title||_a[i].title2||"";
+		var p = url.indexOf("://");
+		if( p>0 ) title = url.substring(0,p)+title;
+		urls.push({title:title,url:url});
 	}
 	}
 	return urls; 
