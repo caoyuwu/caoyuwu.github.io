@@ -50,8 +50,8 @@ function getHttpHeaders(){
    {title:"标清",url:"p2p://tb_dHZidXM6Ly8xMjRlYUs1RVNoOEhpNUZnajJHSHNWUVU2TW54aFlQWHBHY2JlalNrbXd5OHNzVkZkVnFBd3BKYXlFSkRaSg=="},
    {title:"标清",url:"mgak://265183188/265183189"}]
    
-   大头儿子小头爸爸 => dsj://zjv_clv3v6771wsg
-   
+   大头儿子小头爸爸(zj-clv3v6771wsg) => dsj://zjv_clv3v6771wsg
+   anhui => dsj://anhui_ws
    
  */
 function loadUrls(url,params)
