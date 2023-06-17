@@ -37,6 +37,28 @@ function getHttpHeaders(){
 }
 
 /*
+  dsj://anhui_ws
+*/
+function prepareMediaSource(url,params)
+{
+	var stream_id = utils.getUrlHostAndPath(url);
+	print("获取视频 URL : stream_id = "+stream_id);
+	var tm = utils.currentTime();
+	var sign = utils.md5LowerCaseHex(stream_id+tm+UUID+REGION+ISP);
+	var url = "http://gslb.dianshihome.com/gslb/live?stream_id="+stream_id
+		+"&ostype=android"
+		+"&hwtype=HMA-AL00"
+		+"&tm="+tm //1687009270
+		+"&isp="+ISP
+		+"&region="+REGION
+		+"&uuid="+UUID  //f5a1c51d97972e4934a38803de3ec982
+		+"&sign="+sign //24ac1cd8638c8c7b91bbfd62025fadf1
+		+"&ver=1.0.8"
+		;
+	var m = utils.httpGetRespHeaders(url,getHttpHeaders(),0x20);
+	return m.Location;	
+}	
+/*
   dsj-urls://cctv1
   data {
   streams {
