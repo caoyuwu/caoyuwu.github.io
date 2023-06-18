@@ -304,9 +304,10 @@
 	 "http://ivi.bupt.edu.cn/hls/szhd.m3u8"
 	 ]},
 	{id:"安徽卫视",num:"61",urls:[
-	         "ahtv.cn|http://zbbf2.ahtv.cn/live/749.m3u8",
-	         "bupt.edu.cn|http://ivi.bupt.edu.cn/hls/ahhd.m3u8",
-	        "bestvcdn|http://shbu.live.bestvcdn.com.cn:8080/live/program/live/ahwshd/4000000/mnf.m3u8"
+	         "ahtv://47",
+	         "ahtv.cn|http://zbbf2.ahtv.cn/live/749.m3u8"
+	         //"bupt.edu.cn|http://ivi.bupt.edu.cn/hls/ahhd.m3u8",
+	       // "bestvcdn|http://shbu.live.bestvcdn.com.cn:8080/live/program/live/ahwshd/4000000/mnf.m3u8"
 								]},
 	{id:"重庆卫视",num:"700",urls:[
 	  "migu://630288006",
