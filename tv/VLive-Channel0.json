@@ -1274,13 +1274,13 @@
 "天津·河东影视FHD,http://jsylivealone302.iqilu.com/live/hedong_tv01.m3u8",
 "天津·河东综合FHD,https://livealone302.iqilu.com/live/hedong_tv02/index.m3u8",    
     "setChannelNum=984175",//地方台-安徽 984175
-"安徽影视频道,http://zbbf2.ahtv.cn/live/756.m3u8",
-"安徽综艺频道,http://zbbf2.ahtv.cn/live/758.m3u8",
-"安徽公共频道,http://zbbf2.ahtv.cn/live/752.m3u8",
-"安徽国际频道,http://zbbf2.ahtv.cn/live/dab.m3u8",
-"安徽经济生活,http://zbbf2.ahtv.cn/live/750.m3u8",
-"安徽科教频道,http://zbbf2.ahtv.cn/live/754.m3u8",
-"安徽家家购物,http://zbbf2.ahtv.cn/live/da9.m3u8",  
+"安徽影视频道,ahtv://72#http://zbbf2.ahtv.cn/live/756.m3u8",
+"安徽综艺频道,ahtv://73#http://zbbf2.ahtv.cn/live/758.m3u8",
+"安徽公共频道,ahtv://50#hhttp://zbbf2.ahtv.cn/live/752.m3u8",
+"安徽国际频道,ahtv://70#hhttp://zbbf2.ahtv.cn/live/dab.m3u8",
+"安徽经济生活,ahtv://71#hhttp://zbbf2.ahtv.cn/live/750.m3u8",
+"安徽科教频道,ahtv://51#hhttp://zbbf2.ahtv.cn/live/754.m3u8",
+"安徽家家购物,hhttp://zbbf2.ahtv.cn/live/da9.m3u8",  
     "setChannelNum=984200",//地方台-重庆 984200
     "setChannelNum=984225",//地方台-山西 984225
     "setChannelNum=984250",//地方台-湖北 984250
