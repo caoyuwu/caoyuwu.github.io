@@ -162,27 +162,21 @@
   
 
   	{id:"CETV1",num:"26",urls:[
-  	  "migu://649531734",
-  						"bupt|http://ivi.bupt.edu.cn/hls/cetv1.m3u8",
-  						"http://ywotttv.bj.chinamobile.com/PLTV/88888888/224/3221225905/1.m3u8",
-  						"CETV|cetv://cetv1",
-  						"rtmp://ivi.bupt.edu.cn:1935/livetv/chcatv",
- 					 	"http://tv.sau.edu.cn/cetv1.m3u8"
+  	  "cetv://cetv1",
+  	  "migu://649531734"
   						]},
   	{id:"CETV2",num:"27",urls:[
-  	  "migu://649532169",
-  	               "CETV|cetv://cetv2"
+       "cetv://cetv2",
+  	  "migu://649532169"
   	               	]},					
   	{id:"CETV3",num:"28",urls:[
-  	   "migu://649531756",
-  						"bupt|http://ivi.bupt.edu.cn/hls/cetv3.m3u8",	
-  	                     "CETV|cetv://cetv3",
-  						"http://tv.sau.edu.cn/cetv3.m3u8"]},
+  	   "cetv://cetv3",
+  	   "migu://649531756"
+  	     ]},
   	{id:"CETV4",num:"29",urls:[
-  	  "migu://649531725",
-  						"bupt|http://ivi.bupt.edu.cn/hls/cetv4.m3u8",	
-  						"CETV|cetv://cetv4",
-  						"http://tv.sau.edu.cn/cetv4.m3u8"]},
+  	   "cetv://cetv4",
+  	  "migu://649531725"
+  	    ]},
   
     /*
       30-39 :
