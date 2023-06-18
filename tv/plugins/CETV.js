@@ -1,4 +1,5 @@
-*
+
+/*
 http://caoyuwu.eu.org/tv/plugins/CETV.js
 
 http://www.centv.cn/cetv1/index.html
