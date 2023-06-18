@@ -17,6 +17,8 @@ migu|migu3|migu123tv,Migu.js
 
 mgtv,MGTV.js
 
+cetv,CETV.js
+
 qingtingfm,QingtingFM.js
 ximalayaradio,Ximalaya.js
 

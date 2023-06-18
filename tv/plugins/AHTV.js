@@ -1,5 +1,5 @@
 /*
-http://caoyuwu.eu.org/tv/plugins/AHTV.txt
+http://caoyuwu.eu.org/tv/plugins/AHTV.js
 https://www.ahtv.cn/
 "https://mapi.ahtv.cn/api/open/ahtv/program.php?appid=m2otdjzyuuu8bcccnq
 &appkey=5eab6b4e1969a8f9aef459699f0d9000&zone=0&channel_id=47";
