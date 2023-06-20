@@ -2,8 +2,18 @@ Xjs.loadedXjs.push("video/VideoPlay");
 /*snsoftx/video/VideoPlay.java*/
 Xjs.namespace("snsoftx.video");
 snsoftx.video.VideoPlay=function(domId,cfg,playUrl){
-    this.videoElement = document.getElementById(domId || "video-player");
-    this.videoElement.onloadedmetadata = this.onLoadedMetadata.createDelegate(this);
+    var attachInVDOM = this.attachInVideoDOM();
+    this.attachInDOM = document.getElementById(domId || (attachInVDOM ? "video-player" : "video-player-wrapper"));
+    if(attachInVDOM)
+    {
+        this.videoElement = this.attachInDOM;
+        this.videoElement.onloadedmetadata = this.onLoadedMetadata.createDelegate(this);
+    } else 
+    {
+        this.videoElement = null;
+        for(;this.attachInDOM.childNodes.length > 0;)
+            this.attachInDOM.removeChild(this.attachInDOM.childNodes[0]);
+    }
     Xjs.apply(this,cfg);
     this.init();
     if(this.fitSize)
@@ -16,6 +26,8 @@ snsoftx.video.VideoPlay=function(domId,cfg,playUrl){
     }
 };
 Xjs.apply(snsoftx.video.VideoPlay.prototype,{
+    /*snsoftx.video.VideoPlay.attachInVideoDOM*/
+    attachInVideoDOM:Xjs.trueFn,
     /*snsoftx.video.VideoPlay.onLoadedMetadata*/
     onLoadedMetadata:function()
     {
@@ -47,12 +59,12 @@ Xjs.apply(snsoftx.video.VideoPlay.prototype,{
     /*snsoftx.video.VideoPlay.getVideoWidth*/
     getVideoWidth:function()
     {
-        return this.videoElement.videoWidth;
+        return this.videoElement ? this.videoElement.videoWidth : 0;
     },
     /*snsoftx.video.VideoPlay.getVideoHeight*/
     getVideoHeight:function()
     {
-        return this.videoElement.videoHeight;
+        return this.videoElement ? this.videoElement.videoHeight : 0;
     },
     /*snsoftx.video.VideoPlay.onVideoPlayReady*/
     onVideoPlayReady:Xjs.emptyFn,
@@ -76,8 +88,16 @@ Xjs.apply(snsoftx.video.VideoPlay.prototype,{
     /*snsoftx.video.VideoPlay.setVideoViewSize*/
     setVideoViewSize:function(w,h)
     {
-        this.videoElement.style.width = w + "px";
-        this.videoElement.style.height = h + "px";
+        if(this.videoElement)
+        {
+            this.videoElement.style.width = w + "px";
+            this.videoElement.style.height = h + "px";
+        }
+        if(this.attachInDOM)
+        {
+            this.attachInDOM.style.width = w + "px";
+            this.attachInDOM.style.height = h + "px";
+        }
     },
     /*snsoftx.video.VideoPlay.updateVideoPos*/
     updateVideoPos:function()
@@ -140,9 +160,55 @@ Xjs.apply(snsoftx.video.VideoPlay,{
             return new snsoftx.video.HLSVideoPlay(domId,cfg,playUrl);
         case "flv":
             return new snsoftx.video.FLVVideoPlay(domId,cfg,playUrl);
+        case "clappr":
+            return new snsoftx.video.ClapprVideoPlay(domId,cfg,playUrl);
         default:
             return new snsoftx.video.VideoPlay(domId,cfg,playUrl);
         }
+    }
+});
+/*snsoftx/video/ClapprVideoPlay.java*/
+snsoftx.video.ClapprVideoPlay=function(domId,cfg,playUrl){
+    snsoftx.video.ClapprVideoPlay.superclass.constructor.call(this,domId,cfg,playUrl);
+};
+Xjs.extend(snsoftx.video.ClapprVideoPlay,snsoftx.video.VideoPlay,{
+  _js$className_:"snsoftx.video.ClapprVideoPlay",
+    ClapprJSUrl:Xjs.ROOTPATH + "jslib/clappr/Clappr.js",
+    /*snsoftx.video.ClapprVideoPlay.attachInVideoDOM*/
+    attachInVideoDOM:Xjs.falseFn,
+    /*snsoftx.video.ClapprVideoPlay.init*/
+    init:Xjs.emptyFn,
+    /*snsoftx.video.ClapprVideoPlay.play*/
+    play:function(url)
+    {
+        var _this = this;
+        Xjs.JsLoad.asynLoadJS(this.ClapprJSUrl).then(function(){
+            _this._play(url);
+        });
+    },
+    /*snsoftx.video.ClapprVideoPlay.pause*/
+    pause:function()
+    {
+        if(this.player)
+            this.player.pause();
+    },
+    /*snsoftx.video.ClapprVideoPlay.stop*/
+    stop:function()
+    {
+        if(this.player)
+            this.player.stop();
+    },
+    /*snsoftx.video.ClapprVideoPlay._play*/
+    _play:function(url)
+    {
+        if(!this.player)
+        {
+            this.player = new Clappr.Player({});
+            this.player.attachTo(this.attachInDOM);
+        }
+        if(url)
+            this.player.load(url);
+        this.player.play();
     }
 });
 /*snsoftx/video/FLVVideoPlay.java*/
@@ -216,13 +282,14 @@ snsoftx.video.HLSVideoPlay=function(domId,cfg,playUrl){
 };
 Xjs.extend(snsoftx.video.HLSVideoPlay,snsoftx.video.VideoPlay,{
   _js$className_:"snsoftx.video.HLSVideoPlay",
+    HLSJSUrl:"https://cdn.jsdelivr.net/hls.js/latest/hls.min.js",
     /*snsoftx.video.HLSVideoPlay.init*/
     init:Xjs.emptyFn,
     /*snsoftx.video.HLSVideoPlay.play*/
     play:function(url)
     {
         var _this = this;
-        Xjs.JsLoad.asynLoadJS("https://cdn.jsdelivr.net/hls.js/latest/hls.min.js").then(function(){
+        Xjs.JsLoad.asynLoadJS(this.HLSJSUrl).then(function(){
             _this._play(url);
         });
     },

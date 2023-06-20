@@ -2,7 +2,8 @@
 http://caoyuwu.eu.org/tv/plugins/NettvPro.js
   https://www.nettvpro.live/
 */
- 
+//var HOMEURL =  "https://www.nettvpro.live/";
+var HOMEURL =  "https://www.nettvpro.xyz/";
 /*
    nettvpro://hongkong/146 => view-source:https://www.nettvpro.live/hongkong/146.html
 */
@@ -14,7 +15,7 @@ function loadUrls(url,params)
 	}
 	var  urls = [];
 	
-	var html = utils.httpGetAsString("https://www.nettvpro.live/"+path);
+	var html = utils.httpGetAsString(HOMEURL+path);
 
 //	var DocSelector1 = " > body > div.container-fluid  > div > div.main-container > section  >div > div.row";
 	var DocSelector1 = " > body > div#wrapper  div.main_content div.video-info ";
@@ -79,7 +80,8 @@ function prepareMediaSource(url,params){
   hongkong
 */
 function loadMenus(url,params){
-   utils.addHttpCookies("https://www.nettvpro.live",{PHPSESSID:"grsud0cn3mg375sdhj3p891vj7"});
+	 //"https://www.nettvpro.live"
+   utils.addHttpCookies(HOMEURL,{PHPSESSID:"grsud0cn3mg375sdhj3p891vj7"});
 	var path = utils.getUrlHostAndPath(url);
     var p = path.lastIndexOf("/");
     var deep = 0;
@@ -101,7 +103,7 @@ function loadMenus(url,params){
     for(var pageIdx=1;pageIdx<=totalPages;pageIdx++){
     var doc ;
     try {
-       var html = utils.httpGetAsString("https://www.nettvpro.live/"+path+(pageIdx>1?"/list_"+pageIdx+".html":""),0x408);
+       var html = utils.httpGetAsString(HOMEURL+path+(pageIdx>1?"/list_"+pageIdx+".html":""),0x408);
   // print( html );   
        doc = utils.newHTMLDocument(html);
      } catch( ex ){
