@@ -73,6 +73,7 @@ function prepareMediaSource(url,params)
    {title:"标清",url:"mgak://265183188/265183189"}]
    
    大头儿子小头爸爸(zj-clv3v6771wsg) => dsj://zjv_clv3v6771wsg
+         , tvbus://1K8ut6qiPWp3vVDmA1pMmtVKQWF7JdKnowQ3hLFvTaPopNEDsAZdx3LTSTQHX
    anhui => dsj://anhui_ws
    
  */
