@@ -3,7 +3,7 @@ Xjs.loadedXjs.push("vlive/DiDiVLive");
 Xjs.namespace("snsoftx.vlive.didi");
 snsoftx.vlive.didi.DiDiLiveService=function(){
     snsoftx.vlive.didi.DiDiLiveService.superclass.constructor.call(this);
-    this.videoPlayerType = "flv";
+    this.videoPlayerType = "clappr";
     this.name = "DiDi";
     this.emptyVideoSize = {width:544,height:960};
     this.initSettingType();
