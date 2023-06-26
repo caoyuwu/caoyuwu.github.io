@@ -32,7 +32,7 @@ iqiyi,IQiyi.js
 
 douyulive|douyulive-list,Douyu.js
 
-douyinlive|douyinlive-list,Douyin.js
+douyinlive|douyinvideo|douyinlive-list,Douyin.js
 
 jsyllive|jsyllive-list,Jsyl.js
 didilive|didilive-list,Didi.js
