@@ -5,7 +5,6 @@
 
 vless://9cdcbaf0-d244-4f37-b227-90166e43f5b5@cf-socks.caoyuwu.eu.org:443?encryption=none&security=tls&sni=cf-socks.caoyuwu.eu.org&fp=randomized&type=ws&host=cf-socks.caoyuwu.eu.org&path=%2F%3Fed%3D2048#cf-socks.caoyuwu.eu.org
 
-
 #
 #  https://iyideng.win/welfare/free-xray-xtls-node.html
 #     ( https://t.me/iyideng 
