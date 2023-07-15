@@ -91,3 +91,36 @@ function prepareVideoMediaSource(vid){
 	}
 	//video.playAddr[0].srcl
 }
+
+
+/*
+  douyinlive-list://3_10000_2_2707
+*/
+function loadMenus(url,params){
+	initCookies();
+   var path = utils.getUrlHostAndPath(url);
+   var headers = {
+		"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
+	};
+	var html = utils.httpGetAsString("https://live.douyin.com/category/"+path,headers);
+//print(html);
+	var jsPrefix = '<script id="RENDER_DATA" type="application/json">';
+	var p1 = html.indexOf(jsPrefix);
+	var p2 = p1<0 ? -1 : html.indexOf("</script>",p1+jsPrefix.length);
+	if( p2<0 ){
+		return null;
+	}
+//	print("p1="+p1+",p2="+p2);
+	var text = decodeURIComponent(html.substring(p1+jsPrefix.length,p2));
+//print(text);
+	var retVal = JSON.parse(text);
+	var vCh = [];
+	/*
+	vCh.push({title:xxx,url:"douyinlive://"+xxx});
+	*/
+	return vCh;
+}
+
+function startMessage(id,s){
+	
+}
