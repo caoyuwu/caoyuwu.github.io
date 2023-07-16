@@ -7,6 +7,8 @@
   __ac_signature 根据   __ac_nonce 签名 获得
   算法在：
    https://lf3-cdn-tos.bytescm.com/obj/rc-web-sdk/acrawler.js
+   
+  decodeURIComponent(document.getElementById("RENDER_DATA").text)
 */
 
 var lastInitCookiesTime = 0;
@@ -102,6 +104,7 @@ function loadMenus(url,params){
    var headers = {
 		"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
 	};
+	//var html = utils.httpGetAsString(path==""?"https://live.douyin.com":"https://live.douyin.com/category/"+path,headers);
 	var html = utils.httpGetAsString("https://live.douyin.com/category/"+path,headers);
 //print(html);
 	var jsPrefix = '<script id="RENDER_DATA" type="application/json">';
@@ -115,6 +118,24 @@ function loadMenus(url,params){
 //print(text);
 	var retVal = JSON.parse(text);
 	var vCh = [];
+	var roomsData , data ,room;
+	for( k in retVal){
+		var v = retVal[k];
+		if( (roomsData=v.roomsData) && (data=roomsData.data) ){
+		    //web_rid
+		    for(var j=0;j<data.length;j++){
+		       if( !(room=data[j].room) )
+		           continue;
+		        var rid = data[j].web_rid;
+		        vCh.push({title:room.title,
+		        	url:"douyinlive://"+rid,
+		        	//url:data[j].streamSrc,
+		        	msgSocketArgs:[rid]});
+		        // streamSrc
+		       // var title = data[j].room.
+		    }
+		}
+	}
 	/*
 	vCh.push({title:xxx,url:"douyinlive://"+xxx});
 	*/
