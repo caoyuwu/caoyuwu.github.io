@@ -127,7 +127,7 @@ function loadMenus(url,params){
 		       if( !(room=data[j].room) )
 		           continue;
 		        var rid = data[j].web_rid;
-		        vCh.push({title:room.title+"/"+room.room_view_stats.display_short_anchor,
+		        vCh.push({title:room.title+"/"+data[j].owner.nickname+"/"+room.room_view_stats.display_short_anchor,
 		        	url:"douyinlive://"+rid,
 		        	//url:data[j].streamSrc,
 		        	msgSocketArgs:[rid]});
