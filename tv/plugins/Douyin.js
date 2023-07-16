@@ -97,6 +97,18 @@ function prepareVideoMediaSource(vid){
 
 /*
   douyinlive-list://3_10000_2_2707
+  
+  https://live.douyin.com/webcast/web/partition/detail/room/?
+   aid=6383&app_name=douyin_web&live_id=1&device_platform=web
+   &language=zh&cookie_enabled=true&screen_width=1280&screen_height=800
+   &browser_language=zh&browser_platform=MacIntel&browser_name=Chrome
+   &browser_version=114.0.0.0&count=15&offset=15&partition=10000
+   &partition_type=3&req_from=2
+   &msToken=-5EUeZFmeM7D1lveXCmO7nYAAegea_gGo14g98jQOGffdCbDIaKjWH-gMpQlLs09sRLAkAfJNuwXHY6lIbdxxgXC7Z0UuFpbvQg1TP5SuTQckibqOxtJRgT2jpRg9z2oyjA=
+   &X-Bogus=DFSzsdVYAf2ANVaJtjUg9oA9e07X
+   &_signature=_02B4Z6wo000011xf4CgAAIDBtPexuRUnKdNcW-SAALOvnVxKEh7EQKH3hEKhdq-xZxKnPXW89cAqiOkaNRcEH9KLGuKIEqA5Qg67WkTy3edyXKhHFpdHCPVKg8ihWtbqUTVhH0zVotlqXLp2bf
+  
+  
 */
 function loadMenus(url,params){
 	initCookies();
@@ -127,7 +139,7 @@ function loadMenus(url,params){
 		       if( !(room=data[j].room) )
 		           continue;
 		        var rid = data[j].web_rid;
-		        vCh.push({title:room.title+"/"+data[j].owner.nickname+"/"+room.room_view_stats.display_short_anchor,
+		        vCh.push({title:room.title+"/"+room.owner.nickname+"/"+room.room_view_stats.display_short_anchor,
 		        	url:"douyinlive://"+rid,
 		        	//url:data[j].streamSrc,
 		        	msgSocketArgs:[rid]});
