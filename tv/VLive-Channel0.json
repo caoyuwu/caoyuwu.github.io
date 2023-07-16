@@ -1498,9 +1498,13 @@
       		 {label:"2",items:["[9100-9199]"]},
       		 { label:"抖音直播",items:[
       		    {label:"娱乐天地-全部",items:"@douyinlive-list:3_10000"},
-      		    {label:"娱乐天地-音乐",items:"@douyinlive-list:3_10000_2_2702"},
+      		    {label:"娱乐天地-运动",items:"@douyinlive-list:3_10000_2_2791"},
+      		    {label:"娱乐天地-音乐",items:"@douyinlive-list:3_10000_2_2707"},
+      		    {label:"娱乐天地-语音互动",items:"@douyinlive-list:3_10000_2_2842"},
       		    {label:"娱乐天地-情感",items:"@douyinlive-list:3_10000_2_2836"},
+      		     {label:"娱乐天地-舞蹈",items:"@douyinlive-list:3_10000_2_2726"},
       		    {label:"娱乐天地-户外",items:"@douyinlive-list:3_10000_2_2742"},
+      		    {label:"娱乐天地-时尚",items:"@douyinlive-list:3_10000_2_2823"},
       		    {label:"娱乐天地-美食",items:"@douyinlive-list:3_10000_2_2786"},
       		    {label:"娱乐天地-旅行",items:"@douyinlive-list:3_10000_2_2751"}
       		  ]},
