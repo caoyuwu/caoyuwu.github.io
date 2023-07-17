@@ -148,7 +148,7 @@ function loadMenus(url,params){
 		"req_from":2
 	};
 	var url = utils.appendUrlParameters("https://live.douyin.com/webcast/web/partition/detail/room", queryParams);
-	var text =  utils.httpGetAsString(url,headers);
+	var text =  utils.httpGetAsString(url,headers,0x400);
 	//print(text);
 	var retVal = JSON.parse(text);
 	var vCh = [];
