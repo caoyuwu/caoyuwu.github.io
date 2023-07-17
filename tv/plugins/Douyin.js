@@ -8,7 +8,7 @@
   算法在：
    https://lf3-cdn-tos.bytescm.com/obj/rc-web-sdk/acrawler.js
    
-  decodeURIComponent(document.getElementById("RENDER_DATA").text)
+  v = JSON.parse(decodeURIComponent(document.getElementById("RENDER_DATA").text))
 */
 
 var lastInitCookiesTime = 0;
@@ -111,6 +111,69 @@ function prepareVideoMediaSource(vid){
   
 */
 function loadMenus(url,params){
+	initCookies();
+	var path = utils.getUrlHostAndPath(url);
+	var page = params ? params._pgIdx || 0 : 0;
+	var p = path.indexOf("/");
+	if( p>0 ){
+		page = parseInt(path.substring(p+1));
+		path =  path.substring(0,p);
+	}
+	var pathA = path.split("_");
+	var partition = pathA[pathA.length-1];
+	var partition_type = pathA[pathA.length-2];
+	var headers = {
+		"Accept": "lication/json, text/plain, */*",
+		"Referer": "https://live.douyin.com/category/"+path
+	};
+	var PageCount = 50;
+	var queryParams = {
+		"aid":6383,
+		"app_name":"douyin_web",
+		"live_id":1,
+		"device_platform":"web",
+		"language":"zh",
+		"cookie_enabled":"true",
+		"screen_width":"1536",
+		"screen_height":"864",
+		"browser_language":"zh",
+		"browser_platform":"Win32",
+		"browser_name":"Chrome",
+		"browser_version":"114.0.0.0",
+		"count":PageCount,
+		"offset":page*PageCount,
+		// partition=2707&partition_type=2&
+		"partition":partition,
+		"partition_type":partition_type,
+		"req_from":2
+	};
+	var url = utils.appendUrlParameters("https://live.douyin.com/webcast/web/partition/detail/room", queryParams);
+	var text =  utils.httpGetAsString(url,headers);
+	//print(text);
+	var retVal = JSON.parse(text);
+	var vCh = [];
+	if( (data=retVal.data) && (data=data.data)) {
+		for(var j=0;j<data.length;j++){
+		       if( !(room=data[j].room) )
+		           continue;
+		        var rid = data[j].web_rid;
+		        vCh.push({title:toStr3(page*PageCount+j)+":"+room.title+"/"+room.owner.nickname+"/"+room.room_view_stats.display_short_anchor,
+		        	url:"douyinlive://"+rid,
+		        	//url:data[j].streamSrc,
+		        	msgSocketArgs:[rid]});
+		        // streamSrc
+		       // var title = data[j].room.
+		    }
+	}
+	return vCh;
+}
+
+function toStr3(x){
+	s = "00"+x;
+	return s.substring(s.length-3);
+}
+
+function loadMenus1(url,params){
 	initCookies();
    var path = utils.getUrlHostAndPath(url);
    var headers = {
