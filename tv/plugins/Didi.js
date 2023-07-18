@@ -169,7 +169,7 @@ function loadMenus(url,params){
 		   //lim.ptname
 		}		
 //print(title+","+userId);	
-		vCh.push({title:title,url:"didilive://"+roomId+"/"+userId,msgSocketArgs:[roomId+"/"+userId]});
+		vCh.push({title:toStr3((page-1)*50+i+1)+":"+title,url:"didilive://"+roomId+"/"+userId,msgSocketArgs:[roomId+"/"+userId]});
 	}
 	return vCh;
 //	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
@@ -328,3 +328,7 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
 
 
 
+function toStr3(x){
+	s = "00"+x;
+	return s.substring(s.length-3);
+}

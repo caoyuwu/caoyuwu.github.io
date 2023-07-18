@@ -149,7 +149,7 @@ function loadMenus(url,params){
 	};
 	var url = utils.appendUrlParameters("https://live.douyin.com/webcast/web/partition/detail/room", queryParams);
 	var text =  utils.httpGetAsString(url,headers,0x400);
-	//print(text);
+//print(text);
 	var retVal = JSON.parse(text);
 	var vCh = [];
 	if( (data=retVal.data) && (data=data.data)) {
@@ -157,10 +157,11 @@ function loadMenus(url,params){
 		       if( !(room=data[j].room) )
 		           continue;
 		        var rid = data[j].web_rid;
-		        vCh.push({title:toStr3(page*PageCount+j)+":"+room.title+"/"+room.owner.nickname+"/"+room.room_view_stats.display_short_anchor,
+		        var roomId = room.id_str;
+		        vCh.push({title:toStr3(page*PageCount+j+1)+":"+room.title+"/"+room.owner.nickname+"/"+room.room_view_stats.display_short_anchor,
 		        	url:"douyinlive://"+rid,
 		        	//url:data[j].streamSrc,
-		        	msgSocketArgs:[rid]});
+		        	msgSocketArgs:[rid,roomId]});
 		        // streamSrc
 		       // var title = data[j].room.
 		    }
@@ -173,49 +174,6 @@ function toStr3(x){
 	return s.substring(s.length-3);
 }
 
-function loadMenus1(url,params){
-	initCookies();
-   var path = utils.getUrlHostAndPath(url);
-   var headers = {
-		"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
-	};
-	//var html = utils.httpGetAsString(path==""?"https://live.douyin.com":"https://live.douyin.com/category/"+path,headers);
-	var html = utils.httpGetAsString("https://live.douyin.com/category/"+path,headers);
-//print(html);
-	var jsPrefix = '<script id="RENDER_DATA" type="application/json">';
-	var p1 = html.indexOf(jsPrefix);
-	var p2 = p1<0 ? -1 : html.indexOf("</script>",p1+jsPrefix.length);
-	if( p2<0 ){
-		return null;
-	}
-//	print("p1="+p1+",p2="+p2);
-	var text = decodeURIComponent(html.substring(p1+jsPrefix.length,p2));
-//print(text);
-	var retVal = JSON.parse(text);
-	var vCh = [];
-	var roomsData , data ,room;
-	for( k in retVal){
-		var v = retVal[k];
-		if( (roomsData=v.roomsData) && (data=roomsData.data) ){
-		    //web_rid
-		    for(var j=0;j<data.length;j++){
-		       if( !(room=data[j].room) )
-		           continue;
-		        var rid = data[j].web_rid;
-		        vCh.push({title:room.title+"/"+room.owner.nickname+"/"+room.room_view_stats.display_short_anchor,
-		        	url:"douyinlive://"+rid,
-		        	//url:data[j].streamSrc,
-		        	msgSocketArgs:[rid]});
-		        // streamSrc
-		       // var title = data[j].room.
-		    }
-		}
-	}
-	/*
-	vCh.push({title:xxx,url:"douyinlive://"+xxx});
-	*/
-	return vCh;
-}
 
 function startMessage(id,s){
 	
