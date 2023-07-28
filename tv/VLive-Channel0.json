@@ -615,32 +615,29 @@
   "mitv://ns2.hellotvvod.com:9906/c23914b1e52c44a9b665e51f535d5b37"
     ]},
  {id:"TVBS新闻台",urls:[
-    "mitv://ns2.hellotvvod.com:9906/4c700aa999594ea5893d7eab1519f187",
-    "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twtvbsxw",
-    "http://v3948069e.live.126.net/live/eyisbshx78425035/46.flv",
-    "p5p://0198.02686.cc:16871/5db05ca40003699da50b30c835589bf5.ts"
+    "https://fsv4.yj011.net/sat/tv551.flv"
    ]}, 
 {id:"TVBS欢乐",urls:[
-    "p5p://0198.02686.cc:16871/5dbad7cb0007c9accdfc423fb19c38d1.ts"
+    "https://fsv4.yj011.net/sat/tv421.flv"
    ]}, 
 
 {
  id:"台视",tag:"台湾",urls:[
-   "mitv://ns2.hellotvvod.com:9906/0cde14d20638479189443549d1b1005f"
+   "https://fsv4.yj011.net/sat/tv071.flv"
  ]},
 {
  id:"中视",urls:[
-   "mitv://ns2.hellotvvod.com:9906/21fe3c316a13445a8a5b1f4afd39a5b1"
+   "https://fsv4.yj011.net/sat/tv091.flv"
  ]}, 
 
 {id:"华视",urls:[
- "mitv://ns2.hellotvvod.com:9906/fd73b217be314cf198807cc5d1d911b6"
+ "https://fsv4.yj011.net/sat/tv111.flv"
    ] }, 
 {id:"公视",urls:[
  "mitv://ns2.hellotvvod.com:9906/a1c2ecbcd3b64f3eb72ac9191b337cda"
    ] },   
 {id:"民视",urls:[
-    "mitv://ns2.hellotvvod.com:9906/a1c2ecbcd3b64f3eb72ac9191b337cda"
+    "https://fsv4.yj011.net/sat/tv051.flv"
    ] },    
 {id:"民视新闻台",urls:[
      "https://www.chaojidianshi.net/nzbtv/ldlive.php?id=twmsxw",
@@ -903,45 +900,11 @@
     "huyalive://11336571"
     ]},
  "虎牙-封神榜1,huyalive://23749096",
-   "虎牙-武林外传,huyalive://11352915",
+ //  "虎牙-武林外传,huyalive://11352915",
     {id:"虎牙-僵尸片",tag:"港片",url:"huyalive://17875049"},
     {id:"虎牙-邱淑贞",tag:"港片",urls:["huyalive://11352949"]},
     {id:"虎牙港片2",tag:"港片",urls:["huyalive://11602058"]},
    {id:"虎牙港片3",tag:"港片",urls:["huyalive://23865025"]},
-"B22912887-东北一家人,blive://22912887,?[tag=B电视剧]",
-"B22786199-东北一家人,blive://22786199,?[tag=B电视剧]",
-
-   "B6694373-铁齿铜牙纪晓岚,blive://6694373,?[tag=B电视剧]",
-"B22665698-铁齿铜牙纪晓岚,blive://22665698,?[tag=B电视剧]",
-"B23139549-铁齿铜牙纪晓岚,blive://23139549,?[tag=B电视剧]",
-"B572978-铁齿铜牙纪晓岚,blive://572978,?[tag=B电视剧]",
-"B21297154-铁齿铜牙纪晓岚,blive://21297154,?[tag=B电视剧]",
-"B21205932-雍正王朝,blive://21205932,?[tag=B电视剧]",
-"B21722603-雍正王朝,blive://21722603,?[tag=B电视剧]",
-"B11259274-大秦帝国,blive://11259274,?[tag=B电视剧]",
-"B9818059-雍正王朝,blive://9818059,?[tag=B电视剧]",
-"B1127105-怀旧经典电视剧,blive://1127105,?[tag=B电视剧]",
-"B22527703-经典影剧馆,blive://22527703,?[tag=B电视剧]",
-"B21568799-三国演义,blive://21568799,?[tag=B电视剧]",
-"B4153440-康熙微服私访记,blive://4153440,?[tag=B电视剧]",
-"B21763462-怀旧经典剧,blive://21763462,?[tag=B电视剧]",
-"B21046732-大明宫词,blive://21046732,?[tag=B电视剧]",
-   "B1155381-聊斋,blive://1155381,?[tag=B电视剧]",
-   "B47917-周星驰47917,blive://47917,?[tag=港片]",
-"B70155-林正英,blive://70155,?[tag=港片]",
-"B5226265-林正英,blive://5226265,?[tag=港片]",
-"B21759196-邵氏影院,blive://21759196,?[tag=港片]",
-"B21588383-林正英,blive://21588383,?[tag=港片]",
-"B21448296-周星驰成龙林正英王晶刘德华洪金宝电影,blive://21448296,?[tag=港片]",
-"B82997-林正英,blive://82997,?[tag=港片]",
-"B21360358-林正英,blive://21360358,?[tag=港片]",
-"B503320-林正英,blive://503320,?[tag=港片]",
-"B21145280-香港经典电影-GuangdongHakka,blive://21145280,?[tag=港片]",
-"B3091485-僵尸道长【林正英】,blive://3091485,?[tag=港片]",
-"B22785873-邵氏电影,blive://22785873,?[tag=港片]",
-"B23169468-怀旧经典,blive://23169468,?[tag=港片]",
-
-"YY95017956-我爱我家,yylive://95017956",//http://cc.libaoquan.1ke.top/yy88.php?id=95017956",
 
  // end 9099 不常用电影
  
@@ -1411,7 +1374,7 @@
             
             "东方卫视","江苏卫视","广东卫视","安徽卫视"
             ,"虎牙-铁齿铜牙纪晓岚"
-            ,"虎牙-武林外传"
+           // ,"虎牙-武林外传"
             ,"虎牙-雍正王朝"
             ,"虎牙-康熙微服私访"
             ,"虎牙-神医喜来乐"
@@ -1421,7 +1384,8 @@
             //,"本港台",
             //"成龙"
             ,"YY95017956-我爱我家"
-            ,"tag:B电视剧","tag:港片"
+            ,"tag:B电视剧",
+            "tag:港片"
             ,"徐峥"
             //"李连杰",
             //"甄子丹",
