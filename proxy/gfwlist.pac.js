@@ -88,6 +88,8 @@ var hostGrps = function(){
 		"ask.com", // 搜索引擎
 		"duckduckgo.com", // 搜索引擎
 		"yahoo.com",
+		// 数字钱包等
+		 "okx.com", // 欧易
 		 // 代理工具等
 		"free-proxy.cz",
 		"wallmama.com",
