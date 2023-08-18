@@ -36,7 +36,8 @@ function getSettings() {
 	//print("DIDI_Settings="+JSON.stringify(DIDI_Settings));
 		if( !s.serverHost ) {
 			//s.serverHost = "q6icqldt.mascotones.com";
-			s.serverHost = "lmwu6n.mascotones.com";
+			//s.serverHost = "lmwu6n.mascotones.com";
+			s.serverHost = "api.moonscap.com";
 		}
 		if( !s.serverURL ){
 		    // GET live/studio/list
