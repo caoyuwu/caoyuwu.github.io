@@ -1,0 +1,16 @@
+{
+  label:"本地", groupIdx:7,
+ 
+  channels :[
+  
+  "setChannelNum=100", 
+   "八段锦|http://router.lan/yy/八段锦.mp4",
+   "舞蹈教学-1|http://router.lan/yy/舞蹈教学20231016-1.mp4",
+   "舞蹈教学-2|http://router.lan/yy/舞蹈教学20231016-2.mp4",
+   "舞蹈教学-3|http://router.lan/yy/舞蹈教学20231016-3.mp4"
+
+ ],
+ menus:[
+    {label:"舞蹈",items:"[100-199]"}
+  ]
+}    
