@@ -40,7 +40,7 @@ didilive|didilive-list,Didi.js
 4gtv|4gtv-list,4GTV.js
 
 nettvpro|nettvpro-urls|nettvpro-list,NettvPro.js
-dsj|dsj-urls|dsj-list,DSJ.js
+#dsj|dsj-urls|dsj-list,DSJ.js
 
 ahtv,AHTV.js
 
