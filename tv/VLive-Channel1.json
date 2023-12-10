@@ -1,20 +1,152 @@
+/*
+*/
 {
-  label:"直播1", groupIdx:1,
+  label:"电影", groupIdx:1,
  
   channels :[
-   //
-  {id:"CCTV-01",num:"01",tag:"cctv",urls:[
-                                "[bupt高清]http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8",
-                               //rtmp://ivi.bupt.edu.cn:1935/livetv/cctv1hd
-                               // "[CNTV]cntv://cctv1",
-                               // "MIGU5|migu5://cctv1hd",
-                               "wscdns|http://cctvcnch5c.v.wscdns.com/live/cctv1_2/index.m3u8",
-  								"[bupt标清]http://ivi.bupt.edu.cn/hls/cctv1.m3u8",
-  								"[sau高清]http://tv.sau.edu.cn/cctv1hd.m3u8",
-  								"[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV1-HD_2000.m3u8"
-  								]}
- ],
- menus:[
-    {label:"常看频道1",items:"tag:cctv"}
-  ]
-}    
+ "setChannelNum=100", 
+  
+// 直播: 松视 彩虹e  K频道 HOT 香蕉台  惊艳台 潘多拉完美 潘多拉粉 HAPPY 彩虹电影  惊艳成人
+//      红松  极限电影(jstv)
+"setChannelNum=4000",
+
+"generationnexxxt-彩虹e台,mitv://generationnexxxt.com:19806/3f5f22df9a324f759e43967b0d3ffe65",
+"generationnexxxt-彩虹电影台,mitv://generationnexxxt.com:19806/65b9f44984e749a8b14455a173779644",
+"generationnexxxt-LOOK TV,mitv://generationnexxxt.com:19806/c8aab8c8683c4f35aba0e745535afd41",
+"generationnexxxt-潘朵啦玩美台,mitv://generationnexxxt.com:19806/3f91635cf956419490d1905f7d5c6790",
+"generationnexxxt-惊艳成人电影台,mitv://generationnexxxt.com:19806/9eaea463d2f54b5d92fb34948ad0b72d",
+"generationnexxxt-松视1台,mitv://generationnexxxt.com:19806/878c994ac52a4c50a71914f559b0ddc6",
+"generationnexxxt-松视2台,mitv://generationnexxxt.com:19806/3bd5b1fec1134ecc856c965a5c0e6ff9",
+"generationnexxxt-PLAYBOY,mitv://generationnexxxt.com:19806/47f99c6bdb9449a594cc0621f8980f3c",
+"generationnexxxt-香蕉台,mitv://generationnexxxt.com:19806/cb6c40d4aea546a7b518377e7aee5fb0",
+"generationnexxxt-松视3台,mitv://generationnexxxt.com:19806/0045293e14224851a3e930cf0b8a07f8",
+"generationnexxxt-JStar极限台,mitv://generationnexxxt.com:19806/a55acb84487242d882b0b53dd110b845",
+"generationnexxxt-HAPPY,mitv://generationnexxxt.com:19806/7b02a03ce3094b4e84f883565805f3a4",
+"generationnexxxt-K频道,mitv://generationnexxxt.com:19806/1aec46d506634015a1276c5e4d846976",
+
+// 直播:
+"setChannelNum=5000",
+
+"http://play.iptvxxx.net/livecams.m3u8",
+"Anal,http://cdn.adultiptv.net/anal.m3u8",
+"Big Ass,http://cdn.adultiptv.net/bigass.m3u8",
+"Big Dick,http://cdn.adultiptv.net/bigdick.m3u8",
+"Big Tits,http://cdn.adultiptv.net/bigtits.m3u8",
+"Blonde,http://cdn.adultiptv.net/blonde.m3u8",
+"Brunette,http://cdn.adultiptv.net/brunette.m3u8",
+"Compilation,http://cdn.adultiptv.net/compilation.m3u8",
+"Cuckold,http://cdn.adultiptv.net/cuckold.m3u8",
+"Fetish,http://cdn.adultiptv.net/fetish.m3u8",
+"Gangbang,http://cdn.adultiptv.net/gangbang.m3u8",
+"Gay,http://cdn.adultiptv.net/gay.m3u8",
+"Hardcore,http://cdn.adultiptv.net/hardcore.m3u8",
+"Interracial,http://cdn.adultiptv.net/interracial.m3u8",
+"Latina,http://cdn.adultiptv.net/latina.m3u8",
+"Lesbian,http://cdn.adultiptv.net/lesbian.m3u8",
+"Livecams,http://cdn.adultiptv.net/livecams.m3u8",
+"MILF,http://cdn.adultiptv.net/milf.m3u8",
+"POV,http://cdn.adultiptv.net/pov.m3u8",
+"Pornstar,http://cdn.adultiptv.net/pornstar.m3u8",
+"Rough,http://cdn.adultiptv.net/rough.m3u8",
+"Russian,http://cdn.adultiptv.net/russian.m3u8",
+"Teen,http://cdn.adultiptv.net/teen.m3u8",
+
+// 直播:
+"setChannelNum=6000",
+"午夜1,http://live.redtraffic.xyz:80/interracial.m3u8",
+"午夜2,http://live.redtraffic.xyz:80/bigtits.m3u8",
+"午夜3,http://live.redtraffic.xyz:80/threesome.m3u8",
+"午夜4,http://live.redtraffic.xyz/latina.m3u8?fluxuslust.m3u8",
+"午夜5,http://live.redtraffic.xyz/fetish.m3u8?fluxuslust.m3u8",
+"午夜6,http://live.redtraffic.xyz/lesbian.m3u8?fluxuslust.m3u8",
+"午夜6,http://cdn.adultiptv.net/lesbian.m3u8",
+"午夜7,http://live.redtraffic.xyz:80/teen.m3u8",
+"午夜8,http://live.redtraffic.xyz:80/pornstar.m3u8",
+"午夜8,http://live.redtraffic.xyz/pornstar.m3u8?fluxuslust.m3u8",
+"午夜9,http://live.redtraffic.xyz:80/milf.m3u8",
+"午夜9,http://live.redtraffic.xyz/milf.m3u8?fluxuslust.m3u8",
+"午夜10,http://live.redtraffic.xyz:80/cuckold.m3u8",
+
+
+// 短片
+"setChannelNum=70000",
+
+
+// s级
+"setChannelNum=71000",
+
+"setChannelNum=72000",
+
+"setChannelNum=73000",
+
+"setChannelNum=74000",
+
+"setChannelNum=75000",
+
+"setChannelNum=76000",
+
+"setChannelNum=77000",
+
+"setChannelNum=78000",  //电视剧
+
+
+
+"setChannelNum=78100",
+
+"setChannelNum=78200",
+
+"setChannelNum=78300",
+
+"setChannelNum=78400",
+
+"setChannelNum=78500",
+
+"setChannelNum=78600",
+
+"setChannelNum=78700",
+
+"setChannelNum=78800",
+
+"setChannelNum=8000"
+
+  ],
+   menus:[
+   {label:"电影-100",items:["[100-199]"]},
+   {label:"电影-200",locked:1,items:["[200-299]"]},
+   {label:"直播-4000",locked:1,items:["[4000-4999]"]},
+   {label:"5000",locked:1,items:["[5000-5999]"]},
+   {label:"6000",locked:1,items:["[6000-6999]"]},
+   {label:"短片-70000",locked:1,items:["[70000-70999]"]},
+   {label:"短片-71000",locked:1,items:["[71000-71999]"]},
+   {label:"短片-72000",locked:1,items:["[72000-72999]"]},
+   {label:"电视剧-78000",items:["[78000-78099]"]},
+   {label:"192.168.1.8",locked:1,items:"@webdirlist:http://192.168.1.8/mydoc-html/tv-channels/"},
+		{label:"小红帽",locked:1,items:[
+	   {label:"热门-1",items:"@didilive-list:hot/1"},
+	    {label:"收费-1",items:"@didilive-list:vip/1"},
+	   {label:"关注",items:"@didilive-list:onlineFriends/1"},
+ 		{label:"颜-1",items:"@didilive-list:vegan/1"},
+	   {label:"热门-2",items:"@didilive-list:hot/2"},
+	   {label:"热门-3",items:"@didilive-list:hot/3"},
+	   {label:"热门-4",items:"@didilive-list:hot/4"},
+	   {label:"收费-2",items:"@didilive-list:vip/2"},
+	   {label:"附近-1",items:"@didilive-list:nearby/1"},
+	   {label:"颜-2",items:"@didilive-list:vegan/2"}
+		]},	
+	{label:"金沙娱乐",locked:1,items:[
+	   {label:"热门-1",items:"@jsyllive-list:200/1"},
+	   {label:"热门-2",items:"@jsyllive-list:200/2"},
+	   {label:"颜值-1",items:"@jsyllive-list:100/1"},
+	   {label:"颜值-2",items:"@jsyllive-list:100/2"},
+	   {label:"附近-1",items:"@jsyllive-list:500/1"},
+	   {label:"附近-2",items:"@jsyllive-list:500/2"}
+
+		]},
+
+//{label:"http://ich.vaiwan.com/qun/",locked:1,items:"@webdirlist:http://ich.vaiwan.com/qun/"},
+
+   {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"},
+   {label:"临时频道2",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels2.txt"},
+   {label:"临时频道3",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels3.txt"}
+   ]
+ }
