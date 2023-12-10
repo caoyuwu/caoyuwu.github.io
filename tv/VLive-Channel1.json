@@ -133,15 +133,7 @@
 	   {label:"附近-1",items:"@didilive-list:nearby/1"},
 	   {label:"颜-2",items:"@didilive-list:vegan/2"}
 		]},	
-	{label:"金沙娱乐",locked:1,items:[
-	   {label:"热门-1",items:"@jsyllive-list:200/1"},
-	   {label:"热门-2",items:"@jsyllive-list:200/2"},
-	   {label:"颜值-1",items:"@jsyllive-list:100/1"},
-	   {label:"颜值-2",items:"@jsyllive-list:100/2"},
-	   {label:"附近-1",items:"@jsyllive-list:500/1"},
-	   {label:"附近-2",items:"@jsyllive-list:500/2"}
-
-		]},
+	
 
 //{label:"http://ich.vaiwan.com/qun/",locked:1,items:"@webdirlist:http://ich.vaiwan.com/qun/"},
 
