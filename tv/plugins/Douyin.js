@@ -43,7 +43,19 @@ function prepareLiveMediaSource(rid){
 		
 	};
 	var html = utils.httpGetAsString("https://live.douyin.com/"+rid,headers);
-	//print(html);
+//print(html);
+    var jsPrefix = ',\\"stream_url\\":{\\"flv_pull_url\\":{';
+    var p1 = html.indexOf(jsPrefix);
+    var p2 = p1<0 ? -1 : html.indexOf("}",p1+jsPrefix.length);
+    if( p2<0 ){
+		return null;
+	}
+	var text = html.substring(p1+jsPrefix.length-1,p2+1);
+	text = text.replaceAll('\\"','"');
+	var urls = JSON.parse(text);
+	return  urls.FULL_HD1 || urls.HD1 || urls.SD1 || urls.SD2 ;
+	//print(text);
+    /*
 	var jsPrefix = '<script id="RENDER_DATA" type="application/json">';
 	var p1 = html.indexOf(jsPrefix);
 	var p2 = p1<0 ? -1 : html.indexOf("</script>",p1+jsPrefix.length);
@@ -58,6 +70,7 @@ function prepareLiveMediaSource(rid){
 	var urls = room && room.stream_url ? room.stream_url.flv_pull_url : null;
 	return urls ? urls.FULL_HD1 || urls.HD1 || urls.SD1 || urls.SD2 
 			: null
+	*/
 }
 
 function prepareVideoMediaSource(vid){	
