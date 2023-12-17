@@ -61,6 +61,13 @@ function prepareMediaSource(url,params){
 		if( p2>0 )
 			return s.substring(p1+13,p2); 
 	}
+	p2 = html.indexOf("$iframe");
+	if( p2<0 )
+	   return null;
+	p1 = html.lastIndexOf("$http://",p2);
+	if( p1>0 )
+	  return html.substring(p1+1,p2);
+	//'多线HD$http://player.200877926.top/169l/fj/fjtv.php?id=cctv1$iframe'
 }
 
 function loadMenus(url,params){
