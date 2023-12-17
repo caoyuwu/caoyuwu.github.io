@@ -26,7 +26,7 @@ function loadMenus(url,params){
 		//print(ea.length);
 		var ulSelector1 = " > body > div#bd > div.filter > div.bd >  dl.filter-area  ul.filter-list > li a";
 		var ea = doc.getBody().querySelectorAll(ulSelector1);
-	print(ea.length);	
+	//print(ea.length);	
 		for(var i=0;i<ea.length;i++){
 			var href = ea[i].getAttribute("href");
 			print(href);
@@ -34,9 +34,13 @@ function loadMenus(url,params){
      	        continue;
      	    var title = ea[i].getAllNodeValue(); 
      	    var url = "@haoqu99-list:"+href;
-     	print(title+" : "+url);    
+     //	print(title+" : "+url);    
      	     a.push({url:url,title:title});  
 		}
+		return a; 
 	}  
+	/*
+	  
+	*/
 	return a; 
 }
