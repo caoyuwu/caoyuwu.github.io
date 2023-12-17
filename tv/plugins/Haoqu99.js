@@ -37,6 +37,19 @@ function loadUrls(url,params)
       return urls;
 }
 
+function getVideoSrcFromHTML(html){
+	var p1 = html.indexOf("<video ");
+    var p2 = p1<0 ? -1 : html.indexOf("</video>",p1);
+  // print("p1="+p1+",p2="+p2) 
+    if( p2>0 ){
+		var s = html.substring(p1+10,p2);
+		p1 = s.indexOf("<source src=\"");
+		p2 = p1<0 ? -1 : s.indexOf("\"",p1+13);
+		if( p2>0 )
+			return s.substring(p1+13,p2); 
+	}
+	return null;
+}
 /*
   http://tv.haoqu99.com/e/extend/tv.php?id=32584
 */
@@ -51,22 +64,18 @@ function prepareMediaSource(url,params){
    // if( videoE )
     //	return videoE.getAttribute("src");
     // todo...	
-    var p1 = html.indexOf("<video ");
-    var p2 = p1<0 ? -1 : html.indexOf("</video>",p1);
-  // print("p1="+p1+",p2="+p2) 
-    if( p2>0 ){
-		var s = html.substring(p1+10,p2);
-		p1 = s.indexOf("<source src=\"");
-		p2 = p1<0 ? -1 : s.indexOf("\"",p1+13);
-		if( p2>0 )
-			return s.substring(p1+13,p2); 
-	}
-	p2 = html.indexOf("$iframe");
+    var s = getVideoSrcFromHTML(html);
+    if( s ) return s;
+	var p2 = html.indexOf("$iframe");
 	if( p2<0 )
 	   return null;
-	p1 = html.lastIndexOf("$http://",p2);
-	if( p1>0 )
-	  return html.substring(p1+1,p2);
+	var p1 = html.lastIndexOf("$http://",p2);
+	if( p1>0 ){
+	  var url = html.substring(p1+1,p2);
+	  var html = utils.httpGetAsString(url,0x408);
+	  var s = getVideoSrcFromHTML(html);
+    if( s ) return s;
+	}
 	//'多线HD$http://player.200877926.top/169l/fj/fjtv.php?id=cctv1$iframe'
 }
 
