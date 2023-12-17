@@ -32,7 +32,7 @@ function loadUrls(url,params)
 		 if( !id )
 		 	continue;
 		 var title = ea[i].getAllNodeValue().trim();
-		 urls.push({title:title,url:"@haoqu99:"+id}); 
+		 urls.push({title:title,url:"haoqu99:"+id}); 
 	}
       return urls;
 }
