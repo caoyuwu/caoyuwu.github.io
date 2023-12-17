@@ -1,4 +1,8 @@
 {
  "label":"电视", "groupIdx":2,
-  "menus":"@txtloader:https://xhdwc.tk/tvlive/txt"
+ "menus":[
+	 {"label":"xhdwc.tk","items":"@txtloader:https://xhdwc.tk/tvlive/txt"},
+	 {"label":"好趣网","items":"@haoqu99-list:"}
+  ]
+  
 }
