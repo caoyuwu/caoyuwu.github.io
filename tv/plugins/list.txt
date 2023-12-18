@@ -43,6 +43,7 @@ nettvpro|nettvpro-urls|nettvpro-list,NettvPro.js
 #dsj|dsj-urls|dsj-list,DSJ.js
 
 ahtv,AHTV.js
+jstv,JSTV.js
 
 haoqu99|haoqu99-list|haoqu99-urls,Haoqu99.js
 

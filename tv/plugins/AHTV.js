@@ -12,7 +12,10 @@ var APPID = "m2otdjzyuuu8bcccnq";
 var APPKEY = "5eab6b4e1969a8f9aef459699f0d9000";
 /*
   ahtv://47
+  -H "Referer:https://.../"
   
+  https://live4.ahtv.cn/yspd1/playlist.m3u8?_upt=dae2e8861702912444
+  _upt 的算法 可以参考 JSTV.encodeLiveUrl
 */
 
 function prepareMediaSource(url,params){

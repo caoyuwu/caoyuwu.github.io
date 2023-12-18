@@ -2,7 +2,9 @@
  "label":"电视", "groupIdx":2,
  "menus":[
 	 {"label":"xhdwc.tk","items":"@txtloader:https://xhdwc.tk/tvlive/txt"},
-	 {"label":"好趣网","items":"@haoqu99-list:"}
+	 {"label":"好趣网","items":"@haoqu99-list:"},
+   {"label":"NettvPro","items":"@nettvpro-list:Asia/china/1"},
+     {"label":"Youtube","items":"@youtube-list"}     		  
   ]
   
 }

@@ -1543,8 +1543,7 @@
            		  "[750-799]",
            		  "[9700-9750]"
            		  ]},
-    {label:"Youtube",items:"@youtube-list"}, 
-    {label:"NettvPro",items:"@nettvpro-list:Asia/china/1"},      		  
+  
     {label:"其他",
         items:[
              {label:"临时",items:["[99400-99599]"]}, 
