@@ -282,6 +282,7 @@
 	 					   ]},
 	{id:"浙江卫视",num:"56",urls:[
 	"cztv.com|http://hw-m-l.cztv.com/channels/lantian/channel01/1080p.m3u8",
+	// "zjtv:01",
 "http://39.135.138.58:18890/PLTV/88888888/224/3221225703/index.m3u8",	
 "http://39.135.53.195/ott.fj.chinamobile.com/PLTV/88888888/224/3221225934/1.m3u8"
 			]},
@@ -321,6 +322,7 @@
 	   "http://ivi.bupt.edu.cn/hls/hljhd.m3u8"
 	  ]},
 	{id:"山东卫视",urls:[
+	 "https://livealone302.iqilu.com/iqilu/sdtvhjOF03kn.m3u8??[header.Referer=https://v.iqilu.com/]",	 
 	 "iqilu.com|http://livealone302.iqilu.com/iqilu/sdtv.m3u8",
 	  "http://ivi.bupt.edu.cn/hls/sdhd.m3u8"
 	  ]},
@@ -414,6 +416,7 @@
   	"http://ivi.bupt.edu.cn/hls/bttv.m3u8"
   	  ]},
   	{id:"海南卫视",urls:[
+     "官网|https://livelvy.chinamcache.com/live/lyws01.flv",
   	"http://stream3.hnntv.cn/hnws/playlist.m3u8"
   	//"http://ivi.bupt.edu.cn/hls/lytv.m3u8"
   				]}, //旅游卫视

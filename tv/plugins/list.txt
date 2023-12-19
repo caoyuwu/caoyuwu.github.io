@@ -44,6 +44,7 @@ nettvpro|nettvpro-urls|nettvpro-list,NettvPro.js
 
 ahtv,AHTV.js
 jstv,JSTV.js
+#zjtv,ZJTV.js
 
 haoqu99|haoqu99-list|haoqu99-urls,Haoqu99.js
 
