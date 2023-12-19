@@ -1,4 +1,5 @@
 /*
+  http://caoyuwu.eu.org/tv/plugins/JSTV.js
   https://live.jstv.com/
   
   ? https://live.jstv.com/assets/js/924.c4d39ff9.js
@@ -15,6 +16,7 @@
    jstvlivezhuzhan@2022cdn!@#124gg&1702911737&/livezhuzhan/jsws.m3u8
    =>b69ce5009b380aede56af90f7433676c
    
+问题: 缺省播放器 失败, 只有 ijk???   
    ee0845191702970508
    
 */
@@ -52,7 +54,81 @@ function prepareMediaSource(url){
 	          headers:headers
 	      };
 }
-
+/*
+来自: 924.c4d39ff9.js
+liveList: [{
+                        id: 1,
+                        channelId: 534,
+                        title: "江苏卫视",
+                        img: "https://live-tv-img.jstv.com/livezhuzhan/jsws.jpg",
+                        hls: "https://live-hls.jstv.com/livezhuzhan/jsws.m3u8",
+                        position: "0 0"
+                    }, {
+                        id: 5,
+                        channelId: 535,
+                        title: "江苏城市",
+                        img: "https://live-tv-img.jstv.com/livezhuzhan/jscs.jpg",
+                        hls: "https://live-hls.jstv.com/livezhuzhan/jscs.m3u8",
+                        position: "-28px 0"
+                    }, {
+                        id: 2,
+                        channelId: 536,
+                        title: "江苏公共新闻",
+                        img: "https://live-tv-img.jstv.com/livezhuzhan/jsgg.jpg",
+                        hls: "https://live-hls.jstv.com/livezhuzhan/jsgg.m3u8",
+                        position: "-56px 0"
+                    }, {
+                        id: 9,
+                        channelId: 556,
+                        title: "江苏综艺",
+                        img: "https://live-tv-img.jstv.com/livezhuzhan/jszy.jpg",
+                        hls: "https://live-hls.jstv.com/livezhuzhan/jszy.m3u8",
+                        position: "-84px 0"
+                    }, {
+                        id: 8,
+                        channelId: 542,
+                        title: "江苏影视",
+                        img: "https://live-tv-img.jstv.com/livezhuzhan/jsys.jpg",
+                        hls: "https://live-hls.jstv.com/livezhuzhan/jsys.m3u8",
+                        position: "-112px 0"
+                    }, {
+                        id: 7,
+                        channelId: 537,
+                        title: "江苏体育休闲",
+                        img: "https://live-tv-img.jstv.com/livezhuzhan/jsty.jpg",
+                        hls: "https://live-hls.jstv.com/livezhuzhan/jsty.m3u8",
+                        position: "-140px 0"
+                    }, {
+                        id: 29,
+                        channelId: 545,
+                        title: "江苏教育",
+                        img: "https://live-tv-img.jstv.com/livezhuzhan/jsjy.jpg",
+                        hls: "https://live-hls.jstv.com/livezhuzhan/jsjy.m3u8",
+                        position: "-168px 0"
+                    }, {
+                        id: 28,
+                        channelId: 544,
+                        title: "江苏国际",
+                        img: "https://live-tv-img.jstv.com/livezhuzhan/jsgj.jpg",
+                        hls: "https://live-hls.jstv.com/livezhuzhan/jsgj.m3u8",
+                        position: "-252px 0"
+                    }, {
+                        id: 27,
+                        channelId: 559,
+                        title: "好享购物",
+                        img: "https://live-tv-img.jstv.com/livezhuzhan/hxgw.jpg",
+                        hls: "https://live-hls.jstv.com/livezhuzhan/hxgw.m3u8",
+                        position: "-280px 0"
+                    }, {
+                        id: 10,
+                        channelId: 543,
+                        title: "优漫卡通",
+                        img: "https://live-tv-img.jstv.com/livezhuzhan/ymkt.jpg",
+                        hls: "https://live-hls.jstv.com/livezhuzhan/ymkt.m3u8",
+                        position: "-308px 0"
+                    }],
+                    
+*/
 /*
   UID, APPID : 进入 https://live.jstv.com/ 页面中
    使用 tokenInfo(localStorage.token)
