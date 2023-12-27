@@ -12,8 +12,16 @@
   v = JSON.parse(decodeURIComponent(document.getElementById("RENDER_DATA").text))
 */
 
+//var lastInitCookiesTime = 0;
 var lastInitCookiesTime = 0;
 function initCookies(){
+	//print("lastInitCookiesTime="+lastInitCookiesTime);
+	if( lastInitCookiesTime!=0 ){
+		return;
+	}
+	utils.addHttpCookiesFromCfgFile("https://douyin.com","configs/Douyin-Cookies.txt");
+	lastInitCookiesTime = utils.currentTime();
+	  /*
 	  if( lastInitCookiesTime>utils.getLastUpdateConfigPreferenceTime() ){
 	  	return;
 	  }
@@ -21,7 +29,8 @@ function initCookies(){
 	  //utils.addHttpCookiesFromConfig("https://live.douyin.com","Douyin.Cookie.");
 	  utils.addHttpCookiesFromConfig("https://douyin.com","Douyin.Cookie.");
 	  lastInitCookiesTime = utils.currentTime();
-	}
+	  */
+}
 
 function prepareMediaSource(url,params){
 	initCookies();
@@ -35,6 +44,7 @@ function prepareMediaSource(url,params){
 }
 	
 function prepareLiveMediaSource(rid){	
+	initCookies();
 	//var rid = utils.getUrlHostAndPath(url);
 	var headers = {
 		"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
@@ -44,7 +54,9 @@ function prepareLiveMediaSource(rid){
 		
 	};
 	var html = utils.httpGetAsString("https://live.douyin.com/"+rid,headers);
+
 //print(html);
+
     var jsPrefix = ',\\"stream_url\\":{\\"flv_pull_url\\":{';
     var p1 = html.indexOf(jsPrefix);
     var p2 = p1<0 ? -1 : html.indexOf("}",p1+jsPrefix.length);
