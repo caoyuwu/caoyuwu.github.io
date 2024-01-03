@@ -860,26 +860,7 @@
  {id:"虎牙-洪金宝",tag:"港片",urls:[
 	"huyalive://11602084"
  				  ]},
- {id:"洪金宝2",tag:"港片",urls:[
-	//"huyalive://qndyg"
- 				  ]},				  
-  {id:"黄百鸣",tag:"港片",urls:[
-  	]},
-  	
-  {id:"周润发",tag:"港片",urls:[
-   
-   ]},
-   {id:"李连杰",urls:[
-   
-  	]},
- {id:"甄子丹",urls:[
  
-  	]},
- {id:"成龙",tag:"港片",urls:[
- 
- ]},
- { id:"冯小刚",urls:[
- ]},
 {id:"虎牙-金庸",tag:"港片",urls:[
   "huyalive://11602082"
   	]},
@@ -1306,9 +1287,11 @@
     "setChannelNum=984775",//地方台-海南 984775
  // end 9849999 : 地方台
  
-"setChannelNum=985000", // 咪咕 985000-985099 
+"setChannelNum=985000", // 
 
 // 临时  99400
+"setChannelNum=99000", //
+  //
 "setChannelNum=99400",
 //"广场舞|http://router.lan/yy/SquareDance1.m3u8",
 "八段锦|http://router.lan/yy/八段锦.mp4",
@@ -1462,6 +1445,9 @@
               },
       		 {label:"2",items:["[9100-9199]"]},
       		 { label:"抖音直播",items:[
+				{label:"收藏",items: [//"tag:抖音直播收藏"
+				      {label:"潮白老王",url:"douyinlive:764108230882",tag:"抖音直播收藏"}
+				   ]},   
       		    {label:"娱乐天地",items:"@douyinlive-list:3_10000",countSubMenuPages:5},
       		    {label:"-运动",items:"@douyinlive-list:3_10000_2_2791",countSubMenuPages:5},
       		    {label:"-音乐",items:"@douyinlive-list:3_10000_2_2707",countSubMenuPages:5},
