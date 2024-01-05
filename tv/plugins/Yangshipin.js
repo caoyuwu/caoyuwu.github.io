@@ -72,7 +72,7 @@ function buildCKey(url,cnlid){
 	        +"|";
 	s = "|"+stringHashCode(s)+s;
 	//print(s);       
-	return "--01"+utils.aescbcEncode(CKey_AESIV,CKey_AESKEY,s,{"iv.encoding":"hex","key.encoding":"hex","result.encoding":"HEX"}); 
+	return "--01"+utils.aescbcEncrypt(CKey_AESIV,CKey_AESKEY,s,{"iv.encoding":"hex","key.encoding":"hex","result.encoding":"HEX"}); 
 }
 
 /*
