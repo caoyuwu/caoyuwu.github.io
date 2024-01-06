@@ -57,8 +57,15 @@ function buildCKey(url,cnlid){
 function prepareMediaSource(url,params){
 	var path = utils.getUrlHostAndPath(url); // 600001859
 	var p = path.indexOf("/");
-	if( p<0 )
-		 return null;
+	if( p<0 ) {
+		/*
+		  获取信息主要根据 cnlid, pid 好像不重要, 缺省使用 CCTV1-600001859
+		  关键: VIP 没有权限
+		*/
+		p = path.length;
+		path += "/600001859"; 
+		 //return null;
+	}
 	var pid = path.substring(p+1), 	cnlid =  path.substring(0,p);
 	var wurl = "https://www.yangshipin.cn/#/tv/home?pid="+pid;
 	var cKey = buildCKey(wurl,cnlid);
@@ -120,7 +127,7 @@ function prepareMediaSource(url,params){
 		  req,
 		  0x400
 	  ); 
-	 // print(text);
+ //print(text);
 	  var retVal = JSON.parse(text);
 	  if( retVal.code!=0 ){
 		  return null;
