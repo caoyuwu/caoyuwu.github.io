@@ -4,31 +4,7 @@ POSR https://player-api.yangshipin.cn/v1/player/get_live_info
 
 JS 跟踪:
   根据  get_live_info 中请求关键字, 查找 关键代码
-
- 
-t= 2000210103  //cnlid
-e = 1704386565
-r = 'V1.0.0'
-n=lqce65cx_pbamyg8qwje
-i = 5910204 // platform
-'|-1140821157|2000210103|1704386565|mg3c3b04ba|V1.0.0|lqce65cx_pbamyg8qwje|5910204|https://www.yangshipin.c|mozilla/5.0 (windows nt ||Mozilla|Netscape|Win32|'
-
-
-|('|200...Win32|'.hashCode)==-1140821157
-|cnlid=2000210103
-|time=1704386565
-|?mg3c3b04ba  (固定)
-|app_version=V1.0.0
-|guid=lqce65cx_pbamyg8qwje
-|platform=5910204
-|url.substr(0,24)=https://www.yangshipin.c 
-|navigator.userAgent.toLower().substr(0,24)="mozilla/5.0 (windows nt " 
-| // (空)
-|window.navigator.appCodeName=Mozilla
-|window.navigator.appName=Netscape
-|window.navigator.platform=Win32
-|
-
+  
 AES 加密:
   key = 48e5918a74ae21c972b90cce8af6c8be
   iv =  9a7e7d23610266b1d9fbf98581384d92   
@@ -153,6 +129,23 @@ function prepareMediaSource(url,params){
 	  if( data.playurl ){
 		  return  { url:data.playurl,headers:data.http_header};
 	  }
+	  /*
+	  cctv3 : 2000203803/600001801
+	  {
+    "code": 0,
+    "msg": "ok",
+    "data": {
+        "code": 25,
+        "errinfo": "无登录信息",
+        "iretcode": 25,
+        "iretdetailcode": 0,
+        "message": "无登录信息"
+    }
+		}	
+	  */
+	  if( data.code && data.errinfo ){
+		  throw data.errinfo;
+	  } 
 	  return null;
 }
 

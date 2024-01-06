@@ -64,7 +64,12 @@ function prepareLiveMediaSource(rid){
 		return null;
 	}
 	var text = html.substring(p1+jsPrefix.length-1,p2+1);
-	text = text.replaceAll('\\"','"');
+	if( text.replaceAll ){
+		text = text.replaceAll('\\"','"');
+	} else
+	{
+		text = utils.stringReplaceAll(text,'\\"','"');
+	}
 	var urls = JSON.parse(text);
 	return  urls.FULL_HD1 || urls.HD1 || urls.SD1 || urls.SD2 ;
 	//print(text);
