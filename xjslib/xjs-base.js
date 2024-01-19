@@ -1,6 +1,6 @@
 /*xjs/core/Xjs.java*/
 Xjs = {
-    version:'2.0.210327',
+    version:'3.0.240117',
     loadedXjs:[],
     objectTypes:{'regexp':RegExp,'array':Array,'date':Date,'error':Error},
     ROOTPATH:"",
@@ -64,6 +64,15 @@ Xjs = {
                 return;
             }
             Xjs._isReady = true;
+            var injectJs = Xjs.getReqParameter("__injectjs");
+            if(injectJs)
+            {
+                var a = injectJs.split(";");
+                for(var j=0;j < a.length;j++)
+                {
+                    Xjs.DOM.addHeadScript(Xjs.ROOTPATH + a[j]);
+                }
+            }
             for(;Xjs._readyList.length > 0;)
             {
                 var f = Xjs._readyList[0];
@@ -212,10 +221,8 @@ Xjs = {
             sp = _sp;
             overridesA = Array.prototype.slice.call(arguments,2);
         }
-        var F = function(){},
-            spp = sp.prototype;
-        F.prototype = spp;
-        var sbp = sb.prototype = new F();
+        var spp = sp.prototype,
+            sbp = sb.prototype = Object.create(spp);
         sbp.constructor = sb;
         sb.superclass = spp;
         if(spp.constructor == oc)
@@ -362,8 +369,8 @@ Xjs = {
         }
         return o;
     },
-    /*xjs.core.Xjs.objcmp*/
-    objcmp:function(v1,v2,nullLast)
+    /*xjs.core.Xjs.objCmp*/
+    objCmp:function(v1,v2,nullLast)
     {
         if(v1 == v2)
             return 0;
@@ -375,6 +382,8 @@ Xjs = {
         {
             v1 = v1.getTime();
             v2 = v2.getTime();
+            if(v1 == v2)
+                return 0;
         }
         return v1 < v2 ? -1 : 1;
     },
@@ -390,25 +399,6 @@ Xjs = {
             return v1.getTime() == v2.getTime();
         }
         return false;
-    },
-    /*xjs.core.Xjs.objCmp*/
-    objCmp:function(v1,v2)
-    {
-        if(v1 == null)
-        {
-            return v2 == null ? 0 : -1;
-        } else if(v2 == null)
-        {
-            return 1;
-        } else 
-        {
-            if(v1 instanceof Date && v2 instanceof Date)
-            {
-                v1 = v1.getTime();
-                v2 = v2.getTime();
-            }
-            return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
-        }
     },
     /*xjs.core.Xjs.toFullURL*/
     toFullURL:function(url,m)
@@ -507,8 +497,9 @@ Xjs = {
     /*xjs.core.Xjs.alertErr*/
     alertErr:function(ex,opts)
     {
-        if(ex && !ex.dummy)
+        if(ex && !ex.dummy && !ex.reported)
         {
+            ex.reported = true;
             var s = ex.description || ex.message || ex.toString();
             if(ex.name == "NetworkError")
             {
@@ -517,7 +508,10 @@ Xjs = {
             }
             if(ex.showMethod)
             {
-                ex.showMethod(ex,opts);
+                if(typeof(ex.showMethod) == "function")
+                    ex.showMethod(ex,opts);
+                else 
+                    ex.showMethod.apply([ex,opts]);
                 return;
             }
             if(Xjs.onAppError)
@@ -885,9 +879,54 @@ Xjs = {
     isAdmin:function(wadm)
     {
         return window.EnvParameter && !!(window.EnvParameter.WADMIN & wadm);
+    },
+    /*xjs.core.Xjs.loopValue*/
+    loopValue:function(startInclude,endExclude,func)
+    {
+        var a = [];
+        for(var i=startInclude;i < endExclude;i++)
+        {
+            a.push(func(i));
+        }
+        return a;
+    },
+    /*xjs.core.Xjs.loop*/
+    loop:function(startInclude,endExclude,func)
+    {
+        for(var i=startInclude;i < endExclude;i++)
+        {
+            func(i);
+        }
+    },
+    /*xjs.core.Xjs.reverseLoop*/
+    reverseLoop:function(startInclude,endExclude,func)
+    {
+        for(var i=endExclude - 1;i >= startInclude;i--)
+        {
+            func(i);
+        }
+    },
+    /*xjs.core.Xjs.dictForEach*/
+    dictForEach:function(o,func)
+    {
+        for(var key in o)
+        {
+            func(key,o[key]);
+        }
+    },
+    /*xjs.core.Xjs.dictMap*/
+    dictMap:function(o,func)
+    {
+        var a = [];
+        for(var key in o)
+        {
+            a.push(func(key,o[key]));
+        }
+        return a;
     }
 };
 (function(){
+    Xjs.startTime = (new Date()).getTime();
     var ua = Xjs.ua = (window.$userAgent || navigator.userAgent).toLowerCase();
     if(ua.indexOf("windows") > 0)
         Xjs.osType = 1;
@@ -903,6 +942,8 @@ Xjs = {
         Xjs.isChrome = true;
     if(ua.indexOf("mobile") >= 0)
         Xjs.isMobile = true;
+    if(ua.indexOf("harmonyos") >= 0)
+        Xjs.isHarmonyOS = true;
     if(new RegExp("android","gi").test(navigator.appVersion))
         Xjs.TouchDev = 3;
     else if(new RegExp("ipad","gi").test(navigator.appVersion))
@@ -1003,54 +1044,45 @@ Xjs = {
     Xjs._bindReady();
 })();
 Xjs.apply(Function,{
-    /*xjs.core.XFunction._eventListenerCall*/
-    _eventListenerCall:function(event,func,_this,catchErr,forcus,_by,_exArgs)
-    {
-        var args = [event || window.event,_by];
-        if(_exArgs)
-            Array.pushAll(args,_exArgs);
-        if(catchErr)
-        {
-            try
-            {
-                return func.apply(_this,args);
-            }catch(ex)
-            {
-                if(Xjs.alertErr)
-                {
-                    if(forcus && forcus . focusLatter && !ex.onClosing)
-                        ex.onClosing = new Xjs.FuncCall(forcus.focusLatter,forcus);
-                    Xjs.alertErr(ex);
-                } else 
-                {
-                    alert(ex);
-                }
-                return null;
-            }
-        } else 
-        {
-            return func.apply(_this,args);
-        }
-    },
     /*xjs.core.XFunction.bindAsEventListener*/
-    bindAsEventListener:function(func,_this,timeout,catchErr,forcus,exArgs)
+    bindAsEventListener:function(func,_this,timeout,catchErr,forcus,exArgs,opts)
     {
-        if(func == null)
-            throw new Error("func is null");
-        if(timeout > 0)
-        {
-            return function(e){
-            var _s = this;
-            setTimeout(function(){
-            return Function._eventListenerCall(e,func,_this,catchErr,forcus,_s,exArgs);
-        },timeout);
+        var _opts;
+        if(opts === undefined)
+            _opts = catchErr ? 1 : 0;
+        else 
+            _opts = opts;
+        return function(ev){
+            var args = [ev || window.event,this];
+            if(exArgs)
+                Array.pushAll(args,exArgs);
+            var onerr = null;
+            if(catchErr)
+            {
+                var f = function(ex){
+            if(Xjs.alertErr)
+            {
+                if(forcus && forcus.focusLatter && !ex.onClosing)
+                {
+                    ex.onClosing = new Xjs.FuncCall(forcus.focusLatter,forcus,[],1);
+                }
+                Xjs.alertErr(ex);
+            } else 
+            {
+                alert(ex);
+            }
         };
-        } else 
-        {
-            return function(e){
-            return Function._eventListenerCall(e,func,_this,catchErr,forcus,this,exArgs);
+                onerr = new Xjs.FuncCall(f,null);
+            }
+            var c = new Xjs.FuncCall(func,_this,args,1,_opts,onerr);
+            if(timeout > 0)
+            {
+                setTimeout(c.asFunction(),timeout);
+            } else 
+            {
+                c.apply(null);
+            }
         };
-        }
     },
     /*xjs.core.XFunction.setTimeout*/
     setTimeout:function(func,scope,timeout,catchErr)
@@ -1237,6 +1269,8 @@ Xjs.apply(Array,{
                     return mid;
                 else if(!key)
                     high = mid - 1;
+                else 
+                    break;
             }
             return -(low + 1);
         }
@@ -1253,6 +1287,18 @@ Xjs.apply(Array,{
         }
         var p = Array.binarySearch(a,low,high,key,compare);
         return p >= 0 ? a[p] : null;
+    },
+    /*xjs.core.XArray.search*/
+    search:function(a,key,cmp)
+    {
+        for(var i=0;i < a.length;i++)
+        {
+            if(cmp(a[i],key))
+            {
+                return i;
+            }
+        }
+        return -1;
     },
     /*xjs.core.XArray.equals*/
     equals:function(a1,a2)
@@ -1331,18 +1377,31 @@ Xjs.apply(Array,{
     {
         return Xjs.objCmp(a1[0],a2[0]);
     },
+    /*xjs.core.XArray.objCmp*/
+    objCmp:function(v1,v2)
+    {
+        return Xjs.objCmp(v1,v2);
+    },
     /*xjs.core.XArray.arrayCmpV*/
     arrayCmpV:function(a,v)
     {
         return Xjs.objCmp(a[0],v);
     },
     /*xjs.core.XArray.createCmp1*/
-    createCmp1:function(indexA)
+    createCmp1:function(indexA,vcmp)
     {
         var n = indexA.length;
-        if(n == 1 && indexA[0] == 0)
+        if(n == 1 && indexA[0] == 0 && !vcmp)
         {
             return Array.arrayCmp0;
+        }
+        var cmps = new Array(n);
+        for(var j=0;j < cmps.length;j++)
+        {
+            if(vcmp)
+                cmps[j] = vcmp[j];
+            if(!cmps[j])
+                cmps[j] = Xjs.objCmp;
         }
         return function(a1,a2){
             if((a1 == null || a2 == null) && window._debug_)
@@ -1355,10 +1414,10 @@ Xjs.apply(Array,{
                     cmp;
                 if(i >= 0)
                 {
-                    cmp = Xjs.objCmp(a1[i],a2[i]);
+                    cmp = cmps[j](a1[i],a2[i]);
                 } else 
                 {
-                    cmp = -Xjs.objCmp(a1[-(i + 1)],a2[-(i + 1)]);
+                    cmp = -cmps[j](a1[-(i + 1)],a2[-(i + 1)]);
                 }
                 if(cmp)
                     return cmp;
@@ -1416,7 +1475,30 @@ Xjs.apply(Array,{
     createIdxCmp:function(avals,vcmp)
     {
         return function(o1,o2){
-            return vcmp.call(this,avals[o1],avals[o2]);
+            return vcmp(avals[o1],avals[o2]);
+        };
+    },
+    /*xjs.core.XArray.createUnionCmp*/
+    createUnionCmp:function()
+    {
+        var a = arguments;
+        if(a.length == 1 && a[0] instanceof Array)
+        {
+            a = a[0];
+        }
+        if(a.length == 1)
+        {
+            return a[0];
+        }
+        var cmps = a;
+        return function(v1,v2){
+            for(var j=0;j < cmps.length;j++)
+            {
+                var k = cmps[j](v1,v2);
+                if(k != 0)
+                    return k;
+            }
+            return 0;
         };
     }
 });
@@ -1480,11 +1562,17 @@ Xjs.apply(Number,{
     /*xjs.core.XNumber.format*/
     format:function(x,minDecimal,maxDecimals,commas)
     {
+        if(x == null)
+            return null;
+        if(maxDecimals >= 0)
+        {
+            x = Xjs.Data.numScale(x,maxDecimals);
+        }
         var sx = x.toString();
         if(maxDecimals >= 0)
         {
             var p = sx.lastIndexOf('.');
-            if(p >= 0 && sx.length - p >= maxDecimals)
+            if(sx.indexOf("e") > 0 || p >= 0 && sx.length - p >= maxDecimals)
             {
                 sx = x.toFixed(maxDecimals);
             }
@@ -1520,20 +1608,45 @@ Xjs.apply(Number,{
         return s2.length > 0 ? s1 + "." + s2 : s1;
     },
     /*xjs.core.XNumber.obj2int*/
-    obj2int:function(x,defaultValue)
+    obj2int:function(x,dftVal)
     {
         if(typeof(x) == "string")
         {
             x = parseInt(x);
         }
         if(typeof(x) != "number" || isNaN(x))
-            return defaultValue;
+            return dftVal;
         return Number.toInt(x);
     },
     /*xjs.core.XNumber.toInt*/
     toInt:function(value)
     {
         return value < 0 ? Math.ceil(value) : Math.floor(value);
+    }
+});
+Xjs.apply(Error,{
+    /*xjs.core.XError.newRedoConfirmErr*/
+    newRedoConfirmErr:function(message,flag,req)
+    {
+        var redoIfErrConfirmed = Error.redoIfErrConfirmed,
+            err = new Error(message);
+        if(!redoIfErrConfirmed)
+            return err;
+        var cnt = redoIfErrConfirmed.getExtInfo(flag) || 0;
+        if(cnt > 0)
+            return null;
+        redoIfErrConfirmed.setExtInfo(flag,cnt + 1);
+        var perform = new Xjs.util.ConfirmPerform(null,req,redoIfErrConfirmed,1),
+            showMethod = function(ex){
+            perform.callOnPerformed = new Xjs.FuncCall(function(){
+            Xjs.DOM._onWMouseUp(null);
+            if(ex.onClosing)
+                ex.onClosing.apply(null);
+        },null);
+            perform.confirmPerform();
+        };
+        err.showMethod = new Xjs.FuncCall(showMethod,null);
+        return err;
     }
 });
 /*xjs/core/XjsObject.java*/
@@ -1647,11 +1760,22 @@ Xjs.extend(Xjs.Observable,Xjs.Object,{
     /*xjs.core.Observable.fireEvent*/
     fireEvent:function()
     {
-        var evName = arguments[0],
-            n = this.listeners ? this.listeners.length : 0;
+        var evName,
+            src,
+            p0 = arguments[0];
+        if(typeof(p0) != "string" && p0)
+        {
+            evName = p0.eventName;
+            src = p0.eventSrc;
+        } else 
+        {
+            evName = p0;
+            src = this;
+        }
+        var n = this.listeners ? this.listeners.length : 0;
         if(n > 0)
         {
-            arguments[0] = this;
+            arguments[0] = src;
             for(var i=0;i < n;i++)
             {
                 var l = this.listeners[i];
@@ -1762,6 +1886,7 @@ Xjs.ui.Component=function(cfg){
 };
 Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
   _js$className_:"Xjs.ui.Component",
+    zoomBtnOpt:1,
     tipTextCls:"x-tiptext",
     /*xjs.ui.Component._addClsName*/
     _addClsName:function(clsName)
@@ -1790,13 +1915,18 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
         }
         return document.getElementById(eid);
     },
+    /*xjs.ui.Component._createDomElement*/
+    _createDomElement:function(tag)
+    {
+        return document.createElement(tag);
+    },
     /*xjs.ui.Component._createDom0*/
     _createDom0:function(root,dftTag,styles)
     {
         var d = this.id ? Xjs.DOM.findById(this.id,root) : null;
         if(!d)
         {
-            d = document.createElement(this.domTag || dftTag);
+            d = this._createDomElement(this.domTag || dftTag);
             if(this.id)
                 d.id = this.id;
         } else 
@@ -1875,6 +2005,14 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
             if(this.popupMenu || this._bindCtxMenu)
             {
                 this.dom.oncontextmenu = Function.bindAsEventListener(this.onContextMenu,this);
+            }
+            if(this.zdomid)
+            {
+                this._compZoom = new Xjs.ui.util.ComponentZoom(this,this.zdomid);
+            }
+            if(this.onDomScrollFlags)
+            {
+                this.dom.onscroll = Function.bindAsEventListener(this.onDomScroll,this);
             }
             this.onDomCreated(this._rootDOM || root);
             if(this.fnOnDomCreated)
@@ -1982,7 +2120,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     /*xjs.ui.Component.isReadonly*/
     isReadonly:function()
     {
-        return !!this.readOnly;
+        return !!this.readOnly || this.compEditable && this.compEditable.isEditReadonly(this);
     },
     /*xjs.ui.Component.setSize*/
     setSize:function(width,height)
@@ -2001,18 +2139,24 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     setWidth:function(width)
     {
         if(width === undefined)
+        {
             delete this.width;
-        else 
+        } else 
+        {
             this.width = width;
+        }
         this._updateDomSize();
     },
     /*xjs.ui.Component.setHeight*/
     setHeight:function(height)
     {
         if(height === undefined)
+        {
             delete this.height;
-        else 
+        } else 
+        {
             this.height = height;
+        }
         this._updateDomSize();
     },
     /*xjs.ui.Component.setFitParentHeight*/
@@ -2246,9 +2390,19 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
         return this.rootUiid ? this.rootUiid : (this.parent ? this.parent.getRootComponentMID() : this.mid);
     },
     /*xjs.ui.Component.showTipText*/
-    showTipText:function(html,parent,position)
+    showTipText:function(text,parent,position)
     {
-        if(!this.tipTextLayer && html)
+        this._showTip(text,parent,position,false);
+    },
+    /*xjs.ui.Component.showTipHTML*/
+    showTipHTML:function(html,parent,position)
+    {
+        this._showTip(html,parent,position,true);
+    },
+    /*xjs.ui.Component._showTip*/
+    _showTip:function(text,parent,position,_html)
+    {
+        if(!this.tipTextLayer && text)
         {
             this.tipTextLayer = new Xjs.ui.Layer();
             if(this.tipTextFitSize & 4)
@@ -2258,15 +2412,34 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
             tipTextDOM.className = this.tipTextCls;
             this.tipTextLayer.attachDOM(tipTextDOM);
         }
-        if(html)
+        if(text)
         {
-            if(html.startsWith("@URL:"))
+            if(text.startsWith("@URL:"))
             {
-                html = Xjs.loadUrlRES(html.substring(5),true);
+                text = Xjs.loadUrlRES(this.html.substring(5),true);
+                _html = true;
             }
-            this.tipTextLayer.dom.innerHTML = html;
+            var dom = this.tipTextLayer.dom;
+            if(_html)
+                dom.innerHTML = text;
+            else if(text.indexOf("\n") < 0)
+            {
+                Xjs.DOM.setTextContent(dom,text);
+            } else 
+            {
+                var a = text.split("\n");
+                Xjs.DOM.removeAllChild(dom);
+                for(var j=0;j < a.length;j++)
+                {
+                    var e = document.createElement("span");
+                    Xjs.DOM.setTextContent(e,Xjs.HtmlUTIL.fillPrefixBlank(a[j]));
+                    dom.appendChild(e);
+                    if(j < a.length - 1)
+                        dom.appendChild(document.createElement("br"));
+                }
+            }
             this.tipTextLayer.alignShow(parent || this,position || 3,this.tipTextFitSize);
-        } else if(this.tipTextLayer != null)
+        } else if(this.tipTextLayer)
         {
             this.tipTextLayer.hide();
         }
@@ -2285,7 +2458,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     /*xjs.ui.Component._addShowTipTextMouseListener*/
     _addShowTipTextMouseListener:function()
     {
-        if(this.dom && (this.tipText || this.fn$TipText) && !this._fnshowTipTextOnMouseOver)
+        if(this.dom && (this.tipText || this.fn$TipText) && !this._fnshowTipTextOnMouseOver && !this._designMode)
         {
             Xjs.DOM.addListener(this.dom,"mouseover",this._fnshowTipTextOnMouseOver = Function.bindAsEventListener(this._showTipTextOnMouseOver,this));
             Xjs.DOM.addListener(this.dom,"mouseout",this._fnhideTipTextOnMouseout = Function.bindAsEventListener(this._hideTipTextOnMouseOut,this));
@@ -2310,7 +2483,10 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
             tipText = this.fn$TipText.call();
         else 
             tipText = this.tipText;
-        this.showTipText(tipText,null);
+        if(this.tipAsHTML)
+            this.showTipHTML(tipText,null);
+        else 
+            this.showTipText(tipText,null);
     },
     /*xjs.ui.Component._hideTipTextOnMouseOut*/
     _hideTipTextOnMouseOut:function(e)
@@ -2422,14 +2598,19 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     /*xjs.ui.Component.performCommand*/
     performCommand:function(src,cmd)
     {
-        var ra = [];
+        if(this._designMode)
+        {
+            return;
+        }
+        var call = new Xjs.FuncCall(this.doPerformCmd,this,[src,cmd],1,Error.redoIfErrConfirmed ? 0 : 1,null),
+            ra = [];
         this.fireEvent.call(this,"beforecmd_" + cmd,ra);
         if(ra.length > 0)
         {
-            (new Xjs.util.ConfirmPerform(null,ra,new Xjs.FuncCall(this.doPerformCmd,this,[src,cmd]))).confirmPerform();
+            (new Xjs.util.ConfirmPerform(null,ra,call)).confirmPerform();
             return;
         }
-        this.doPerformCmd(src,cmd);
+        call.apply(null);
     },
     /*xjs.ui.Component.doPerformCmd*/
     doPerformCmd:function(src,cmd)
@@ -2446,72 +2627,110 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                 this.focus();
             }
         }
-        if(cmd == "savevalue" || cmd == "loadvalue")
+        switch(cmd)
         {
-            if(!this.valStoreDlg)
+        case "savevalue":
+        case "loadvalue":
             {
-                var c = this;
-                Xjs.JsLoad.asynLoadJsLibsOfVar("Xjs.ui.tools.PaneValueStore").then(function(v){
+                if(!this.valStoreDlg)
+                {
+                    var c = this;
+                    Xjs.JsLoad.asynLoadJsLibsOfVar("Xjs.ui.tools.PaneValueStore").then(function(v){
             c.valStoreDlg = new Xjs.ui.tools.PaneValueStore(c);
             c.valStoreDlg.showDialog(cmd == "savevalue");
         });
-            } else 
-            {
-                this.valStoreDlg.showDialog(cmd == "savevalue");
-            }
-        } else if(cmd == "uidefinition")
-        {
-            var rootUIID = this.uidefRootUIID != null ? this.uidefRootUIID : this.getRootComponentMID();
-            if(rootUIID != null)
-            {
-                var url = Xjs.RInvoke.buildUIInvokeURL(null,"90.UI.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
-                window.open(url,"_blank");
-            }
-        } else if(cmd == "uidefforcuicode")
-        {
-            var rootUIID = this.uidefRootUIID != null ? this.uidefRootUIID : this.getRootComponentMID();
-            if(rootUIID != null)
-            {
-                var url = Xjs.RInvoke.buildUIInvokeURL(null,"90.ui.CMUI.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
-                window.open(url,"_blank");
-            }
-        } else if(cmd == "uidefxml")
-        {
-            var rootUIID = this.uidefRootUIID != null ? this.uidefRootUIID : this.getRootComponentMID();
-            if(rootUIID != null)
-            {
-                var url = Xjs.RInvoke.buildUIInvokeURL(null,"90.UIXML.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
-                window.open(url,"_blank");
-            }
-        } else if(cmd == "uidefxmlfile")
-        {
-            var rootUIID = this.uidefRootUIID != null ? this.uidefRootUIID : this.getRootComponentMID();
-            if(rootUIID != null)
-            {
-                var url = Xjs.ROOTPATH + "ui/uixml?muiid=" + rootUIID;
-                window.open(url,"_blank");
-            }
-        } else if(cmd == "uideuistatic")
-        {
-            var muiid = this.uidefRootUIID != null ? this.uidefRootUIID : this.getRootComponentMID();
-            Xjs.RInvoke.rmInvoke("snsoft.cmc.uidef.UITableDefListener.buildStaticHTML",muiid,window.EnvParameter.lang,Xjs.getTheme());
-        } else if(cmd.indexOf("openDef_") == 0)
-        {
-            var node = src.getMenuNode(cmd);
-            if(node)
-            {
-                var cfgDef = node.cfgDef;
-                if(cfgDef)
+                } else 
                 {
-                    Xjs.ui.UIUtil.wopenUI(cfgDef.title,cfgDef.muiid,cfgDef.pm);
+                    this.valStoreDlg.showDialog(cmd == "savevalue");
+                }
+                break;
+            }
+        case "uidefinition":
+            {
+                var rootUIID = this.uidefRootUIID ? this.uidefRootUIID : this.getRootComponentMID();
+                if(rootUIID)
+                {
+                    var url = Xjs.RInvoke.buildUIInvokeURL(null,"90.UI.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                    window.open(url,"_blank");
+                }
+                break;
+            }
+        case "uidefforcuicode":
+            {
+                var rootUIID = this.uidefRootUIID ? this.uidefRootUIID : this.getRootComponentMID();
+                if(rootUIID != null)
+                {
+                    var url = Xjs.RInvoke.buildUIInvokeURL(null,"90.ui.CMUI.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                    window.open(url,"_blank");
+                }
+                break;
+            }
+        case "uidefxml":
+            {
+                var rootUIID = this.uidefRootUIID ? this.uidefRootUIID : this.getRootComponentMID();
+                if(rootUIID)
+                {
+                    var url = Xjs.RInvoke.buildUIInvokeURL(null,"90.UIXML.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                    window.open(url,"_blank");
+                }
+                break;
+            }
+        case "uidefxmlfile":
+            {
+                var rootUIID = this.uidefRootUIID ? this.uidefRootUIID : this.getRootComponentMID();
+                if(rootUIID)
+                {
+                    var url = Xjs.ROOTPATH + "ui/uixml?muiid=" + rootUIID;
+                    window.open(url,"_blank");
+                }
+                break;
+            }
+        case "uidefmodiprops":
+            {
+                var rootUIID = this.uidefRootUIID ? this.uidefRootUIID : this.getRootComponentMID();
+                if(rootUIID)
+                {
+                    var url = Xjs.RInvoke.buildUIInvokeURL(null,"90.ui.Muiext2.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                    window.open(url,"_blank");
+                }
+                break;
+            }
+        case "uidefmodiprops2":
+            {
+                var rootUIID = this.uidefRootUIID ? this.uidefRootUIID : this.getRootComponentMID();
+                if(rootUIID)
+                {
+                    var url = Xjs.RInvoke.buildUIInvokeURL(null,rootUIID + ".html?_uiopts1_=0x20000",0);
+                    window.open(url,"_blank");
                 }
             }
-        } else 
-        {
-            var args = Array.prototype.slice.call(arguments,0);
-            args[0] = "performCommand";
-            this.fireEvent.apply(this,args);
-            this.fireEvent.call(this,"oncmd_" + cmd);
+        case "uideuistatic":
+            {
+                var muiid = this.uidefRootUIID ? this.uidefRootUIID : this.getRootComponentMID();
+                Xjs.RInvoke.rmInvoke("snsoft.cmc.uidef.UITableDefListener.buildStaticHTML",muiid,window.EnvParameter.lang,Xjs.getTheme());
+                break;
+            }
+        default:
+            {
+                if(cmd.indexOf("openDef_") == 0)
+                {
+                    var node = src.getMenuNode(cmd);
+                    if(node)
+                    {
+                        var cfgDef = node.cfgDef;
+                        if(cfgDef)
+                        {
+                            Xjs.ui.UIUtil.wopenUI(cfgDef.title,cfgDef.muiid,cfgDef.pm);
+                        }
+                    }
+                } else 
+                {
+                    var args = Array.prototype.slice.call(arguments,0);
+                    args[0] = "performCommand";
+                    this.fireEvent.apply(this,args);
+                    this.fireEvent.call(this,"oncmd_" + cmd);
+                }
+            }
         }
     },
     /*xjs.ui.Component.asynUIInvoke*/
@@ -2545,7 +2764,10 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     /*xjs.ui.Component.setDefaultValues*/
     setDefaultValues:function(values,opts)
     {
-        Xjs.ui.Component.setCompValues(this,new Xjs.ui.InitValues(values,!(opts & 1)),1);
+        var compFilter = new Xjs.FuncCall(function(c){
+            return c.isTable() ? 3 : 0;
+        },null);
+        Xjs.ui.Component.setCompValues(this,new Xjs.ui.InitValues(values,!(opts & 1)),1,compFilter);
     },
     /*xjs.ui.Component.resetBackupInitVal*/
     resetBackupInitVal:function(name,val)
@@ -2587,8 +2809,8 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
             }
         }
     },
-    /*xjs.ui.Component.initComponent*/
-    initComponent:function(values)
+    /*xjs.ui.Component.initComp*/
+    initComp:function(values)
     {
         if(values.loadClasses)
         {
@@ -2618,13 +2840,13 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                     }
                 }
             }
-            if("DT_00.sop" in values.selectOpts)
+            var ids = ["DT_00.sop","DT_00.op","DT_00.op_1"];
+            for(var j=0;j < ids.length;j++)
             {
-                Xjs.ui.Component._sopSels = values.selectOpts["DT_00.sop"];
-            }
-            if("DT_00.op" in values.selectOpts)
-            {
-                Xjs.ui.Component._opSels = values.selectOpts["DT_00.op"];
+                if(ids[j] in values.selectOpts)
+                {
+                    Xjs.ui.Component._mOpSels[ids[j]] = values.selectOpts[ids[j]];
+                }
             }
         }
         if(values.CompConfig)
@@ -2691,6 +2913,29 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
         if(this.backInitValues)
         {
             this._$backInitValues = this.getItemValues();
+        }
+    },
+    /*xjs.ui.Component.callOnAfterCompInited*/
+    callOnAfterCompInited:function(scorp,f,args)
+    {
+        var fc = new Xjs.FuncCall(f,scorp,args);
+        if(this._afterCompInited)
+        {
+            fc.call();
+        } else 
+        {
+            if(!this.fnOnAfterCompInited)
+                this.fnOnAfterCompInited = [fc];
+            else 
+            {
+                for(var j=0;j < this.fnOnAfterCompInited.length;j++)
+                {
+                    var fn = this.fnOnAfterCompInited[j];
+                    if(fn.func == f && fn.scorp == scorp && Array.equals(fn.args,args))
+                        return;
+                }
+                this.fnOnAfterCompInited.push(fc);
+            }
         }
     },
     /*xjs.ui.Component.getMainComponentByName*/
@@ -2783,8 +3028,10 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
         this.compValueMap = compValueMap;
     },
     /*xjs.ui.Component._getValueTo*/
-    _getValueTo:function(values,options)
+    _getValueTo:function(values,options,nm)
     {
+        if(!nm)
+            nm = this.name;
         var v = null;
         if((options & 2) == 0 || (this.saveOrder || 0) >= 0)
             v = this.compValueMap ? this.compValueMap.get(this) : this.getValue();
@@ -2795,7 +3042,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
             var op = this.opComp.getValue();
             if(op != null)
             {
-                values.set(this.name + ".[op]",op);
+                values.set(nm + ".[op]",op);
                 if(op == "isnull" || op == "isnotnull")
                 {
                     v = null;
@@ -2803,7 +3050,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
             }
         } else if(this.initOpVal)
         {
-            values.set(this.name + ".[op]",this.initOpVal);
+            values.set(nm + ".[op]",this.initOpVal);
         }
         if(v != null || (options & 1) == 0)
         {
@@ -2812,7 +3059,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                 v = Xjs.Data.parseFromSqlType(v,this.sqlType);
             }
             if(values)
-                values.set(this.name,v);
+                values.set(nm,v);
             if(options & 0x100 && this.storeHistValue && v)
             {
                 Xjs.ui.util.HistAidInputer.addStoreHistValName(this);
@@ -2882,7 +3129,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     closeRequest:function()
     {
         var text = null;
-        if(this.items != null)
+        if(this.items)
             for(var i=0;i < this.items.length;i++)
             {
                 if(this.items[i].mainUI)
@@ -2890,7 +3137,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                     var s = this.items[i].closeRequest();
                     if(s == null)
                         continue;
-                    text = text == null ? s : text + "\r\n" + s;
+                    text = text ? text + "\r\n" + s : s;
                 }
             }
         return text;
@@ -3173,10 +3420,23 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     /*xjs.ui.Component.newDftOpComp*/
     newDftOpComp:function(id,type)
     {
-        return new Xjs.ui.InputField({name:this.name + ".[op]",id:id,selectOptions:Xjs.ui.Component.getOpSelections(type),width:90,aidInputer:new Xjs.ui.ComboAidInputer({selOptions:1 | 0x10000 | 0x20000000}),editable:false,showName:true,value:this.initOpVal || "="});
-    }
+        return new Xjs.ui.InputField({name:this.name + ".[op]",id:id,selectOptions:Xjs.ui.Component.getOpSelections(type,0),width:90,aidInputer:new Xjs.ui.ComboAidInputer({selOptions:1 | 0x10000 | 0x20000000}),editable:false,showName:true,value:this.initOpVal || "="});
+    },
+    /*xjs.ui.Component.onDomScroll*/
+    onDomScroll:function(ev)
+    {
+        if(this.onDomScrollFlags & 1)
+        {
+            var f = Xjs.table.Table._getFuncCall4Table();
+            f.args[1] = "fixScrollBar";
+            Xjs.table.Table.forEachTable(this,f);
+        }
+    },
+    /*xjs.ui.Component.isTable*/
+    isTable:Xjs.falseFn
 });
 Xjs.apply(Xjs.ui.Component,{
+    _mOpSels:{},
     /*xjs.ui.Component.createDomFromRes*/
     createDomFromRes:function(html,obj,cache,macro)
     {
@@ -3286,23 +3546,52 @@ Xjs.apply(Xjs.ui.Component,{
             if(options & 4 && comp.onResize)
             {
                 var f = comp.onResize.createDelegate(comp);
-                Xjs.DOM.addListener(window,"resize",f);
+                Xjs.DOM.addWResizeListener(new Xjs.FuncCall(comp.onResize,comp),true);
                 Xjs.DOM.addListener(window,"load",f);
             }
             if(options & 8)
-                comp.checkShowing(new Array(1),true);
+                comp.checkShowing(new Array(1),!(options & 16));
         }
+        Xjs.ui.Component._winInted = true;
         Xjs.checkWDocResized();
+        if(Xjs.ui.Component._callOnWinInit)
+            for(var i=0;i < Xjs.ui.Component._callOnWinInit.length;i++)
+            {
+                Xjs.ui.Component._callOnWinInit[i].call(comp);
+            }
+        delete Xjs.ui.Component._callOnWinInit;
+    },
+    /*xjs.ui.Component.callOnWinInit*/
+    callOnWinInit:function(c)
+    {
+        if(Xjs.ui.Component._winInted)
+        {
+            c.call(window._MainUI);
+        } else 
+        {
+            if(!Xjs.ui.Component._callOnWinInit)
+                Xjs.ui.Component._callOnWinInit = [];
+            Xjs.ui.Component._callOnWinInit.push(c);
+        }
     },
     /*xjs.ui.Component.forEach*/
-    forEach:function(c,fn,scope,parameter)
+    forEach:function(c,fn,scope,_args)
     {
         var args = Array.prototype.slice.call(arguments,2);
-        Xjs.ui.Component._forEach(c,fn,scope || this,args);
+        Xjs.ui.Component._forEach(c,null,fn,scope || this,args);
+    },
+    /*xjs.ui.Component.forEach2*/
+    forEach2:function(c,compFilter,fn,scope,_args)
+    {
+        Xjs.ui.Component._forEach(c,compFilter,fn,scope || this,Array.prototype.slice.call(arguments,3));
     },
     /*xjs.ui.Component.fnSetValues*/
     fnSetValues:function(c,values,options,vset)
     {
+        if(window._debug_ && c.isTable())
+        {
+            window.console.log("fnSetValues:" + c.id + ":" + c.name + ":");
+        }
         if(c.name && (c.setValue || c.compValueMap))
         {
             if(options & 8 && c.disableRestoreInitVal)
@@ -3346,22 +3635,23 @@ Xjs.apply(Xjs.ui.Component,{
         return false;
     },
     /*xjs.ui.Component._forEach*/
-    _forEach:function(c,fn,scope,args)
+    _forEach:function(c,compFilter,fn,scope,args)
     {
         args[0] = c;
-        if(fn.apply(scope,args))
+        var doFlag = (compFilter ? compFilter.call(c) : 0) || 0;
+        if(!(doFlag & 1) && fn.apply(scope,args))
             return;
-        if(!c.items)
+        if(!c.items || doFlag & 2)
             return;
         var items = c.items,
             n = items.length;
         for(var i=0;i < n;i++)
         {
-            Xjs.ui.Component._forEach(items[i],fn,scope || this,args);
+            Xjs.ui.Component._forEach(items[i],compFilter,fn,scope || this,args);
         }
     },
     /*xjs.ui.Component.setCompValues*/
-    setCompValues:function(c0,values,options)
+    setCompValues:function(c0,values,options,compFilter)
     {
         if(values == null)
             return;
@@ -3372,7 +3662,7 @@ Xjs.apply(Xjs.ui.Component,{
             return;
         }
         var vset = [];
-        Xjs.ui.Component.forEach(c0,Xjs.ui.Component.fnSetValues,null,values,options,vset);
+        Xjs.ui.Component.forEach2(c0,compFilter,Xjs.ui.Component.fnSetValues,null,values,options,vset);
         vset.sort(Array.arrayCmp0);
         for(var i=0;i < vset.length;i++)
         {
@@ -3536,21 +3826,49 @@ Xjs.apply(Xjs.ui.Component,{
                 if(c.mainUI)
                     Xjs.ui.Component._afterInitComponents(c);
             }
+        comp._afterCompInited = true;
+        if(comp.fnOnAfterCompInited)
+            for(var i=0;i < comp.fnOnAfterCompInited.length;i++)
+            {
+                comp.fnOnAfterCompInited[i].call();
+            }
+        delete comp.fnOnAfterCompInited;
     },
     /*xjs.ui.Component._initComponents*/
     _initComponents:function(comp,vals,initVals,pm,_loadUiOpts)
     {
-        Xjs.ui.Component._initComps(comp,initVals,pm,_loadUiOpts);
+        Xjs.ui.Component._initComps(comp,initVals,pm,_loadUiOpts,null,null,null);
+    },
+    /*xjs.ui.Component._refreshTblsOnInit*/
+    _refreshTblsOnInit:function(t,t2,refreshOpts)
+    {
+        if(t)
+            for(var i=0;i < t.length;i++)
+            {
+                if(t[i])
+                    t[i].refreshTableIfOK(null,refreshOpts);
+            }
+        if(t2)
+            for(var i=0;i < t2.length;i++)
+            {
+                if(t2[i])
+                    t2[i].refreshDataSetIfMasterRow();
+            }
     },
     /*xjs.ui.Component._initComps*/
-    _initComps:function(comp,initVals,pm,_loadUiOpts)
+    _initComps:function(comp,initVals,pm,_loadUiOpts,refreshTbls,refreshTbls2,ctrls)
     {
+        if(_loadUiOpts & 2)
+        {
+            Xjs.ui.Component._onInitComps2(comp,_loadUiOpts,refreshTbls,refreshTbls2,ctrls);
+            return;
+        }
         var values;
         if(Xjs.isDebugMode)
         {
-            Xjs.diag.Diag.startTrace("初始化(_initComps)",comp.name);
+            Xjs.diag.Diag.startTrace("初始化(_initComps)",comp.mid || comp.name);
         }
-        var params = {};
+        var params = {_loadUIOpts:_loadUiOpts};
         if(!(_loadUiOpts & 8))
         {
             Xjs.apply(params,window.EnvParameter.ReqParameter);
@@ -3562,20 +3880,31 @@ Xjs.apply(Xjs.ui.Component,{
         Xjs.ui.Component._prepareInitComponents(comp,params);
         if(!comp.disableServerInit)
         {
-            if(Xjs.isDebugMode)
+            if(_loadUiOpts & 32)
             {
-                Xjs.diag.Diag.timeTrace("初始化(uiInvoke)",comp.name);
+                comp.asynUIInvoke("!init",params).then(function(vals){
+            Xjs.ui.Component._onInitComps(comp,vals,initVals,_loadUiOpts,refreshTbls,refreshTbls2,ctrls);
+        }).catch(function(ex){
+            Xjs.ui.SuccessInfo.showException(ex,comp.mtitle + ":失败","XJS");
+        });
+                return;
             }
-            var retV = comp.uiInvoke("!init",params);
-            if(Xjs.isDebugMode)
-            {
-                Xjs.diag.Diag.timeTrace("初始化(uiInvoke)",comp.name);
-            }
-            values = retV || {};
+            values = comp.uiInvoke("!init",params);
         } else 
         {
-            values = {};
+            values = null;
         }
+        Xjs.ui.Component._onInitComps(comp,values,initVals,_loadUiOpts,refreshTbls,refreshTbls2,ctrls);
+    },
+    /*xjs.ui.Component._onInitComps*/
+    _onInitComps:function(comp,values,initVals,_loadUiOpts,refreshTbls,refreshTbls2,ctrls)
+    {
+        if(Xjs.isDebugMode)
+        {
+            Xjs.diag.Diag.timeTrace("完成-!init",comp.mid || comp.name);
+        }
+        if(!values)
+            values = {};
         if(initVals)
             for(var n in initVals)
             {
@@ -3598,12 +3927,58 @@ Xjs.apply(Xjs.ui.Component,{
             if(!window.EnvParameter)
                 window.EnvParameter = {};
             Xjs.apply(window.EnvParameter,values.EnvParameter);
+            if(window.EnvParameter.tzOffset !== undefined && window.EnvParameter.tzOffset != (new Date()).getTimezoneOffset() * -60000)
+            {
+                Date.tzOffset = window.EnvParameter.tzOffset;
+            }
+        }
+        if(values.RootUICfg)
+        {
+            Xjs.apply(comp,values.RootUICfg);
         }
         Xjs.ui.Component._fireInitComp(comp,values,_loadUiOpts);
         Xjs.ui.Component._afterInitComponents(comp);
         if(Xjs.isDebugMode)
         {
-            Xjs.diag.Diag.endTrace("初始化(_initComps)",comp.name);
+            Xjs.diag.Diag.endTrace("初始化(_initComps)",comp.mid || comp.name);
+        }
+        Xjs.ui.Component._onInitComps2(comp,_loadUiOpts,refreshTbls,refreshTbls2,ctrls);
+    },
+    /*xjs.ui.Component._onInitComps2*/
+    _onInitComps2:function(comp,_loadUiOpts,refreshTbls,refreshTbls2,ctrls)
+    {
+        if(ctrls)
+        {
+            var t = comp.getMainComponents(Xjs.table.Table)[0];
+            Xjs.table.sample.TableOptsCtrlListener.addCtrlListener(t,ctrls);
+        }
+        var zr = _loadUiOpts & 0x100 || comp._defUiopts0 & 0x400;
+        if(!zr)
+        {
+            Xjs.ui.Component._refreshTblsOnInit(refreshTbls,refreshTbls2,_loadUiOpts & 64 ? 3 : 1);
+        }
+        if(_loadUiOpts & 16)
+            try
+            {
+                window._MainUI = comp;
+                comp._rootDOM = document.body;
+                if(Xjs.isDebugMode)
+                    Xjs.diag.Diag.startTrace("getDOM","");
+                comp.getDOM();
+                Xjs.ui.Component.winInit(15 | (_loadUiOpts & 0x80 ? 16 : 0),comp);
+                if(Xjs.isDebugMode)
+                    Xjs.diag.Diag.endTrace("getDOM","");
+                if(window.afterXjsLoad)
+                    window.afterXjsLoad(comp);
+                Xjs._uiInited = true;
+            }catch(ex)
+            {
+                Xjs.ui.SuccessInfo.showException(ex,comp.rootUiid + ":失败");
+                throw ex;
+            }
+        if(zr)
+        {
+            Xjs.ui.Component._refreshTblsOnInit(refreshTbls,refreshTbls2,_loadUiOpts & 64 ? 3 : 1);
         }
     },
     /*xjs.ui.Component._fireInitComp*/
@@ -3611,7 +3986,15 @@ Xjs.apply(Xjs.ui.Component,{
     {
         var o = values["UI." + comp.name] || {};
         o._loadUIOpts = _loadUiOpts;
-        comp.initComponent(o);
+        if(_loadUiOpts & 0x400)
+        {
+            delete comp.autoSaveParam;
+        }
+        if(_loadUiOpts & 0x800)
+        {
+            delete comp.valuesSaveable;
+        }
+        comp.initComp(o);
         if(comp.items)
             for(var i=0;i < comp.items.length;i++)
             {
@@ -3745,7 +4128,7 @@ Xjs.apply(Xjs.ui.Component,{
             break;
         default:
             {
-                if(((Xjs.osType == 2 ? ev.metaKey : ev.ctrlKey) || ev.altKey) && (keyCode >= 0x41 && keyCode <= 0x5a || keyCode >= 0x70 && keyCode <= 0x7b) || keyCode == 9 || keyCode == 0x1b || keyCode == 119)
+                if(((Xjs.osType == 2 ? ev.metaKey : ev.ctrlKey) || ev.altKey) && keyCode >= 33 || keyCode == 9 || keyCode == 0x1b || keyCode == 119 || keyCode == 38 || keyCode == 40)
                 {
                     Xjs.ui.Component._wkeyEvent = ev;
                     try
@@ -3794,23 +4177,18 @@ Xjs.apply(Xjs.ui.Component,{
         return;
     },
     /*xjs.ui.Component.getOpSelections*/
-    getOpSelections:function(type)
+    getOpSelections:function(type,flag)
     {
-        if(type == 12)
+        var id = "DT_00." + (type == 12 ? "sop" : "op") + (flag > 0 ? "_" + flag : ""),
+            a = Xjs.ui.Component._mOpSels[id];
+        if(!a)
         {
-            if(!Xjs.ui.Component._sopSels)
-            {
-                var codeData = Xjs.dx.CodeData.$new(null,{CODEDEFID:"DT_00.sop"});
-                Xjs.ui.Component._sopSels = codeData.getData();
-            }
-            return Xjs.ui.Component._sopSels;
+            var sort = [2,0],
+                codeData = Xjs.dx.CodeData.$new({sort:sort},{CODEDEFID:id});
+            a = codeData.getData();
+            a.sort(Array.createCmp1(sort));
         }
-        if(!Xjs.ui.Component._opSels)
-        {
-            var codeData = Xjs.dx.CodeData.$new(null,{CODEDEFID:"DT_00.op"});
-            Xjs.ui.Component._opSels = codeData.getData();
-        }
-        return Xjs.ui.Component._opSels;
+        return a;
     }
 });
 {
@@ -4004,7 +4382,7 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
             }
         if(this.itemsLayout)
         {
-            this.itemsLayout.relayoutItems(this);
+            this.itemsLayout.relayoutItems(this,this._getLayoutInDOM(this.dom));
         }
     },
     /*xjs.ui.Container.layoutItems*/
@@ -4058,6 +4436,7 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
                         {
                             var clb = new Xjs.ui.Component({dom:lb.parentNode,tipTextCls:"x-tiptext td_label"});
                             clb.fn$TipText = new Xjs.FuncCall(clb.getTipContentIfOvflow,clb);
+                            clb.tipAsHTML = true;
                             clb._addShowTipTextMouseListener();
                         }
                     }
@@ -4087,12 +4466,16 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
                 }
             }
     },
+    /*xjs.ui.Container._getLayoutInDOM*/
+    _getLayoutInDOM:function(dom)
+    {
+        return Xjs.DOM.findById(this.id + "-container",dom) || dom;
+    },
     /*xjs.ui.Container._createDOM*/
     _createDOM:function(root)
     {
-        var dom = this._createDom0(root,"div",null),
-            indom = Xjs.DOM.findById(this.id + "-container",dom);
-        this.layoutItems(indom || dom,root);
+        var dom = this._createDom0(root,"div",null);
+        this.layoutItems(this._getLayoutInDOM(dom),root);
         return dom;
     },
     /*xjs.ui.Container.indexOfItem*/
@@ -4309,10 +4692,10 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
     {
         return this.paramSaveType;
     },
-    /*xjs.ui.Container.initComponent*/
-    initComponent:function(values)
+    /*xjs.ui.Container.initComp*/
+    initComp:function(values)
     {
-        Xjs.ui.Container.superclass.initComponent.call(this,values);
+        Xjs.ui.Container.superclass.initComp.call(this,values);
         var nm = Xjs.getReqParameter(this.name + ".InitValParamName");
         if(nm)
         {
@@ -4365,7 +4748,7 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
             var c = this.firstFocusComp;
             if(typeof(c) == "string")
                 c = this.getItemByName(c);
-            if(c != null && firstFocus[0] == null)
+            if(c && firstFocus && !firstFocus[0])
             {
                 firstFocus[0] = c;
                 if(setFirstFocus)
@@ -4422,6 +4805,27 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
                 }
             }
         return null;
+    },
+    /*xjs.ui.Container._showStatusHTML*/
+    _showStatusHTML:function(html,toDOM)
+    {
+        if(this._lastStatusHTML == html)
+            return;
+        if(!html || !toDOM)
+        {
+            if(this.statusBar)
+                this.statusBar.style.display = "none";
+            this._lastStatusHTML = null;
+            return;
+        }
+        if(!this.statusBar)
+        {
+            this.statusBar = document.createElement("div");
+            this.statusBar.className = "ui-statusbar";
+            toDOM.appendChild(this.statusBar);
+        }
+        this.statusBar.style.display = "";
+        this.statusBar.innerHTML = this._lastStatusHTML = html;
     }
 });
 Xjs.apply(Xjs.ui.Container,{
@@ -4595,14 +4999,15 @@ Xjs.extend(Xjs.ui.Layer,Xjs.Observable,{
         if(parent)
         {
             if(parent instanceof Xjs.ui.ClientRectangle)
+            {
                 clientR = parent;
-            else if(parent.dom)
+            } else if(parent.dom)
             {
                 clientR = new Xjs.ui.ClientRectangle();
                 clientR.dom = parent.dom;
             }
         }
-        var size = this.getPrefSize ? this.getPrefSize(clientR) : null,
+        var size = this.getPrefSize && clientR ? this.getPrefSize(clientR) : null,
             setWidth = false,
             setHeight = false;
         if(!size)
@@ -4752,7 +5157,7 @@ Xjs.extend(Xjs.ui.Layer,Xjs.Observable,{
             if(Xjs.ui.Panel.inShowingZIndex.indexOf(this.zindex) < 0)
                 Xjs.ui.Panel.inShowingZIndex.push(this.zindex);
         }
-        this.dom.style.visibility = "visible";
+        this.dom.style.visibility = "";
         if(this.fnOnclick)
             this.bindBodyClick();
         this._addToStack();
@@ -4770,10 +5175,24 @@ Xjs.extend(Xjs.ui.Layer,Xjs.Observable,{
                 this._updatedCls = Xjs.ui.UIUtil.addHtmCls(this.updateHtlCls);
         }
     },
+    /*xjs.ui.Layer.addWResizeListener*/
+    addWResizeListener:function()
+    {
+        if(!this.fnOnWResize)
+        {
+            if(!this.component || !this.component.onResize)
+                return;
+            this.fnOnWResize = new Xjs.FuncCall(this.component.onResize,this.component);
+        }
+        Xjs.DOM.addWResizeListener(this.fnOnWResize,true);
+    },
     /*xjs.ui.Layer._removeFromStack*/
     _removeFromStack:function()
     {
-        var p = null;
+        Xjs.DOM.addWResizeListener(this.fnOnWResize,false);
+        delete this.fnOnWResize;
+        var wResize = false,
+            p = null;
         for(;;)
         {
             var n = p == null ? Xjs.ui.Layer._topLayer : p._parentLayer;
@@ -4789,11 +5208,19 @@ Xjs.extend(Xjs.ui.Layer,Xjs.Observable,{
                 if(this._updatedCls)
                 {
                     Xjs.ui.UIUtil.updateHtmlCls(this._updatedCls,true);
+                    if(this._updatedCls.rmCls && this._updatedCls.rmCls.indexOf("ui-fullpage") >= 0)
+                    {
+                        wResize = true;
+                    }
                     this._updatedCls = null;
                 }
                 continue;
             }
             p = n;
+        }
+        if(wResize)
+        {
+            Xjs.DOM._onWResize();
         }
     },
     /*xjs.ui.Layer._close*/
@@ -4982,6 +5409,36 @@ Xjs.extend(Xjs.ui.Layer,Xjs.Observable,{
     }
 });
 Xjs.apply(Xjs.ui.Layer,{
+    /*xjs.ui.Layer.checkShowing*/
+    checkShowing:function()
+    {
+        for(var l=Xjs.ui.Layer._topLayer;l;l = l._parentLayer)
+        {
+            if(l.component)
+            {
+                l.component.checkShowing(null,false);
+            }
+        }
+    },
+    /*xjs.ui.Layer.onResize*/
+    onResize:function()
+    {
+        for(var l=Xjs.ui.Layer._topLayer;l;l = l._parentLayer)
+        {
+            if(l.component)
+            {
+                l.component.onResize();
+                var tbl = l.component.getMainComponents(Xjs.table.Table);
+                if(tbl)
+                    for(var i=0;i < tbl.length;i++)
+                    {
+                        var t = tbl[i];
+                        if(Xjs.DOM.isShowing(t.dom))
+                            t.onResize();
+                    }
+            }
+        }
+    },
     /*xjs.ui.Layer.closeTop*/
     closeTop:function()
     {
@@ -5098,17 +5555,32 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         if(this.valuesSaveable && btnsDOM)
         {
             var res = Xjs.ResBundle.getRes("UI"),
-                b = new Xjs.ui.Button({domStyle:domStyle,command:"savevalue",id:this.id + "_btn_savevalue",text:res.get("Param.Save"),className:"btn"}),
+                b = new Xjs.ui.Button({domStyle:domStyle,command:"savevalue",id:this.id + "_btn_savevalue",text:res.get("Param.Save"),className:this.savevalueBtnCls}),
                 e = b.getDOM(root);
             if(!e.parentNode)
                 btnsDOM.appendChild(b.getDOM(root));
             b.addListener(this);
             this.okButtons = Array.addElement(this.okButtons,b);
-            b = new Xjs.ui.Button({domStyle:domStyle,command:"loadvalue",id:this.id + "_btn_loadvalue",text:res.get("Param.Load"),className:"btn"});
+            b = new Xjs.ui.Button({domStyle:domStyle,command:"loadvalue",id:this.id + "_btn_loadvalue",text:res.get("Param.Load"),className:this.loadvalueBtnCls});
             e = b.getDOM(root);
             if(!e.parentNode)
                 btnsDOM.appendChild(b.getDOM(root));
             b.addListener(this);
+        }
+        if(!this.valuesSaveable)
+        {
+            this.callOnDomCreated(this,this.hideParamSaveBtn,null);
+        }
+    },
+    /*xjs.ui.Panel.hideParamSaveBtn*/
+    hideParamSaveBtn:function()
+    {
+        var ids = ["_btn_savevalue","_btn_loadvalue"];
+        for(var j=0;j < ids.length;j++)
+        {
+            var e = Xjs.DOM.findById(this.id + ids[j],this.dom);
+            if(e)
+                e.style.display = "none";
         }
     },
     /*xjs.ui.Panel.onDomCreated*/
@@ -5185,7 +5657,7 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
                 }
             }catch(ex)
             {
-                console.log(ex);
+                console.log("%s",ex);
             }
         }
     },
@@ -5293,6 +5765,11 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         }
         return dom;
     },
+    /*xjs.ui.Panel._getLayoutInDOM*/
+    _getLayoutInDOM:function(dom)
+    {
+        return this.bodyDOM || dom;
+    },
     /*xjs.ui.Panel._updateToolbarVis*/
     _updateToolbarVis:function()
     {
@@ -5314,7 +5791,7 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
             }catch(ex)
             {
                 if(window.console)
-                    console.log(ex);
+                    console.log("%s",ex);
             }
         }
     },
@@ -5384,6 +5861,7 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         if(!this.hideTitle && !this.titleBar)
         {
             this.toolBar.title = this.title;
+            this.toolBar.htmlTitle = this.htmlTitle;
         } else 
         {
             this.toolBar.setTitleHidden(true);
@@ -5447,9 +5925,15 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         this.collapseContent(null,"");
     },
     /*xjs.ui.Panel.setTitle*/
-    setTitle:function(title)
+    setTitle:function(title,htmlTit)
     {
         this.title = title;
+        if(typeof(htmlTit) == "boolean")
+        {
+            this.htmlTitle = htmlTit;
+            if(this.toolBar)
+                this.toolBar.htmlTitle = htmlTit;
+        }
         if(this.toolBar && !this.hideTitle)
         {
             this.toolBar.setTitle(title);
@@ -5747,9 +6231,13 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         {
             this.layer.alignShow(parent,3,0);
         }
-        this.dom.style.visibility = "visible";
+        this.dom.style.visibility = "";
         this.layer._addToStack();
         this.layer._modal = !!modal;
+        if(modal)
+        {
+            this.layer.addWResizeListener();
+        }
         var em = this.escKeyMode === undefined ? 1 : this.escKeyMode;
         if(em == 1 && !this.hasAccKeyByKCode(0x1b))
         {
@@ -5810,7 +6298,7 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
             var e = this.bottomsDOM;
             if(e)
             {
-                var s = this.btnsFixedOnScroll = new Xjs.ui.util.FixedOnScroll2(null,null,e,this.bodyDOM,3);
+                var s = this.btnsFixedOnScroll = new Xjs.ui.util.FixedOnScroll2(null,null,e,this.bodyDOM,3,null);
                 setTimeout(s.checkFixed.createDelegate(s),1000);
             }
         }
@@ -5872,25 +6360,31 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
     {
         if(this._movingW)
             this._movingW.stopMouseMove();
-        this._movingW = null;
-        delete this._mouseFlags;
         var targetDOM = e.srcElement || e.target,
-            inBorder = this.resizeable !== false ? Xjs.Event.inDomBorder(e,this.dom,8) : 0;
-        this._mouseFlags = inBorder;
-        var tbar = this.toolBar || this.titleBar;
+            inBorder = this.resizeable !== false ? Xjs.Event.inDomBorder(e,this.dom,8) : 0,
+            _mouseFlags = inBorder,
+            tbar = this.toolBar || this.titleBar;
         if(tbar && inBorder == 0)
         {
             var inToobar = tbar.dom == targetDOM || Xjs.DOM.contains(tbar.dom,targetDOM);
             if(inToobar && !tbar.isDomInToolbarCloseIcon(targetDOM))
             {
-                this._mouseFlags = 0xf;
+                _mouseFlags = 0xf;
             }
         } else if(this.moveBarDOM)
         {
             if(typeof(this.moveBarDOM) == "string")
                 this.moveBarDOM = Xjs.DOM.find(this.moveBarDOM,this.dom);
             if(Xjs.DOM.contains(this.moveBarDOM,targetDOM))
-                this._mouseFlags = 0xf;
+                _mouseFlags = 0xf;
+        }
+        if(_mouseFlags & 0xf)
+        {
+            if(!this._movingW)
+            {
+                this._movingW = new Xjs.ui.ComponentMove(this.dom,0,null,this);
+            }
+            this._movingW.startMouseMove(e,_mouseFlags);
         }
         delete this._custSBars;
         if(Xjs.ui.GridTable)
@@ -5908,60 +6402,30 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
                 }
         }
     },
+    /*xjs.ui.Panel.onComponentStartMove*/
+    onComponentStartMove:Xjs.emptyFn,
     /*xjs.ui.Panel.onComponentMoved*/
-    onComponentMoved:function()
+    onComponentMoved:function(m,ev)
     {
-        if(this._movingW && this._movingW.moveMode == 0xf)
+        if(this._movingW.moveMode == 0xf)
             this.doMoveOrResize(this._movingW.initRect,this._movingW.currentRect);
+    },
+    /*xjs.ui.Panel.onComponentStopMove*/
+    onComponentStopMove:function(m,ev)
+    {
+        this.doMoveOrResize(this._movingW.initRect,this._movingW.currentRect);
     },
     /*xjs.ui.Panel._onWMouseMove*/
     _onWMouseMove:function(e)
     {
-        if(this._movingW)
-        {
-            return;
-        }
-        if(this._mouseFlags & 0xf)
-        {
-            if(!this._movingW)
-            {
-                this._movingW = new Xjs.ui.ComponentMove();
-                this._movingW.moveListener = this;
-                this._movingW.startMouseMove(this.dom,e,this._mouseFlags,this._$onWMouseUp,0,null);
-            }
-            this._mouseFlags = 0;
-            return;
-        }
         if(this.resizeable !== false)
         {
             var inBorder = Xjs.Event.inDomBorder(e,this.dom,8),
-                cursorType = null;
-            if(inBorder != 0)
+                ct = Xjs.ui.ComponentMove.getCursorType(inBorder);
+            if(ct != this._cursorType)
             {
-                switch(inBorder)
-                {
-                case 3:
-                case 12:
-                    cursorType = "se-resize";
-                    break;
-                case 9:
-                case 6:
-                    cursorType = "ne-resize";
-                    break;
-                case 1:
-                case 4:
-                    cursorType = "s-resize";
-                    break;
-                case 2:
-                case 8:
-                    cursorType = "e-resize";
-                    break;
-                }
-            }
-            if(cursorType != this._cursorType)
-            {
-                this._cursorType = cursorType;
-                this.dom.style.cursor = cursorType || "default";
+                this._cursorType = ct;
+                this.dom.style.cursor = ct || "";
             }
         }
     },
@@ -6007,14 +6471,6 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
     /*xjs.ui.Panel._onWMouseUp*/
     _onWMouseUp:function(e)
     {
-        this._mouseFlags = 0;
-        if(this._movingW)
-        {
-            var rect = this._movingW.stopMouseMove(e),
-                initRect = this._movingW.initRect;
-            this._movingW = null;
-            this.doMoveOrResize(initRect,rect);
-        }
         delete this._custSBars;
     },
     /*xjs.ui.Panel.attachToHTML*/
@@ -6055,7 +6511,7 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
         var pdom = tbComp.getDOM(),
             items = btnGrp.items,
             dom = btnGrp.getDOM(pdom);
-        mNode.sdom = Xjs.DOM.findById("btn_text",mNode.dom = dom.firstChild);
+        mNode.labelDom = Xjs.DOM.findById("btn_text",mNode.dom = dom.firstChild);
         if(items)
         {
             var fnClock = null;
@@ -6298,23 +6754,21 @@ Xjs.extend(Xjs.ui.DialogPane,Xjs.ui.Panel,{
         if(opts & 4)
             this.htmlRes = "@" + Xjs.getDefResPath() + "/WindowBox0.html";
     },
-    /*xjs.ui.DialogPane.initComponent*/
-    initComponent:function(values)
+    /*xjs.ui.DialogPane.initComp*/
+    initComp:function(values)
     {
-        Xjs.ui.DialogPane.superclass.initComponent.call(this,values);
+        Xjs.ui.DialogPane.superclass.initComp.call(this,values);
         var res = Xjs.ResBundle.getRes("UI");
-        if((window.EnvParameter.WADMIN & 3) != 0 || Xjs.isDebugMode)
+        if(window.EnvParameter.WADMIN & 3 || Xjs.isDebugMode)
         {
             this.addPopupMenus(["uidef",res.get("Def_UI")]);
             this.addPopupMenus(["uidef|uidefinition",res.get("Def_UIDB")]);
             this.addPopupMenus(["uidef|uidefforcuicode",res.get("Def_UIDBForCuicode")]);
             this.addPopupMenus(["uidef|uidefxml",res.get("Def_UIXML")]);
             this.addPopupMenus(["uidef|uidefxmlfile",res.get("Def_UIXMLFile")]);
+            this.addPopupMenus(["uidef|uidefmodiprops",res.get("Def_UIMODIPROPS")]);
+            this.addPopupMenus(["uidef|uidefmodiprops2",res.get("Def_UIMODIPROPS2")]);
             this.addPopupMenus(["uidef|uideuistatic",res.get("Def_UISTATIC")]);
-            this.addPopupMenus(["chche",res.get("CACHE")]);
-            this.addPopupMenus(["chche|removeallcache",res.get("CACHE_RemoveAllCache")]);
-            this.addPopupMenus(["chche|removelocalcache",res.get("CACHE_RemoveLocalCache")]);
-            this.addPopupMenus(["chche|removezkcache",res.get("CACHE_RemoveZKCache")]);
         }
         {
             this.addPopupMenus(["resetitemvals",res.get("ResetItemVal")]);
@@ -6325,28 +6779,6 @@ Xjs.extend(Xjs.ui.DialogPane,Xjs.ui.Panel,{
                 this._$backInitValues = {};
             }
         }
-    },
-    /*xjs.ui.DialogPane.oncmd_removeallcache*/
-    oncmd_removeallcache:function()
-    {
-        var res = Xjs.ResBundle.getRes("UI");
-        Xjs.RInvoke._rinvoke("SN-CMC.QueryCacheUIService.removeAllCaches","sv",null);
-        Xjs.RInvoke._rinvoke("SN-CMC.QueryCacheUIService.removezkcache","sv",null);
-        Xjs.ui.UIUtil.showInfoDialog(res.get("CACHE_RemoveAllCache"),res.get("CACHE_RemoveAllCache.InfoContent"));
-    },
-    /*xjs.ui.DialogPane.oncmd_removelocalcache*/
-    oncmd_removelocalcache:function()
-    {
-        var res = Xjs.ResBundle.getRes("UI");
-        Xjs.RInvoke._rinvoke("SN-CMC.QueryCacheUIService.removeAllCaches","sv",null);
-        Xjs.ui.UIUtil.showInfoDialog(res.get("CACHE_RemoveLocalCache"),res.get("CACHE_RemoveLocalCache.InfoContent"));
-    },
-    /*xjs.ui.DialogPane.oncmd_removezkcache*/
-    oncmd_removezkcache:function()
-    {
-        var res = Xjs.ResBundle.getRes("UI");
-        Xjs.RInvoke._rinvoke("SN-CMC.QueryCacheUIService.removezkcache","sv",null);
-        Xjs.ui.UIUtil.showInfoDialog(res.get("CACHE_RemoveZKCache"),res.get("CACHE_RemoveZKCache.InfoContent"));
     }
 });
 {
@@ -6552,6 +6984,8 @@ Xjs.ui.ComboAidInputerA=function(config){
     this.valueList.addListener(this);
     if(this.valueOpts > 0)
         this.valueList.valueOpts = this.valueOpts;
+    if(this.selOptions & 4 && this.mutiNohideIfOutclick)
+        this.hideIfOutclick = false;
 };
 Xjs.extend(Xjs.ui.ComboAidInputerA,Xjs.ui.LayerAidInputer,{
   _js$className_:"Xjs.ui.ComboAidInputerA",
@@ -6595,11 +7029,15 @@ Xjs.extend(Xjs.ui.ComboAidInputerA,Xjs.ui.LayerAidInputer,{
                 this.lvColumn = codeData.lvColumn;
                 if(this.lvColumn > 0)
                 {
-                    selectOpts.sort(Array.createCmp1([this.lvColumn]));
+                    selectOpts.sort(Array.createCmp1(this.sort = [this.lvColumn]));
                 }
             } else 
             {
                 selectOpts = this.parent.getSelectOptions(2);
+                if(this.parent.selectOptions instanceof Xjs.dx.CodeData && this.parent.selectOptions.getSort)
+                {
+                    this.sort = this.parent.selectOptions.getSort();
+                }
             }
             if(codeData instanceof Xjs.dx.CodeData)
             {
@@ -6615,27 +7053,76 @@ Xjs.extend(Xjs.ui.ComboAidInputerA,Xjs.ui.LayerAidInputer,{
             selectOpts = this.defaultCodeData.getData(null,null,2,0);
             this.lvColumn = this.defaultCodeData.lvColumn || 0;
             if(this.lvColumn > 0)
-                selectOpts.sort(Array.createCmp1([this.lvColumn]));
+                selectOpts.sort(Array.createCmp1(this.sort = [this.lvColumn]));
         }
+        var old = null,
+            selCloned = false;
         if(this.emptyText !== undefined)
         {
-            var old = selectOpts,
-                v = this.emptyValue || "";
+            old = selectOpts;
             selectOpts = [];
+            var v = this.emptyValue || "";
             selectOpts[0] = [v,this.emptyText];
+            selectOpts[0].nofmt = true;
+            selCloned = true;
+        }
+        if(this.ex1SelOptions)
+        {
+            if(!old)
+            {
+                old = selectOpts;
+                selectOpts = [];
+                selCloned = true;
+            }
+            var a = this.ex1SelOptions.split(";");
+            for(var i=0;i < a.length;i++)
+            {
+                var s = a[i],
+                    p = s.indexOf(":");
+                if(p >= 0)
+                {
+                    var vs = [this.toValueBySqltype(s.substring(0,p)),s.substring(p + 1)];
+                    vs.nofmt = true;
+                    selectOpts.push(vs);
+                }
+            }
+        }
+        if(old)
             for(var i=0;i < old.length;i++)
                 selectOpts.push(old[i]);
+        if(this.ex2SelOptions)
+        {
+            if(!selCloned)
+            {
+                selectOpts = Array.cloneArray(selectOpts);
+                selCloned = true;
+            }
+            var a = this.ex2SelOptions.split(";");
+            for(var i=0;i < a.length;i++)
+            {
+                var s = a[i],
+                    p = s.indexOf(":");
+                if(p >= 0)
+                {
+                    selectOpts.push([this.toValueBySqltype(s.substring(0,p)),s.substring(p + 1)]);
+                }
+            }
         }
         if(this.filters)
             selectOpts = Xjs.ui.LayerAidInputer.filterValues(this.filters,selectOpts);
         if(codeData && codeData.pgRowCount && this.pgNavPane)
         {
             this.pgRowCount = codeData.pgRowCount;
-            var nr = selectOpts.length;
-            this.pgNavPane.setPageInfo(nr,Math.ceil(nr / this.pgRowCount),0,this.pgRowCount);
-            this.pgNavPane.dom.style.display = this.pgNavPane.totalPages > 1 ? "" : "none";
         }
         return selectOpts;
+    },
+    /*xjs.ui.ComboAidInputerA.toValueBySqltype*/
+    toValueBySqltype:function(s)
+    {
+        var t = this.parent ? this.parent.sqlType : 0;
+        if(t == 0 || t == 12)
+            return s;
+        return Xjs.Data.parseFromSqlType(s,t);
     },
     /*xjs.ui.ComboAidInputerA.getSortedSelOpts*/
     getSortedSelOpts:function()
@@ -6700,6 +7187,17 @@ Xjs.extend(Xjs.ui.ComboAidInputerA,Xjs.ui.LayerAidInputer,{
     /*xjs.ui.ComboAidInputerA.getRowByValue*/
     getRowByValue:function(value)
     {
+        if(this.sort && this.sort[0] != 0)
+        {
+            for(var r=0;r < this.selectOptions.length;r++)
+            {
+                if(this.selectOptions[r][0] == value)
+                {
+                    return this.selectOptions[r];
+                }
+            }
+            return null;
+        }
         var cmp = Array.createCmp1([0]),
             p = Array.binarySearch(this.selectOptions,[value],cmp);
         return p >= 0 ? this.selectOptions[p] : null;
@@ -6755,27 +7253,32 @@ Xjs.extend(Xjs.ui.ComboAidInputerA,Xjs.ui.LayerAidInputer,{
             if(p >= 0)
                 return this.selectOptions[p].length > keyCount ? this.selectOptions[p][keyCount] : value;
         }
+        var nameIdx = this.nameIdx || 1;
         if(this.selectOptions)
         {
             var p = Array.binarySearch(this.selectOptions,[value],Array.arrayCmp0);
             if(p >= 0)
-                return this.selectOptions[p].length > 1 ? this.selectOptions[p][1] : value;
-            s = this._getValueText(value,this.selectOptions);
+                return this.selectOptions[p].length > 1 ? this.selectOptions[p][nameIdx] : value;
+            s = this._getValueText(value,this.selectOptions,nameIdx);
             if(s != null)
                 return s;
         }
-        s = this._getValueText(value,this.loadSelectOptions());
+        s = this._getValueText(value,this.loadSelectOptions(),nameIdx);
+        if(!s && this.parent.valueMap)
+        {
+            s = this.parent.valueMap[value];
+        }
         return s == null ? value : s;
     },
     /*xjs.ui.ComboAidInputerA._getValueText*/
-    _getValueText:function(value,selectOpts)
+    _getValueText:function(value,selectOpts,nameIdx)
     {
         if(selectOpts)
             for(var i=0;i < selectOpts.length;i++)
             {
                 if(value == selectOpts[i][0])
                 {
-                    return selectOpts[i].length > 1 ? selectOpts[i][1] : value;
+                    return selectOpts[i].length > 1 ? selectOpts[i][nameIdx] : value;
                 }
             }
         return null;
@@ -7308,7 +7811,7 @@ Xjs.extend(Xjs.ui.ComboAidInputerA,Xjs.ui.LayerAidInputer,{
         this.valueList.setShowCode(this.showCode);
         if(this.inputField && this.clearInitFilter)
             this.inputField.value = "";
-        this.valueList.setValue(this.initValue == "" ? null : this.initValue);
+        this.valueList.setValue(this.initValue === "" ? null : this.initValue);
         this.refilter(refilter,0);
     },
     /*xjs.ui.ComboAidInputerA.performCommand*/
@@ -7361,6 +7864,8 @@ Xjs.extend(Xjs.ui.Window,Xjs.ui.DialogPane,{
         this.moveable = true;
         if(!this.frameClassName)
             this.frameClassName = "ui-window ui-wborder";
+        else if(this.frameClassName.endsWith("*"))
+            this.frameClassName = this.frameClassName.substring(0,this.frameClassName.length - 1) + "ui-window ui-wborder";
     },
     /*xjs.ui.Window._createDOM*/
     _createDOM:function(root)
@@ -7557,11 +8062,21 @@ Xjs.apply(Xjs.table.DefaultTableListener.prototype,{
     round2:function(v)
     {
         return this.round(v,2);
-    }
+    },
+    /*xjs.table.DefaultTableListener.onTableDrop*/
+    onTableDrop:Xjs.emptyFn,
+    /*xjs.table.DefaultTableListener.isCellPostValue*/
+    isCellPostValue:Xjs.falseFn,
+    /*xjs.table.DefaultTableListener.prepareUReportParams*/
+    prepareUReportParams:Xjs.emptyFn,
+    /*xjs.table.DefaultTableListener.getGroupDataParamTblid*/
+    getGroupDataParamTblid:Xjs.emptyFn,
+    /*xjs.table.DefaultTableListener.initGroupData*/
+    initGroupData:Xjs.emptyFn
 });
 /*xjs/ui/AidInputerWindow.java*/
 Xjs.ui.AidInputerWindow=function(config){
-    Xjs.ui.AidInputerWindow.superclass.constructor.call(this,config);
+    Xjs.ui.AidInputerWindow.superclass.constructor.call(this,Xjs.ui.AidInputerWindow.$$rebuildConfig(config));
     if(window.xjsConfig && window.xjsConfig.aidInputWinOpts)
     {
         Xjs.applyIf(this,window.xjsConfig.aidInputWinOpts);
@@ -7610,7 +8125,9 @@ Xjs.extend(Xjs.ui.AidInputerWindow,Xjs.ui.Window,{
         this.initAidInputer(value,ev);
         this.showPane(!this.dropdownMode,parent);
         if(value == null || this.isValueSelectable(value))
+        {
             this.setValue(this.toCodeValue(value));
+        }
         this.clearExtValues();
         return;
     },
@@ -7660,7 +8177,9 @@ Xjs.extend(Xjs.ui.AidInputerWindow,Xjs.ui.Window,{
     updateParentValue:function()
     {
         if(this.fireEventV(0,"onAidInputerUpdateParentValue") === true)
+        {
             return;
+        }
         if(this.forInput && !this.forInput.isReadonly())
         {
             var v = this.getValue(),
@@ -7675,27 +8194,36 @@ Xjs.extend(Xjs.ui.AidInputerWindow,Xjs.ui.Window,{
             }
             var s = this.getDisplayValue();
             this.setParentInputValue(v,s);
+            var tempCopyFlags = this.copyFlags || {};
             if(this.copyMap)
             {
                 for(var n in this.copyMap)
                 {
                     var cn = this.copyMap[n],
-                        x = this.getExtValue(cn);
+                        x = this.getExtValue(cn),
+                        copyFlag = tempCopyFlags[n];
                     if(this.forInput.table)
                     {
                         var ds = this.forInput.table.getDataSet();
                         if(x !== undefined)
-                            ds.setValue(n,x);
+                        {
+                            if((copyFlag & 1) == 0 || ds.getValue(n) == null)
+                                ds.setValue(n,x);
+                        }
                     } else 
                     {
                         var c = this.forInput.getMainParentComponent();
-                        c.setItemValue(n,x);
+                        if((copyFlag & 1) == 0 || c.getItemValue(n) == null)
+                        {
+                            c.setItemValue(n,x);
+                        }
                     }
                 }
             }
             if(this.histSelectGrp != null)
                 this.addHistValue(v);
         }
+        this.fireEvent("onAidInputerUpdateParentValueExt");
     },
     /*xjs.ui.AidInputerWindow.getExtValue*/
     getExtValue:function(name)
@@ -7746,6 +8274,32 @@ Xjs.extend(Xjs.ui.AidInputerWindow,Xjs.ui.Window,{
         this.fireEvent("onOkExit");
         this.closeModal();
     },
+    /*xjs.ui.AidInputerWindow.beforeShowing*/
+    beforeShowing:function()
+    {
+        Xjs.ui.AidInputerWindow.superclass.beforeShowing.call(this);
+        this.addKeyEventListener();
+    },
+    /*xjs.ui.AidInputerWindow.addKeyEventListener*/
+    addKeyEventListener:function()
+    {
+        var table = this.getTable();
+        if(table)
+        {
+            if(!this.dialogKeyEventListener)
+            {
+                this.fireOnEnableDlgOkButton = true;
+                this.dialogKeyEventListener = this.newKeyEventListener();
+                this.dialogKeyEventListener.table = table;
+                this.dialogKeyEventListener.initComponent(this,{});
+                this.addListener(this.dialogKeyEventListener);
+            }
+        }
+    },
+    /*xjs.ui.AidInputerWindow.newKeyEventListener*/
+    newKeyEventListener:Xjs.nullFn,
+    /*xjs.ui.AidInputerWindow.getTable*/
+    getTable:Xjs.nullFn,
     /*xjs.ui.AidInputerWindow.addHistValue*/
     addHistValue:Xjs.falseFn,
     /*xjs.ui.AidInputerWindow.addFilter*/
@@ -7765,6 +8319,40 @@ Xjs.extend(Xjs.ui.AidInputerWindow,Xjs.ui.Window,{
         }
     }
 });
+Xjs.apply(Xjs.ui.AidInputerWindow,{
+    /*xjs.ui.AidInputerWindow.$$rebuildConfig*/
+    $$rebuildConfig:function(config)
+    {
+        if(config)
+        {
+            var copyMap = config.copyMap;
+            if(copyMap)
+            {
+                var copyFlags = config.copyFlags || {};
+                if(copyMap)
+                {
+                    config.copyFlags = copyFlags;
+                    var nCopyMap = {};
+                    config.copyMap = nCopyMap;
+                    for(var name in copyMap)
+                    {
+                        var i = name.indexOf("@");
+                        if(i > 0)
+                        {
+                            var nName = name.substring(0,i);
+                            nCopyMap[nName] = copyMap[name];
+                            copyFlags[nName] = Number.parseInt(name.substring(i + 1));
+                        } else 
+                        {
+                            nCopyMap[name] = copyMap[name];
+                        }
+                    }
+                }
+            }
+        }
+        return config;
+    }
+});
 /*xjs/ui/Button.java*/
 Xjs.ui.Button=function(config){
     Xjs.ui.Button.superclass.constructor.call(this,config);
@@ -7772,6 +8360,7 @@ Xjs.ui.Button=function(config){
 Xjs.extend(Xjs.ui.Button,Xjs.ui.Component,{
   _js$className_:"Xjs.ui.Button",
     className:"btn",
+    textClsName:"text",
     /*xjs.ui.Button.setClassName*/
     setClassName:function(className)
     {
@@ -7783,12 +8372,20 @@ Xjs.extend(Xjs.ui.Button,Xjs.ui.Component,{
     /*xjs.ui.Button._createDOM*/
     _createDOM:function(root)
     {
-        var d = this.btnDom = Xjs.ui.Button.superclass._createDom0.call(this,root,"button");
+        var d = this.btnDom = Xjs.ui.Button.superclass._createDom0.call(this,root,this.domTag || "button");
+        if(this.iconClassName && !Xjs.DOM.find("svg",d))
+        {
+            var btnHtml = "";
+            btnHtml += "<svg class='icon' aria-hidden='true'>";
+            btnHtml += "<use xlink:href='#" + this.iconClassName + "'></use>";
+            btnHtml += "</svg>";
+            d.innerHTML = btnHtml;
+        }
         this.textDOM = Xjs.DOM.findById("btn_text",d);
         if(!this.textDOM)
         {
             this.textDOM = Xjs.DOM.createChild(d,"span");
-            this.textDOM.className = "text";
+            this.textDOM.className = this.textClsName;
         }
         if(this.text)
         {
@@ -7908,6 +8505,12 @@ Xjs.extend(Xjs.ui.ComboAidInputer,Xjs.ui.ComboAidInputerA,{
         },1);
         }
     },
+    /*xjs.ui.ComboAidInputer.beforeExpandShow*/
+    beforeExpandShow:function(newDom)
+    {
+        Xjs.ui.ComboAidInputer.superclass.beforeExpandShow.call(this,newDom);
+        this.viewportScrollHeight = Xjs.DOM.getViewportScrollHeight();
+    },
     /*xjs.ui.ComboAidInputer.afterExpandShow*/
     afterExpandShow:function(newDom)
     {
@@ -7955,7 +8558,7 @@ Xjs.extend(Xjs.ui.ComboAidInputer,Xjs.ui.ComboAidInputerA,{
         if(!this.listHeight)
         {
             var usableHeight = 0,
-                totalHeight = Xjs.DOM.getViewportScrollHeight();
+                totalHeight = this.viewportScrollHeight;
             if(this.parent)
             {
                 var point = Xjs.DOM.getXY(this.parent.getDOM());
@@ -8286,8 +8889,9 @@ Xjs.extend(Xjs.ui.ComboAidInputer,Xjs.ui.ComboAidInputerA,{
                     tbody.appendChild(this.createTRowDOM(value,a,this.curFilter,levels == null ? 0 : levels[i]));
                 } else 
                 {
-                    var text;
-                    if(this.cellTextFmt && this.cellTextFmt.length > 0)
+                    var text,
+                        nofmt = a.nofmt;
+                    if(this.cellTextFmt && this.cellTextFmt.length > 0 && !nofmt)
                     {
                         var codeData = this.parent.selectOptions;
                         text = this.formatCellText(this.cellTextFmt[0],a,codeData.getColumns());
@@ -8296,7 +8900,10 @@ Xjs.extend(Xjs.ui.ComboAidInputer,Xjs.ui.ComboAidInputerA,{
                         var nm = a[this.textColumn];
                         if(nm == null)
                             nm = value.toString();
-                        text = a.length < 2 || (this.selOptions & 0x8000000) != 0 ? value : (this.showCode && value != nm ? value + ":" + nm : nm);
+                        if(nofmt)
+                            text = "" + nm;
+                        else 
+                            text = a.length < 2 || (this.selOptions & 0x8000000) != 0 ? value : (this.showCode && value != nm ? value + ":" + nm : nm);
                     }
                     this.listDOM.appendChild(this.createRowDOM(value,text.toString(),this.curFilter,levels == null ? 0 : levels[i]));
                 }
@@ -8362,7 +8969,7 @@ Xjs.extend(Xjs.ui.ComboAidInputer,Xjs.ui.ComboAidInputerA,{
             this.promptInfo = "";
             if(this.promptInfoFmt)
             {
-                var p = this.promptInfoFmt.indexOf("${title}");
+                var p = this.promptInfoFmt.indexOf("{title}");
                 this.promptInfo = p >= 0 ? this.promptInfoFmt.substring(0,p) + this.parent.title + this.promptInfoFmt.substring(p + 8) : this.promptInfoFmt;
             }
         }
@@ -8576,6 +9183,11 @@ Xjs.extend(Xjs.ui.ComboAidInputer,Xjs.ui.ComboAidInputerA,{
         Xjs.DOM.addClass(this.keyFocusedRow,"focused");
         if(Xjs.DOM.isShowing(this.dom))
             this.scrollFocusedRowVisible();
+        if(this.listScrollbar)
+        {
+            this.listScrollbar.resetBarPos();
+            this.listScrollbar.updateValue();
+        }
     },
     /*xjs.ui.ComboAidInputer.getRowValue*/
     getRowValue:function(row,mode,focus)
@@ -8844,18 +9456,11 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
         {
             this.yearAI = this.createComboInput("YEARSELECT",dom,"_onYMChanged",65);
             this.monthAI = this.createComboInput("MONTHSELECT",dom,"_onYMChanged",50);
-            if(this.monthAI)
-            {
-                this.monthAI.selectOptions = new Array(12);
-                for(var m=1;m <= 12;m++)
-                {
-                    this.monthAI.selectOptions[m - 1] = m;
-                }
-            }
             if(!(this.hms & 8))
             {
                 var tableDOM = this.tableDOM = Xjs.DOM.findById("DAYSELECT",dom);
                 tableDOM.onclick = Function.bindAsEventListener(this._onDayClick,this);
+                tableDOM.ondblclick = Function.bindAsEventListener(this._onDayDblClick,this);
                 tableDOM.onkeydown = Function.bindAsEventListener(this._onDayKeydown,this);
                 for(var r=0;r < 7;r++)
                 {
@@ -9070,6 +9675,7 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
     /*xjs.ui.DateAidInputer.updateYearSelect*/
     updateYearSelect:function(minYear,maxYear)
     {
+        this.setYearRange(minYear,maxYear);
         var selo = this.yearAI.selectOptions;
         if(selo && selo[0] == this.curYear + minYear && selo[selo.length - 1] == this.curYear + maxYear)
             return;
@@ -9081,6 +9687,22 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
             this.yearAI.setValue(this.year);
         else 
             delete this.year;
+    },
+    /*xjs.ui.DateAidInputer.updateMonthSelect*/
+    updateMonthSelect:function(minMon,maxMon)
+    {
+        if(!this.monthAI)
+            return;
+        if(minMon <= 0)
+        {
+            minMon = this.curMonth + minMon;
+            maxMon = this.curMonth + maxMon;
+        }
+        this.monthAI.selectOptions = new Array(maxMon - minMon + 1);
+        for(var m=minMon;m <= maxMon;m++)
+        {
+            this.monthAI.selectOptions[m - minMon] = m;
+        }
     },
     /*xjs.ui.DateAidInputer.setDate*/
     setDate:function(year,month,day)
@@ -9117,18 +9739,22 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
                         if(d <= 0)
                         {
                             _ymd = [pyear,pmonth,pmdays + d];
-                            cell.className = j == 0 || j == 6 ? "xhday" : "xday";
+                            cell.className = "day xday";
                         } else if(d > mdays)
                         {
                             _ymd = [nyear,nmonth,d - mdays];
-                            cell.className = j == 0 || j == 6 ? "xhday" : "xday";
+                            cell.className = "day xday";
                         } else 
                         {
                             _ymd = [year,month,d];
-                            cell.className = j == 0 || j == 6 ? "hday" : "day";
+                            cell.className = "day";
+                        }
+                        if(j == 0 || j == 6)
+                        {
+                            cell.className += " hday";
                         }
                         cell._ymd = _ymd;
-                        if(this.checkDateValid && !this.checkDateValid.call(_ymd))
+                        if(!this.isValidDate(_ymd,null))
                         {
                             cell.className += " disabled";
                         }
@@ -9325,11 +9951,11 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
         {
             if(this.parent.sqlType == 12)
             {
-                var val = this.year + "-" + (this.month < 9 ? "0" + this.month : "" + this.month);
+                var val = this.year + "-" + (this.month <= 9 ? "0" + this.month : "" + this.month);
                 this.setParentValue(val);
             } else if(this.parent.sqlType == 4)
             {
-                this.setParentValue(this.year * (this.month < 9 ? 1000 : 100) + this.month);
+                this.setParentValue(this.year * 100 + this.month);
             }
             this.hideAndFocusParent();
         } else 
@@ -9375,6 +10001,15 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
         if(this.selectOnDayClick)
             this.selectYMD(ymd);
     },
+    /*xjs.ui.DateAidInputer._onDayDblClick*/
+    _onDayDblClick:function(e)
+    {
+        if(this.date2Input)
+        {
+            this.date2Input.onDblClick(this);
+            return;
+        }
+    },
     /*xjs.ui.DateAidInputer.selectYMD*/
     selectYMD:function(ymd)
     {
@@ -9383,16 +10018,16 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
             {
                 var val = ymd[0] + "-" + Xjs.ui.DateAidInputer.toStr2(ymd[1]) + "-" + Xjs.ui.DateAidInputer.toStr2(ymd[2]),
                     hms = this.getHMS();
+                if(!this.isValidDate(ymd,hms))
+                {
+                    return;
+                }
                 if(this.hourDOM)
                     val += " " + Xjs.ui.DateAidInputer.toStr2(hms[0]);
                 if(this.minDOM)
                     val += ":" + Xjs.ui.DateAidInputer.toStr2(hms[1]);
                 if(this.secDOM)
                     val += ":" + Xjs.ui.DateAidInputer.toStr2(hms[2]);
-                if(this.checkDateValid && !this.checkDateValid.call(ymd,hms))
-                {
-                    return;
-                }
                 if(this.date2Input)
                 {
                     this.date2Input.selectYMD(this,val);
@@ -9404,6 +10039,29 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
             {
                 Xjs.alertErr(ex);
             }
+    },
+    /*xjs.ui.DateAidInputer.isValidDate*/
+    isValidDate:function(ymd,hms)
+    {
+        var t = 0;
+        if(this.minDate)
+        {
+            t = (new Date(ymd[0],ymd[1] - 1,ymd[2])).getTime();
+            if(t < this.minDate.getTime())
+            {
+                return false;
+            }
+        }
+        if(this.maxDate)
+        {
+            if(!t)
+                t = (new Date(ymd[0],ymd[1] - 1,ymd[2])).getTime();
+            if(t > this.maxDate.getTime())
+            {
+                return false;
+            }
+        }
+        return this.checkDateValid ? this.checkDateValid.call(ymd,hms) : true;
     },
     /*xjs.ui.DateAidInputer.getHMS*/
     getHMS:function()
@@ -9484,12 +10142,21 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
     /*xjs.ui.DateAidInputer.initDate*/
     initDate:function(parent)
     {
-        if(parent.maxYear)
+        var maxYear = parent.maxYear || (window._MainUI ? window._MainUI.maxYear : 0),
+            minYear = parent.minYear || (window._MainUI ? window._MainUI.minYear : 0);
+        if(maxYear)
         {
-            this.updateYearSelect(parent.minYear,parent.maxYear);
+            this.updateYearSelect(minYear,maxYear);
         } else 
         {
-            this.updateYearSelect(this.minYear === undefined ? -20 : this.minYear,this.maxYear === undefined ? 20 : this.maxYear);
+            this.updateYearSelect(this.minYear === undefined ? (this.minYear = -20) : this.minYear,this.maxYear === undefined ? (this.maxYear = 20) : this.maxYear);
+        }
+        if(parent.maxMonth)
+        {
+            this.updateMonthSelect(parent.minMonth,parent.maxMonth);
+        } else 
+        {
+            this.updateMonthSelect(this.minMonth === undefined ? 1 : this.minMonth,this.maxMonth === undefined ? 12 : this.maxMonth);
         }
         var selectDate = this.initValue;
         if(selectDate)
@@ -9498,9 +10165,29 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
             this.setTime(selectDate.getHours(),selectDate.getMinutes(),selectDate.getSeconds());
         }
     },
+    /*xjs.ui.DateAidInputer.setYearRange*/
+    setYearRange:function(min,max)
+    {
+        this.minYear = min;
+        this.maxYear = max;
+    },
+    /*xjs.ui.DateAidInputer.setMonthRange*/
+    setMonthRange:function(min,max)
+    {
+        this.minMonth = min;
+        this.maxMonth = max;
+    },
+    /*xjs.ui.DateAidInputer.setDateRange*/
+    setDateRange:function(min,max)
+    {
+        this.minDate = min;
+        this.maxDate = max;
+    },
     /*xjs.ui.DateAidInputer.setInitValue*/
     setInitValue:function(date)
     {
+        if(!date && this.dftInitValue)
+            date = this.dftInitValue;
         if(this.hms & 8 && typeof(date) == "string")
         {
             date += "-1";
@@ -9571,6 +10258,15 @@ Xjs.extend(Xjs.ui.DateAidInputer,Xjs.ui.LayerAidInputer,{
                 m = li._value % 60;
             this.setTime(h,m,0);
         }
+    },
+    /*xjs.ui.DateAidInputer.getDateAsStr*/
+    getDateAsStr:function()
+    {
+        if(this.year > 0 && this.month > 0 && this.day > 0)
+        {
+            return this.year + "-" + (this.month < 10 ? "0" + this.month : this.month) + "-" + (this.day < 10 ? "0" + this.day : this.day);
+        }
+        return null;
     }
 });
 Xjs.apply(Xjs.ui.DateAidInputer,{
@@ -9693,7 +10389,7 @@ Xjs.extend(Xjs.ui.Menu,Xjs.ui.Component,{
     /*xjs.ui.Menu.collapse*/
     collapse:function(node)
     {
-        if(node.expanded && node.nodes != null)
+        if(node.expanded && node.nodes)
         {
             node.expanded = false;
             if(node.childrenDom != null)
@@ -9704,13 +10400,47 @@ Xjs.extend(Xjs.ui.Menu,Xjs.ui.Component,{
     /*xjs.ui.Menu.expand*/
     expand:function(node)
     {
-        if(!node.expanded && node.nodes != null && !((node.mflags || 0) & 2))
+        if(!node.expanded && node.nodes && !((node.mflags || 0) & 2))
         {
             node.expanded = true;
             if(node.childrenDom != null)
                 node.childrenDom.style.display = "block";
             this.onExpand(node,false);
         }
+    },
+    /*xjs.ui.Menu.expandAllNodes*/
+    expandAllNodes:function(nodes,deep)
+    {
+        if(nodes)
+            for(var i=0;i < nodes.length;i++)
+            {
+                var n = nodes[i];
+                if(deep > 0)
+                    this.expandAllNodes(n.nodes,deep - 1);
+                this.expand(n);
+            }
+    },
+    /*xjs.ui.Menu.expandAll*/
+    expandAll:function(deep)
+    {
+        this.expandAllNodes(this.nodes,deep);
+    },
+    /*xjs.ui.Menu.collapseAllNodes*/
+    collapseAllNodes:function(nodes,deep)
+    {
+        if(nodes)
+            for(var i=0;i < nodes.length;i++)
+            {
+                var n = nodes[i];
+                if(deep > 0)
+                    this.collapseAllNodes(n.nodes,deep - 1);
+                this.collapse(n);
+            }
+    },
+    /*xjs.ui.Menu.collapseAll*/
+    collapseAll:function(deep)
+    {
+        this.collapseAllNodes(this.nodes,deep);
     },
     /*xjs.ui.Menu.setSelectedNode*/
     setSelectedNode:function(n)
@@ -9792,17 +10522,44 @@ Xjs.extend(Xjs.ui.Menu,Xjs.ui.Component,{
                 this._updateChecked();
             }
         }
+    },
+    /*xjs.ui.Menu.setNodes*/
+    setNodes:function(nodes)
+    {
+        this.nodes = nodes;
+        if(this.listDOM)
+        {
+            Xjs.DOM.removeAllChild(this.listDOM);
+            this._createMenuDOM(this.listDOM);
+            if(this.value != null && this.checkNode)
+            {
+                this._updateChecked();
+            }
+        }
     }
 });
 Xjs.apply(Xjs.ui.Menu,{
     /*xjs.ui.Menu._getNodeByDOM*/
     _getNodeByDOM:function(dom)
     {
-        for(;dom != null;dom = dom.parentNode)
+        for(;dom;dom = dom.parentNode)
         {
             if(dom._$node)
                 return dom._$node;
         }
+        return null;
+    },
+    /*xjs.ui.Menu._getNodeByDOM2*/
+    _getNodeByDOM2:function(dom,a)
+    {
+        if(a)
+            for(var i=0;i < a.length;i++)
+            {
+                if(Xjs.DOM.contains(a[i].dom,dom))
+                {
+                    return a[i];
+                }
+            }
         return null;
     },
     /*xjs.ui.Menu.getNodeLevel*/
@@ -9871,10 +10628,10 @@ Xjs.apply(Xjs.ui.Menu,{
     /*xjs.ui.Menu.updateNodeCheckIcon*/
     updateNodeCheckIcon:function(n)
     {
-        if(!n.checkMode || n._textDOM == null)
+        if(!n.checkMode || !n.iconDom)
             return;
         var iconSrc = Xjs.getThemePath() + "/res/checkbox" + (n.checked ? 1 : 0) + ".png";
-        n._textDOM.style.background = "url(" + iconSrc + ") no-repeat transparent";
+        n.iconDom.style.background = "url(" + iconSrc + ") no-repeat transparent";
     },
     /*xjs.ui.Menu.setNodeVisible*/
     setNodeVisible:function(n,visible)
@@ -9919,17 +10676,17 @@ Xjs.apply(Xjs.ui.Menu,{
     setNodeText:function(node,text)
     {
         node.text = text;
-        if(node.sdom)
+        if(node.labelDom)
         {
-            Xjs.DOM.setTextContent(node.sdom,text);
+            Xjs.DOM.setTextContent(node.labelDom,text);
         }
         Xjs.ui.MenuPane.setAttachedDomText(node);
     },
     /*xjs.ui.Menu.setNodeHtml*/
     setNodeHtml:function(node,html)
     {
-        var dom = node.sdom;
-        if(dom != null)
+        var dom = node.labelDom;
+        if(dom)
             dom.innerHTML = html;
     },
     /*xjs.ui.Menu.getNodeXProp*/
@@ -9940,9 +10697,7 @@ Xjs.apply(Xjs.ui.Menu,{
     /*xjs.ui.Menu._updateBgIcon*/
     _updateBgIcon:function(node,nodeDOM,flags)
     {
-        if(nodeDOM == null)
-            nodeDOM = node._textDOM || node.dom;
-        if(nodeDOM == null)
+        if(!nodeDOM && !(nodeDOM = node.dom))
             return;
         var disabled = node.disabled || node.pMenu && node.pMenu.disabled;
         {
@@ -9987,8 +10742,7 @@ Xjs.apply(Xjs.ui.Menu,{
             if(configPath && configPath.length > 0)
                 Xjs.apply(toNode,configPath[0]);
             nodes.push(toNode);
-            if(rootNode.popupMenu)
-                delete rootNode.popupMenu;
+            delete rootNode.popupMenu;
         }
         if(commandPath.length <= 1)
         {
@@ -10112,7 +10866,7 @@ Xjs.extend(Xjs.ui.ULComponent,Xjs.ui.Component,{
                 a = value;
             else if(typeof(value) == "string")
                 a = value.split(",");
-            else if((this.valueOpts & 2) != 0 && typeof(value) == "number")
+            else if(this.valueOpts & 2 && typeof(value) == "number")
             {
                 var x = value;
                 a = [];
@@ -10123,7 +10877,9 @@ Xjs.extend(Xjs.ui.ULComponent,Xjs.ui.Component,{
                         a.push(v);
                 }
             } else 
+            {
                 a = [value];
+            }
             a.sort();
             for(var j=this.values.size() - 1;j >= 0;j--)
             {
@@ -10169,9 +10925,9 @@ Xjs.extend(Xjs.ui.ULComponent,Xjs.ui.Component,{
         {
             return null;
         }
-        if((this.valueOpts & 8) != 0)
+        if(this.valueOpts & 8)
             return this.values.toArray();
-        if((this.valueOpts & 2) != 0)
+        if(this.valueOpts & 2)
         {
             var v = 0;
             for(var i=0;i < this.values.size();i++)
@@ -10242,7 +10998,7 @@ Xjs.apply(Xjs.Ajax.prototype,{
             }
         }
         if(this.contentType)
-            this.conn.setRequestHeader("Content-type",this.contentType);
+            this.conn.setRequestHeader("Content-Type",this.contentType);
         if(this.accept)
             this.conn.setRequestHeader("Accept",this.accept);
     },
@@ -10304,7 +11060,7 @@ Xjs.apply(Xjs.Ajax.prototype,{
         {
             this.onposting.call();
         }
-        var htmlCls = document.getElementsByTagName("html")[0].classList;
+        var htmlCls = Xjs.DOM.getHTML().classList;
         if(htmlCls)
             htmlCls.add("ui-in-ajax");
         try
@@ -10353,7 +11109,7 @@ Xjs.apply(Xjs.Ajax.prototype,{
                     v = this.getResponse(this.enableJsonDec);
                 }catch(ex)
                 {
-                    this._onError(0,ex);
+                    this._onError(status,ex);
                     return;
                 }
                 setTimeout(function(){
@@ -10376,7 +11132,7 @@ Xjs.apply(Xjs.Ajax.prototype,{
     /*xjs.core.Ajax.getResponse*/
     getResponse:function(jsonDec)
     {
-        var ct = this.getResponseHeader("Content-type"),
+        var ct = this.getResponseHeader("Content-Type"),
             p = ct == null ? -1 : ct.indexOf(";");
         if(p >= 0)
             ct = ct.substring(0,p);
@@ -10598,9 +11354,8 @@ Xjs.apply(Xjs.Ajax,{
 /*xjs/core/Data.java*/
 Xjs.Data = {
     IntRegExpr:/^\s*-?\d+\s*$/,
-    NumRegExpr:/^\s*[-+]?\d*(\.\d+)?\s*$/,
+    NumRegExpr:/^(\s*[-+]?(\d*(\.\d+)?)|((\d\.)\d*)\s*)$/,
     IdRegExpr:/^[a-zA-Z_\$][a-zA-Z0-9_\$]*$/,
-    HalfScaleFixed:1.0E-12,
     commaExp:/\,/g,
     /*xjs.core.Data.equals*/
     equals:function(v1,v2)
@@ -10635,20 +11390,26 @@ Xjs.Data = {
             return null;
         if(mode === undefined)
             mode = 4;
+        var p = Math.pow(10,deci);
         switch(mode)
         {
         case 1:
             {
-                var p = Math.pow(10,deci);
                 return (v >= 0 ? Math.floor(v * p) : Math.ceil(v * p)) / p;
             }
         case 0:
             {
-                var p = Math.pow(10,deci);
                 return (v < 0 ? Math.floor(v * p) : Math.ceil(v * p)) / p;
             }
         }
-        return parseFloat((v > 0 ? v + Xjs.Data.HalfScaleFixed : v - Xjs.Data.HalfScaleFixed).toFixed(deci));
+        var neg = v < 0;
+        if(neg)
+        {
+            v = -(v);
+        }
+        var v0 = v * p,
+            v2 = Math.round(v0) / p;
+        return neg ? -v2 : v2;
     },
     /*xjs.core.Data.parseFromSqlType*/
     parseFromSqlType:function(value,sqlType)
@@ -10696,9 +11457,21 @@ Xjs.Data = {
         case 93:
             if(value instanceof Date)
                 return value;
-            value = Date.parseDate(value,1);
+            value = Date.parseDate(value,sqlType == 91 ? 7 : 5);
             if(!value)
                 throw new Error(Xjs.ResBundle.getString("ERRUI","ErrorDataformat.Date",initValue));
+            return value;
+        case 2000:
+            if(typeof(value) == "string")
+            {
+                try
+                {
+                    value = Xjs.JSON.parse(value);
+                }catch(ex)
+                {
+                    window.console.log("解析" + value + "错误 " + ex);
+                }
+            }
             return value;
         default:
             return value;
@@ -10730,7 +11503,12 @@ Xjs.apply(Date,{
     /*xjs.core.XDate.toDate*/
     toDate:function(year,month,day,hours,min,sec,millSec)
     {
-        return new Date(year,month - 1,day || 1,hours || 0,min || 0,sec || 0,millSec || 0);
+        var date = new Date(year,month - 1,day || 1,hours || 0,min || 0,sec || 0,millSec || 0);
+        if(Date.tzOffset !== undefined)
+        {
+            date.setTime(date.getTime() - Date.tzOffset + date.getTimezoneOffset() * -60000);
+        }
+        return date;
     },
     /*xjs.core.XDate.getDaysOfMonth*/
     getDaysOfMonth:function(y,m)
@@ -10743,6 +11521,11 @@ Xjs.apply(Date,{
     today:function()
     {
         var date = new Date();
+        if(Date.tzOffset !== undefined)
+        {
+            var a = date.getElements(Date.tzOffset);
+            return Date.toDate(a[0],a[1],a[2]);
+        }
         return new Date(date.getFullYear(),date.getMonth(),date.getDate());
     },
     /*xjs.core.XDate.getServerTime*/
@@ -10779,6 +11562,13 @@ Xjs.apply(Date,{
                 a[2] = parseInt(text.substring(6,8));
                 break forA;
             }
+            if((len == 4 || len == 3) && opts & 4 && Xjs.Data.IntRegExpr.test(text))
+            {
+                a[0] = (new Date()).getFullYear();
+                a[1] = parseInt(text.substring(0,len - 2));
+                a[2] = parseInt(text.substring(len - 2,len));
+                break forA;
+            }
             var i = 0,
                 start = 0;
             for(;i < 7 && start < len;i++)
@@ -10794,7 +11584,7 @@ Xjs.apply(Date,{
                 a[i] = parseInt(s,10);
                 start = p + 1;
             }
-            if(i < 3)
+            if(i < 3 || i > 3 && opts & 2)
                 return null;
         }
         if(a[0] >= 0 && a[0] < 100)
@@ -10806,70 +11596,122 @@ Xjs.apply(Date,{
         }
         if(a[0] < 1000 || a[0] > 9999 || a[1] < 1 || a[1] > 12 || a[2] < 0 || a[2] > Date.getDaysOfMonth(a[0],a[1]) || a[3] < 0 || a[3] >= 24 || a[4] < 0 || a[4] >= 60 || a[5] < 0 || a[5] >= 60 || a[6] < 0 || a[6] >= 1000)
             return null;
-        return new Date(a[0],a[1] - 1,a[2],a[3],a[4],a[5],a[6]);
+        return Date.toDate(a[0],a[1],a[2],a[3],a[4],a[5],a[6]);
     },
     /*xjs.core.XDate.parseDateMacro*/
     parseDateMacro:function(s)
     {
-        var d = Date.today();
-        if(s.startsWith("TODAY"))
         {
-            s = s.substring(5);
-        } else if(s.startsWith("MONTHDAYE"))
-        {
-            s = s.substring(9);
-            d.setDate(Date.getDaysOfMonth(d.getFullYear(),d.getMonth() + 1));
-        } else if(s.startsWith("MONTHDAY"))
-        {
-            s = s.substring(8);
-            d.setDate(0);
-        } else if(s.startsWith("WEEKDAY"))
-        {
-            s = s.substring(7);
-            d.setDate(d.getDate() - d.getDay());
-        } else if(s.startsWith("NEXTMDAY"))
-        {
-            var y = d.getFullYear(),
-                m = d.getMonth() + 1;
-            if(m >= 12)
+            var kv = [],
+                i0 = 0,
+                forDig = false,
+                s1 = "",
+                slen = s.length;
+            for(var i=0;i < slen;i++)
             {
-                m = 0;
-                y++;
+                var c = i == slen ? 0 : s.charCodeAt(i),
+                    isDig = c >= 0x30 && c <= 0x39 || c == 0x2d || c == 0x2b;
+                if(isDig != forDig)
+                {
+                    var s2 = s.substring(i0,i);
+                    i0 = i;
+                    if(forDig)
+                    {
+                        kv.push([s1,s2]);
+                    }
+                    s1 = s2;
+                    forDig = isDig;
+                }
             }
-            var maxDay = Date.getDaysOfMonth(y,m + 1),
-                da = d.getDate();
-            if(da > maxDay)
-                da = maxDay;
-            d.setDate(1);
-            d.setFullYear(y);
-            d.setMonth(m);
-            d.setDate(da);
-            s = s.substring(8);
-        } else if(s.startsWith("NMONTHDAY"))
-        {
-            var y = d.getFullYear(),
-                m = d.getMonth() + 1;
-            if(m >= 12)
+            if(forDig)
             {
-                m = 0;
-                y++;
+                kv.push([s1,s.substring(i0)]);
+            } else 
+            {
+                kv.push([s.substring(i0),""]);
             }
-            d.setFullYear(y);
-            d.setMonth(m);
-            d.setDate(0);
-            s = s.substring(9);
-        } else 
-        {
-            return null;
+            var date = Date.today(),
+                y = date.getFullYear(),
+                m = date.getMonth(),
+                d = date.getDate();
+            for(var i=0;i < kv.length;i++)
+            {
+                var nm = kv[i][0],
+                    sv = kv[i][1];
+                if(sv == "")
+                {
+                    sv = "+0";
+                }
+                var relv = sv.charCodeAt(0) == 0x2b || sv.charCodeAt(0) == 0x2d,
+                    v = parseInt(sv);
+                switch(nm)
+                {
+                case "YEAR":
+                    y = relv ? y + v : v;
+                    break;
+                case "MONTH":
+                    m = relv ? m + v : v - 1;
+                    for(;m >= 12;m -= 12,y++)
+                        ;
+                    for(;m < 0;m += 12,y--)
+                        ;
+                    break;
+                case "TODAY":
+                    if(d > 28)
+                    {
+                        var maxDay = Date.getDaysOfMonth(y,m + 1);
+                        if(d > maxDay)
+                            d = maxDay;
+                    }
+                    d += v;
+                    break;
+                case "DAY":
+                case "MONTHDAY":
+                    d = relv ? d + v : v;
+                    break;
+                case "DAYE":
+                case "MONTHDAYE":
+                    d = Date.getDaysOfMonth(y,m + 1) + v;
+                    break;
+                case "WEEKDAY":
+                    d = date.getDate() - date.getDay() + v;
+                }
+            }
+            date.setDate(1);
+            date.setFullYear(y);
+            date.setMonth(m);
+            date.setDate(d);
+            if(Date.tzOffset !== undefined)
+            {
+                date.setTime(date.getTime() - Date.tzOffset + date.getTimezoneOffset() * -60000);
+            }
+            return date;
         }
-        if(s.length > 0)
-            d.setDate(d.getDate() + parseInt(s));
-        return d;
     }
 });
 Xjs.apply(Date.prototype,{
+    /*xjs.core.XDate.getElements*/
+    getElements:function(tzOffset)
+    {
+        var date = this;
+        if((tzOffset !== undefined || (tzOffset = Date.tzOffset) !== undefined) && tzOffset != -1 && tzOffset != this.getTimezoneOffset() * -60000)
+        {
+            date = new Date(this.getTime() + tzOffset - this.getTimezoneOffset() * -60000);
+        }
+        return [date.getFullYear(),date.getMonth() + 1,date.getDate(),date.getHours(),date.getMinutes(),date.getSeconds(),date.getMilliseconds()];
+    },
     /*xjs.core.XDate.format*/
     format:function(hmsFormat)
+    {
+        if(Date.tzOffset !== undefined)
+        {
+            var date = new Date(this.getTime() + Date.tzOffset - this.getTimezoneOffset() * -60000);
+            return date._format0(hmsFormat);
+        }
+        return this._format0(hmsFormat);
+    },
+    /*xjs.core.XDate._format0*/
+    _format0:function(hmsFormat)
     {
         if(!hmsFormat)
             hmsFormat = 0;
@@ -10892,6 +11734,8 @@ Xjs.apply(Date.prototype,{
             minSec = this.getMilliseconds();
         if(hmsFormat == 1)
             return text + " " + String.toStr2(hour) + ":" + String.toStr2(min) + ":" + String.toStr2(sec);
+        if(hmsFormat == 5)
+            return text + " " + String.toStr2(hour) + ":" + String.toStr2(min) + ":" + String.toStr2(sec) + "." + String.toStr(minSec,3);
         if(hour == 0 && min == 0 && sec == 0 && minSec == 0)
             return text;
         return sec == 0 && minSec == 0 ? text + " " + String.toStr2(hour) + ":" + String.toStr2(min) : text + " " + String.toStr2(hour) + ":" + String.toStr2(min) + ":" + String.toStr2(sec);
@@ -11370,6 +12214,11 @@ Xjs.DOM = {
     {
         return Xjs.getHTMLHead();
     },
+    /*xjs.core.DOM.getHTML*/
+    getHTML:function()
+    {
+        return document.getElementsByTagName("html")[0];
+    },
     /*xjs.core.DOM.getHeadScriptSrc*/
     getHeadScriptSrc:function(src)
     {
@@ -11545,6 +12394,24 @@ Xjs.DOM = {
         }
         return {x:x,y:y};
     },
+    /*xjs.core.DOM.getRect*/
+    getRect:function(dom,clientXY)
+    {
+        if(!dom)
+        {
+            return null;
+        }
+        var p = Xjs.DOM.getXY(dom,clientXY);
+        return {x:p.x,y:p.y,width:dom.offsetWidth,height:dom.offsetHeight};
+    },
+    /*xjs.core.DOM.containsXY*/
+    containsXY:function(dom,x,y,clientXY)
+    {
+        if(!dom)
+            return false;
+        var p = Xjs.DOM.getXY(dom);
+        return x >= p.x && y >= p.y && x < p.x + dom.offsetWidth && y < p.y + dom.offsetHeight;
+    },
     /*xjs.core.DOM.scrollToDOM*/
     scrollToDOM:function(e,offX,offY)
     {
@@ -11561,27 +12428,63 @@ Xjs.DOM = {
         window.scrollTo(s.x < 0 ? 0 : s.x,s.y < 0 ? 0 : s.y);
     },
     /*xjs.core.DOM.wscrollYToVisivle*/
-    wscrollYToVisivle:function(e,minY)
+    wscrollYToVisivle:function(e,ty,by)
     {
         if(typeof(e) == "string")
             e = Xjs.DOM.find(e,null);
         if(!e)
             return;
         var p = Xjs.DOM.getXY(e,true),
-            s = Xjs.DOM.getScroll(null,null),
-            wh = Xjs.DOM.getViewportHeight(),
-            y = p.y,
-            h = Xjs.DOM.getHeight(e);
-        if(y < 0 || y + h > wh - minY)
+            wh = Xjs.DOM.getViewportHeight();
+        if(Xjs.DOM.hasHorizontalScroll())
         {
-            var ty = window.scrollY + y;
-            if(y > 0)
-            {
-                ty = ty + h - wh + minY;
-            }
-            if(ty < 0)
-                ty = 0;
-            window.scrollTo(s.x,ty);
+            by += 16;
+        }
+        var y = p.y,
+            h = Xjs.DOM.getHeight(e);
+        if(y < ty || y + h > wh - by)
+        {
+            var y1 = window.scrollY + y,
+                max = y1 - ty,
+                min = y1 + h + by - wh,
+                sy = window.scrollY;
+            if(sy > max)
+                sy = max;
+            else if(sy < min)
+                sy = min;
+            if(sy < 0)
+                sy = 0;
+            window.scrollTo(window.scrollX,sy);
+        }
+    },
+    /*xjs.core.DOM.wscrollXToVisivle*/
+    wscrollXToVisivle:function(e,lx,rx)
+    {
+        if(typeof(e) == "string")
+            e = Xjs.DOM.find(e,null);
+        if(!e)
+            return;
+        var p = Xjs.DOM.getXY(e,true),
+            ww = Xjs.DOM.getViewportWidth();
+        if(Xjs.DOM.hasVerticalScroll())
+        {
+            rx += 16;
+        }
+        var x = p.x,
+            w = Xjs.DOM.getWidth(e);
+        if(x < lx || x + w > ww - rx)
+        {
+            var x1 = window.scrollX + x,
+                max = x1 - lx,
+                min = x1 + w + rx - ww,
+                sx = window.scrollX;
+            if(sx > max)
+                sx = max;
+            else if(sx < min)
+                sx = min;
+            if(sx < 0)
+                sx = 0;
+            window.scrollTo(sx,window.scrollY);
         }
     },
     /*xjs.core.DOM.getRelativeXY*/
@@ -11636,7 +12539,7 @@ Xjs.DOM = {
     getOffsetYTO:function(dom,to)
     {
         var y = 0;
-        for(;dom != to;dom = dom.offsetParent)
+        for(;dom != to && dom;dom = dom.offsetParent)
             y += dom.offsetTop;
         return y;
     },
@@ -11746,13 +12649,13 @@ Xjs.DOM = {
         if(dom.classList)
         {
             var a1;
-            if(addClass != null && addClass.length > 0)
+            if(addClass && addClass.length > 0)
             {
                 a1 = addClass.split(" ");
                 for(var j=0;j < a1.length;j++)
                     dom.classList.add(a1[j]);
             }
-            if(removeClass != null)
+            if(removeClass)
             {
                 a1 = removeClass.split(" ");
                 for(var j=0;j < a1.length;j++)
@@ -11880,6 +12783,7 @@ Xjs.DOM = {
     {
         window.onmousemove = Xjs.DOM._onWMouseMove;
         window.onmouseup = Xjs.DOM._onWMouseUp;
+        Xjs.DOM.addClass(Xjs.DOM.getHTML(),"ui-mouse-draging");
         Xjs.DOM._wmDragList = {scorp:scorp,onmove:onmove,onup:onup};
     },
     /*xjs.core.DOM._onWMouseMove*/
@@ -11896,10 +12800,96 @@ Xjs.DOM = {
     {
         window.onmousemove = null;
         window.onmouseup = null;
+        Xjs.DOM.removeClass(Xjs.DOM.getHTML(),"ui-mouse-draging");
         var l = Xjs.DOM._wmDragList;
         Xjs.DOM._wmDragList = null;
-        if(l)
+        if(l && l.onup && e)
             l.onup.call(l.scorp,e);
+    },
+    /*xjs.core.DOM.addWScrollListener*/
+    addWScrollListener:function(c,add)
+    {
+        var j = Xjs.DOM._wscrollList ? Xjs.DOM._wscrollList.indexOf(c) : -1;
+        if(add)
+        {
+            if(j >= 0)
+                return;
+            if(!Xjs.DOM._wscrollList)
+            {
+                Xjs.DOM._wscrollList = [];
+            }
+            Xjs.DOM._wscrollList.push(c);
+            if(!window.onscroll)
+            {
+                window.onscroll = Xjs.DOM._onWScroll;
+            }
+        } else 
+        {
+            if(j >= 0)
+            {
+                Xjs.DOM._wscrollList.splice(j,1);
+            }
+            if(Xjs.DOM._wscrollList.length == 0)
+            {
+                window.onscroll = null;
+            }
+        }
+    },
+    /*xjs.core.DOM._onWScroll*/
+    _onWScroll:function(ev)
+    {
+        if(Xjs.DOM._wscrollList)
+            for(var i=0;i < Xjs.DOM._wscrollList.length;i++)
+            {
+                Xjs.DOM._wscrollList[i].call(ev);
+            }
+    },
+    /*xjs.core.DOM._onWResize*/
+    _onWResize:function()
+    {
+        if(Xjs.DOM._wresizeList)
+            for(var i=0;i < Xjs.DOM._wresizeList.length;i++)
+            {
+                Xjs.DOM._wresizeList[i].call();
+            }
+        if(document.body._customScrollbar)
+            try
+            {
+                document.body._customScrollbar.updateValue();
+            }catch(ex)
+            {
+            }
+    },
+    /*xjs.core.DOM.addWResizeListener*/
+    addWResizeListener:function(c,add)
+    {
+        if(!c)
+            return;
+        var j = Xjs.DOM._wresizeList ? Xjs.DOM._wresizeList.indexOf(c) : -1;
+        if(add)
+        {
+            if(j >= 0)
+                return;
+            if(!Xjs.DOM._wresizeList)
+            {
+                Xjs.DOM._wresizeList = [];
+            }
+            Xjs.DOM._wresizeList.push(c);
+            if(!window.onresize)
+            {
+                window.onresize = Xjs.DOM._onWResize;
+            }
+        } else 
+        {
+            if(j >= 0)
+            {
+                Xjs.DOM._wresizeList.splice(j,1);
+            }
+            if(Xjs.DOM._wresizeList.length == 0)
+            {
+                window.onresize = null;
+            }
+        }
     },
     /*xjs.core.DOM.createChild*/
     createChild:function(parent,tagName,className,domAttr,domStyle)
@@ -11918,6 +12908,28 @@ Xjs.DOM = {
             parent.appendChild(d);
         }
         return d;
+    },
+    /*xjs.core.DOM.createChilds*/
+    createChilds:function(parent,descs)
+    {
+        var va = [];
+        for(var i=0;i < descs.length;i++)
+        {
+            var desc = descs[i],
+                attr = Xjs.apply({},desc);
+            delete attr.tag;
+            delete attr.children;
+            delete attr.domStyle;
+            var d = document.createElement(desc.tag || "div");
+            Xjs.apply(d,attr);
+            if(desc.domStyle)
+                Xjs.apply(d.style,desc.domStyle);
+            if(desc.children)
+                Xjs.DOM.createChilds(d,desc.children);
+            parent.appendChild(d);
+            va.push(d);
+        }
+        return va;
     },
     /*xjs.core.DOM.removeAllChild*/
     removeAllChild:function(dom)
@@ -12469,46 +13481,30 @@ Xjs.DOM = {
     /*xjs.core.DOM.addOnWinResize*/
     addOnWinResize:function(func,scorp,args)
     {
-        if(!Xjs.DOM.fnOnWinResize)
-        {
-            Xjs.DOM.fnOnWinResize = [];
-            Xjs.DOM.addListener(window,"resize",Xjs.DOM.onWinResize);
-        }
-        Xjs.DOM.fnOnWinResize.push(new Xjs.FuncCall(func,scorp,args));
+        Xjs.DOM.addWResizeListener(new Xjs.FuncCall(func,scorp,args),true);
     },
     /*xjs.core.DOM.onWinResize*/
     onWinResize:function(time)
     {
         if(time > 0)
         {
-            setTimeout(Xjs.DOM._onWinResize,time);
+            setTimeout(Xjs.DOM._onWResize,time);
         } else 
         {
-            Xjs.DOM._onWinResize();
+            Xjs.DOM._onWResize();
         }
-    },
-    /*xjs.core.DOM._onWinResize*/
-    _onWinResize:function()
-    {
-        if(Xjs.DOM.fnOnWinResize)
-            for(var i=0;i < Xjs.DOM.fnOnWinResize.length;i++)
-            {
-                Xjs.DOM.fnOnWinResize[i].call();
-            }
-        if(document.body._customScrollbar)
-            try
-            {
-                document.body._customScrollbar.updateValue();
-            }catch(ex)
-            {
-            }
     },
     /*xjs.core.DOM.hasVerticalScroll*/
     hasVerticalScroll:function()
     {
-        if(window.innerHeight)
-            return document.body.offsetHeight > window.innerHeight;
-        return document.documentElement.scrollHeight > document.documentElement.offsetHeight || document.body.scrollHeight > document.body.offsetHeight;
+        var h = Xjs.DOM.getViewportHeight();
+        return document.documentElement.scrollHeight > h || document.body.scrollHeight > h;
+    },
+    /*xjs.core.DOM.hasHorizontalScroll*/
+    hasHorizontalScroll:function()
+    {
+        var w = Xjs.DOM.getViewportWidth();
+        return document.documentElement.scrollWidth > w || document.body.scrollWidth > w;
     },
     /*xjs.core.DOM.isVScrollbarVisible*/
     isVScrollbarVisible:function(e)
@@ -12545,6 +13541,18 @@ Xjs.DOM = {
         if(execPatse)
             document.execCommand("Paste",false,false);
         return e;
+    },
+    /*xjs.core.DOM.selectAndCopy*/
+    selectAndCopy:function(e)
+    {
+        if(!e)
+            return;
+        var range = document.createRange();
+        range.selectNode(e);
+        var s = window.getSelection();
+        s.removeAllRanges();
+        s.addRange(range);
+        document.execCommand("Copy",false,false);
     },
     /*xjs.core.DOM._createTempSpanDOM*/
     _createTempSpanDOM:function()
@@ -12586,7 +13594,43 @@ Xjs.DOM = {
     /*xjs.core.DOM.isContentOvflow*/
     isContentOvflow:function(e)
     {
-        return e && e.scrollWidth > e.offsetWidth || e.scrollHeight > e.offsetHeight;
+        if(!e)
+            return false;
+        if(Xjs.isFirefox)
+        {
+            var maxWidth = e.style.maxWidth;
+            if(maxWidth)
+            {
+                e.style.maxWidth = null;
+                var scrollWidth = e.scrollWidth;
+                e.style.maxWidth = maxWidth;
+                return scrollWidth > e.offsetWidth || e.scrollHeight > e.offsetHeight;
+            } else 
+                return e.scrollWidth > e.offsetWidth || e.scrollHeight > e.offsetHeight;
+        }
+        return e.scrollWidth > e.offsetWidth || e.scrollHeight > e.offsetHeight;
+    },
+    /*xjs.core.DOM.domYOffsetCompare*/
+    domYOffsetCompare:function(dom,y)
+    {
+        var top = dom.offsetTop,
+            h = dom.offsetHeight;
+        if(top + h <= y)
+            return -1;
+        if(top > y)
+            return 1;
+        return 0;
+    },
+    /*xjs.core.DOM.domXOffsetCompare*/
+    domXOffsetCompare:function(dom,x)
+    {
+        var left = dom.offsetLeft,
+            w = dom.offsetWidth;
+        if(left + w <= x)
+            return -1;
+        if(left > x)
+            return 1;
+        return 0;
     }
 };
 /*xjs/core/Event.java*/
@@ -12743,11 +13787,13 @@ Xjs.Event = {
     }
 };
 /*xjs/core/FuncCall.java*/
-Xjs.FuncCall=function(func,scorp,args,argMode){
+Xjs.FuncCall=function(func,scorp,args,argMode,opts,onerror){
     this.func = func;
     this.scorp = scorp;
     this.args = args;
     this.argMode = argMode;
+    this.opts = opts;
+    this.onerror = onerror;
 };
 Xjs.apply(Xjs.FuncCall.prototype,{
     /*xjs.core.FuncCall.call*/
@@ -12758,7 +13804,30 @@ Xjs.apply(Xjs.FuncCall.prototype,{
     /*xjs.core.FuncCall.apply*/
     apply:function(args)
     {
-        return this.func.apply(this.scorp || window,this.buildCallArgs(args));
+        var _old = null;
+        if(this.opts & 1)
+        {
+            _old = Error.redoIfErrConfirmed;
+            Error.redoIfErrConfirmed = this;
+        }
+        try
+        {
+            return this.func.apply(this.scorp || window,this.buildCallArgs(args));
+        }catch(ex)
+        {
+            if(this.onerror)
+            {
+                this.onerror.apply([ex]);
+                return;
+            } else 
+            {
+                throw ex;
+            }
+        }finally
+        {
+            if(this.opts & 1)
+                Error.redoIfErrConfirmed = _old;
+        }
     },
     /*xjs.core.FuncCall.asFunction*/
     asFunction:function()
@@ -12804,6 +13873,25 @@ Xjs.apply(Xjs.FuncCall.prototype,{
                 return callArgs;
             }
         }
+    },
+    /*xjs.core.FuncCall.setExtInfo*/
+    setExtInfo:function(name,val)
+    {
+        if(val == null)
+        {
+            if(!this.extInfo)
+                return;
+            this.extInfo.delete(name);
+            return;
+        }
+        if(!this.extInfo)
+            this.extInfo = new Map();
+        this.extInfo.set(name,val);
+    },
+    /*xjs.core.FuncCall.getExtInfo*/
+    getExtInfo:function(name)
+    {
+        return this.extInfo ? this.extInfo.get(name) : null;
     }
 });
 /*xjs/core/HtmlUTIL.java*/
@@ -12836,7 +13924,7 @@ Xjs.HtmlUTIL = {
         return s;
     },
     /*xjs.core.HtmlUTIL.htmlEncode*/
-    htmlEncode:function(s)
+    htmlEncode:function(s,opts)
     {
         var a = [],
             n = s == null ? 0 : s.length,
@@ -12884,13 +13972,16 @@ Xjs.HtmlUTIL = {
                 p0 = i + 1;
                 continue;
             case 10:
-                if(p0 < i)
+                if(!(opts & 1))
                 {
-                    a.push(s.substring(p0,i));
+                    if(p0 < i)
+                    {
+                        a.push(s.substring(p0,i));
+                    }
+                    en = true;
+                    a.push("<br/>");
+                    p0 = i + 1;
                 }
-                en = true;
-                a.push("<br/>");
-                p0 = i + 1;
                 continue;
             }
         }
@@ -13027,6 +14118,72 @@ Xjs.HtmlUTIL = {
         }
     }
 };
+/*xjs/core/JSMatcher.java*/
+Xjs.StringBuilder=function(){
+    this.stringValue = "";
+};
+Xjs.apply(Xjs.StringBuilder.prototype,{
+    /*xjs.core.JSMatcher$StringBuilder.length*/
+    length:function()
+    {
+        return this.stringValue.length;
+    },
+    /*xjs.core.JSMatcher$StringBuilder.append*/
+    append:function(value)
+    {
+        this.stringValue += value;
+        return this;
+    },
+    /*xjs.core.JSMatcher$StringBuilder.toStringValue*/
+    toStringValue:function()
+    {
+        return this.stringValue;
+    }
+});
+Xjs.JSMatcher=function(regExp,text){
+    this.regExp = regExp;
+    this.text = text;
+};
+Xjs.apply(Xjs.JSMatcher.prototype,{
+    /*xjs.core.JSMatcher.find*/
+    find:function()
+    {
+        this.lastMatchValues = this.regExp.exec(this.text);
+        this.lastMatchEndIndex = this.regExp.lastIndex;
+        if(this.lastMatchValues != null)
+        {
+            this.startIndex = this.lastMatchStartIndex + this.lastMatchLength;
+            this.lastMatchLength = this.group(0).length;
+            this.lastMatchStartIndex = this.lastMatchEndIndex - this.lastMatchLength;
+        }
+        return this.lastMatchValues != null;
+    },
+    /*xjs.core.JSMatcher.group*/
+    group:function(grp)
+    {
+        return this.lastMatchValues[grp];
+    },
+    /*xjs.core.JSMatcher.groupCount*/
+    groupCount:function()
+    {
+        return this.lastMatchValues.length;
+    },
+    /*xjs.core.JSMatcher.appendReplacement*/
+    appendReplacement:function(sb,replacement)
+    {
+        if(this.lastMatchStartIndex < 0)
+        {
+            return;
+        }
+        sb.append(this.text.substring(this.startIndex,this.lastMatchStartIndex));
+        sb.append(replacement);
+    },
+    /*xjs.core.JSMatcher.appendTail*/
+    appendTail:function(sb)
+    {
+        sb.append(this.text.substring(this.lastMatchStartIndex + this.lastMatchLength));
+    }
+});
 /*xjs/core/JSON.java*/
 Xjs.JSON = {
     TransientValsID:"__Transient.Vals_",
@@ -13106,41 +14263,17 @@ Xjs.JSON = {
     /*xjs.core.JSON.encodeDate*/
     encodeDate:function(o,to)
     {
-        var a = to != null ? to : [];
-        a.push("new Date(");
-        a.push(o.getFullYear());
-        a.push(",");
-        a.push(o.getMonth());
-        a.push(",");
-        a.push(o.getDate());
-        var h = o.getHours(),
-            m = o.getMinutes(),
-            s = o.getSeconds(),
-            ms = o.getMilliseconds();
-        if(h != 0 || m != 0 || s != 0 || ms != 0)
+        var a = to != null ? to : [],
+            t = o.getTime();
+        if(t < 0)
         {
-            a.push(",");
-            a.push(h);
-        }
-        ;
-        if(m != 0 || s != 0 || ms != 0)
+            a.push("new Date(-0x");
+            a.push((-t).toString(16));
+        } else 
         {
-            a.push(",");
-            a.push(m);
+            a.push("new Date(0x");
+            a.push(t.toString(16));
         }
-        ;
-        if(s != 0 || ms != 0)
-        {
-            a.push(",");
-            a.push(s);
-        }
-        ;
-        if(ms != 0)
-        {
-            a.push(",");
-            a.push(ms);
-        }
-        ;
         a.push(")");
         if(to == null)
             return a.join("");
@@ -13333,7 +14466,7 @@ Xjs.RInvoke = {
             body = args || [];
             params = null;
         }
-        if(md.progParamIdx >= 0 || md.progMode || md.asyn == 1)
+        if(md.progParamIdx >= 0 || md.asyn == 1 || md.asyn == 3)
         {
             var p = null;
             if(md.progParamIdx >= 0)
@@ -13346,7 +14479,24 @@ Xjs.RInvoke = {
                 p = {};
             p.runMethod = "sv~" + rmethod;
             p.postArgs = args;
+            if(md.progTit != null)
+                p.title = md.progTit;
+            if(md.progOpts > 0)
+                p.options = md.progOpts;
+            var promise = null;
+            if(md.asyn == 3)
+            {
+                var _p = p;
+                promise = new Promise(function(resolve,reject){
+            _p.onRunCall = new Xjs.FuncCall(resolve);
+            _p.onRunErrCall = new Xjs.FuncCall(reject);
+        });
+            }
             Xjs.ui.UIUtil.progressRun(p);
+            if(promise)
+            {
+                return promise;
+            }
             return;
         }
         var url = urlP + "sv-" + rmethod;
@@ -13420,6 +14570,16 @@ Xjs.RInvoke = {
         var url = Xjs.RInvoke.buildUIInvokeURL(null,"st-" + method,1);
         return Xjs.Ajax.invoke(url,null,pm,"get",16,success,error);
     },
+    /*xjs.core.RInvoke.rmPostForm*/
+    rmPostForm:function(method,params)
+    {
+        return Xjs.RInvoke._postForm(method,"st",params,null,null);
+    },
+    /*xjs.core.RInvoke.armPostForm*/
+    armPostForm:function(method,params,success,error)
+    {
+        return Xjs.RInvoke._postForm(method,"st",params,success,error);
+    },
     /*xjs.core.RInvoke._rinvoke*/
     _rinvoke:function(m,type,args,success,error)
     {
@@ -13439,6 +14599,22 @@ Xjs.RInvoke = {
         }
         var url = Xjs.RInvoke.buildUIInvokeURL(null,(progMode ? type + "~" : type + "-") + method,1);
         return Xjs.Ajax.invoke(url,args,null,null,16 | 32,success,error);
+    },
+    /*xjs.core.RInvoke._postForm*/
+    _postForm:function(m,type,params,success,error)
+    {
+        var progMode = typeof(m) != "string",
+            method;
+        if(progMode)
+            method = m.runMethod;
+        else 
+            method = m;
+        if(progMode)
+        {
+            throw new Error("todo..");
+        }
+        var url = Xjs.RInvoke.buildUIInvokeURL(null,(progMode ? type + "~" : type + "-") + method,1);
+        return Xjs.Ajax.invoke(url,null,params,null,16 | 32,success,error);
     },
     /*xjs.core.RInvoke._asynInvoke*/
     _asynInvoke:function(m,type,args)
@@ -13534,6 +14710,28 @@ Xjs.extend(Xjs.dx.CodeData,Xjs.Object,{
                     loadParam = {};
                 Xjs.apply(loadParam,this.loadParam0);
                 Xjs.apply(loadParam,this.loadParameter);
+                var nms;
+                if(nms = this.loadParamsFromReq)
+                {
+                    if(typeof(nms) == "string")
+                        nms = nms.split(",");
+                    if(this.xloadParameter == null)
+                        this.xloadParameter = {};
+                    ;
+                    for(var j=0;j < nms.length;j++)
+                    {
+                        var nm;
+                        if((nm = nms[j]) == "*")
+                        {
+                            Xjs.apply(this.xloadParameter,reqMap.values);
+                        } else 
+                        {
+                            var v = reqMap.values[nm];
+                            if(v)
+                                this.xloadParameter[nm] = v;
+                        }
+                    }
+                }
                 for(var p in loadParam)
                 {
                     var s = loadParam[p];
@@ -13883,6 +15081,49 @@ Xjs.extend(Xjs.dx.CodeData,Xjs.Object,{
                     this.bufNames[codes[j]] = names[j];
             }
         return names;
+    },
+    /*xjs.dx.CodeData.getFullNames*/
+    getFullNames:function(codes,showLevlFullnm)
+    {
+        if(!codes || codes.length == 0)
+            return null;
+        var fullNames = {},
+            remote = false;
+        for(var j=0;j < codes.length;j++)
+        {
+            var n = this.getFullName(codes[j],showLevlFullnm);
+            fullNames[codes[j]] = n;
+            if(n === undefined)
+            {
+                remote = true;
+                break;
+            }
+        }
+        if(remote)
+        {
+            var o = this.rgetCodeValues(codes,true,showLevlFullnm);
+            Xjs.apply(fullNames,o);
+            if(!this.bufNames)
+                this.bufNames = {};
+            Xjs.apply(this.bufNames,o);
+        }
+        return fullNames;
+    },
+    /*xjs.dx.CodeData.getFullName*/
+    getFullName:function(code,showLevlFullnm)
+    {
+        if(this.bufNames)
+        {
+            var n = this.bufNames[code];
+            if(n !== undefined)
+                return n;
+        }
+        var n = this.rgetFullName(code,showLevlFullnm);
+        if(!this.bufNames)
+            this.bufNames = {};
+        if(n !== undefined)
+            this.bufNames[code] = n;
+        return n;
     },
     /*xjs.dx.CodeData.rgetFullName*/
     rgetFullName:function(code,showLevlFullnm)
@@ -14243,6 +15484,154 @@ Xjs.extend(Xjs.dx.Data,Xjs.Object,{
     }
 });
 /*xjs/dx/DefaultDataSetListener.java*/
+/*xjs/msg/MessageSocket.java*/
+Xjs.namespace("Xjs.msg");
+Xjs.msg.MessageSocket=function(url,opts,userId){
+    this.setUrl(url);
+    this.setOpts(opts);
+    this.userId = userId;
+};
+Xjs.extend(Xjs.msg.MessageSocket,Xjs.Observable,{
+  _js$className_:"Xjs.msg.MessageSocket",
+    /*xjs.msg.MessageSocket.setUrl*/
+    setUrl:function(url)
+    {
+        var rootUrl = Xjs.ROOTPATH;
+        if(!url || url == "" || url == "~")
+        {
+            var p = rootUrl.indexOf("://");
+            url = (rootUrl.startsWith("https://") ? "wss" : "ws") + rootUrl.substring(p) + "websocket";
+        } else if(url && url.startsWith("//"))
+        {
+            url = (rootUrl.startsWith("https://") ? "wss:" : "ws:") + url;
+        }
+        this.url = url;
+    },
+    /*xjs.msg.MessageSocket.send*/
+    send:function(message)
+    {
+        if(this.websocket)
+            this.websocket.send(Xjs.JSON.encode(message));
+    },
+    /*xjs.msg.MessageSocket.setOpts*/
+    setOpts:function(opts)
+    {
+        this.opts = opts || 0;
+    },
+    /*xjs.msg.MessageSocket.getOpts*/
+    getOpts:function()
+    {
+        return this.opts;
+    },
+    /*xjs.msg.MessageSocket.setUserId*/
+    setUserId:function(userId)
+    {
+        this.userId = userId;
+    },
+    /*xjs.msg.MessageSocket.getUserId*/
+    getUserId:function()
+    {
+        return this.userId;
+    },
+    /*xjs.msg.MessageSocket.isOpen*/
+    isOpen:function()
+    {
+        return this.websocket && this.websocket.readyState == 1;
+    },
+    /*xjs.msg.MessageSocket.close*/
+    close:function()
+    {
+        if(this.websocket)
+        {
+            this.websocket.close();
+        }
+    },
+    /*xjs.msg.MessageSocket.openIf*/
+    openIf:function()
+    {
+        if(!this.isOpen())
+        {
+            this.open();
+        }
+    },
+    /*xjs.msg.MessageSocket.open*/
+    open:function()
+    {
+        if(this.websocket)
+        {
+            this.websocket.close();
+        }
+        var wsurl = this.url + "/" + this.userId + "?opts=" + this.opts,
+            params = this.getExtParamUri();
+        if(params)
+        {
+            wsurl += "&" + params;
+        }
+        this.websocket = new WebSocket(wsurl);
+        window.console.log("连接到 " + wsurl);
+        this.websocket.onopen = this.onOpen.createDelegate(this);
+        this.websocket.onclose = this.onClose.createDelegate(this);
+        this.websocket.onmessage = this.onMessage.createDelegate(this);
+        this.websocket.onerror = this.onError.createDelegate(this);
+    },
+    /*xjs.msg.MessageSocket.getExtParamUri*/
+    getExtParamUri:function()
+    {
+        if(this.extParams)
+        {
+            var paramurl = "";
+            for(var p in this.extParams)
+            {
+                if(paramurl.length > 0)
+                {
+                    paramurl += "&";
+                }
+                paramurl += p + "=" + encodeURIComponent(this.extParams[p]);
+            }
+            return paramurl;
+        }
+        return null;
+    },
+    /*xjs.msg.MessageSocket.setExtParam*/
+    setExtParam:function(extParams)
+    {
+        this.extParams = extParams;
+    },
+    /*xjs.msg.MessageSocket.getExtParam*/
+    getExtParam:function()
+    {
+        return this.extParams;
+    },
+    /*xjs.msg.MessageSocket.onError*/
+    onError:function(ev)
+    {
+        this.fireEvent("onWebSocketError",ev);
+    },
+    /*xjs.msg.MessageSocket.onOpen*/
+    onOpen:function(ev)
+    {
+        this.fireEvent("onWebSocketOpen",ev);
+    },
+    /*xjs.msg.MessageSocket.onClose*/
+    onClose:function(ev)
+    {
+        this.fireEvent("onWebSocketClose",ev);
+    },
+    /*xjs.msg.MessageSocket.onMessage*/
+    onMessage:function(ev)
+    {
+        var m;
+        try
+        {
+            m = Xjs.JSON.parse(ev.data);
+        }catch(ex)
+        {
+            alert("错误" + ex);
+            return;
+        }
+        this.fireEvent("onWebSocketMessage",m,ev);
+    }
+});
 /*xjs/table/DefaultListener.java*/
 Xjs.table.DefaultListener=Xjs.extend(Xjs.table.DefaultTableListener,{
   _js$className_:"Xjs.table.DefaultListener",
@@ -14412,7 +15801,7 @@ Xjs.apply(Xjs.ui.AttachUtils,{
 Xjs.ui.BorderPane=function(cfg){
     Xjs.ui.BorderPane.superclass.constructor.call(this,cfg);
     this.itemsLayout = new Xjs.ui.BorderLayout();
-    this.className = "ui-bordepane";
+    this.className = "ui-borderpane";
 };
 Xjs.extend(Xjs.ui.BorderPane,Xjs.ui.Container,{
   _js$className_:"Xjs.ui.BorderPane"
@@ -14516,7 +15905,149 @@ Xjs.extend(Xjs.ui.Canvas,Xjs.ui.Component,{
     onResize:Xjs.emptyFn
 });
 /*xjs/ui/CellRenderer.java*/
+Xjs.ui.CellRenderer$DecimalFormat=function(fmt){
+    this.fmt = fmt;
+    this.thd = fmt.indexOf(",") > 0;
+    this.pct = fmt.indexOf("%") == fmt.length - 1;
+    var p = fmt.indexOf(".");
+    if(p < 0)
+        this.min = this.max = 0;
+    else 
+    {
+        var tmp = fmt.substring(p + 1);
+        if(this.pct)
+            tmp = tmp.substring(0,tmp.length - 1);
+        this.min = tmp.lastIndexOf("0") + 1;
+        this.max = tmp.length;
+    }
+};
+Xjs.apply(Xjs.ui.CellRenderer$DecimalFormat.prototype,{
+    /*xjs.ui.CellRenderer$DecimalFormat.format*/
+    format:function(v)
+    {
+        var s = "";
+        if(v < 0)
+        {
+            s = "-";
+            v = -v;
+        }
+        if(this.pct)
+            v *= 100;
+        var integer = Math.floor(v),
+            decimal = this.max == 0 ? 0 : Math.round((v - integer * 1.0) * Math.pow(10,this.max));
+        if(this.thd && integer > 999)
+        {
+            var a = ("" + integer).split("").reverse();
+            for(var i=3;i < a.length;i += 4)
+            {
+                a.splice(i,0,",");
+            }
+            a = a.reverse();
+            s += a.join("");
+        } else 
+            s += integer;
+        if(this.max > 0)
+        {
+            var a = ("" + decimal).split("").reverse();
+            for(;a.length < this.max;)
+                a.push("0");
+            for(var i=0;i <= a.length - this.min;i++)
+            {
+                if("0" != a[i])
+                    break;
+                a.splice(i--,1);
+            }
+            a = a.reverse();
+            for(;a.length < this.min;)
+                a.push("0");
+            if(a.length > 0)
+            {
+                s += "." + a.join("");
+            }
+        }
+        if(this.pct)
+            s += "%";
+        return s;
+    }
+});
+Xjs.ui.CellRenderer$DateFormat=function(fmt){
+    this.en = fmt.startsWith("en:");
+    this.fmt = this.en ? fmt.substring(3) : fmt;
+};
+Xjs.apply(Xjs.ui.CellRenderer$DateFormat.prototype,{
+    /*xjs.ui.CellRenderer$DateFormat.format*/
+    format:function(date)
+    {
+        if(Date.tzOffset !== undefined)
+        {
+            date = new Date(date.getTime() + Date.tzOffset - date.getTimezoneOffset() * -60000);
+        }
+        var m = new Xjs.JSMatcher(Xjs.ui.CellRenderer.datPtn,this.fmt),
+            sb = new Xjs.StringBuilder();
+        while(m.find())
+        {
+            var tgt;
+            switch(m.group(1))
+            {
+            case "yyyy":
+                tgt = "" + date.getFullYear();
+                break;
+            case "M":
+                tgt = "" + (date.getMonth() + 1);
+                break;
+            case "MM":
+                tgt = "" + (date.getMonth() + 1);
+                if(tgt.length < 2)
+                    tgt = "0" + tgt;
+                break;
+            case "MMM":
+                tgt = this.en ? Xjs.ui.CellRenderer.enmonths[date.getMonth()] : Xjs.ui.CellRenderer.cnmonths[date.getMonth()];
+                break;
+            case "d":
+                tgt = "" + date.getDate();
+                break;
+            case "dd":
+                tgt = "" + date.getDate();
+                if(tgt.length < 2)
+                    tgt = "0" + tgt;
+                break;
+            case "0000":
+                tgt = Xjs.ui.CellRenderer.days[date.getDate() - 1];
+                break;
+            case "HH":
+                tgt = "" + date.getHours();
+                break;
+            case "mm":
+                tgt = "" + date.getMinutes();
+                break;
+            case "ss":
+                tgt = "" + date.getSeconds();
+                break;
+            case "SSS":
+                tgt = "" + date.getMilliseconds();
+                break;
+            case "u":
+                tgt = "" + date.getDay();
+                break;
+            case "E":
+                tgt = this.en ? Xjs.ui.CellRenderer.endays[date.getDay() - 1] : Xjs.ui.CellRenderer.cndays[date.getDay() - 1];
+                break;
+            default:
+                throw new Error("无效的日期格式化字符：" + m.group(1));
+            }
+            m.appendReplacement(sb,tgt);
+        }
+        m.appendTail(sb);
+        return sb.toStringValue();
+    }
+});
 Xjs.ui.CellRenderer = {
+    datPtn:new RegExp("(\\w+)","g"),
+    days:["1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th","13th","14th","15th","16th","17th","18th","19th","20th","21st","22nd","23rd","24th","25th","26th","27th","28th","29th","30th","31st"],
+    enmonths:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+    cnmonths:["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"],
+    endays:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+    cndays:["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],
     /*xjs.ui.CellRenderer.getCodeKey*/
     getCodeKey:function(cell,value,row)
     {
@@ -14738,7 +16269,20 @@ Xjs.ui.CellRenderer = {
         var cell = info.cell;
         if(value instanceof Date)
         {
-            return value.format(cell.datefmt);
+            if(cell.format)
+            {
+                var format = cell.format,
+                    formatLang = cell.formatLang;
+                if(formatLang)
+                    format = formatLang + ":" + format;
+                return Xjs.ui.CellRenderer.renderDate(value,format);
+            }
+            var datefmt = cell.datefmt;
+            if(datefmt === undefined && cell.sqlType == 91)
+            {
+                datefmt = 2;
+            }
+            return value.format(datefmt);
         }
         var forEdit = info.forEdit;
         if(cell.showName || cell.showFullName)
@@ -14760,7 +16304,7 @@ Xjs.ui.CellRenderer = {
             }
             if(cell.mutiValueDelim == null)
                 return Xjs.ui.CellRenderer.value2String1(info,value,forEdit);
-            var a = value.split(cell.mutiValueDelim);
+            var a = Array.isArray(value) ? value : value.split(cell.mutiValueDelim);
             for(var i=0;i < a.length;i++)
             {
                 var s1 = Xjs.ui.CellRenderer.value2String1(info,a[i],forEdit);
@@ -14771,13 +16315,17 @@ Xjs.ui.CellRenderer = {
         }
         if(typeof(value) == "number")
         {
+            if(cell.format)
+            {
+                return Xjs.ui.CellRenderer.renderDecimal(value,cell.format);
+            }
             if(cell.hideIfZero && !forEdit && value == 0)
             {
                 return "";
             }
             if(cell.percent > 1)
             {
-                value = value * cell.percent;
+                value = Xjs.util.BigUtils.mul(value,cell.percent);
             }
             if(info.cell.negred && value < 0 && !forEdit && !info.forGetCellText)
             {
@@ -14812,11 +16360,69 @@ Xjs.ui.CellRenderer = {
             nmText;
         nmText = Xjs.ui.CellRenderer.getValueName(cellInfo,value);
         return nmText == null || nmText == "" || nmText == value ? value.toString() : ((cellInfo.showCode === undefined ? cell.showCode || forEdit : cellInfo.showCode) ? value + ":" + nmText : nmText);
+    },
+    /*xjs.ui.CellRenderer.renderDecimal*/
+    renderDecimal:function(v,fmt)
+    {
+        if(!v)
+            return null;
+        if(!fmt)
+            return v.toString();
+        if(!Xjs.ui.CellRenderer.decMap)
+            Xjs.ui.CellRenderer.decMap = {};
+        var decFmt = Xjs.ui.CellRenderer.decMap[fmt];
+        if(!decFmt)
+            decFmt = new Xjs.ui.CellRenderer$DecimalFormat(fmt);
+        return decFmt.format(v);
+    },
+    /*xjs.ui.CellRenderer.renderDate*/
+    renderDate:function(v,fmt)
+    {
+        if(!v)
+            return null;
+        if(!fmt)
+            return v.toString();
+        if(!Xjs.ui.CellRenderer.datMap)
+            Xjs.ui.CellRenderer.datMap = {};
+        var datFmt = Xjs.ui.CellRenderer.datMap[fmt];
+        if(!datFmt)
+            datFmt = new Xjs.ui.CellRenderer$DateFormat(fmt);
+        return datFmt.format(v);
     }
 };
 {
     Xjs.ui.CellRenderer.defaultCellRender = {cellRender:Xjs.ui.CellRenderer.defaultRenderer};
-}/*xjs/ui/Checkbox.java*/
+}/*xjs/ui/CharLimit.java*/
+Xjs.ui.CharLimit=function(cfg){
+    Xjs.ui.CharLimit.superclass.constructor.call(this,cfg);
+};
+Xjs.extend(Xjs.ui.CharLimit,Xjs.ui.Container,{
+  _js$className_:"Xjs.ui.CharLimit",
+    /*xjs.ui.CharLimit._createDOM*/
+    _createDOM:function(root)
+    {
+        var dom = Xjs.ui.CharLimit.superclass._createDom0.call(this,root,"span");
+        this.charsCntInd = Xjs.DOM.findById(this.bindFieldName + "_CharsCnt",dom);
+        if(!this.charsCntInd)
+        {
+            var d1 = Xjs.DOM.createChild(dom,"span");
+            Xjs.DOM.setTextContent(d1,"已输入");
+            this.charsCntInd = Xjs.DOM.createChild(dom,"em");
+            this.charsCntInd.id = this.bindFieldName + "_CharsCnt";
+            this.charsCntInd.style.color = "#009cff";
+            Xjs.DOM.setTextContent(this.charsCntInd,"0");
+            var d2 = Xjs.DOM.createChild(dom,"span");
+            Xjs.DOM.setTextContent(d2,"字符/限");
+            this.maxCharsCntInd = Xjs.DOM.createChild(dom,"em","total");
+            this.maxCharsCntInd.id = this.bindFieldName + "_MaxCharsCnt";
+            Xjs.DOM.setTextContent(this.maxCharsCntInd,"0");
+            var d3 = Xjs.DOM.createChild(dom,"span");
+            Xjs.DOM.setTextContent(d3,"字符");
+        }
+        return dom;
+    }
+});
+/*xjs/ui/Checkbox.java*/
 Xjs.ui.Checkbox=function(config){
     Xjs.ui.Checkbox.superclass.constructor.call(this,config);
 };
@@ -14842,7 +16448,7 @@ Xjs.extend(Xjs.ui.Checkbox,Xjs.ui.Component,{
         Xjs.DOM.createChild(spanDOM,"span","check");
         var dom = this.checkDOM = document.createElement("input");
         dom.type = this.inputType;
-        dom.onclick = Function.bindAsEventListener(this.onChanged,this);
+        dom.onclick = Function.bindAsEventListener(this.onCheckClick,this);
         dom.onfocus = Function.bindAsEventListener(this._onFocus,this,0,true);
         dom.onblur = Function.bindAsEventListener(this._onBlur,this,0,true);
         if(this.checkValue !== undefined)
@@ -14905,7 +16511,7 @@ Xjs.extend(Xjs.ui.Checkbox,Xjs.ui.Component,{
     /*xjs.ui.Checkbox.updateReadonlyStatus*/
     updateReadonlyStatus:function()
     {
-        var readOnly = this.readOnly || this.compEditable && this.compEditable.isEditReadonly(this);
+        var readOnly = this.isReadonly();
         if(this.checkDOM)
             this.checkDOM.disabled = !!readOnly;
         if(!(this.focusOpts & 1))
@@ -14933,6 +16539,7 @@ Xjs.extend(Xjs.ui.Checkbox,Xjs.ui.Component,{
             return;
         var idx = (this.inputType == "radio" ? 4 : 0) | (this.checkDOM.checked ? 2 : 0) | (this.checkDOM.disabled ? 1 : 0);
         this.dom.className = "ui-check ui-check" + idx + (this._focused ? " ui-focused-checkbox" : "");
+        this._lastClsIddx = idx;
     },
     /*xjs.ui.Checkbox.getValue*/
     getValue:function()
@@ -14970,11 +16577,16 @@ Xjs.extend(Xjs.ui.Checkbox,Xjs.ui.Component,{
     {
         if((e.srcElement || e.target) == this.dom)
         {
-            if(this._forChkGrp && this.inputType == "radio")
+            if(this._forChkGrp && !this._forChkGrp.isReadonly() && this.inputType == "radio")
             {
-                this._forChkGrp.setValue(this.checkValue);
+                this._forChkGrp.setValue(e.ctrlKey ? null : this.checkValue);
             }
         }
+    },
+    /*xjs.ui.Checkbox.onCheckClick*/
+    onCheckClick:function(e)
+    {
+        this.onChanged(e,2);
     },
     /*xjs.ui.Checkbox.onChanged*/
     onChanged:function(e,opts)
@@ -15112,7 +16724,7 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
             onItemBlurL = null;
         if(optData != null)
         {
-            this._$onChanged = Function.bindAsEventListener(this.onChanged,this);
+            this._$onCheckClick = Function.bindAsEventListener(this.onCheckClick,this);
             for(var i=0;i < optData.length;i++)
             {
                 var a = optData[i];
@@ -15142,7 +16754,7 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
                     c.value = value;
                 this.items[i] = c;
                 c.getDOM();
-                c.checkDOM.onclick = this._$onChanged;
+                c.checkDOM.onclick = this._$onCheckClick;
                 if(this.__invisibleVals != null && this.__invisibleVals.indexOf(value) >= 0)
                 {
                     c.setVisible(false);
@@ -15263,7 +16875,7 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
     /*xjs.ui.CheckboxGroup.updateReadonlyStatus*/
     updateReadonlyStatus:function()
     {
-        var readOnly = this.readOnly || this.compEditable && this.compEditable.isEditReadonly(this);
+        var readOnly = this.isReadonly();
         this.focusableComp = !readOnly;
         if(this.dom && this.checkItems)
         {
@@ -15423,12 +17035,35 @@ Xjs.extend(Xjs.ui.CheckboxGroup,Xjs.ui.Component,{
     onChanged:function(e,opts)
     {
         this.resetClassName();
-        Xjs.ui.CheckboxGroup.superclass.onChanged.call(this,e,opts);
+        Xjs.ui.CheckboxGroup.superclass.onChanged.call(this,e,5);
+    },
+    /*xjs.ui.CheckboxGroup.onCheckClick*/
+    onCheckClick:function(e)
+    {
+        if(e.ctrlKey && !this.multiple && this.checkItems)
+        {
+            var cbBox = null,
+                d = e.srcElement || e.target;
+            if(this.checkItems)
+                for(var i=0;i < this.checkItems.length;i++)
+                {
+                    if(Xjs.DOM.contains(this.checkItems[i].dom,d))
+                    {
+                        cbBox = this.checkItems[i];
+                        break;
+                    }
+                }
+            if(cbBox && cbBox._lastClsIddx & 2)
+            {
+                cbBox.setChecked(false);
+            }
+        }
+        this.onChanged(e,2);
     },
     /*xjs.ui.CheckboxGroup.resetClassName*/
     resetClassName:function()
     {
-        if(this.checkItems != null)
+        if(this.checkItems)
             for(var i=0;i < this.checkItems.length;i++)
             {
                 if(this.checkItems[i] != null)
@@ -15522,6 +17157,11 @@ Xjs.extend(Xjs.ui.CheckComboAidInputer,Xjs.ui.ComboAidInputerA,{
         Xjs.ui.CheckComboAidInputer.superclass.onDomAttached.call(this);
         var listTable = Xjs.DOM.findById("SelectListBox",this.dom);
         this.tblBody = Xjs.DOM.find("tbody",listTable);
+        if(this.hideBtns)
+        {
+            var btnGrp = Xjs.DOM.findById("BtnGroup",this.dom);
+            btnGrp.style.display = "none";
+        }
     },
     /*xjs.ui.CheckComboAidInputer.afterExpandShow*/
     afterExpandShow:function(newDom)
@@ -15608,6 +17248,8 @@ Xjs.extend(Xjs.ui.CheckComboAidInputer,Xjs.ui.ComboAidInputerA,{
                 this.ckbox[i].resetClassName();
             }
         this.fireEvent("onAidValueChanged",e);
+        if(this.hideBtns)
+            this.oncmd_select();
     }
 });
 /*xjs/ui/ClientRectangle.java*/
@@ -15679,7 +17321,9 @@ Xjs.apply(Xjs.ui.ComponentT.prototype,{
     /*xjs.ui.ComponentT.fireOnShowing*/
     fireOnShowing:Xjs.emptyFn,
     /*xjs.ui.ComponentT._updateDomSize*/
-    _updateDomSize:Xjs.emptyFn
+    _updateDomSize:Xjs.emptyFn,
+    /*xjs.ui.ComponentT._addDialogItemsTo*/
+    _addDialogItemsTo:Xjs.emptyFn
 });
 Xjs.apply(Xjs.ui.ComponentT,{
     /*xjs.ui.ComponentT.getCompByName*/
@@ -15719,6 +17363,10 @@ Xjs.apply(Xjs.ui.ComponentT,{
 /*xjs/ui/Date2AidInputer.java*/
 Xjs.ui.Date2AidInputer=function(config){
     Xjs.ui.Date2AidInputer.superclass.constructor.call(this,config);
+    if(config)
+    {
+        delete config.htmlRes;
+    }
     this.date1Input = new Xjs.ui.DateAidInputer(config);
     this.date1Input.date2Input = this;
     this.date2Input = new Xjs.ui.DateAidInputer(config);
@@ -15732,9 +17380,34 @@ Xjs.extend(Xjs.ui.Date2AidInputer,Xjs.ui.LayerAidInputer,{
         var htmlRes = this.htmlRes || "@" + Xjs.getTheme() + "/xjsres/date2picker.html",
             dom = Xjs.ui.Component.createDomFromRes(htmlRes,this,false),
             startDateP = Xjs.DOM.findById("START_DATE",dom),
-            endDateP = Xjs.DOM.findById("END_DATE",dom);
+            endDateP = Xjs.DOM.findById("END_DATE",dom),
+            btnCancel = Xjs.DOM.findById("BTN_CANCEL",dom),
+            btnOk = Xjs.DOM.findById("BTN_OK",dom);
+        if(btnOk)
+        {
+            btnOk.onclick = Function.bindAsEventListener(this.onOK,this);
+        }
+        if(btnCancel)
+        {
+            btnCancel.onclick = Function.bindAsEventListener(this.hideAndFocusParent,this);
+        }
         startDateP.appendChild(this.date1Input._createDOM());
         endDateP.appendChild(this.date2Input._createDOM());
+        this.date1Input.ymdSelBtns.style.display = "none";
+        this.date2Input.ymdSelBtns.style.display = "none";
+        var qselPane = Xjs.DOM.findById("QSELPANE",dom);
+        if(qselPane)
+        {
+            var f = Function.bindAsEventListener(this.onQSelBtnClick,this);
+            for(var i=0;i < qselPane.childNodes.length;i++)
+            {
+                var e = qselPane.childNodes[i];
+                if(e.id && e.id.startsWith("quicksel_"))
+                {
+                    e.onclick = f;
+                }
+            }
+        }
         return dom;
     },
     /*xjs.ui.Date2AidInputer.beforeExpandShow*/
@@ -15755,6 +17428,18 @@ Xjs.extend(Xjs.ui.Date2AidInputer,Xjs.ui.LayerAidInputer,{
         this.date1Input.initDate(this.parent);
         this.date2Input.initDate(this.parent);
     },
+    /*xjs.ui.Date2AidInputer._resetParent2Date*/
+    _resetParent2Date:function()
+    {
+        if(typeof(this.fromDate) == "string")
+        {
+            this.fromDate = this.parent.parent.getItemByName(this.fromDate);
+        }
+        if(typeof(this.toDate) == "string")
+        {
+            this.toDate = this.parent.parent.getItemByName(this.toDate);
+        }
+    },
     /*xjs.ui.Date2AidInputer.selectYMD*/
     selectYMD:function(j,val)
     {
@@ -15762,6 +17447,36 @@ Xjs.extend(Xjs.ui.Date2AidInputer,Xjs.ui.LayerAidInputer,{
             this.selectedVal1 = val;
         else if(j == this.date2Input)
             this.selectedVal2 = val;
+        this._setParentValue();
+    },
+    /*xjs.ui.Date2AidInputer.onDblClick*/
+    onDblClick:function(j)
+    {
+        if(j != this.date1Input && !this.selectedVal1)
+        {
+            this.selectedVal1 = this.date1Input.getDateAsStr();
+        } else if(j != this.date2Input && !this.selectedVal2)
+        {
+            this.selectedVal2 = this.date2Input.getDateAsStr();
+        }
+        this._setParentValue();
+    },
+    /*xjs.ui.Date2AidInputer.onOK*/
+    onOK:function()
+    {
+        if(!this.selectedVal1)
+        {
+            this.selectedVal1 = this.date1Input.getDateAsStr();
+        }
+        if(!this.selectedVal2)
+        {
+            this.selectedVal2 = this.date2Input.getDateAsStr();
+        }
+        this._setParentValue();
+    },
+    /*xjs.ui.Date2AidInputer._setParentValue*/
+    _setParentValue:function()
+    {
         if(this.selectedVal1 && this.selectedVal2)
         {
             var date1 = Date.parseDate(this.selectedVal1),
@@ -15772,7 +17487,19 @@ Xjs.extend(Xjs.ui.Date2AidInputer,Xjs.ui.LayerAidInputer,{
                     Xjs.alertErr({message:this.dateRngErrInfo});
                 return;
             }
-            if(this.selectedVal1 == this.selectedVal2)
+            if(this.fromDate || this.toDate)
+            {
+                this._resetParent2Date();
+                if(this.fromDate)
+                {
+                    this.fromDate.setValue(this.selectedVal1,undefined,4);
+                    this.setParentValue(this.selectedVal2);
+                } else if(this.toDate)
+                {
+                    this.toDate.setValue(this.selectedVal2,undefined,4);
+                    this.setParentValue(this.selectedVal1);
+                }
+            } else if(this.selectedVal1 == this.selectedVal2)
                 this.setParentValue(this.selectedVal1);
             else 
                 this.setParentValue(this.selectedVal1 + ".." + this.selectedVal2);
@@ -15782,19 +17509,58 @@ Xjs.extend(Xjs.ui.Date2AidInputer,Xjs.ui.LayerAidInputer,{
     /*xjs.ui.Date2AidInputer.setInitValue*/
     setInitValue:function(date)
     {
-        var date1,
-            date2;
-        if(typeof(date) == "string")
+        if(this.fromDate || this.toDate)
         {
-            var p = date.indexOf("..");
-            date1 = p < 0 ? date : date.substring(0,p).trim();
-            date2 = p < 0 ? date1 : date.substring(p + 2).trim();
+            this._resetParent2Date();
+            if(this.fromDate)
+            {
+                this.date1Input.setInitValue(this.fromDate.getValue());
+                this.date2Input.setInitValue(date);
+            } else if(this.toDate)
+            {
+                this.date2Input.setInitValue(this.toDate.getValue());
+                this.date1Input.setInitValue(date);
+            }
         } else 
         {
-            date1 = date2 = null;
+            var date1,
+                date2;
+            if(typeof(date) == "string")
+            {
+                var p = date.indexOf("..");
+                date1 = p < 0 ? date : date.substring(0,p).trim();
+                date2 = p < 0 ? date1 : date.substring(p + 2).trim();
+            } else 
+            {
+                date1 = date2 = null;
+            }
+            this.date1Input.setInitValue(date1);
+            this.date2Input.setInitValue(date2);
         }
-        this.date1Input.setInitValue(date1);
-        this.date2Input.setInitValue(date2);
+    },
+    /*xjs.ui.Date2AidInputer.onQSelBtnClick*/
+    onQSelBtnClick:function(ev)
+    {
+        var e = ev.srcElement || ev.target;
+        if(e.id && e.id.startsWith("quicksel_"))
+        {
+            var s = e.id.substring(9),
+                p = s.indexOf("__"),
+                date1,
+                date2;
+            if(p >= 0)
+            {
+                date1 = Date.parseDateMacro(s.substring(0,p));
+                date2 = Date.parseDateMacro(s.substring(p + 2));
+            } else 
+            {
+                date1 = Date.parseDateMacro(s);
+                date2 = Date.parseDateMacro("TODAY");
+            }
+            this.selectedVal1 = date1.format();
+            this.selectedVal2 = date2.format();
+            this._setParentValue();
+        }
     }
 });
 /*xjs/ui/DateYearMonthAidInputer.java*/
@@ -16039,8 +17805,7 @@ Xjs.ui.FileInputField=Xjs.extend(Xjs.ui.Component,{
         {
             if(returnValue._exception)
             {
-                Xjs.ui.UIUtil.showErrorDialog("上载文件错误",returnValue._exception);
-                return;
+                throw new Error(returnValue._exception);
             }
             if(typeof(returnValue) == "string")
                 this.setValue(returnValue);
@@ -16132,21 +17897,28 @@ Xjs.ui.GroupPane=function(cfg){
 };
 Xjs.extend(Xjs.ui.GroupPane,Xjs.ui.Container,{
   _js$className_:"Xjs.ui.GroupPane",
-    /*xjs.ui.GroupPane.setReadonly*/
-    setReadonly:function(readOnly,setDefReadonly)
+    /*xjs.ui.GroupPane.__init*/
+    __init:function()
     {
-        Xjs.ui.GroupPane.superclass.setReadonly.call(this,readOnly,setDefReadonly);
+        Xjs.ui.GroupPane.superclass.__init.call(this);
+        this.resizeItemsOnResize = true;
+    },
+    /*xjs.ui.GroupPane.setReadonly*/
+    setReadonly:function(rdOnly,setDefRdonly)
+    {
+        Xjs.ui.GroupPane.superclass.setReadonly.call(this,rdOnly,setDefRdonly);
         if(this.items)
         {
             for(var i=0;i < this.items.length;i++)
             {
-                this.items[i].setReadonly(readOnly,setDefReadonly);
+                this.items[i].setReadonly(rdOnly,setDefRdonly);
             }
         }
     },
     /*xjs.ui.GroupPane.setTitle*/
     setTitle:function(title)
     {
+        this.title = title;
         var titleDOM = Xjs.DOM.findById("title",this.dom);
         if(titleDOM)
         {
@@ -16171,6 +17943,27 @@ Xjs.extend(Xjs.ui.GroupPane,Xjs.ui.Container,{
     updateCollapseStat:function()
     {
         Xjs.DOM.addOrRemoveClass(this.dom,"grouppane-content-collapsed",this.collapseContent == 1);
+    },
+    /*xjs.ui.GroupPane._createDOM*/
+    _createDOM:function(root)
+    {
+        var dom = this._createDom0(root,"div",null);
+        if(dom.firstChild == null)
+        {
+            var titBarDOM = Xjs.DOM.createChild(dom,"div","grouppane-titlebar");
+            titBarDOM.id = "GroupPaneTitleBar";
+            var titDOM = Xjs.DOM.createChild(titBarDOM,"div","grouppane-title");
+            Xjs.DOM.createChild(titDOM,"i","group-icon");
+            var e = Xjs.DOM.createChild(titDOM,"span","group-title");
+            e.id = "title";
+            Xjs.DOM.setTextContent(e,this.title);
+            Xjs.DOM.createChild(titBarDOM,"div","group-ui-btn");
+            var bodyDOM = Xjs.DOM.createChild(dom,"div","grouppane-body");
+            if(this.id)
+                bodyDOM.id = this.id + "-container";
+        }
+        this.layoutItems(this._getLayoutInDOM(dom),root);
+        return dom;
     },
     /*xjs.ui.GroupPane.onDomCreated*/
     onDomCreated:function(root)
@@ -16380,7 +18173,20 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             id.style.textAlign = this.textAlign;
         if(this.resizeable === false)
             id.style.resize = "none";
+        if(this.inputSize > 0)
+        {
+            id.size = this.inputSize;
+        }
         this.inputDom = id;
+        this.suffixDom = Xjs.DOM.find("span.ui-input-suffixspan",d);
+        if(this.suffixHTML)
+        {
+            if(!this.suffixDom)
+            {
+                this.suffixDom = Xjs.DOM.createChild(d,"span","ui-input-suffixspan");
+                this.suffixDom.innerHTML = this.suffixHTML;
+            }
+        }
         if(this.maxCharsCnt > 0)
             id.maxLength = this.maxCharsCnt;
         id.readOnly = this.editable === false || this.isReadonly();
@@ -16406,8 +18212,6 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         {
             id.autocomplete = this.autoComplete;
         }
-        if(this.textDir)
-            id.dir = this.textDir;
         this.bindEvent(true);
         this._updateDomValue(0);
     },
@@ -16589,8 +18393,9 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
                 s = this.inputDom.style;
             s.width = w != null && w != "auto" ? "100%" : "";
             if(!this.fitHeight)
+            {
                 s.height = h != null && h != "auto" ? "100%" : "";
-            else 
+            } else 
             {
                 var e = this.inputDom,
                     mh = this.minHeight;
@@ -16633,11 +18438,6 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             this.showBgDOM();
             this._inAISearch();
         }
-    },
-    /*xjs.ui.InputField.isReadonly*/
-    isReadonly:function()
-    {
-        return !!this.readOnly || this.compEditable && this.compEditable.isEditReadonly(this);
     },
     /*xjs.ui.InputField.setEditable*/
     setEditable:function(e)
@@ -16734,9 +18534,23 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             alcs.push("ui-focusborder");
             alcs.push("ui-focused-input");
         }
+        if(this.textDir == "rtl")
+        {
+            if(this._focused)
+            {
+                alcs.push("ui-textdir-rtl-input-focus");
+            } else 
+            {
+                alcs.push("ui-textdir-rtl-input-blur");
+            }
+        }
         if(this.__lastInalidate1)
         {
             alcs.push("ui-validation-err");
+        }
+        if(this.deliconDOM && this.deliconDOM.style.visibility == "inherit")
+        {
+            alcs.push("ui-delicon-visible");
         }
         if(this._addedCls)
         {
@@ -16779,6 +18593,8 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             {
                 var l = s.length;
                 this.setSelectionRange(l,l);
+                if(Xjs.DOM.isContentOvflow(this.inputDom))
+                    this.inputDom.scrollLeft = 3000;
             }
         } else if(m == 2)
         {
@@ -16820,6 +18636,12 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         this._updateDomValue(0);
         this._updateClass();
         this.fireEvent("focusLost");
+    },
+    /*xjs.ui.InputField.isCurrentValueValid*/
+    isCurrentValueValid:function()
+    {
+        var v = this.value !== undefined || !this.inputDom ? this.value : this.getDisplayValue(false);
+        return this._validateValue(v,null,2);
     },
     /*xjs.ui.InputField.validateAndAlert*/
     validateAndAlert:function()
@@ -16870,7 +18692,8 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         if(this.inputDom)
         {
             this.inputDom.focus();
-            if(this.isDelable())
+            var readOnly = this.isReadonly();
+            if(!readOnly)
             {
                 var v = this.inputDom.value;
                 if(v != null && v !== "")
@@ -16989,8 +18812,8 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             {
             }
     },
-    /*xjs.ui.InputField.isDelable*/
-    isDelable:function()
+    /*xjs.ui.InputField.isDelAllable*/
+    isDelAllable:function()
     {
         var c = this.tableColumn || this;
         if(this.isReadonly() || this.editable !== false || c.disableDel)
@@ -17012,6 +18835,10 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             }
             return;
         }
+        if(e.keyCode == 13 && !e.altKey)
+        {
+            this.hideAidInputer();
+        }
         var readOnly = this.isReadonly();
         if(e.keyCode == 8 && readOnly)
         {
@@ -17030,7 +18857,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         }
         var v = this.inputDom.value,
             preventKey = false;
-        if((e.keyCode == 46 || e.keyCode == 8) && this.isDelable() && v != null && v !== "")
+        if((e.keyCode == 46 || e.keyCode == 8) && this.isDelAllable() && v != null && v !== "")
         {
             if(e.keyCode == 8)
             {
@@ -17112,9 +18939,13 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         }
         if((e.keyCode == 8 || e.keyCode == 46) && (this.isReadonly() || this.editable === false))
         {
-            if(this.isReadonly() || this.editable === false)
             {
-                return this.inAISearch == 2 ? undefined : false;
+                var prevent = this.inAISearch != 2;
+                if(prevent && !this.isReadonly() && this.inAISearch == 1)
+                {
+                    e.preventDefault();
+                }
+                return prevent ? false : undefined;
             }
         }
         if(Xjs.Event.isCmdKey(e))
@@ -17231,15 +19062,9 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             if(this.percent > 1 && typeof(v) == "number")
             {
                 v = v / this.percent;
-                var inc = 0,
-                    p = s.indexOf(".");
-                if(s.length > 0 && p >= 0)
-                {
-                    inc = s.substring(p + 1).length;
-                }
-                inc += 2;
-                var vstr = v.toString();
-                p = vstr.indexOf(".");
+                var inc = Xjs.ui.InputField.getValueIncSp(s) + 2,
+                    vstr = v.toString(),
+                    p = vstr.indexOf(".");
                 if(vstr.substring(p + 1).length > inc)
                 {
                     var pow = Math.pow(10,inc);
@@ -17253,8 +19078,34 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
     /*xjs.ui.InputField.validateValue*/
     validateValue:function(src,ivFields,opts)
     {
-        var v = this.value !== undefined || !this.inputDom ? this.value : this.getDisplayValue(false);
+        var v;
+        if((this.sqlType == 2 || this.sqlType == 4) && this.value !== undefined && this.value != null && this.value.toString().indexOf("e") > -1)
+        {
+            v = this.getDisplayValueE(false);
+        } else 
+        {
+            v = this.value !== undefined || !this.inputDom ? this.value : this.getDisplayValue(false);
+        }
         return this._validateValue(v,ivFields,opts || 0);
+    },
+    /*xjs.ui.InputField.getDisplayValueE*/
+    getDisplayValueE:function(updateDOM)
+    {
+        var value = this.getDisplayValue(updateDOM);
+        if(value && this.percent > 1)
+        {
+            value = value.endsWith("%") ? value.substring(0,value.length - 1) : value;
+            var intv = "",
+                fv = "",
+                p = value.indexOf(".");
+            if(p >= 0)
+            {
+                intv = value.substring(0,p);
+                fv = value.substring(p + 1);
+            }
+            value = intv + ".00" + fv;
+        }
+        return value;
     },
     /*xjs.ui.InputField._validateValue*/
     _validateValue:function(v,ivFields,opts)
@@ -17377,7 +19228,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         var p;
         if(isDate)
         {
-            if(this.valueRangeSep && (p = value.indexOf(this.valueRangeSep)) >= 0)
+            if(this.valueRangeSep && typeof(value) == "string" && (p = value.indexOf(this.valueRangeSep)) >= 0)
             {
                 var s1,
                     s2,
@@ -17388,7 +19239,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
                 return true;
             }
             var date;
-            if(!(date = Date.parseDate(value)))
+            if(!(date = Date.parseDate(value,this.sqlType == 91 ? 7 : 5)))
                 return false;
             var date1 = null,
                 date2 = null;
@@ -17434,6 +19285,10 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
                 regex = Xjs.Data.IntRegExpr;
             else if(this.sqlType == 2)
                 regex = Xjs.Data.NumRegExpr;
+        }
+        if(this.sqlType == 2 && typeof(value) == "string")
+        {
+            value = value.toString().replace(Xjs.Data.commaExp,"").trim();
         }
         return !regex || regex.test(value);
     },
@@ -17578,7 +19433,11 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             var v = this.inputDom.value,
                 isNull = v == null || v.toString().trim() == "";
             if(this.deliconDOM)
-                this.deliconDOM.style.visibility = isNull || this.isReadonly() ? "hidden" : "inherit";
+            {
+                var visibility = isNull || this.isReadonly() ? "hidden" : "inherit";
+                Xjs.DOM.addOrRemoveClass(this.inputDomx,"ui-delicon-visible",visibility == "inherit");
+                this.deliconDOM.style.visibility = visibility;
+            }
         }
     },
     /*xjs.ui.InputField.setValue*/
@@ -17683,14 +19542,15 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         this.onChanged(e,2,false);
     },
     /*xjs.ui.InputField.getTipText*/
-    getTipText:function()
+    getTipText:function(opt)
     {
         var ie;
         if(ie = this.inputDom)
         {
-            var domW = ie.offsetWidth,
-                tipText = ie.value || this.bgLabel || "";
-            if(this.getCharLength(tipText) * 8 <= domW)
+            var domW = ie.offsetWidth;
+            domW -= Xjs.DOM.getBorder(ie,"lr") + Xjs.DOM.getPadding(ie,"lr");
+            var tipText = ie.value || this.bgLabel || "";
+            if(!(opt & 1) && this.getCharLength(tipText) * 8 <= domW)
                 return null;
             var e = Xjs.DOM._createTempSpanDOM();
             e.style.fontSize = ie.style.fontSize;
@@ -17698,7 +19558,9 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             Xjs.DOM.setTextContent(e,tipText);
             var dispW = e.scrollWidth;
             if(dispW >= domW)
-                return tipText.replace(/\n/g,"<br>");
+            {
+                return tipText;
+            }
         }
         return null;
     },
@@ -17777,6 +19639,17 @@ Xjs.apply(Xjs.ui.InputField,{
         var v = new Xjs.ui.util.FileValue(fn);
         v.inputDom = inputDom;
         return v;
+    },
+    /*xjs.ui.InputField.getValueIncSp*/
+    getValueIncSp:function(s)
+    {
+        var inc = 0,
+            p = s.indexOf(".");
+        if(s.length > 0 && p >= 0)
+        {
+            inc = s.substring(p + 1).length;
+        }
+        return inc;
     },
     /*xjs.ui.InputField.resizeHeight*/
     resizeHeight:function(ta,minHeight)
@@ -18913,10 +20786,12 @@ Xjs.extend(Xjs.ui.MenuPane,Xjs.ui.Menu,{
             var ns = nodeDom.style;
             Xjs.ui.Menu._updateBgIcon(n,nodeDom,0);
             this._updateBtnState(n,0);
-            var s = n.sdom = Xjs.DOM.createChild(nodeDom,"span");
+            n.iconDom = Xjs.DOM.createChild(nodeDom,"span","ui-icon");
+            var s = n.labelDom = Xjs.DOM.createChild(nodeDom,"span","ui-label");
+            s.id = "btn_text";
             if(n.content)
             {
-                s.innerHTML = n.content;
+                s.textContent = n.content;
             } else if(n.text)
             {
                 Xjs.DOM.setTextContent(s,n.text);
@@ -18926,7 +20801,7 @@ Xjs.extend(Xjs.ui.MenuPane,Xjs.ui.Menu,{
                 _iconMouseOver = Function.bindAsEventListener(this._iconMouseOver,this);
                 _iconMouseOut = Function.bindAsEventListener(this._iconMouseOut,this);
                 _iconMouseDown = Function.bindAsEventListener(this._iconMouseDown,this);
-                _iconMouseClick = Function.bindAsEventListener(this._iconMouseClick,this);
+                _iconMouseClick = Function.bindAsEventListener(this._iconMouseClick,this,0,true);
                 nodeDom.onmouseover = _iconMouseOver;
                 nodeDom.onmouseout = _iconMouseOut;
                 nodeDom.onmousedown = _iconMouseDown;
@@ -19036,7 +20911,7 @@ Xjs.extend(Xjs.ui.MenuPane,Xjs.ui.Menu,{
         if(node.className)
         {
             var d = node.dom;
-            if(d != null)
+            if(d)
             {
                 if(state == 2)
                 {
@@ -19056,11 +20931,11 @@ Xjs.extend(Xjs.ui.MenuPane,Xjs.ui.Menu,{
         if(n)
         {
             this._updateBtnState(n,1);
-            if((this.popupOnMouseOver || n.popupOnMouseOver || this.activePopupNode && this.activePopupNode != n && this.activePopupNode.popupMenu.isInShowing()) && !n.disabled && !this.disabled && n.nodes != null)
+            if((this.popupOnMouseOver || n.popupOnMouseOver || this.activePopupNode && this.activePopupNode != n && this.activePopupNode.popupMenu.isInShowing()) && !n.disabled && !this.disabled && n.nodes)
             {
                 this.showPopupMenu(n);
             }
-            if(n.tipText != null && (this.activePopupNode == null || !this.activePopupNode.popupMenu.isInShowing()))
+            if(n.tipText && (this.activePopupNode == null || !this.activePopupNode.popupMenu.isInShowing()))
                 this.showTipText(n.tipText,{dom:n.dom});
         }
     },
@@ -19091,7 +20966,7 @@ Xjs.extend(Xjs.ui.MenuPane,Xjs.ui.Menu,{
             {
                 if(n.command != null)
                 {
-                    this.fireEventE("performCommand",n.command,n);
+                    this.fireEventE({eventName:"performCommand",eventSrc:n},n.command,n);
                 }
                 if(n.nodes)
                 {
@@ -19167,6 +21042,7 @@ Xjs.apply(Xjs.ui.MenuPane,{
         for(var i=0;i < cmds.length;i++)
         {
             var cmdPath = cmds[i].split("|"),
+                tipsPath = tips[i] ? tips[i].split("|") : [],
                 cfgPath = new Array(cmdPath.length);
             for(var j=0;j < cmdPath.length;j++)
             {
@@ -19178,7 +21054,7 @@ Xjs.apply(Xjs.ui.MenuPane,{
                     text = cmd.substring(q + 1);
                     cmd = cmdPath[j] = cmd.substring(0,q);
                 }
-                cfgPath[j] = {tipText:tips[i],text:text,className:j == 0 ? nodeClassName + " " + cmdClsPrefix + cmd : liClassName + " " + liCmdClsPrefix + cmd};
+                cfgPath[j] = {tipText:tipsPath[j],text:text,className:j == 0 ? nodeClassName + " " + cmdClsPrefix + cmd : liClassName + " " + liCmdClsPrefix + cmd};
             }
             Xjs.ui.Menu.addChildNode(p,cmdPath,null,cfgPath);
         }
@@ -19744,6 +21620,7 @@ Xjs.extend(Xjs.ui.PopupMenu,Xjs.ui.Layer,{
             }
             p = p.nodes[j];
         }
+        return node;
     },
     /*xjs.ui.PopupMenu.getMenuNode*/
     getMenuNode:function(command)
@@ -19796,17 +21673,24 @@ Xjs.extend(Xjs.ui.PopupMenu,Xjs.ui.Layer,{
                     continue;
                 }
                 liDOM._$node = n;
-                var liDOM2 = Xjs.DOM.createChild(liDOM,"div");
-                if(n.nodes != null)
+                var liDOM2 = Xjs.DOM.createChild(liDOM,"div",n.className);
+                if(n.nodes)
                 {
-                    liDOM2.className = "x-menu-item-arrow";
+                    Xjs.DOM.addClass(liDOM2,"x-menu-item-arrow");
                 }
-                var itemTextDOM = n._textDOM = Xjs.DOM.createChild(liDOM2,"span","x-menu-list-item" + (n.className ? " " + n.className : ""));
-                itemTextDOM.innerHTML = text;
+                var sdom = Xjs.DOM.createChild(liDOM2,"span","x-menu-list-item");
+                n.iconDom = Xjs.DOM.createChild(sdom,"span","ui-icon");
+                var s = n.labelDom = Xjs.DOM.createChild(sdom,"span","ui-label");
+                Xjs.DOM.setTextContent(s,text);
                 liDOM.onmouseover = _onMouseOver;
                 liDOM.onmouseout = _onMouseOut;
                 liDOM.onclick = _onMouseClick;
-                Xjs.ui.Menu._updateBgIcon(n,itemTextDOM);
+                if(n.rComps)
+                    for(var j=0;j < n.rComps.length;j++)
+                    {
+                        sdom.appendChild(n.rComps[j].getDOM());
+                    }
+                Xjs.ui.Menu._updateBgIcon(n,sdom);
             }
         }
         this.attachDOM(dom);
@@ -19816,22 +21700,30 @@ Xjs.extend(Xjs.ui.PopupMenu,Xjs.ui.Layer,{
     {
         Xjs.ui.Menu.setNodeEnabled(Xjs.ui.Menu.getNodeByCommand(this.nodes,command),enabled);
     },
+    /*xjs.ui.PopupMenu.setCommandVisible*/
+    setCommandVisible:function(command,visible)
+    {
+        Xjs.ui.Menu.setNodeVisible(Xjs.ui.Menu.getNodeByCommand(this.nodes,command),visible);
+    },
     /*xjs.ui.PopupMenu.hide*/
     hide:function()
     {
-        this.hidePopupMenu();
+        this.hideSubPopupMenu();
         Xjs.ui.PopupMenu.superclass.hide.call(this);
         if(this.focusCompOnHide)
             this.focusCompOnHide.focus();
         if(this.parentNode)
         {
             if(this._$activeNode)
-                this._$activeNode.dom.className = "x-menu-item-unactive";
+            {
+                Xjs.DOM.addClass(this._$activeNode.dom,"x-menu-item-unactive");
+                Xjs.DOM.removeClass(this._$activeNode.dom,"x-menu-item-active");
+            }
             delete this.parentNode.activePopupNode;
         }
     },
-    /*xjs.ui.PopupMenu.hidePopupMenu*/
-    hidePopupMenu:function()
+    /*xjs.ui.PopupMenu.hideSubPopupMenu*/
+    hideSubPopupMenu:function()
     {
         if(this.activePopupNode)
         {
@@ -19843,20 +21735,24 @@ Xjs.extend(Xjs.ui.PopupMenu,Xjs.ui.Layer,{
     /*xjs.ui.PopupMenu._onMouseOver*/
     _onMouseOver:function(e)
     {
-        var n = Xjs.ui.Menu._getNodeByDOM(e.srcElement || e.target);
+        var n = Xjs.ui.Menu._getNodeByDOM2(e.srcElement || e.target,this.nodes);
         if(n && !n.disabled)
         {
-            n.dom.className = "x-menu-item-active";
-            if(this._$activeNode != null && n != this._$activeNode)
-                this._$activeNode.dom.className = "x-menu-item-unactive";
+            if(this._$activeNode && n != this._$activeNode)
+            {
+                Xjs.DOM.addClass(this._$activeNode.dom,"x-menu-item-unactive");
+                Xjs.DOM.removeClass(this._$activeNode.dom,"x-menu-item-active");
+            }
+            Xjs.DOM.addClass(n.dom,"x-menu-item-active");
+            Xjs.DOM.removeClass(n.dom,"x-menu-item-unactive");
             this._$activeNode = n;
             if(n != this.activePopupNode || !n.popupMenu.isInShowing())
             {
                 if(n != this.activePopupNode)
-                    this.hidePopupMenu();
+                    this.hideSubPopupMenu();
                 if(n.nodes && !n.disabled)
                 {
-                    this.showPopupMenu(n);
+                    this.showSubPopupMenu(n);
                 }
             }
         }
@@ -19864,10 +21760,11 @@ Xjs.extend(Xjs.ui.PopupMenu,Xjs.ui.Layer,{
     /*xjs.ui.PopupMenu._onMouseOut*/
     _onMouseOut:function(e)
     {
-        var n = Xjs.ui.Menu._getNodeByDOM(e.srcElement || e.target);
+        var n = Xjs.ui.Menu._getNodeByDOM2(e.srcElement || e.target,this.nodes);
         if(n && (n.popupMenu == null || !n.popupMenu.isInShowing()))
         {
-            n.dom.className = "x-menu-item-unactive";
+            Xjs.DOM.addClass(n.dom,"x-menu-item-unactive");
+            Xjs.DOM.removeClass(n.dom,"x-menu-item-active");
             if(this._$activeNode == n)
                 delete this._$activeNode;
         }
@@ -19933,17 +21830,18 @@ Xjs.extend(Xjs.ui.PopupMenu,Xjs.ui.Layer,{
                 var pm = this;
                 for(;pm;pm = pm.parentMenu)
                 {
-                    pm.fireEventE("performCommand",n.command,n);
+                    if(pm.fireEventE)
+                        pm.fireEventE("performCommand",n.command,n);
                 }
             }
         }
     },
-    /*xjs.ui.PopupMenu.showPopupMenu*/
-    showPopupMenu:function(node)
+    /*xjs.ui.PopupMenu.showSubPopupMenu*/
+    showSubPopupMenu:function(node)
     {
         if(this.activePopupNode != node)
         {
-            this.hidePopupMenu();
+            this.hideSubPopupMenu();
         }
         if(node.nodes)
         {
@@ -19964,7 +21862,7 @@ Xjs.extend(Xjs.ui.PopupMenu,Xjs.ui.Layer,{
     /*xjs.ui.PopupMenu.prepareShowing*/
     prepareShowing:function()
     {
-        this.hidePopupMenu();
+        this.hideSubPopupMenu();
         this._createDOM();
         this._updateCommandEnabled();
     }
@@ -20056,6 +21954,33 @@ Xjs.extend(Xjs.ui.ProgressBar,Xjs.ui.Component,{
     }
 });
 /*xjs/ui/ProgressPane.java*/
+Xjs.ui.ProgressPane$ShowGridTableListener=Xjs.extend(Xjs.table.DefaultTableListener,{
+  _js$className_:"Xjs.ui.ProgressPane$ShowGridTableListener",
+    /*xjs.ui.ProgressPane$ShowGridTableListener.onTableRowRender*/
+    onTableRowRender:function(table,e)
+    {
+        var dr = table.dataSet.getDataSetRow(e.row);
+        if(dr && dr["_tr.styles"])
+        {
+            Xjs.apply(e.trowDOM.style,dr["_tr.styles"]);
+        }
+    },
+    /*xjs.ui.ProgressPane$ShowGridTableListener.cellRender*/
+    cellRender:function(value,info)
+    {
+        var dr = info.cell.table.dataSet.getDataSetRow(info.row),
+            color = dr ? dr["col." + info.cell.name + ".color"] : null;
+        if(color)
+            info.color = color;
+        var html = dr ? dr["col." + info.cell.name + ".html"] : null;
+        if(html)
+        {
+            info.html = true;
+            return html;
+        }
+        return Xjs.ui.CellRenderer.defaultRenderer(value,info);
+    }
+});
 Xjs.ui.ProgressPane=function(config){
     Xjs.ui.ProgressPane.superclass.constructor.call(this,config);
 };
@@ -20063,6 +21988,7 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
   _js$className_:"Xjs.ui.ProgressPane",
     barCount:1,
     autoScroll:true,
+    runTextClsName:"text",
     runLock:0,
     /*xjs.ui.ProgressPane.__init*/
     __init:function()
@@ -20076,9 +22002,20 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
     _createDOM:function(root)
     {
         if(!this.buttons)
-            this.buttons = [{text:this.runText || Xjs.ResBundle.getString("UI","Progress.Text"),className:"btn extanim16-0",command:"ok",id:this.id + "_btn_ok",nocloseWindow:true}];
+        {
+            this.buttons = [{text:this.runText || Xjs.ResBundle.getString("UI","Progress.Text"),className:"btn extanim16-0",textClsName:this.runTextClsName,command:"ok",id:this.id + "_btn_ok",nocloseWindow:true}];
+            if(this.closeMonitorText)
+            {
+                this.buttons.push({text:this.closeMonitorText === true ? "关闭监控" : this.closeMonitorText,command:"closeMonitor",id:this.id + "_btn_closeMonitor"});
+            }
+            if(this.extButtons)
+            {
+                Array.pushAll(this.buttons,this.extButtons);
+            }
+        }
         this.onContentCollapse = this.onResize;
         var dom = Xjs.ui.ProgressPane.superclass._createDOM.call(this,root);
+        this.fixedMsgPane = Xjs.DOM.findById("fixedmsgpane",dom);
         this.messagePane = new Xjs.ui.MessagePane({id:"msgpane",_rootDOM:dom,autoScroll:this.autoScroll});
         if(this.msgpaneClsName)
             this.messagePane.className = this.msgpaneClsName;
@@ -20156,7 +22093,7 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
         {
             var runBtn = this.buttons[0];
             this.setStartEnabled(this.runLock <= 0 && this.isAllValid() || this.runLock > 0 && this.cancelable);
-            runBtn.setText(this.runLock <= 0 || !this.cancelable ? this.runText || Xjs.ResBundle.getString("UI","Progress.Text") : Xjs.ResBundle.getString("UI","Dlg.Cancel"));
+            runBtn.setText(this.runLock <= 0 || !this.cancelable ? this.runText || Xjs.ResBundle.getString("UI","Progress.Text") : this.cancelText || Xjs.ResBundle.getString("UI","Dlg.Cancel"));
         }
         if(this.runLock == 0)
         {
@@ -20164,11 +22101,23 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
             {
                 Xjs.ui.ProgressPane.getFixProgress().stopProgress();
             }
+            if(this.msgWebSocket)
+            {
+                this.closeWebSocket();
+            }
             forRetVal:if(this.returnValue)
                 {
                     if(this.returnValue instanceof Error)
                     {
-                        Xjs.alertErr(this.returnValue);
+                        this.fireEvent("onRunProgressErr",this.returnValue);
+                        if(this.errShowTopLayer)
+                        {
+                            Xjs.alertErr(this.returnValue);
+                        } else 
+                        {
+                            if(!this.messagePane)
+                                Xjs.alertErr(this.returnValue);
+                        }
                         return;
                     }
                     var k = this.fireEventV(0,"forRunProgressValue",this.returnValue);
@@ -20232,6 +22181,24 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
     {
         this.progressID = id;
     },
+    /*xjs.ui.ProgressPane.startWebSocket*/
+    startWebSocket:function(url,userId,bgMonitor)
+    {
+        if(!url && this.msgWebSocket)
+        {
+            url = this.msgWebSocket.url;
+        }
+        if(!this.msgWebSocket || userId != this.msgWebSocket.getUserId() || url != this.msgWebSocket.url)
+        {
+            this.closeWebSocket();
+            this.msgWebSocket = new Xjs.msg.MessageSocket(url,0x30000,userId);
+            this.msgWebSocket.addListener(this);
+            this.msgWebSocket.open();
+        } else 
+        {
+        }
+        this._setInMonitor(!!bgMonitor);
+    },
     /*xjs.ui.ProgressPane.isAllValid*/
     isAllValid:function(ivFields)
     {
@@ -20246,7 +22213,9 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
     stopProgress:function()
     {
         if(this.runLock > 0)
+        {
             this.lockStart(false);
+        }
     },
     /*xjs.ui.ProgressPane.setProgress*/
     setProgress:function(k,msgText,value,maxValue)
@@ -20261,26 +22230,163 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
         {
             Xjs.ui.ProgressPane.getFixProgress().setProgress(k,msgText,value,maxValue);
         }
-        if(k >= 1 && k <= 3)
+        switch(k)
         {
-            if(this.progressBars && k - 1 < this.progressBars.length)
+        case 1:
+            if(this.progValDOM === undefined)
             {
-                this.progressBars[k - 1].setProgress(msgText,value,maxValue);
+                this.progValDOM = Xjs.DOM.find("#ProgressIND #value",this.dom) || null;
+                this.progMaxValDOM = Xjs.DOM.find("#ProgressIND #maxvalue",this.dom);
+                this.progMsgDOM = Xjs.DOM.find("#ProgressIND #message",this.dom);
             }
-        } else if(k == 4)
+            if(this.progValDOM)
+            {
+                this.progValDOM.textContent = value || "";
+            }
+            if(this.progMaxValDOM)
+            {
+                this.progMaxValDOM.textContent = maxValue || "";
+            }
+            if(this.progMsgDOM)
+            {
+                this.progMsgDOM.textContent = msgText || "";
+            }
+        case 2:
+        case 3:
+            {
+                if(this.progressBars && k - 1 < this.progressBars.length)
+                {
+                    this.progressBars[k - 1].setProgress(msgText,value,maxValue);
+                }
+                break;
+            }
+        case 4:
+            {
+                if(this.messagePane)
+                    this.messagePane.addMessage(msgText);
+                break;
+            }
+        case 6:
+            {
+                if(this.messagePane && !this.errShowTopLayer)
+                    this.messagePane.addHTML(msgText);
+                break;
+            }
+        case 7:
+            {
+                var p1 = msgText ? msgText.indexOf(":") : -1,
+                    p2 = p1 < 0 ? -1 : msgText.indexOf(":",p1 + 1);
+                if(p2 > 0)
+                {
+                    this.setFixedMessage(msgText.substring(0,p1),msgText.substring(p1 + 1,p2),msgText.substring(p2 + 1),value,maxValue);
+                }
+                break;
+            }
+        case 8:
+            {
+                if(msgText)
+                    switch(msgText)
+                    {
+                    case "disableClose":
+                        this.closeAfterRun = false;
+                        break;
+                    case "closeProgress":
+                        this.closeAfterRun = true;
+                        break;
+                    case "clearMessage":
+                        if(this.messagePane)
+                            this.messagePane.clear();
+                        break;
+                    }
+                break;
+            }
+        case 10:
+            {
+                eval(msgText);
+                break;
+            }
+        case -1:
+            {
+                this.errorText = msgText;
+                break;
+            }
+        default:
+            if(k >= 20 && k < 30)
+            {
+                this.fireEvent("onProgressMessage",k,msgText);
+            }
+            break;
+        }
+    },
+    /*xjs.ui.ProgressPane.setFixedMessage*/
+    setFixedMessage:function(cmd,s,msg,value,maxValue)
+    {
+        if(!this.fixedMsgPane)
+            return;
+        if(cmd == "add")
         {
-            if(this.messagePane)
-                this.messagePane.addMessage(msgText);
-        } else if(k == 6)
+            var e = Xjs.DOM.findById(s,this.fixedMsgPane);
+            if(!e)
+            {
+                e = Xjs.DOM.createChild(this.fixedMsgPane,"div");
+                e.id = s;
+            }
+            e.innerHTML = msg;
+            if(s == "ProgressIND")
+            {
+                this.progValDOM = Xjs.DOM.find("#ProgressIND #value",this.fixedMsgPane) || null;
+                this.progMaxValDOM = Xjs.DOM.find("#ProgressIND #maxvalue",this.fixedMsgPane);
+                this.progMsgDOM = Xjs.DOM.find("#ProgressIND #message",this.fixedMsgPane);
+            }
+            return;
+        }
+        var e = Xjs.DOM.find(s,this.fixedMsgPane);
+        if(!e)
         {
-            if(this.messagePane)
-                this.messagePane.addHTML(msgText);
-        } else if(k == -1)
+            return;
+        }
+        switch(cmd)
         {
-            this.errorText = msgText;
-        } else if(k >= 20 && k < 30)
-        {
-            this.fireEvent("onProgressMessage",k,msgText);
+        case "update-content":
+            e.textContent = msg;
+            break;
+        case "update-html":
+            e.innerHTML = msg;
+            break;
+        case "add-class":
+            Xjs.DOM.addClass(e,msg);
+            break;
+        case "remove-class":
+            Xjs.DOM.removeClass(e,msg);
+            break;
+        case "set-styles":
+            Xjs.apply(e.style,window.eval("({" + msg + "})"));
+            break;
+        case "appendln":
+            {
+                var n = maxValue || 10;
+                if(n <= 0)
+                    n = 10;
+                var a = e.childNodes;
+                if(value <= 0)
+                {
+                    var e1 = Xjs.DOM.createChild(e,"div");
+                    Xjs.DOM.setTextContent(e1,msg);
+                    for(;a.length > n;)
+                    {
+                        e.removeChild(a[0]);
+                        a = e.childNodes;
+                    }
+                } else 
+                {
+                    var j = a.length - value;
+                    if(j >= 0 && j < a.length)
+                    {
+                        Xjs.DOM.setTextContent(a[j],a[j].textContent + msg);
+                    }
+                }
+            }
+            break;
         }
     },
     /*xjs.ui.ProgressPane.$P*/
@@ -20292,6 +22398,23 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
     $PAnchor:function(url,title,target)
     {
         this.messagePane.addAnchor(Xjs.toFullURL(url,0),title,target);
+    },
+    /*xjs.ui.ProgressPane.$ExProgress*/
+    $ExProgress:function(cmd,args)
+    {
+        switch(cmd)
+        {
+        case "showGridTable":
+            {
+                this._showGridTable(arguments[1],arguments[2],arguments.length > 3 ? arguments[3] : null);
+                break;
+            }
+        case "showTree":
+            {
+                this._showTree(arguments[1]);
+                break;
+            }
+        }
     },
     /*xjs.ui.ProgressPane.onOk*/
     onOk:function()
@@ -20317,17 +22440,28 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
         {
             if(confirm("是否确定取消当前操作"))
             {
-                Xjs.RInvoke.rmInvoke("snsoft.ui.controller.UIInvokeController.cancelProgress",this.progressID);
+                if(this.msgWebSocket)
+                {
+                    var m = name={msgtype:"CancelProgress",to:"S" + this.msgWebSocket.getUserId()};
+                    this.msgWebSocket.send(m);
+                } else 
+                {
+                    Xjs.RInvoke.rmInvoke("snsoft.ui.controller.UIInvokeController.cancelProgress",this.progressID);
+                }
             }
             return;
         }
         var _exception = null;
         delete this.returnValue;
+        delete this.progValDOM;
+        this.inMonitor = false;
+        this.runLock = 0;
         this.lockStart(true);
         try
         {
             if(this.messagePane)
                 this.messagePane.clear();
+            Xjs.DOM.removeAllChild(this.fixedMsgPane);
             if(this.progressBars != null)
                 for(var i=0;i < this.progressBars.length;i++)
                     this.progressBars[i].setProgress("",0,0);
@@ -20346,9 +22480,19 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
         }
         if(_exception && _exception.dummy != true)
         {
-            if(this.messagePane)
-                this.messagePane.addMessage("错误：" + (_exception.message || _exception.toString()));
-            throw _exception;
+            if(this.errShowTopLayer)
+            {
+                Xjs.alertErr(this.returnValue);
+            } else 
+            {
+                if(this.messagePane)
+                {
+                    var msg = _exception.message || _exception.toString(),
+                        errorTip = Xjs.ResBundle.getString("ERRUI","ProgressPane.ErrorTip");
+                    msg = "<span class='error-info'>" + errorTip + "</span></br><span class='error-info'>" + msg + "</span>";
+                    this.messagePane.addHTML(msg);
+                }
+            }
         }
     },
     /*xjs.ui.ProgressPane.onAjaxPosting*/
@@ -20406,7 +22550,7 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
         values = Xjs.applyIf(values,this.reqParams);
         var reqParams = {},
             formData = new FormData(),
-            nfiles = 0;
+            useFormData = this.postOpts & 1;
         for(var p in values)
         {
             var v = values[p];
@@ -20420,27 +22564,193 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
                 for(var j=0;j < files.length;j++)
                 {
                     formData.append(p,files[j]);
-                    nfiles++;
+                    useFormData = true;
                 }
                 continue;
             }
             var type;
             if((type = typeof(v)) == "string" || type == "number" || type == "boolean")
             {
-                reqParams[p] = v;
+                if(!useFormData)
+                    reqParams[p] = v;
                 formData.append(p,v);
             } else 
             {
-                reqParams["__Json_." + p] = v = Xjs.JSON.encode(v,null,0);
+                if(!useFormData)
+                    reqParams["__Json_." + p] = v = Xjs.JSON.encode(v,null,0);
                 formData.append("__Json_." + p,v);
             }
         }
-        return new Xjs.Ajax({url:url,onready:new Xjs.FuncCall(this.onAjaxReady,this),contentType:nfiles > 0 ? null : "application/x-www-form-urlencoded;charset=utf-8",postBody:nfiles > 0 ? formData : Xjs.urlEncode(reqParams)});
+        return new Xjs.Ajax({url:url,onready:new Xjs.FuncCall(this.onAjaxReady,this),contentType:useFormData ? null : "application/x-www-form-urlencoded;charset=utf-8",postBody:useFormData ? formData : Xjs.urlEncode(reqParams)});
     },
     /*xjs.ui.ProgressPane.initToolbar*/
     initToolbar:function()
     {
         Xjs.ui.ProgressPane.superclass.initToolbar.call(this);
+    },
+    /*xjs.ui.ProgressPane.closeWebSocket*/
+    closeWebSocket:function()
+    {
+        if(this.msgWebSocket)
+        {
+            try
+            {
+                this.msgWebSocket.close();
+            }catch(ex)
+            {
+            }
+            delete this.msgWebSocket;
+            this.inMonitor = false;
+        }
+    },
+    /*xjs.ui.ProgressPane.onClosed*/
+    onClosed:function()
+    {
+        Xjs.ui.ProgressPane.superclass.onClosed.call(this);
+        this.closeWebSocket();
+    },
+    /*xjs.ui.ProgressPane._setInMonitor*/
+    _setInMonitor:function(m)
+    {
+        if(!this.inMonitor != !m)
+        {
+            if(this.inMonitor)
+            {
+                this.lockStart(false);
+            }
+            this.inMonitor = m;
+            if(this.inMonitor)
+            {
+                this.lockStart(true);
+            }
+        }
+    },
+    /*xjs.ui.ProgressPane.onWebSocketOpen*/
+    onWebSocketOpen:function(s,ev)
+    {
+        window.console.log("接受到WebSocketOpen : userId=" + s.getUserId());
+    },
+    /*xjs.ui.ProgressPane.onWebSocketError*/
+    onWebSocketError:Xjs.emptyFn,
+    /*xjs.ui.ProgressPane.onWebSocketClose*/
+    onWebSocketClose:function(s,ev)
+    {
+        window.console.log("接受到WebSocketClose : userId=" + s.getUserId());
+        if(s == this.msgWebSocket)
+        {
+            this.msgWebSocket = null;
+            this._setInMonitor(false);
+        }
+    },
+    /*xjs.ui.ProgressPane.onWebSocketMessage*/
+    onWebSocketMessage:function(s,m,ev)
+    {
+        switch(m.msgtype)
+        {
+        case "Message":
+            this.setProgress(m.message);
+            break;
+        case "StopProgress":
+            this.stopProgress();
+        }
+    },
+    /*xjs.ui.ProgressPane.oncmd_closeMonitor*/
+    oncmd_closeMonitor:function()
+    {
+        if(this.msgWebSocket)
+        {
+            this.msgWebSocket.close();
+        }
+    },
+    /*xjs.ui.ProgressPane._nextIdIdx*/
+    _nextIdIdx:function()
+    {
+        if(!this._idIdx)
+            this._idIdx = 0;
+        return ++this._idIdx;
+    },
+    /*xjs.ui.ProgressPane._showGridTable*/
+    _showGridTable:function(columns,rows,opt)
+    {
+        var id = "_grid_" + this._nextIdIdx(),
+            ds = new Xjs.dx.DataSet({name:id}),
+            tbl = new Xjs.ui.GridTable({name:id,mainUI:3,readOnly:true,id:id,cellEditable:false,scrollMode:1});
+        tbl.setDataSet(ds);
+        if(opt)
+        {
+            var tblCfg = opt.tblcfg;
+            if(tblCfg)
+            {
+                Xjs.apply(tbl,tblCfg);
+            }
+            var addTblL = false;
+            if(rows)
+                for(var r=0;r < rows.length;r++)
+                {
+                    var rowCfg = opt["rowcfg-" + r];
+                    if(rowCfg)
+                    {
+                        Xjs.apply(rows[r],rowCfg);
+                        addTblL = true;
+                    }
+                }
+            if(addTblL)
+            {
+                var l;
+                tbl.addTableListener(l = new Xjs.ui.ProgressPane$ShowGridTableListener());
+                tbl.cellRenderer = l;
+            }
+        }
+        tbl.addColumnsFromDataSet(columns);
+        var tcols = tbl.getColumns();
+        for(var j=0;j < tcols.length;j++)
+        {
+            var colCfg = opt["colcfg-" + tcols[j].name];
+            if(colCfg)
+            {
+                Xjs.apply(tcols[j],colCfg);
+            }
+        }
+        this.messagePane.addDOM(tbl.getDOM(this.messagePane.getDOM()),0);
+        tbl.basBlock.tablePDOM.style.overflow = "visible";
+        tbl.gridDOM.style.overflow = "visible";
+        ds.open(columns,null,rows);
+    },
+    /*xjs.ui.ProgressPane._showTree*/
+    _showTree:function(nodes)
+    {
+        if(!nodes)
+            return;
+        if(!(nodes instanceof Array))
+        {
+            nodes = [nodes];
+        }
+        var id = "_tree_" + this._nextIdIdx(),
+            tree = new Xjs.ui.Tree({id:id,mainUI:3});
+        tree.nodes = this._buildMenuNodes(nodes);
+        this.messagePane.addDOM(tree.getDOM(this.messagePane.getDOM()),0);
+    },
+    /*xjs.ui.ProgressPane._buildMenuNodes*/
+    _buildMenuNodes:function(nodes)
+    {
+        if(!nodes)
+            return null;
+        var mnodes = [];
+        for(var i=0;i < nodes.length;i++)
+        {
+            var n = nodes[i],
+                m = {};
+            if(n.data)
+            {
+                m.content = Xjs.HtmlUTIL.htmlEncode(n.data.toString());
+            }
+            if(n.children)
+            {
+                m.nodes = this._buildMenuNodes(n.children);
+            }
+            mnodes.push(m);
+        }
+        return mnodes;
     }
 });
 Xjs.apply(Xjs.ui.ProgressPane,{
@@ -20653,16 +22963,12 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
         var dom = Xjs.ui.SplitPane.superclass._createDOM.call(this,root);
         this._appendSplitChildCmp(dom,0);
         this._appendSplitChildCmp(dom,1);
-        this.dividerDOM = Xjs.DOM.getElementById(dom.childNodes,"divider") || Xjs.DOM.findById("divider",dom);
-        if(!this.dividerDOM)
-            this.dividerDOM = Xjs.DOM.createChild(dom,"div","x-split-divider");
-        if(!this.rightCmp)
+        this.dividerDOM = Xjs.DOM.getElementById(dom.childNodes,"divider") || Xjs.DOM.findById("divider",dom) || Xjs.DOM.createChild(dom,"div","x-split-divider");
+        if(!this.items || this.items.length <= 1)
         {
             this.dividerDOM.style.display = "none";
-        } else 
-        {
-            this.dividerDOM.onmousedown = Function.bindAsEventListener(this._onMouseDown,this);
         }
+        this.dividerDOM.onmousedown = Function.bindAsEventListener(this._onMouseDown,this);
         var dvSize = this.dividerSize === undefined ? (this.leftHideable ? 6 : 2) : this.dividerSize,
             divS = this.dividerDOM.style;
         if(this.orientation)
@@ -20678,9 +22984,7 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
         }
         if(this.leftHideable)
         {
-            this.dividerIconDOM = Xjs.DOM.findById("icon",this.dividerDOM);
-            if(!this.dividerIconDOM)
-                this.dividerIconDOM = Xjs.DOM.createChild(this.dividerDOM,"div",this.orientation == 1 ? "iconleft" : "iconup");
+            this.dividerIconDOM = Xjs.DOM.findById("icon",this.dividerDOM) || Xjs.DOM.createChild(this.dividerDOM,"div",this.orientation == 1 ? "iconleft" : "iconup");
         }
         this.setDiviverCursor();
         return dom;
@@ -20690,70 +22994,84 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
     {
         if(!this.items || idx >= this.items.length)
             return;
-        var cmp = this.items[idx];
-        if(idx == 0)
-            this.leftCmp = cmp;
-        else if(idx == 1)
-            this.rightCmp = cmp;
-        var d = cmp.getDOM(dom);
+        var c = this.items[idx],
+            d = c.getDOM(dom);
         if(this.orientation)
         {
             d.style.top = "0px";
             d.style.bottom = "0px";
+            d.style.left = "";
+            d.style.right = "";
         } else 
         {
             d.style.left = "0px";
             d.style.right = "0px";
+            d.style.top = "";
+            d.style.bottom = "";
         }
         d.style.position = "absolute";
     },
     /*xjs.ui.SplitPane.doOnResize*/
     doOnResize:function()
     {
-        if(!this.rightCmp)
+        if(!this.items)
+            return;
+        var leftCmp = this.items[0],
+            rightCmp = this.items[1];
+        if(!rightCmp)
         {
-            if(this.leftCmp)
-                this.leftCmp.onResize();
+            if(leftCmp)
+                leftCmp.onResize();
             return;
         }
         var domSize = this.orientation ? Xjs.DOM.getWidth(this.dom) : Xjs.DOM.getHeight(this.dom),
             leftSize,
             sz100 = this.orientation ? Xjs.DOM.getHeight(this.dom) : Xjs.DOM.getWidth(this.dom),
-            leftDom = this.leftCmp ? this.leftCmp.dom : null,
+            leftDom = leftCmp ? leftCmp.dom : null,
+            rightDom = rightCmp ? rightCmp.dom : null,
+            leftVisible = leftDom && leftDom.style.display != "none",
+            rightVisible = rightDom && rightDom.style.display != "none",
             leftAutoSize = false;
-        if(!leftDom || leftDom.style.display == "none")
+        if(!leftVisible)
         {
             leftSize = 0;
+        } else if(!rightVisible)
+        {
+            leftSize = domSize;
+            if(this.orientation)
+                leftCmp._setSizeCaseContainerDOM(leftSize,sz100);
+            else 
+                leftCmp._setSizeCaseContainerDOM(sz100,leftSize);
         } else if(this.leftSize !== undefined)
         {
             if(this.orientation)
-                this.leftCmp._setSizeCaseContainerDOM(leftSize = this.leftSize,sz100);
+                leftCmp._setSizeCaseContainerDOM(leftSize = this.leftSize,sz100);
             else 
-                this.leftCmp._setSizeCaseContainerDOM(sz100,leftSize = this.leftSize);
+                leftCmp._setSizeCaseContainerDOM(sz100,leftSize = this.leftSize);
         } else if(this.rightSize !== undefined)
         {
             leftSize = domSize - (this.rightSize + 4);
             if(this.orientation)
-                this.leftCmp._setSizeCaseContainerDOM(leftSize,sz100);
+                leftCmp._setSizeCaseContainerDOM(leftSize,sz100);
             else 
-                this.leftCmp._setSizeCaseContainerDOM(sz100,leftSize);
+                leftCmp._setSizeCaseContainerDOM(sz100,leftSize);
         } else 
         {
             leftAutoSize = true;
-            if(this.leftCmp . _updateDomSize)
+            if(leftCmp . _updateDomSize)
             {
-                this.leftCmp._updateDomSize();
+                leftCmp._updateDomSize();
             }
             if(this.orientation)
             {
-                var findComps = this.leftCmp.findComps(new Xjs.FuncCall(function(v){
+                var findComps = leftCmp.findComps(new Xjs.FuncCall(function(v){
             return v instanceof Xjs.ui.GridTable;
         },this),true);
                 if(findComps != null && findComps.length == 1)
                 {
                     var addWidth = 10;
                     leftSize = findComps[0].getOptimalWidth() + addWidth;
-                    if(findComps[0] == this.leftCmp)
+                    if(findComps[0] == leftCmp)
                     {
                         var _lastUpszW = findComps[0].__lastUpszW;
                         if(_lastUpszW && leftSize - _lastUpszW.width == addWidth)
@@ -20763,19 +23081,19 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
                     }
                 } else 
                 {
-                    leftSize = Xjs.DOM.getWidth(this.leftCmp.getDOM());
+                    leftSize = Xjs.DOM.getWidth(leftCmp.getDOM());
                 }
             } else 
             {
-                leftSize = Xjs.DOM.getHeight(this.leftCmp.getDOM());
+                leftSize = Xjs.DOM.getHeight(leftCmp.getDOM());
             }
             if(leftSize <= 0 || leftSize >= domSize)
             {
-                if(this.rightCmp . _updateDomSize)
+                if(rightCmp . _updateDomSize)
                 {
-                    this.rightCmp._updateDomSize();
+                    rightCmp._updateDomSize();
                 }
-                var rightSize = this.orientation ? Xjs.DOM.getWidth(this.rightCmp.getDOM()) : Xjs.DOM.getHeight(this.rightCmp.getDOM());
+                var rightSize = this.orientation ? Xjs.DOM.getWidth(rightCmp.getDOM()) : Xjs.DOM.getHeight(rightCmp.getDOM());
                 if(rightSize <= 0)
                     leftSize = (domSize - 4) / 2;
                 else 
@@ -20785,41 +23103,50 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
             {
                 if(this.orientation)
                 {
-                    this.leftCmp._setSizeCaseContainerDOM(leftSize,sz100);
+                    leftCmp._setSizeCaseContainerDOM(leftSize,sz100);
                 } else 
                 {
-                    this.leftCmp._setSizeCaseContainerDOM(sz100,leftSize);
+                    leftCmp._setSizeCaseContainerDOM(sz100,leftSize);
                 }
             }
         }
-        var rdomS = this.rightCmp.dom.style,
-            divS = this.dividerDOM.style,
-            divSize = (this.orientation ? Xjs.DOM.getWidth(this.dividerDOM) : Xjs.DOM.getHeight(this.dividerDOM)) + 2;
+        var rdomS = rightCmp.dom.style,
+            divS = this.dividerDOM.style;
+        if(this.dividerDOM && !this.collapseAble)
+        {
+            this.dividerDOM.style.display = leftVisible && rightVisible ? "" : "none";
+        }
+        var divSize = (this.orientation ? Xjs.DOM.getWidth(this.dividerDOM) : Xjs.DOM.getHeight(this.dividerDOM)) + 2;
         if(leftSize > domSize - divSize)
             leftSize = domSize - divSize;
         if(leftSize < 0)
             leftSize = 0;
         this._leftPos = leftSize;
-        if(this.orientation)
+        if(rightVisible)
         {
-            divS.left = leftSize + "px";
-            rdomS.left = leftSize + divSize + "px";
-            this.rightCmp._setSizeCaseContainerDOM(domSize - (leftSize + divSize),sz100);
-        } else 
-        {
-            divS.top = leftSize + "px";
-            rdomS.top = leftSize + divSize + "px";
-            this.rightCmp._setSizeCaseContainerDOM(sz100,domSize - (leftSize + divSize));
+            if(this.orientation)
+            {
+                divS.left = leftSize + "px";
+                rdomS.left = leftSize + divSize + "px";
+                rightCmp._setSizeCaseContainerDOM(domSize - (leftSize + divSize),sz100);
+            } else 
+            {
+                divS.top = leftSize + "px";
+                rdomS.top = leftSize + divSize + "px";
+                rightCmp._setSizeCaseContainerDOM(sz100,domSize - (leftSize + divSize));
+            }
         }
-        if(leftAutoSize && this.leftCmp . onResize)
-            this.leftCmp.onResize();
+        if(leftAutoSize && leftCmp . onResize)
+            leftCmp.onResize();
         this._reszCalled = true;
         this.fireEvent("onSplitPaneResized");
     },
     /*xjs.ui.SplitPane.collapse*/
     collapse:function(hidden)
     {
-        var leftDom = this.leftCmp ? this.leftCmp.dom : null;
+        if(!this.items || this.items.length == 0)
+            return;
+        var leftDom = this.items[0].dom;
         if(leftDom == null)
             return;
         if(hidden === undefined)
@@ -20837,9 +23164,9 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
     /*xjs.ui.SplitPane.setDiviverCursor*/
     setDiviverCursor:function()
     {
-        if(!this.dividerDOM)
+        if(!this.dividerDOM || !this.items || this.items.length == 0)
             return;
-        var leftDom = this.leftCmp ? this.leftCmp.dom : null;
+        var leftDom = this.items[0].dom;
         if(!leftDom)
             return;
         var hidden = leftDom.style.display == "none";
@@ -20852,7 +23179,9 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
     /*xjs.ui.SplitPane._onMouseDown*/
     _onMouseDown:function(e)
     {
-        var leftDom = this.leftCmp != null ? this.leftCmp.dom : null;
+        if(!this.items || this.items.length == 0)
+            return;
+        var leftDom = this.items[0].dom;
         if(leftDom == null)
             return;
         if((e.srcElement || e.target) == this.dividerIconDOM || leftDom.style.display == "none" || this.splitUnmovable)
@@ -20912,6 +23241,20 @@ Xjs.extend(Xjs.ui.SplitPane,Xjs.ui.Container,{
         if(!this._reszCalled)
             this.onResize();
         Xjs.ui.SplitPane.superclass.checkShowing.call(this,firstFocus,setFirstFocus);
+    },
+    /*xjs.ui.SplitPane.relayoutItems*/
+    relayoutItems:function(deep)
+    {
+        if(!this.dom)
+            return;
+        this._appendSplitChildCmp(this.dom,0);
+        this._appendSplitChildCmp(this.dom,1);
+        Xjs.ui.SplitPane.superclass.relayoutItems.call(this,deep);
+        if(this.dividerDOM)
+        {
+            this.dividerDOM.style.display = this.items && this.items.length > 1 ? "" : "none";
+        }
+        this.doOnResize();
     }
 });
 /*xjs/ui/TabPanel.java*/
@@ -20934,7 +23277,7 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
         this.initContextDOM = contextDOM;
         if(!this.fnOnTabClicked)
             this.fnOnTabClicked = Function.bindAsEventListener(this.onTabClicked,this);
-        var ea = this.tabUL.getElementsByTagName(this.tabTagName);
+        var ea = this.tabUL ? this.tabUL.getElementsByTagName(this.tabTagName) : null;
         if(ea)
         {
             this.tabs = new Array(ea.length);
@@ -20971,6 +23314,10 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
         } else 
         {
             window.console.log(this.name + " : " + this.tabTagName + " Not found");
+        }
+        if(this.fixNavbarOnScroll && !this.fixedOnScroll)
+        {
+            this.fixedOnScroll = new Xjs.ui.util.FixedOnScroll2(null,null,this.navToolbar,this.dom,2,null);
         }
     },
     /*xjs.ui.TabPanel._getSubComponent*/
@@ -21052,7 +23399,12 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
                 }
             }
         var opts = Xjs._uiInited ? 0 : 1;
-        setTimeout(this.setActiveTab.createDelegate(this,[this.initSelectedTab,opts],true),1);
+        setTimeout(this.setInitActiveTab.createDelegate(this,[opts],true),1);
+    },
+    /*xjs.ui.TabPanel.setInitActiveTab*/
+    setInitActiveTab:function(ops)
+    {
+        this.setActiveTab(this.initSelectedTab,ops);
     },
     /*xjs.ui.TabPanel.setTabComponent*/
     setTabComponent:function(id,c)
@@ -21088,6 +23440,10 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
             if(this.selectedTab >= 0 && this.selectedTab < this.tabs.length)
             {
                 var t = this.tabs[this.selectedTab];
+                if(this.keepWScrollPos)
+                {
+                    t.wpos = {x:window.scrollX,y:window.scrollY};
+                }
                 Xjs.DOM.updateClass(t.tabDOM,this.ncurClass,this.curClass);
                 if(t.contentDOM)
                 {
@@ -21101,6 +23457,10 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
                 }
             }
             var t = this.tabs[this.selectedTab = s];
+            if(!t)
+            {
+                return;
+            }
             if(!t.contentDOM)
             {
                 this.initTabContentDOM(t);
@@ -21115,7 +23475,7 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
             Xjs.DOM.updateClass(t.tabDOM,this.curClass,this.ncurClass);
             if(t.contentDOM)
             {
-                t.contentDOM.style.display = "block";
+                t.contentDOM.style.display = "";
             }
             if(hideOldTab)
             {
@@ -21133,6 +23493,11 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
                     if((c = t.comps[i]).onResize)
                         c.onResize();
                 }
+            }
+            if(t.wpos)
+            {
+                window.scrollTo(t.wpos.x,t.wpos.y);
+                delete t.wpos;
             }
             Xjs.DOM.onWinResize(1);
             this.fireEvent("onTabbedSelected",oldSelected);
@@ -21175,7 +23540,8 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
         if(this.tabs)
             for(var i=0;i < this.tabs.length;i++)
             {
-                if(this.tabs[i].tabDOM == t || Xjs.DOM.contains(this.tabs[i].tabDOM,t))
+                var ti = this.tabs[i];
+                if(ti.tabDOM == t || Xjs.DOM.contains(ti.tabDOM,t))
                 {
                     this.setActiveTab(i);
                     break;
@@ -21213,26 +23579,21 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
         return !this.disabled;
     },
     /*xjs.ui.TabPanel.removeTab*/
-    removeTab:function(id)
+    removeTab:function(v)
     {
-        var removeIdx = -1;
-        if(this.tabs)
-            for(var i=0;i < this.tabs.length;i++)
-            {
-                var t = this.tabs[i];
-                if(t.id == id)
-                {
-                    if(t.contentDOM)
-                        t.contentDOM.style.display = "none";
-                    if(t.tabDOM && t.tabDOM.parentNode)
-                    {
-                        t.tabDOM.parentNode.removeChild(t.tabDOM);
-                    }
-                    removeIdx = i;
-                    Array.removeElement(this.tabs,t);
-                    break;
-                }
-            }
+        var removeIdx = this.indexOfTabInfo(v);
+        if(removeIdx < 0)
+        {
+            return;
+        }
+        var t = this.tabs[removeIdx];
+        if(t.contentDOM && t.contentDOM.parentNode)
+            t.contentDOM.style.display = "none";
+        if(t.tabDOM && t.tabDOM.parentNode)
+        {
+            t.tabDOM.parentNode.removeChild(t.tabDOM);
+        }
+        this.tabs.splice(removeIdx,1);
         if(this.selectedTab == removeIdx)
         {
             this.selectedTab = -1;
@@ -21245,19 +23606,19 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
             }
         }
     },
-    /*xjs.ui.TabPanel.getTabInfo*/
-    getTabInfo:function(v)
+    /*xjs.ui.TabPanel.indexOfTabInfo*/
+    indexOfTabInfo:function(v)
     {
         if(this.tabs)
         {
             if(typeof(v) == "number")
-                return this.tabs[v];
+                return v;
             if(typeof(v) == "string")
                 for(var i=0;i < this.tabs.length;i++)
                 {
                     var t = this.tabs[i];
                     if(t.id == v)
-                        return t;
+                        return i;
                 }
             if(v instanceof Xjs.ui.Component)
                 for(var i=0;i < this.tabs.length;i++)
@@ -21265,13 +23626,19 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
                     var t = this.tabs[i];
                     if(!t.comps)
                         this.initTabContentDOM(t);
-                    if(t.comps.indexOf(v) >= 0)
+                    if(t.comp == v || t.comps.indexOf(v) >= 0)
                     {
-                        return t;
+                        return i;
                     }
                 }
         }
-        return null;
+        return -1;
+    },
+    /*xjs.ui.TabPanel.getTabInfo*/
+    getTabInfo:function(v)
+    {
+        var i = this.indexOfTabInfo(v);
+        return i >= 0 ? this.tabs[i] : null;
     },
     /*xjs.ui.TabPanel.addTabItem*/
     addTabItem:function(item)
@@ -21291,7 +23658,7 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
             throw new Error("未定义 tabTag");
         var s;
         if(this.tabInnerHtml == null)
-            s = title;
+            s = "<span>" + title + "</span>";
         else 
         {
             var p = this.tabInnerHtml.indexOf("${title}");
@@ -21349,7 +23716,7 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
         }
     },
     /*xjs.ui.TabPanel.moveTab*/
-    moveTab:function(index,toIndex)
+    moveTab:function(index,toIndex,resortItems)
     {
         var nt = this.tabs ? this.tabs.length : 0;
         if(index == toIndex || index < 0 || index >= nt || toIndex < 0 || toIndex >= nt)
@@ -21379,6 +23746,16 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
                     break;
                 }
             }
+        if(resortItems && this.items)
+        {
+            var _this = this,
+                cmp = function(c1,c2){
+            var j1 = _this.indexOfTabComp(c1),
+                j2 = _this.indexOfTabComp(c2);
+            return j1 - j2;
+        };
+            this.items.sort(cmp);
+        }
     },
     /*xjs.ui.TabPanel.addUICompsTo*/
     addUICompsTo:function(root,e,to)
@@ -21419,15 +23796,30 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
         if(this.tabs)
             for(var i=0;i < this.tabs.length;i++)
             {
-                if(this.tabs[i] && this.tabs[i].comps)
-                    for(var j=0;j < this.tabs[i].comps.length;j++)
+                var ti;
+                if(!(ti = this.tabs[i]))
+                    continue;
+                if(ti.comps)
+                    for(var j=0;j < ti.comps.length;j++)
                     {
-                        var p = this.tabs[i].comps[j];
+                        var p = ti.comps[j];
                         if(p == c || p instanceof Xjs.ui.Container && p.isAncestorOf(c))
                             return i;
                     }
             }
         return -1;
+    },
+    /*xjs.ui.TabPanel.indexOfTabComp*/
+    indexOfTabComp:function(c)
+    {
+        if(this.tabs)
+            for(var i=0;i < this.tabs.length;i++)
+            {
+                var ti;
+                if((ti = this.tabs[i]) && ti.comp == c)
+                    return i;
+            }
+        return 1;
     },
     /*xjs.ui.TabPanel.indexOfTabByID*/
     indexOfTabByID:function(tabid)
@@ -21440,6 +23832,26 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
                     return i;
                 }
             }
+        return -1;
+    },
+    /*xjs.ui.TabPanel.indexOfTabByMouseXY*/
+    indexOfTabByMouseXY:function(cx,cy)
+    {
+        if(this.tabs)
+        {
+            for(var i=0;i < this.tabs.length;i++)
+            {
+                var ti = this.tabs[i];
+                if(ti.tabDOM)
+                {
+                    var p0 = Xjs.DOM.getXY(ti.tabDOM,true);
+                    if(cx >= p0.x && cy >= p0.y && cx < p0.x + ti.tabDOM.offsetWidth && cy < p0.y + ti.tabDOM.offsetHeight)
+                    {
+                        return i;
+                    }
+                }
+            }
+        }
         return -1;
     },
     /*xjs.ui.TabPanel.indexOfTabById*/
@@ -21494,11 +23906,54 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
             if(this.selectedTab == i)
             {
                 if(this.selectedTab >= 0 && this.selectedTab < n)
+                {
+                    var t = this.tabs[this.selectedTab];
+                    Xjs.DOM.updateClass(t.tabDOM,this.ncurClass,this.curClass);
+                    t.contentDOM.style.display = "none";
+                    this.checkTabHidden(t);
                     this.selectedTab = -1;
+                }
             }
         }
+        this.tabs[i].visible = visible;
         if(this.tabs[i].tabDOM)
+        {
             this.tabs[i].tabDOM.style.display = visible ? "" : "none";
+        }
+        var visibleTab = -1;
+        for(var m=0;m < this.tabs.length;m++)
+        {
+            if(this.isVisible(m))
+            {
+                visibleTab = m;
+                break;
+            }
+        }
+        if(this.dom && visibleTab >= 0)
+        {
+            this.dom.style.display = "";
+        }
+        if(this.selectedTab < 0 && visibleTab >= 0)
+        {
+            this.setActiveTab(visibleTab);
+        }
+        if(this.dom)
+        {
+            this.dom.style.display = visibleTab >= 0 ? "" : "none";
+        }
+    },
+    /*xjs.ui.TabPanel.setTabTitle*/
+    setTabTitle:function(i,title)
+    {
+        var ti = this.getTabInfo(i);
+        if(ti && ti.tabDOM)
+        {
+            var e = Xjs.DOM.find("li > span",ti.tabDOM);
+            if(e)
+            {
+                Xjs.DOM.setTextContent(e,title);
+            }
+        }
     },
     /*xjs.ui.TabPanel.isVisible*/
     isVisible:function(i)
@@ -21516,7 +23971,7 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
         {
             return this.inTabVisible;
         }
-        if(this.tabs[i].tabDOM)
+        if(this.tabs[i] && this.tabs[i].tabDOM)
         {
             var style = this.tabs[i].tabDOM.style;
             return style.display != "none" && style.visibility != "hidden";
@@ -21598,7 +24053,7 @@ Xjs.extend(Xjs.ui.Toolbar,Xjs.ui.Container,{
         this.titDom = Xjs.DOM.findById("title",dom);
         if(this.titDom)
         {
-            Xjs.DOM.setTextContent(this.titDom,this.title);
+            this.renderTitle();
             if(this.hideTitle)
                 this.titDom.style.display = "none";
         }
@@ -21607,8 +24062,19 @@ Xjs.extend(Xjs.ui.Toolbar,Xjs.ui.Container,{
     /*xjs.ui.Toolbar.setTitle*/
     setTitle:function(title)
     {
+        this.title = title;
+        this.renderTitle();
+    },
+    /*xjs.ui.Toolbar.renderTitle*/
+    renderTitle:function()
+    {
         if(this.titDom)
-            Xjs.DOM.setTextContent(this.titDom,title);
+        {
+            if(this.htmlTitle)
+                this.titDom.innerHTML = this.title;
+            else 
+                Xjs.DOM.setTextContent(this.titDom,this.title);
+        }
     },
     /*xjs.ui.Toolbar.setTitleHidden*/
     setTitleHidden:function(h)
@@ -21777,6 +24243,10 @@ Xjs.extend(Xjs.ui.ToolbarBtnGroup,Xjs.ui.Container,{
     className:"ui-btn-group",
     dftBtnCls:"ui-btn",
     popupMenuCls:"ui-popup-menu",
+    maxListHeight:180,
+    customSbar:1 + 4 + 8,
+    dftBtnArrowCls:"inner-arrow",
+    dftBtnArrowSvgCls:"icon",
     /*xjs.ui.ToolbarBtnGroup.getBtnListDOM*/
     getBtnListDOM:function()
     {
@@ -21802,7 +24272,18 @@ Xjs.extend(Xjs.ui.ToolbarBtnGroup,Xjs.ui.Container,{
             var span = Xjs.DOM.createChild(dftBtnDOM,"span","btn-text");
             span.id = "btn_text";
             Xjs.DOM.setTextContent(span,this.title);
-            Xjs.DOM.createChild(dftBtnDOM,"i","inner-arrow");
+            if(this.dftBtnArrowUseCls)
+            {
+                var iconHtml = "";
+                iconHtml += "<svg class='" + this.dftBtnArrowSvgCls + "' aria-hidden='true'>";
+                iconHtml += "<use xlink:href='#" + this.dftBtnArrowUseCls + "'></use>";
+                iconHtml += "</svg>";
+                var s = Xjs.DOM.createChild(dftBtnDOM,"span");
+                s.innerHTML = iconHtml;
+            } else 
+            {
+                Xjs.DOM.createChild(dftBtnDOM,"i",this.dftBtnArrowCls);
+            }
         }
         this.btnListDOM = Xjs.DOM.findById("btn_list",dom);
         if(!this.btnListDOM)
@@ -21810,18 +24291,34 @@ Xjs.extend(Xjs.ui.ToolbarBtnGroup,Xjs.ui.Container,{
             this.btnListDOM = Xjs.DOM.createChild(dom,"div","ui-btn-list");
             this.btnListDOM.id = "btn_list";
         }
+        if(this.maxListHeight)
+            this.btnListDOM.style.maxHeight = this.maxListHeight + "px";
         this.appendItemDoms();
         if(this.popupMenuCls)
         {
             dom.onmouseover = Function.bindAsEventListener(this._onMouseOver,this);
             dom.onmouseout = Function.bindAsEventListener(this._onMouseOut,this);
         }
+        this.onClickBtnPreprocess();
+        if(this.customSbar)
+        {
+            this._listSbar = new Xjs.ui.util.CustomScrollbar(this.name + ".SBar",this.btnListDOM,this.customSbar,null,null,null);
+        }
         return dom;
+    },
+    /*xjs.ui.ToolbarBtnGroup.updateBdoySBar*/
+    updateBdoySBar:function()
+    {
+        if(this._listSbar)
+        {
+            this._listSbar.updateValue();
+        }
     },
     /*xjs.ui.ToolbarBtnGroup._onMouseOver*/
     _onMouseOver:function(e)
     {
         Xjs.DOM.addClass(this.dom,this.popupMenuCls);
+        this.updateBdoySBar();
     },
     /*xjs.ui.ToolbarBtnGroup._onMouseOut*/
     _onMouseOut:function(e)
@@ -21839,6 +24336,26 @@ Xjs.extend(Xjs.ui.ToolbarBtnGroup,Xjs.ui.Container,{
                 this.btnListDOM.appendChild(c.getDOM());
             }
         }
+    },
+    /*xjs.ui.ToolbarBtnGroup.onClickBtnPreprocess*/
+    onClickBtnPreprocess:function()
+    {
+        if(this.btnListDOM)
+        {
+            var btns = Xjs.DOM.findAll("button",this.btnListDOM);
+            if(btns)
+            {
+                for(var i=0;i < btns.length;i++)
+                {
+                    Xjs.DOM.addListener(btns[i],"click",Function.bindAsEventListener(this._onClickBtnPreprocess,this));
+                }
+            }
+        }
+    },
+    /*xjs.ui.ToolbarBtnGroup._onClickBtnPreprocess*/
+    _onClickBtnPreprocess:function(e)
+    {
+        Xjs.DOM.removeClass(this.dom,this.popupMenuCls);
     }
 });
 /*xjs/ui/Tree.java*/
@@ -21864,7 +24381,7 @@ Xjs.extend(Xjs.ui.Tree,Xjs.ui.Menu,{
         if(pNodes == null)
             pNodes = node.parent != null ? node.parent.nodes : this.nodes;
         var n = pNodes.length,
-            isLeaf = node.nodes == null || (node.mflags & 2) != 0;
+            isLeaf = this.isLeaf(node);
         if(i == null || i < 0)
             i = pNodes.indexOf(node);
         if(i < 0)
@@ -21893,10 +24410,15 @@ Xjs.extend(Xjs.ui.Tree,Xjs.ui.Menu,{
         }
         return "ui_treeRowCell " + nodeS;
     },
+    /*xjs.ui.Tree.isLeaf*/
+    isLeaf:function(node)
+    {
+        return node.nodes == null || node.nodes.length == 0 || (node.mflags & 2) != 0;
+    },
     /*xjs.ui.Tree.getIconCls*/
     getIconCls:function(node)
     {
-        var isLeaf = node.nodes == null || (node.mflags & 2) != 0;
+        var isLeaf = this.isLeaf(node);
         if(this.openIcons != null)
         {
             var level = Xjs.ui.Menu.getNodeLevel(node);
@@ -22007,14 +24529,16 @@ Xjs.extend(Xjs.ui.Tree,Xjs.ui.Menu,{
                 lineDom.className = "ui_treeRowCell " + (lineInfo[j] ? "ui_treeRowVertLine" : "ui_treeRowBlank");
                 itemDom.appendChild(lineDom);
             }
-            var isLeaf = node.nodes == null || (node.mflags & 2) != 0;
+            var isLeaf = this.isLeaf(node);
             if(isLeaf)
+            {
                 delete node.expanded;
-            else 
+            } else if(node.expanded === undefined)
             {
                 if(parent == null && n <= 1)
+                {
                     node.expanded = true;
-                if(this.dftExpandToLevl && node.expanded === undefined)
+                } else if(this.dftExpandToLevl)
                 {
                     if(level < this.dftExpandToLevl)
                         node.expanded = true;
@@ -22023,6 +24547,7 @@ Xjs.extend(Xjs.ui.Tree,Xjs.ui.Menu,{
             if(level > 0)
             {
                 Xjs.DOM.addClass(itemDom,"ui_treeRowChild");
+                Xjs.DOM.addOrRemoveClass(itemDom,"ui-treeRowFitHeight",node.hasInnerComp);
                 var vlineDom = document.createElement("span");
                 vlineDom.className = "ui_treeRowCell " + (this.isLast(node) ? "ui_treeRowLastNodeLine" : "ui_treeRowNodeLine");
                 itemDom.appendChild(vlineDom);
@@ -22064,6 +24589,7 @@ Xjs.extend(Xjs.ui.Tree,Xjs.ui.Menu,{
                     d.innerHTML = content;
                 }
                 d.className = "ui_treeRowCell ui_treeRowText";
+                node._$cdom = d;
                 d._$node = node;
                 if(!this.clickOnRow)
                     d.onclick = this._$openNode;
@@ -22081,7 +24607,6 @@ Xjs.extend(Xjs.ui.Tree,Xjs.ui.Menu,{
                     checkDOM.name = name;
                     if(node.checked)
                         checkDOM.checked = true;
-                    node._$cdom = d;
                     dParent.appendChild(checkDOM);
                     dParent.appendChild(d);
                     if(this._$onCheckClick == null)
@@ -22091,6 +24616,10 @@ Xjs.extend(Xjs.ui.Tree,Xjs.ui.Menu,{
                     checkDOM.onclick = this._$onCheckClick;
                 } else 
                 {
+                    if(node.hasInnerComp)
+                    {
+                        dParent = Xjs.DOM.createChild(dParent,"div","ui-treeRowInnerPBox");
+                    }
                     dParent.appendChild(d);
                 }
             }
@@ -22113,6 +24642,7 @@ Xjs.extend(Xjs.ui.Tree,Xjs.ui.Menu,{
                     lineInfo.pop();
                 dom.appendChild(node.childrenDom);
             }
+            this.fireEvent("onTreeNodeRender",node);
         }
         this._updateChecked();
         return dom;
@@ -22135,6 +24665,17 @@ Xjs.extend(Xjs.ui.Tree,Xjs.ui.Menu,{
             this.fireEvent("onTreeDblClickRow",n,e);
         }
     },
+    /*xjs.ui.Tree._createDOM*/
+    _createDOM:function(root)
+    {
+        var dom = Xjs.ui.Tree.superclass._createDOM.call(this,root);
+        if(this.customSbar)
+        {
+            this._treeSbar = new Xjs.ui.util.CustomScrollbar(this.name + ".SBar",dom,this.customSbar,null,null,null);
+            this.updateTreeSBar();
+        }
+        return dom;
+    },
     /*xjs.ui.Tree._createMenuDOM*/
     _createMenuDOM:function(toDOM)
     {
@@ -22148,6 +24689,41 @@ Xjs.extend(Xjs.ui.Tree,Xjs.ui.Menu,{
             return;
         Xjs.DOM.removeAllChild(this.dom);
         this.createTreeDOM(this.nodes,null,[],this.dom);
+        if(this._treeSbar)
+        {
+            if(this.customSbar & 1)
+            {
+                this.dom.appendChild(this._treeSbar.vbar);
+            }
+            if(this.customSbar & 2)
+            {
+                this.dom.appendChild(this._treeSbar.hbar);
+            }
+            this.updateTreeSBar();
+        }
+    },
+    /*xjs.ui.Tree.updateTreeSBar*/
+    updateTreeSBar:function()
+    {
+        if(this._treeSbar)
+        {
+            var s = this._treeSbar;
+            setTimeout(function(){
+            s.updateValue();
+            s.resetBarPos();
+        },1);
+        }
+    },
+    /*xjs.ui.Tree.onResize*/
+    onResize:function()
+    {
+        this.updateTreeSBar();
+    },
+    /*xjs.ui.Tree.toggleExpand*/
+    toggleExpand:function(node)
+    {
+        Xjs.ui.Tree.superclass.toggleExpand.call(this,node);
+        this.updateTreeSBar();
     },
     /*xjs.ui.Tree._onCheckClick*/
     _onCheckClick:function(e)
@@ -22308,6 +24884,10 @@ Xjs.extend(Xjs.ui.ValueField,Xjs.ui.Component,{
             } else if(this._html)
             {
                 this.dom.innerHTML = s;
+                if(this._valFromDB && this._valFromDB == s)
+                {
+                    Xjs.ui.UIUtil.removeScript(this.dom);
+                }
             } else if(this.showMutiline)
             {
                 this.dom.innerHTML = Xjs.HtmlUTIL.htmlEncode(s);
@@ -22321,6 +24901,7 @@ Xjs.extend(Xjs.ui.ValueField,Xjs.ui.Component,{
     setValue:function(value,displayValue,opts)
     {
         var oldValue = this.value;
+        this._valFromDB = opts & 0x100 ? value : null;
         this.value = value;
         this.displayValue = displayValue;
         if(this.dom)
@@ -22468,6 +25049,11 @@ Xjs.extend(Xjs.ui.ValueList,Xjs.ui.ULComponent,{
             this.dislayValues = {};
         }
     },
+    /*xjs.ui.ValueList.setForInput*/
+    setForInput:function(forInput)
+    {
+        this.forInput = forInput;
+    },
     /*xjs.ui.ValueList.updateDisplayValues*/
     updateDisplayValues:function()
     {
@@ -22499,7 +25085,27 @@ Xjs.extend(Xjs.ui.ValueList,Xjs.ui.ULComponent,{
             if(selectOptions . getCodeNames)
             {
                 var codeData = selectOptions,
+                    cell = null,
+                    fullName = this.forInput ? (cell = this.forInput).showFullName : false,
+                    na = null;
+                if(fullName)
+                {
+                    var _a = new Array(a.length);
+                    for(var j=0;j < a.length;j++)
+                    {
+                        var p = a[j].indexOf("#");
+                        _a[j] = p > 0 ? a[j].substring(0,p) : a[j];
+                    }
+                    var m = codeData.getFullNames(_a,cell ? cell.showLvFullnm : null);
+                    na = new Array(a.length);
+                    for(var i=0;i < a.length;i++)
+                    {
+                        na[i] = m[a[i]];
+                    }
+                } else 
+                {
                     na = codeData.getCodeNames(a);
+                }
                 if(na != null)
                     for(var j=0;j < a.length;j++)
                         this.dislayValues[a[j]] = na[j];
@@ -22716,14 +25322,14 @@ Xjs.apply(Xjs.ui.img.ImageFileRender.prototype,{
             }
             info.className = Xjs.ui.img.TableImagesCellDom.tdPaddingClass;
             info.fclassName = Xjs.ui.img.TableImagesCellDom.tdPaddingClass;
-            if(!this.openOnBlank)
+            if(!this.openOnBlank && path)
             {
                 path = path + "#" + this.getImgTitle(info);
             }
-            return Xjs.ui.img.ImageFileRender.appendImageDomAndBindFc(path,this.showNuImg,authparams,this.openOnBlank,this.mode);
+            return Xjs.ui.img.ImageFileRender.appendImageDomAndBindFc(path,this.showNuImg,authparams,this.openOnBlank,this.mode,table);
         } else 
         {
-            return Xjs.ui.img.ImageFileRender.appendFileNameDomAndBindFc(path,authparams);
+            return Xjs.ui.img.ImageFileRender.appendFileNameDomAndBindFc(path,authparams,table);
         }
     },
     /*xjs.ui.img.ImageFileRender.getImgTitle*/
@@ -22744,30 +25350,30 @@ Xjs.apply(Xjs.ui.img.ImageFileRender.prototype,{
 });
 Xjs.apply(Xjs.ui.img.ImageFileRender,{
     /*xjs.ui.img.ImageFileRender._onClickImg*/
-    _onClickImg:function(e,imgPath)
+    _onClickImg:function(e,imgPath,table)
     {
-        Xjs.ui.img.TableImagesCellDom.appenViewDom([imgPath],null);
+        Xjs.ui.img.TableImagesCellDom.appenViewDom([imgPath],null,table);
     },
     /*xjs.ui.img.ImageFileRender._onClickImgOnBlank*/
-    _onClickImgOnBlank:function(e,imgPath)
+    _onClickImgOnBlank:function(e,imgPath,table)
     {
-        window.open(Xjs.table.util.AttachmentUrlBuilder.canlThumbnailPath(true,imgPath));
+        window.open(Xjs.table.util.AttachmentUrlBuilder.canlThumbnailPath(true,imgPath,table));
     },
     /*xjs.ui.img.ImageFileRender.appendImageDomAndBindFc*/
-    appendImageDomAndBindFc:function(imgPath,showNuImg,authparams,openOnBlank,mode)
+    appendImageDomAndBindFc:function(imgPath,showNuImg,authparams,openOnBlank,mode,table)
     {
         var dom = Xjs.DOM.createChild(null,"div","ui-opt-imgwrap"),
             imgDOM = Xjs.DOM.createChild(dom,"img","img");
         mode = mode || 3;
-        imgDOM.src = Xjs.table.util.AttachmentUrlBuilder.buildDownLoadUrl(imgPath,mode,authparams);
+        imgDOM.src = Xjs.table.util.AttachmentUrlBuilder.buildDownLoadUrl(imgPath,mode,authparams,false,table);
         if(imgPath)
         {
             if(openOnBlank)
             {
-                dom.onclick = this._onClickImgOnBlank.createDelegate(this,[imgPath],true);
+                dom.onclick = this._onClickImgOnBlank.createDelegate(this,[imgPath,table],true);
             } else 
             {
-                dom.onclick = this._onClickImg.createDelegate(this,[imgPath],true);
+                dom.onclick = this._onClickImg.createDelegate(this,[imgPath,table],true);
             }
         } else if(!showNuImg)
         {
@@ -22779,21 +25385,22 @@ Xjs.apply(Xjs.ui.img.ImageFileRender,{
         return dom;
     },
     /*xjs.ui.img.ImageFileRender.appendFileNameDomAndBindFc*/
-    appendFileNameDomAndBindFc:function(path,authparams)
+    appendFileNameDomAndBindFc:function(path,authparams,table)
     {
         if(path == null || path == "")
         {
             return null;
         }
-        var href = Xjs.table.util.AttachmentUrlBuilder.buildDownLoadUrl(path,1,authparams),
+        var href = Xjs.table.util.AttachmentUrlBuilder.buildDownLoadUrl(path,1,authparams,false,table),
             fileName = Xjs.table.util.AttachmentUrlBuilder.getFileName(path);
         return "<div style=\"text-align: center;\"><a href=\"" + href + "\" target=\"_blank\">" + fileName + "</a></div>";
     }
 });
 /*xjs/ui/img/TableImagesCellDom.java*/
-Xjs.ui.img.TableImagesCellDom$ImgLayer=function(title){
+Xjs.ui.img.TableImagesCellDom$ImgLayer=function(title,table){
     this.createDOM();
     this.swiper = this.initSwiper();
+    this.table = table;
 };
 Xjs.apply(Xjs.ui.img.TableImagesCellDom$ImgLayer.prototype,{
     wrap_Id:"UI_Image_View_SwiperWrap",
@@ -22858,7 +25465,7 @@ Xjs.apply(Xjs.ui.img.TableImagesCellDom$ImgLayer.prototype,{
             Xjs.DOM.setTextContent(itemTitle,_title);
             var imgWrap = Xjs.DOM.createChild(item,"div","swiper-wrap-img"),
                 itemImg = Xjs.DOM.createChild(imgWrap,"img");
-            itemImg.src = Xjs.table.util.AttachmentUrlBuilder.buildDownLoadUrl(src,1,["","",""]);
+            itemImg.src = Xjs.table.util.AttachmentUrlBuilder.buildDownLoadUrl(src,1,["","",""],false,this.table);
         }
         var display = "block";
         if(imgs.length == 1)
@@ -22950,12 +25557,12 @@ Xjs.ui.img.TableImagesCellDom=function(){};
 Xjs.apply(Xjs.ui.img.TableImagesCellDom,{
     tdPaddingClass:" ui-opt-imgcell",
     /*xjs.ui.img.TableImagesCellDom.appenViewDom*/
-    appenViewDom:function(imgs,title)
+    appenViewDom:function(imgs,title,table)
     {
         Xjs.JsLoad.load(Xjs.ROOTPATH + "jslib/swiper/swiper.min.js",2);
         if(!Xjs.ui.img.TableImagesCellDom.layer)
         {
-            Xjs.ui.img.TableImagesCellDom.layer = new Xjs.ui.img.TableImagesCellDom$ImgLayer(title);
+            Xjs.ui.img.TableImagesCellDom.layer = new Xjs.ui.img.TableImagesCellDom$ImgLayer(title,table);
         }
         if(!title)
         {
@@ -22973,10 +25580,17 @@ Xjs.extend(Xjs.ui.BorderLayout,Xjs.ui.Layout,{
     /*xjs.ui.layout.BorderLayout.attachItemDoms*/
     attachItemDoms:function(parent,indom,root)
     {
+        this.init(parent,indom);
+        return true;
+    },
+    /*xjs.ui.layout.BorderLayout.init*/
+    init:function(parent,indom)
+    {
         this.parent = parent;
+        this.indom = indom;
         this.nsOnly = true;
         var a = parent.items;
-        this.centers = null;
+        this.centers = [];
         if(a)
             for(var i=0;i < a.length;i++)
             {
@@ -22986,16 +25600,19 @@ Xjs.extend(Xjs.ui.BorderLayout,Xjs.ui.Layout,{
                 var e = a[i].getDOM(indom);
                 if(!e.parentNode)
                     indom.appendChild(e);
-                if(r == "west" || r == "east")
+                if(r == "west" || r == "east" || r == "left" || r == "right")
                     this.nsOnly = false;
-                else if(r != "north" && r != "south")
+                else if(r != "north" && r != "south" && r != "top" && r != "bottom")
                 {
-                    if(!this.centers)
-                        this.centers = [];
                     this.centers.push(a[i]);
                 }
             }
-        return true;
+    },
+    /*xjs.ui.layout.BorderLayout.relayoutItems*/
+    relayoutItems:function(parent,indom)
+    {
+        this.init(parent,indom || parent.dom);
+        this.onResize();
     },
     /*xjs.ui.layout.BorderLayout.onResize*/
     onResize:function()
@@ -23027,7 +25644,8 @@ Xjs.extend(Xjs.ui.BorderLayout,Xjs.ui.Layout,{
                 }
             for(var j=0;j < this.centers.length;j++)
             {
-                this.centers[j].setHeight(h - lastMargin);
+                if(!this.centers[j]._inZoomfull)
+                    this.centers[j].setHeight(h - lastMargin);
             }
             return;
         }
@@ -23047,7 +25665,7 @@ Xjs.extend(Xjs.ui.BorderLayout,Xjs.ui.Layout,{
                 var d = c.getDOM(this.parent.dom);
                 if(!d)
                     continue;
-                if(d.parentNode != this.parent.dom)
+                if(d.parentNode != this.indom)
                     this.parent.dom.appendChild(d);
                 if(!Xjs.DOM.isShowing(d))
                     continue;
@@ -23059,6 +25677,7 @@ Xjs.extend(Xjs.ui.BorderLayout,Xjs.ui.Layout,{
                     switch(r)
                     {
                     case "north":
+                    case "top":
                         s.top = ty + "px";
                         s.left = lx + "px";
                         s.right = rx + "px";
@@ -23067,6 +25686,7 @@ Xjs.extend(Xjs.ui.BorderLayout,Xjs.ui.Layout,{
                         ty += h;
                         break;
                     case "south":
+                    case "bottom":
                         s.bottom = by + "px";
                         s.left = lx + "px";
                         s.right = rx + "bx";
@@ -23075,6 +25695,7 @@ Xjs.extend(Xjs.ui.BorderLayout,Xjs.ui.Layout,{
                         by += h;
                         break;
                     case "west":
+                    case "left":
                         s.left = lx + "px";
                         s.top = ty + "px";
                         s.bottom = by + "px";
@@ -23083,6 +25704,7 @@ Xjs.extend(Xjs.ui.BorderLayout,Xjs.ui.Layout,{
                         lx += w;
                         break;
                     case "east":
+                    case "right":
                         s.right = rx + "px";
                         s.top = ty + "px";
                         s.bottom = by + "px";
@@ -23092,12 +25714,38 @@ Xjs.extend(Xjs.ui.BorderLayout,Xjs.ui.Layout,{
                         break;
                     }
             }
-        for(var j=0;j < this.centers.length;j++)
+        if(this.centers)
+            for(var j=0;j < this.centers.length;j++)
+            {
+                var c = this.centers[j];
+                c.dom.style.top = ty + "px";
+                c.dom.style.left = lx + "px";
+                c.setSize(tw,th);
+            }
+    }
+});
+Xjs.apply(Xjs.ui.BorderLayout,{
+    /*xjs.ui.layout.BorderLayout.orderOfRegion*/
+    orderOfRegion:function(v)
+    {
+        switch(v || "")
         {
-            var c = this.centers[j];
-            c.dom.style.top = ty + "px";
-            c.dom.style.left = lx + "px";
-            c.setSize(tw,th);
+        case "north":
+        case "top":
+            return 1;
+        case "south":
+        case "bottom":
+            return 5;
+        case "west":
+        case "left":
+            return 2;
+        case "east":
+        case "right":
+            return 4;
+        case "null":
+            return 10;
+        default:
+            return 3;
         }
     }
 });
@@ -23153,7 +25801,7 @@ Xjs.apply(Xjs.ui.layout.FitParentSize.prototype,{
     doOnResize:function()
     {
         var e = this.comp._getSizeDOM();
-        if(!e || !e.parentNode)
+        if(!e || !e.parentNode || this.comp._inZoomfull && !(this.flags & 0x80))
             return;
         if(this.flags & 1)
         {
@@ -23316,7 +25964,7 @@ Xjs.extend(Xjs.ui.GridLayout,Xjs.ui.Layout,{
         return tableDOM;
     },
     /*xjs.ui.layout.GridLayout.relayoutItems*/
-    relayoutItems:function(parent)
+    relayoutItems:function(parent,indom)
     {
         this.layoutItems(parent);
     },
@@ -23471,6 +26119,8 @@ Xjs.extend(Xjs.ui.GridLayout,Xjs.ui.Layout,{
                 if(ocomp == null || ocomp == " ")
                     continue;
                 var comp = ocomp;
+                if(this.labelTDMaxWidth)
+                    comp.lbTipIfOvflow = true;
                 if(!comp.labelComp)
                 {
                     var title;
@@ -23630,8 +26280,10 @@ Xjs.extend(Xjs.ui.GridLayout,Xjs.ui.Layout,{
         }
         for(var r=0;r < rowCount;r++)
         {
-            var row = tableBody.insertRow(r),
-                cellIdx = 0;
+            var row = tableBody.insertRow(r);
+            if(this.rowHeight)
+                row.style.height = this.rowHeight;
+            var cellIdx = 0;
             for(var c=0;c < colCount;c++)
             {
                 var xc;
@@ -23696,6 +26348,7 @@ Xjs.extend(Xjs.ui.GridLayout,Xjs.ui.Layout,{
                     {
                         var clb = new Xjs.ui.Component({dom:cell,tipTextCls:"x-tiptext td_label"});
                         clb.fn$TipText = new Xjs.FuncCall(clb.getTipContentIfOvflow,clb);
+                        clb.tipAsHTML = true;
                         clb._addShowTipTextMouseListener();
                         Xjs.DOM.addClass(cell,"ui-tipifovflow");
                     }
@@ -23752,40 +26405,41 @@ Xjs.extend(Xjs.ui.GridLayout,Xjs.ui.Layout,{
     }
 });
 /*xjs/ui/util/ComponentMove.java*/
-Xjs.ui.ComponentMove=function(config){
-    Xjs.ui.ComponentMove.superclass.constructor.call(this,config);
+Xjs.ui.ComponentMove=function(dom,opts,moveBarCls,moveListener){
+    this.moveDom = dom;
+    this.opts = opts;
+    this.moveListener = moveListener;
+    this.moveBarCls = moveBarCls;
 };
 Xjs.extend(Xjs.ui.ComponentMove,Xjs.Object,{
   _js$className_:"Xjs.ui.ComponentMove",
-    marginSize:50,
-    /*xjs.ui.util.ComponentMove.startMouseMove*/
-    startMouseMove:function(dom,ev,mode,stopFunc,opts,moveBarCls)
+    marginSize:1,
+    /*xjs.ui.util.ComponentMove.inResizingX*/
+    inResizingX:function()
     {
-        this.stopFunc = stopFunc;
-        Xjs.Event.cancelEvent(ev);
+        return (this.moveMode & 10) != 10 && (this.moveMode & 10) != 0;
+    },
+    /*xjs.ui.util.ComponentMove.inResizingY*/
+    inResizingY:function()
+    {
+        return (this.moveMode & 5) != 5 && (this.moveMode & 5) != 0;
+    },
+    /*xjs.ui.util.ComponentMove.startMouseMove*/
+    startMouseMove:function(ev,mode)
+    {
         this.moveMode = mode;
-        this.moveDom = dom;
         this.startXY = this.endXY = {x:ev.clientX,y:ev.clientY};
-        var size = Xjs.DOM.getSize(dom),
-            xy0 = Xjs.DOM.getXY(dom),
-            d = this.movingBar = document.createElement("div");
-        if(opts & 1)
-            d.appendChild(dom.cloneNode(true));
-        d.className = moveBarCls || "ui-movingbar";
-        this.movingInnerBar = Xjs.DOM.createChild(d,"div");
-        d.onmousedown = Function.bindAsEventListener(this._onMouseDown,this);
         Xjs.DOM.addWMDragListener(this,this._onMouseMove,this._onMouseUp);
-        this.old_dom_onselectstart = dom.onselectstart;
-        this.nameUserSelect = Xjs.DOM.getCSSVenderStyleName("userSelect",dom);
-        this.old_dom_UserSelect = dom.style[this.nameUserSelect];
-        dom.style[this.nameUserSelect] = "none";
-        dom.onselectstart = Xjs.falseFn;
+        var size = Xjs.DOM.getSize(this.moveDom),
+            xy0 = this.opts & 2 ? {x:parseInt(Xjs.DOM.getStyle(this.moveDom,"left")),y:parseInt(Xjs.DOM.getStyle(this.moveDom,"top"))} : Xjs.DOM.getXY(this.moveDom);
         this.currentRect = this.initRect = {x:xy0.x,y:xy0.y,width:size.width,height:size.height};
-        this._moveToRect();
-        document.body.appendChild(d);
-        Xjs.Event.captureMouse(this.captureDom ? this.moveDom : this.movingBar,false);
         if(ev . preventDefault)
             ev.preventDefault();
+    },
+    /*xjs.ui.util.ComponentMove.isInMoving*/
+    isInMoving:function()
+    {
+        return this.movingBar.parentNode != null;
     },
     /*xjs.ui.util.ComponentMove._findRect*/
     _findRect:function(ev)
@@ -23794,13 +26448,13 @@ Xjs.extend(Xjs.ui.ComponentMove,Xjs.Object,{
         var r = this.currentRect = {x:this.initRect.x,y:this.initRect.y,width:this.initRect.width,height:this.initRect.height},
             dx = ev.clientX - this.startXY.x,
             dy = ev.clientY - this.startXY.y;
-        if((this.moveMode & 2) != 0)
+        if(this.moveMode & 2)
             r.x += dx;
         if((this.moveMode & 10) == 8)
             r.width += dx;
         else if((this.moveMode & 10) == 2)
             r.width -= dx;
-        if((this.moveMode & 1) != 0)
+        if(this.moveMode & 1)
             r.y += dy;
         if((this.moveMode & 5) == 4)
             r.height += dy;
@@ -23816,15 +26470,10 @@ Xjs.extend(Xjs.ui.ComponentMove,Xjs.Object,{
     {
         var s = this.movingBar.style,
             r = this.currentRect;
-        s.left = r.x - this.marginSize + "px";
-        s.top = r.y - this.marginSize + "px";
-        s.width = r.width + 2 * this.marginSize + "px";
-        s.height = r.height + 2 * this.marginSize + "px";
-        s = this.movingInnerBar.style;
-        s.width = r.width - 4 + "px";
-        s.height = r.height - 4 + "px";
-        s.left = this.marginSize + "px";
-        s.top = this.marginSize + "px";
+        s.left = r.x - this.marginSize - 1 + "px";
+        s.top = r.y - this.marginSize - 1 + "px";
+        s.width = r.width + 2 * this.marginSize - 2 + "px";
+        s.height = r.height + 2 * this.marginSize - 2 + "px";
     },
     /*xjs.ui.util.ComponentMove.setMargineSize*/
     setMargineSize:function(sz)
@@ -23836,25 +26485,34 @@ Xjs.extend(Xjs.ui.ComponentMove,Xjs.Object,{
     mouseMoveTo:function(ev)
     {
         this._findRect(ev);
-        Xjs.Event.cancelEvent(ev,true);
         this._moveToRect();
         if(this.moveListener)
-            this.moveListener.onComponentMoved();
+            this.moveListener.onComponentMoved(this,ev);
     },
     /*xjs.ui.util.ComponentMove.stopMouseMove*/
     stopMouseMove:function(ev)
     {
-        if(this.moveDom == null)
-            return null;
-        this.moveDom.onselectstart = this.old_dom_onselectstart;
-        this.moveDom.style[this.nameUserSelect] = this.old_dom_UserSelect;
-        Xjs.Event.captureMouse(this.captureDom ? this.moveDom : this.movingBar,true);
-        if(ev != null)
+        if(ev)
             this._findRect(ev);
-        document.body.removeChild(this.movingBar);
-        delete this.movingBar;
-        this.moveDom = null;
+        if(this.movingBar && this.movingBar.parentNode)
+        {
+            Xjs.Event.captureMouse(this.captureDom ? this.moveDom : this.movingBar,true);
+            document.body.removeChild(this.movingBar);
+            if(this.moveListener)
+            {
+                this.moveListener.onComponentStopMove(this,ev);
+            }
+        }
         return this.currentRect;
+    },
+    /*xjs.ui.util.ComponentMove.removeMouseMove*/
+    removeMouseMove:function()
+    {
+        if(this.movingBar && this.movingBar.parentNode)
+        {
+            Xjs.Event.captureMouse(this.captureDom ? this.moveDom : this.movingBar,true);
+            document.body.removeChild(this.movingBar);
+        }
     },
     /*xjs.ui.util.ComponentMove._onMouseDown*/
     _onMouseDown:function(ev)
@@ -23864,18 +26522,190 @@ Xjs.extend(Xjs.ui.ComponentMove,Xjs.Object,{
     /*xjs.ui.util.ComponentMove._onMouseMove*/
     _onMouseMove:function(ev)
     {
+        Xjs.Event.cancelEvent(ev,true);
+        if(!this.movingBar)
+        {
+            var d = this.movingBar = document.createElement("div");
+            d.className = this.moveBarCls || "ui-movingbar";
+            d.onmousedown = Function.bindAsEventListener(this._onMouseDown,this);
+            var ct = Xjs.ui.ComponentMove.getCursorType(this.moveMode);
+            this.movingBar.style.cursor = ct || "";
+        }
+        if(!this.movingBar.parentNode)
+        {
+            if(this.opts & 1)
+                this.movingBar.appendChild(this.moveDom.cloneNode(true));
+            document.body.appendChild(this.movingBar);
+            Xjs.Event.captureMouse(this.captureDom ? this.moveDom : this.movingBar,false);
+            if(this.moveListener)
+            {
+                this.moveListener.onComponentStartMove(this,ev);
+            }
+        }
         this.mouseMoveTo(ev);
     },
     /*xjs.ui.util.ComponentMove._onMouseUp*/
     _onMouseUp:function(ev)
     {
-        if(this.stopFunc)
-            this.stopFunc(ev);
         this.stopMouseMove(ev);
     }
 });
-/*xjs/ui/util/CustomScrollbar.java*/
+Xjs.apply(Xjs.ui.ComponentMove,{
+    /*xjs.ui.util.ComponentMove.getCursorType*/
+    getCursorType:function(moveMode)
+    {
+        if(moveMode)
+        {
+            switch(moveMode)
+            {
+            case 3:
+            case 12:
+                return "se-resize";
+            case 9:
+            case 6:
+                return "ne-resize";
+            case 1:
+            case 4:
+                return "s-resize";
+            case 2:
+            case 8:
+                return "e-resize";
+            }
+        }
+        return null;
+    }
+});
+/*xjs/ui/util/ComponentZoom.java*/
 Xjs.namespace("Xjs.ui.util");
+Xjs.ui.util.ComponentZoom=function(comp,zdomid){
+    this.comp = comp;
+    if(!zdomid || zdomid == "" || zdomid == ".")
+    {
+        this.dom = comp.dom;
+    } else if(zdomid.charCodeAt(0) == 0x40)
+    {
+        var nm = zdomid.substring(1),
+            c = comp;
+        for(;c && c.name != nm;c = c.parent)
+            ;
+        this.dom = c ? c.getDOM() : comp.dom;
+    } else 
+    {
+        var e = comp.dom;
+        for(;e && e.id != zdomid;e = e.parentNode)
+            ;
+        this.dom = e || comp.dom;
+    }
+    this.zoomBoxDOM = Xjs.DOM.createChild(comp.dom,"div","ui-zoom-box");
+    this.btnin = Xjs.DOM.createChild(this.zoomBoxDOM,"button","ui-zoom-btn zoomin");
+    this.btnin.innerHTML = "<svg class='icon' aria-hidden='true'><use xlink:href='#" + this.btnInIconCls + "'></use></svg>";
+    this.btnin.onclick = Function.bindAsEventListener(this.zoom,this);
+    this.btnout = Xjs.DOM.createChild(this.zoomBoxDOM,"button","ui-zoom-btn zoomout");
+    this.btnout.innerHTML = "<svg class='icon' aria-hidden='true'><use xlink:href='#" + this.btnOutIconCls + "'></use></svg>";
+    this.btnout.onclick = Function.bindAsEventListener(this.zoom,this);
+    this.fn$onWinResize = new Xjs.FuncCall(this.onWinResize,this);
+    comp.addListener("onTableRendered",this.onTableRendered,this);
+};
+Xjs.extend(Xjs.ui.util.ComponentZoom,Xjs.Object,{
+  _js$className_:"Xjs.ui.util.ComponentZoom",
+    btnInIconCls:"icons-btn-fullscreen",
+    btnOutIconCls:"icons-btn-halfscreen",
+    /*xjs.ui.util.ComponentZoom.onTableRendered*/
+    onTableRendered:function()
+    {
+        this.locateZoomBtn();
+    },
+    /*xjs.ui.util.ComponentZoom.locateZoomBtn*/
+    locateZoomBtn:function()
+    {
+        if(this.comp instanceof Xjs.ui.GridTable)
+        {
+            if(Xjs.DOM.hasClass(this.dom,"ui-zoomed-full"))
+            {
+                this.setBtnVisible(true);
+                if(this.comp.zoomBtnOpt & 1)
+                    Xjs.DOM.addClass(this.zoomBoxDOM,"float-top");
+                return;
+            }
+            var tbl = this.comp,
+                hasXScrollbar = Xjs.DOM.hasClass(tbl.gridDOM,"custom-scrollvisible-x");
+            this.setBtnVisible(hasXScrollbar);
+            if(this.comp.zoomBtnOpt & 1)
+                Xjs.DOM.addOrRemoveClass(this.zoomBoxDOM,"float-top",hasXScrollbar);
+        }
+    },
+    /*xjs.ui.util.ComponentZoom.setBtnVisible*/
+    setBtnVisible:function(v)
+    {
+        this.zoomBoxDOM.style.display = v ? "block" : "none";
+    },
+    /*xjs.ui.util.ComponentZoom.zoom*/
+    zoom:function(ev)
+    {
+        window.console.log("zoom");
+        var s = this.dom.style;
+        if(this.pdom)
+        {
+            Xjs.DOM.removeClass(this.dom,"ui-zoomed-full");
+            if(this.beforeDom)
+                this.pdom.insertBefore(this.dom,this.beforeDom);
+            else 
+                this.pdom.appendChild(this.dom);
+            s.position = this.bkPosition;
+            s.width = this.bkWidth;
+            s.height = this.bkHeight;
+            s.zIndex = this.bkZIndex;
+            s.left = this.bkLeft;
+            s.top = this.bkTop;
+            if(this.dom != this.comp.dom)
+            {
+                this.comp.dom.style.height = this.bkHeight1;
+            }
+            this.pdom = null;
+            this.beforeDom = null;
+            delete this.comp._inZoomfull;
+        } else 
+        {
+            this.bkPosition = s.position;
+            this.bkWidth = s.width;
+            this.bkHeight = s.height;
+            this.bkZIndex = s.zIndex;
+            this.bkLeft = s.left;
+            this.bkTop = s.top;
+            this.bkHeight1 = this.comp.dom.style.height;
+            this.hEx = Xjs.DOM.getHeight(this.dom) - Xjs.DOM.getHeight(this.comp.dom);
+            s.position = "fixed";
+            s.width = "100%";
+            s.height = "100%";
+            s.zIndex = 10001;
+            s.left = "0px";
+            s.top = "0px";
+            this.pdom = this.dom.parentNode;
+            this.beforeDom = this.dom.nextElementSibling;
+            document.body.appendChild(this.dom);
+            Xjs.DOM.addClass(this.dom,"ui-zoomed-full");
+            this.comp._inZoomfull = true;
+        }
+        Xjs.DOM.addWResizeListener(this.fn$onWinResize,this.pdom != null);
+        {
+            Xjs.DOM._onWResize();
+        }
+        this.onWinResize();
+    },
+    /*xjs.ui.util.ComponentZoom.onWinResize*/
+    onWinResize:function()
+    {
+        if(this.dom != this.comp.dom)
+        {
+            this.comp.dom.style.height = Xjs.DOM.getHeight(this.dom) - this.hEx + "px";
+        }
+        if(this.comp.onResize)
+        {
+            this.comp.onResize();
+        }
+    }
+});
+/*xjs/ui/util/CustomScrollbar.java*/
 Xjs.ui.util.CustomScrollbar=function(name,boxDOM,flags,cfg,fixBottomH,ajdSize){
     if(cfg)
         Xjs.apply(this,cfg);
@@ -24068,25 +26898,27 @@ Xjs.extend(Xjs.ui.util.CustomScrollbar,Xjs.Observable,{
         {
             Xjs.DOM.addWMDragListener(this,this.onMouseMove,this.onMouseUp);
             window.onselectstart = Xjs.falseFn;
-            this.movingBar.style.visibility = "visible";
+            if(this.movingBar)
+                this.movingBar.style.visibility = "visible";
             document.body.style.MozUserSelect = "none";
         } else 
         {
             window.onselectstart = null;
-            this.movingBar.style.visibility = "";
+            if(this.movingBar)
+                this.movingBar.style.visibility = "";
             document.body.style.MozUserSelect = "";
         }
     },
     /*xjs.ui.util.CustomScrollbar.cancelMoving*/
     cancelMoving:function()
     {
+        this.registerMoveEvent(false);
         if(this.moveInterval)
             clearInterval(this.moveInterval);
         this.moveInterval = null;
         if(!this.movingBar)
             return;
         Xjs.Event.captureMouse(this.movingBar,true);
-        this.registerMoveEvent(false);
         this.movingBar = null;
         this.startXY = null;
         this.inDrag = false;
@@ -24206,22 +27038,22 @@ Xjs.extend(Xjs.ui.util.CustomScrollbar,Xjs.Observable,{
     /*xjs.ui.util.CustomScrollbar.bindWEvent*/
     bindWEvent:function()
     {
-        if(!this.fonWinScroll && this.flags & 0x40 && Xjs.DOM.isShowing(this.boxDOM))
+        if(!this.fonWScroll && this.flags & 0x40 && Xjs.DOM.isShowing(this.boxDOM))
         {
-            this.fonWinScroll = Function.bindAsEventListener(this.checkFix,this);
-            Xjs.DOM.addListener(window,"scroll",this.fonWinScroll);
-            Xjs.DOM.addListener(window,"resize",this.fonWinScroll);
+            this.fonWScroll = new Xjs.FuncCall(this.checkFix,this);
+            Xjs.DOM.addWScrollListener(this.fonWScroll,true);
+            Xjs.DOM.addWResizeListener(this.fonWScroll,true);
         }
         this.checkFix();
     },
     /*xjs.ui.util.CustomScrollbar.removeWEvent*/
     removeWEvent:function()
     {
-        if(this.fonWinScroll && !Xjs.DOM.isShowing(this.boxDOM))
+        if(this.fonWScroll && !Xjs.DOM.isShowing(this.boxDOM))
         {
-            Xjs.DOM.removeListener(window,"scroll",this.fonWinScroll);
-            Xjs.DOM.removeListener(window,"resize",this.fonWinScroll);
-            this.fonWinScroll = null;
+            Xjs.DOM.addWScrollListener(this.fonWScroll,false);
+            Xjs.DOM.addWResizeListener(this.fonWScroll,false);
+            this.fonWScroll = null;
         }
     },
     /*xjs.ui.util.CustomScrollbar.checkFix*/
@@ -24284,9 +27116,11 @@ Xjs.extend(Xjs.ui.util.CustomScrollbar,Xjs.Observable,{
     }
 });
 /*xjs/ui/util/DialogPaneLoader.java*/
-Xjs.ui.util.DialogPaneLoader=function(uiid,options,buttons,size,dlgCfg,initVals){
+Xjs.ui.util.DialogPaneLoader=function(uiid,options,buttons,size,dlgCfg,initVals,loadUIOpts){
     this.uiid = uiid;
     this.options = options || 0;
+    if(typeof(loadUIOpts) == "number")
+        this.loadUIOpts = loadUIOpts;
     this.buttons = buttons;
     this.size = size;
     this.dlgCfg = dlgCfg;
@@ -24334,6 +27168,10 @@ Xjs.apply(Xjs.ui.util.DialogPaneLoader.prototype,{
         if(comp instanceof Xjs.ui.DialogPane)
         {
             w = comp;
+            if(!w.toolbarClassName)
+                w.toolbarClassName = "ui-wtitlebar";
+            if(!w.frameClassName)
+                w.frameClassName = "ui-window ui-wborder";
         } else 
         {
             var boxHtml = this.dlgCfg ? this.dlgCfg.UIWinFrameBoxHTML : null;
@@ -24348,8 +27186,6 @@ Xjs.apply(Xjs.ui.util.DialogPaneLoader.prototype,{
             if(comp.pwinUIProps)
                 Xjs.apply(w,comp.pwinUIProps);
         }
-        w.toolbarClassName = "ui-wtitlebar";
-        w.frameClassName = "ui-window ui-wborder";
         w.mainUI = 3;
         {
             if(this.dlgCfg)
@@ -24448,6 +27284,129 @@ Xjs.apply(Xjs.ui.util.FileValue.prototype,{
     toString:function()
     {
         return this.fileName;
+    }
+});
+/*xjs/ui/util/FixedOnScroll2.java*/
+Xjs.ui.util.FixedOnScroll2=function(name,pFixedDOM,fixedDOM,checkDom,opts,fixTopH){
+    this.name = name;
+    this.fixedDOM = fixedDOM;
+    this.opts = opts;
+    this.fixTopH = fixTopH;
+    this.pFixedDOM = pFixedDOM;
+    this.fonWScroll = new Xjs.FuncCall(this.onWinScroll,this);
+    {
+        Xjs.DOM.addWScrollListener(this.fonWScroll,true);
+        if(opts & 1)
+        {
+            Xjs.DOM.addWResizeListener(this.fonWScroll,true);
+        }
+    }
+    this.checkDom = checkDom ? checkDom : fixedDOM.previousSibling;
+    this.checkFixed();
+};
+Xjs.apply(Xjs.ui.util.FixedOnScroll2.prototype,{
+    /*xjs.ui.util.FixedOnScroll2.onWinScroll*/
+    onWinScroll:function()
+    {
+        this.checkFixed();
+    },
+    /*xjs.ui.util.FixedOnScroll2.dispose*/
+    dispose:function()
+    {
+        if(this.fixedDOM.style.position == "fixed")
+        {
+            this.restore();
+        }
+        if(this.fillDom)
+        {
+            Xjs.DOM.remove(this.fillDom);
+            this.fillDom = null;
+        }
+        Xjs.DOM.addWScrollListener(this.fonWScroll,false);
+        Xjs.DOM.addWResizeListener(this.fonWScroll,false);
+    },
+    /*xjs.ui.util.FixedOnScroll2.checkFixed*/
+    checkFixed:function()
+    {
+        var ckDom = this.checkDom,
+            b = ckDom.getBoundingClientRect(),
+            h = this.fixedDOM.offsetHeight,
+            vh = Xjs.DOM.getViewportHeight(),
+            fixHederTop = this.fixTopH ? this.fixTopH.call() : 0,
+            fixed = this.opts & 1 ? b.bottom + h > vh + 1 : b.top < fixHederTop + h - 1;
+        if(fixed == (this.fixedDOM.style.position == "fixed"))
+        {
+            if(fixed)
+                this.fixedDOM.style.left = b.left + this.styleBackup.lefto + "px";
+            return;
+        }
+        if(fixed)
+        {
+            if(this.opts & 2)
+            {
+                if(!this.fillDom)
+                {
+                    this.fillDom = document.createElement("div");
+                    this.fillDom.className = "ui-fillonfixed";
+                }
+                this.fixedDOM.parentNode.insertBefore(this.fillDom,this.fixedDOM);
+                this.fillDom.style.height = this.fixedDOM.offsetHeight + "px";
+            }
+        } else 
+        {
+            if(this.fillDom)
+                Xjs.DOM.remove(this.fillDom);
+        }
+        if(fixed)
+        {
+            if(!this.styleBackup)
+                this.styleBackup = {};
+            var b2 = this.fixedDOM.getBoundingClientRect();
+            this.styleBackup.lefto = b2.left - b.left;
+            this.styleBackup.position = this.fixedDOM.style.position || "";
+            this.styleBackup.w = this.fixedDOM.offsetWidth;
+            this.styleBackup.h = this.fixedDOM.offsetHeight;
+            this.styleBackup.sbottom = this.fixedDOM.style.bottom;
+            this.styleBackup.sleft = this.fixedDOM.style.left;
+            this.styleBackup.sposition = this.fixedDOM.style.position;
+            this.styleBackup.swidth = this.fixedDOM.style.width;
+            this.styleBackup.sheight = this.fixedDOM.style.height;
+            this.styleBackup.szIndex = this.fixedDOM.style.zIndex;
+            if(!this.styleBackup.parent)
+                this.styleBackup.parent = this.fixedDOM.parentNode;
+            if(this.opts & 1)
+                this.fixedDOM.style.bottom = fixHederTop + "px";
+            else 
+                this.fixedDOM.style.top = fixHederTop + "px";
+            ;
+            this.fixedDOM.style.left = b.left + this.styleBackup.lefto + "px";
+            this.fixedDOM.style.position = "fixed";
+            this.fixedDOM.style.width = this.styleBackup.w + "px";
+            if(this.pFixedDOM)
+                this.pFixedDOM.appendChild(this.fixedDOM);
+            this.fixedDOM.style.zIndex = 100;
+            Xjs.DOM.addClass(this.fixedDOM,"ui-fixedbyscroll");
+            if(this.opts & 1)
+                Xjs.DOM.addClass(this.fixedDOM,"ui-fixedbottom-pane");
+            else 
+                Xjs.DOM.addClass(this.fixedDOM,"ui-fixedtop-pane");
+        } else 
+        {
+            this.restore();
+        }
+    },
+    /*xjs.ui.util.FixedOnScroll2.restore*/
+    restore:function()
+    {
+        this.fixedDOM.style.bottom = this.styleBackup.sbottom;
+        this.fixedDOM.style.left = this.styleBackup.sleft;
+        this.fixedDOM.style.position = this.styleBackup.sposition;
+        this.fixedDOM.style.width = this.styleBackup.swidth;
+        this.fixedDOM.style.height = this.styleBackup.sheight;
+        this.fixedDOM.style.zIndex = this.styleBackup.szIndex;
+        Xjs.DOM.removeClass(this.fixedDOM,"ui-fixedbyscroll");
+        if(this.styleBackup.parent != this.fixedDOM.parentNode)
+            this.styleBackup.parent.appendChild(this.fixedDOM);
     }
 });
 /*xjs/ui/util/HistAidInputer.java*/
@@ -24707,7 +27666,10 @@ Xjs.ui.SuccessInfo = {
     {
         if(ex.showMethod)
         {
-            ex.showMethod(ex,0,title);
+            if(typeof(ex.showMethod) == "function")
+                ex.showMethod(ex,0,title);
+            else 
+                ex.showMethod.apply([ex,0,title]);
             return;
         }
         Xjs.ui.SuccessInfo.showInfo(null,"Fail",title,ex.description || ex.toString(),ex.infoclass);
@@ -24751,9 +27713,22 @@ Xjs.ui.SuccessInfo = {
 /*xjs/ui/util/UIUtil.java*/
 Xjs.ui.util.UIUtil$MessageBoxLayer=function(config){
     Xjs.apply(this,config);
+    if(window.xjsConfig && window.xjsConfig.messageBoxLayerTimeout > 0)
+    {
+        this.timeout = window.xjsConfig.messageBoxLayerTimeout;
+    }
+    if(this.timeout == null)
+    {
+        this.timeout = 3000;
+    }
+    if(!Xjs.ui.UIUtil.cachMessageBoxLayers)
+    {
+        Xjs.ui.UIUtil.cachMessageBoxLayers = [];
+    }
     this.getDOM();
 };
 Xjs.apply(Xjs.ui.util.UIUtil$MessageBoxLayer.prototype,{
+    layerTop:-1,
     /*xjs.ui.util.UIUtil$MessageBoxLayer.getDOM*/
     getDOM:function()
     {
@@ -24767,21 +27742,16 @@ Xjs.apply(Xjs.ui.util.UIUtil$MessageBoxLayer.prototype,{
     /*xjs.ui.util.UIUtil$MessageBoxLayer._createDOM*/
     _createDOM:function(root)
     {
-        var dom = Xjs.DOM.findById("UIA_MsgBoxLayer",root);
-        if(!dom)
-        {
-            dom = Xjs.DOM.createChild(root,"div","ui-msgbox-layer");
-            dom.id = "UIA_MsgBoxLayer";
-            this.hideLayerTimeOut = setTimeout(this.hide.createDelegate(this),3000);
-            dom.onmouseenter = Function.bindAsEventListener(this._onMouseEnter,this);
-            dom.onmouseleave = Function.bindAsEventListener(this._onMouseLeave,this);
-            Xjs.DOM.addClass(dom,"ui-msgbox-" + this.type);
-            Xjs.DOM.createChild(dom,"i","type-icon");
-            var msgDOM = Xjs.DOM.createChild(dom,"span","info");
-            Xjs.DOM.setTextContent(msgDOM,this.message);
-            var closeDOM = Xjs.DOM.createChild(dom,"i","close");
-            closeDOM.onclick = Function.bindAsEventListener(this.hide,this);
-        }
+        var dom = Xjs.DOM.createChild(root,"div","ui-msgbox-layer");
+        this.hideLayerTimeOut = setTimeout(this.hide.createDelegate(this),this.timeout);
+        dom.onmouseenter = Function.bindAsEventListener(this._onMouseEnter,this);
+        dom.onmouseleave = Function.bindAsEventListener(this._onMouseLeave,this);
+        Xjs.DOM.addClass(dom,"ui-msgbox-" + this.type);
+        Xjs.DOM.createChild(dom,"i","type-icon");
+        var msgDOM = Xjs.DOM.createChild(dom,"span","info");
+        Xjs.DOM.setTextContent(msgDOM,this.message);
+        var closeDOM = Xjs.DOM.createChild(dom,"i","close");
+        closeDOM.onclick = Function.bindAsEventListener(this.hide,this);
         return dom;
     },
     /*xjs.ui.util.UIUtil$MessageBoxLayer._onMouseEnter*/
@@ -24792,20 +27762,85 @@ Xjs.apply(Xjs.ui.util.UIUtil$MessageBoxLayer.prototype,{
     /*xjs.ui.util.UIUtil$MessageBoxLayer._onMouseLeave*/
     _onMouseLeave:function()
     {
-        this.hideLayerTimeOut = setTimeout(this.hide.createDelegate(this),3000);
+        this.hideLayerTimeOut = setTimeout(this.hide.createDelegate(this),this.timeout);
     },
     /*xjs.ui.util.UIUtil$MessageBoxLayer.show*/
     show:function()
     {
         var _this = this;
         setTimeout(function(){
-            _this.dom.style.opacity = 1;
+            _this._show();
         },300);
+    },
+    /*xjs.ui.util.UIUtil$MessageBoxLayer._show*/
+    _show:function()
+    {
+        var errorIdx = -1;
+        for(var i=0;i < Xjs.ui.UIUtil.cachMessageBoxLayers.length;i++)
+        {
+            var messageBoxLayer = Xjs.ui.UIUtil.cachMessageBoxLayers[i];
+            if("error"==messageBoxLayer.type)
+            {
+                errorIdx = i;
+                break;
+            }
+        }
+        if(errorIdx > -1 && "error"==this.type)
+        {
+            var messageBoxLayer = Xjs.ui.UIUtil.cachMessageBoxLayers[errorIdx];
+            Xjs.DOM.remove(messageBoxLayer.dom);
+            this.layerTop = messageBoxLayer.layerTop;
+            this.layerHeight = Xjs.DOM.getHeight(this.dom);
+            this.dom.style.top = this.layerTop + "px";
+            this.dom.style.opacity = 1;
+            Xjs.ui.UIUtil.cachMessageBoxLayers[errorIdx] = this;
+            if(this.layerHeight != messageBoxLayer.layerHeight)
+            {
+                for(var i=0;i < Xjs.ui.UIUtil.cachMessageBoxLayers.length;i++)
+                {
+                    var layer = Xjs.ui.UIUtil.cachMessageBoxLayers[i];
+                    if(i > errorIdx)
+                    {
+                        layer.layerTop = this.calcLayerTop(layer);
+                        layer.dom.style.top = layer.layerTop + "px";
+                    }
+                }
+            }
+        } else 
+        {
+            this.layerTop = this.calcLayerTop(this);
+            this.layerHeight = Xjs.DOM.getHeight(this.dom);
+            this.dom.style.top = this.layerTop + "px";
+            this.dom.style.opacity = 1;
+            Xjs.ui.UIUtil.cachMessageBoxLayers.push(this);
+        }
+    },
+    /*xjs.ui.util.UIUtil$MessageBoxLayer.calcLayerTop*/
+    calcLayerTop:function(layer)
+    {
+        var top = 0,
+            space = 2,
+            idx = Xjs.ui.UIUtil.cachMessageBoxLayers.indexOf(layer);
+        if(idx > -1)
+        {
+            for(var i=0;i < idx;i++)
+            {
+                top += Xjs.DOM.getHeight(Xjs.ui.UIUtil.cachMessageBoxLayers[i].dom) + space;
+            }
+        } else 
+        {
+            for(var i=0;i < Xjs.ui.UIUtil.cachMessageBoxLayers.length;i++)
+            {
+                top += Xjs.DOM.getHeight(Xjs.ui.UIUtil.cachMessageBoxLayers[i].dom) + space;
+            }
+        }
+        return top;
     },
     /*xjs.ui.util.UIUtil$MessageBoxLayer.hide*/
     hide:function()
     {
         Xjs.DOM.remove(this.dom);
+        Array.removeElement(Xjs.ui.UIUtil.cachMessageBoxLayers,this);
     }
 });
 Xjs.RInvoke.beansDef["SN-UI.FuncService"]={getUiid:{}};
@@ -24843,10 +27878,13 @@ Xjs.ui.UIUtil = {
             ui.attachToHTML("@" + Xjs.getDefResPath() + "/ProgressPane0.html",0);
         }
         ui.reqParams = p.params;
+        if(p.barCount)
+            ui.barCount = p.barCount;
         if(p.options & 8)
             ui.layoutBottomBtnsMode = 2;
         ui.moveable = true;
         ui.backgroundRun = (p.options & 0x200) != 0;
+        ui.errShowTopLayer = p.errShowTopLayer;
         ui.exInfo = p.exInfo || null;
         if(p.size)
         {
@@ -24867,7 +27905,7 @@ Xjs.ui.UIUtil = {
         }
         if(p.onRunCall || p.onLockRun)
         {
-            ui.addListener(Xjs.apply({onRunCall:p.onRunCall,onLockRun:p.onLockRun},Xjs.ui.TempProgressOnRunListebner));
+            ui.addListener(Xjs.apply({onRunCall:p.onRunCall,onRunErrCall:p.onRunErrCall,onLockRun:p.onLockRun},Xjs.ui.TempProgressOnRunListebner));
         }
         return ui;
     },
@@ -24904,11 +27942,11 @@ Xjs.ui.UIUtil = {
         return htmlURL;
     },
     /*xjs.ui.util.UIUtil.loadDialog*/
-    loadDialog:function(uiid,options,buttons,size,dlgCfg,initVals)
+    loadDialog:function(uiid,options,buttons,size,dlgCfg,initVals,loadUIOpts)
     {
         if(!uiid)
             return null;
-        return (new Xjs.ui.util.DialogPaneLoader(uiid,options,buttons,size,dlgCfg,initVals)).load();
+        return (new Xjs.ui.util.DialogPaneLoader(uiid,options,buttons,size,dlgCfg,initVals,loadUIOpts)).load();
     },
     /*xjs.ui.util.UIUtil.loadUIComp*/
     loadUIComp:function(uiid,initVals,pm,autoRefresh,opts)
@@ -24942,10 +27980,10 @@ Xjs.ui.UIUtil = {
             w.showModal();
     },
     /*xjs.ui.util.UIUtil.showIFrameLayer*/
-    showIFrameLayer:function(url,size)
+    showIFrameLayer:function(name,url,size)
     {
         var ifrm = new Xjs.ui.IFrame({src:url,domStyle:{border:"0px none",width:"100%",height:"100%"}}),
-            w = new Xjs.ui.Panel({id:"UIA__Window_",items:[ifrm],domStyle:{background:"white"}});
+            w = new Xjs.ui.Panel({id:"UIA__Window_" + name,items:[ifrm],domStyle:{background:"white"}});
         w.itemsLayout = new Xjs.ui.DefaultLayout();
         if(size)
         {
@@ -24958,7 +27996,39 @@ Xjs.ui.UIUtil = {
     /*xjs.ui.util.UIUtil.showReLogin*/
     showReLogin:function(ex,opts)
     {
-        Xjs.ui.UIUtil.showConfirmDialog("重登录","登录信息已经过期,需要重新登录\n(登录后需要重新刚才的操作)",new Xjs.FuncCall(Xjs.ui.UIUtil._showRelogin,null),["ok:重新登录","close:关闭"],4);
+        var ucode = Xjs.ui.UIUtil.getUserCodeFromEnv();
+        if(ucode)
+        {
+            Xjs.ui.UIUtil._showRelogin(null,"ok");
+        } else 
+        {
+            Xjs.ui.UIUtil.showMessageBox("information",Xjs.ResBundle.getString("UI","ReLogin.title"),Xjs.ResBundle.getString("UI","ReLogin.tip"),new Xjs.FuncCall(Xjs.ui.UIUtil.reloadMainPage,null),["ok:" + Xjs.ResBundle.getString("UI","ReLogin.okbtn"),"close:" + Xjs.ResBundle.getString("UI","ReLogin.closebtn")],4);
+        }
+    },
+    /*xjs.ui.util.UIUtil.getUserCodeFromEnv*/
+    getUserCodeFromEnv:function()
+    {
+        var ucode = window.EnvParameter.USERCODE;
+        if(ucode == null || ucode.length == 0)
+        {
+            ucode = window.parent.EnvParameter.USERCODE;
+        }
+        return ucode != null && ucode.length > 0 ? ucode : null;
+    },
+    /*xjs.ui.util.UIUtil.reloadMainPage*/
+    reloadMainPage:function(src,cmd)
+    {
+        if(cmd != "ok")
+            return;
+        var parent = window.parent;
+        if(!parent || parent === window)
+        {
+            var loginPage = Xjs.RInvoke.rmInvoke("snsoft.ui.xjs.XjsLoginUtils.getLoginPage",1);
+            window.location.href = Xjs.ROOTPATH + loginPage;
+        } else 
+        {
+            parent.location.reload();
+        }
     },
     /*xjs.ui.util.UIUtil._showRelogin*/
     _showRelogin:function(src,cmd)
@@ -24977,7 +28047,8 @@ Xjs.ui.UIUtil = {
             if(w == w.parent)
                 break;
         }
-        var url;
+        var url,
+            size = null;
         if(bySSO)
         {
             var pm = (window.EnvParameter.wsp || window.EnvParameter.IDWORKSPC || "") + "~" + (window.EnvParameter.SYSID || "") + "~" + (window.EnvParameter.lang || "");
@@ -24995,21 +28066,40 @@ Xjs.ui.UIUtil = {
             {
                 loginPage = "Login.html";
             }
+            size = Xjs.util.UrlUtils.getParamByUrl(loginPage,"size");
+            if(size)
+            {
+                loginPage = loginPage.substring(0,loginPage.indexOf("?"));
+            }
             url = Xjs.ROOTPATH + loginPage + "?homepage=_iloginok.html&page-cls=ui-relogin&_aopts=96" + "&wspid=" + (window.EnvParameter.wsp || window.EnvParameter.IDWORKSPC || "") + "&sysid=" + (window.EnvParameter.SYSID || "") + "&lang=" + (window.EnvParameter.lang || "");
+            var user = Xjs.ui.UIUtil.getUserCodeFromEnv();
+            if(user)
+            {
+                url = url + "&user=" + user;
+            }
         }
-        Xjs.ui.UIUtil.showIFrameLayer(url,{width:436,height:253});
+        var frameSize;
+        if(!size)
+        {
+            frameSize = {width:436,height:253};
+        } else 
+        {
+            var indexOf = size.indexOf("*");
+            frameSize = {width:String.obj2int(size.substring(0,indexOf),436),height:String.obj2int(size.substring(indexOf + 1),253)};
+        }
+        Xjs.ui.UIUtil.showIFrameLayer("relogin",url,frameSize);
     },
     /*xjs.ui.util.UIUtil.showIFrmLogin*/
-    showIFrmLogin:function()
+    showIFrmLogin:function(size)
     {
         var url = Xjs.ROOTPATH + "Login.html?homepage=_iloginok.html&page-cls=ui-ifrmlogin&_aopts=" + 0x20000 + "&wspid=" + (window.EnvParameter.wsp || window.EnvParameter.IDWORKSPC || "") + "&sysid=" + (window.EnvParameter.SYSID || "") + "&lang=" + (window.EnvParameter.lang || "");
-        Xjs.ui.UIUtil.showIFrameLayer(url,{width:800,height:450});
+        Xjs.ui.UIUtil.showIFrameLayer("relogin",url,size || {width:800,height:450});
     },
     /*xjs.ui.util.UIUtil.showIFrmModiPWD*/
     showIFrmModiPWD:function()
     {
         var url = Xjs.ROOTPATH + "loginpage/ModiPWD.html?page-cls=ui-ifrmlogin&_aopts=" + 0x20000;
-        Xjs.ui.UIUtil.showIFrameLayer(url,{width:800,height:450});
+        Xjs.ui.UIUtil.showIFrameLayer("modipwd",url,{width:800,height:450});
     },
     /*xjs.ui.util.UIUtil.newWindow*/
     newWindow:function(cfg)
@@ -25073,7 +28163,9 @@ Xjs.ui.UIUtil = {
             w.buttons = Xjs.ui.Panel.newCloseButton();
         }
         if(onClose)
+        {
             w.addListener(opts & 4 ? "onClosed" : (opts & 2 ? "onOk" : "onClosing"),onClose);
+        }
         var dom = w.getDOM();
         Xjs.DOM.addClass(dom,"ui-msgbox-" + type);
         var btnDOM = Xjs.DOM.findById("BTN",dom),
@@ -25096,7 +28188,7 @@ Xjs.ui.UIUtil = {
         if(typeof(message) == "string")
         {
             var ms = message;
-            if((opts & 1) != 0)
+            if(opts & 1)
             {
                 msgDOM.innerHTML = ms;
             } else 
@@ -25114,10 +28206,21 @@ Xjs.ui.UIUtil = {
         {
             msgDOM.appendChild(message.getDOM());
         }
-        if(title)
+        var titleDOM;
+        if(title && (titleDOM = Xjs.DOM.findById("TITLE",dom)))
         {
-            var titleDOM = Xjs.DOM.findById("TITLE",dom);
-            Xjs.DOM.setTextContent(titleDOM,title);
+            if(opts & 0x20)
+            {
+                titleDOM.innerHTML = title;
+            } else 
+            {
+                w.title = title;
+                Xjs.DOM.setTextContent(titleDOM,title);
+            }
+        }
+        if(opts & 0x40)
+        {
+            Xjs.DOM.addClass(dom,"ui-msgbox-hidelogo");
         }
         if(firstBtn)
             w.setFirstFocusComp(new Xjs.ui.Component({dom:firstBtn}));
@@ -25170,7 +28273,7 @@ Xjs.ui.UIUtil = {
             var res = Xjs.ResBundle.getRes("UI");
             okText = ["ok:" + res.get("Dlg.Ok"),"cancel:" + res.get("Dlg.Cancel")];
         }
-        Xjs.ui.UIUtil.showMessageBox("question",title,message,onOk,okText,opts || 0);
+        return Xjs.ui.UIUtil.showMessageBox("question",title,message,onOk,okText,opts || 0);
     },
     /*xjs.ui.util.UIUtil.askChoice*/
     askChoice:function(title,text,defaultValue,onOk,options,size)
@@ -25254,7 +28357,7 @@ Xjs.ui.UIUtil = {
                 }
             case "parentListenWinScroll":
                 {
-                    window.addEventListener("scroll",Xjs.ui.UIUtil._postParentOnScroll,false);
+                    Xjs.DOM.addWScrollListener(new Xjs.FuncCall(Xjs.ui.UIUtil._postParentOnScroll,null),true);
                     break;
                 }
             case "checkCompShowing":
@@ -25309,8 +28412,10 @@ Xjs.ui.UIUtil = {
                         var tbls = window._MainUI.getMainComponents(Xjs.table.Table);
                         if(tbls && tbls.length > 0)
                         {
-                            var t = tbls[0].getToolbarAttachedTable(),
-                                f = t["oncmd_" + cmd];
+                            var t = tbls[0].getToolbarAttachedTable();
+                            if(!t)
+                                break;
+                            var f = t["oncmd_" + cmd];
                             if(typeof(f) == "function")
                             {
                                 f.call(t);
@@ -25328,10 +28433,25 @@ Xjs.ui.UIUtil = {
                 }
             case "onUserLoginOK":
                 {
+                    var w = window;
                     if(!Xjs._uiInited && !(Xjs.ui.UIUtil.winMsgListeners ? Xjs.ui.UIUtil.winMsgListeners[mt] : null))
                     {
+                        w = window.parent;
                         window.location.reload();
                     }
+                    var msg = e.data.loginPrompt;
+                    if(msg)
+                    {
+                        w.postMessage({msgtype:"call",method:"Xjs.ui.UIUtil.showMessageBox",args:["information",null,msg,null,null,0x10]},"*");
+                    }
+                    break;
+                }
+            case "call":
+                {
+                    var method = e.data.method,
+                        args = e.data.args,
+                        f = eval(method);
+                    f.apply(window,args);
                     break;
                 }
             }
@@ -25408,13 +28528,22 @@ Xjs.ui.UIUtil = {
         return Xjs.ui.UIUtil.buildUIOpenURI(uiid,pm);
     },
     /*xjs.ui.util.UIUtil.buildUIOpenURI*/
-    buildUIOpenURI:function(uiid,pm)
+    buildUIOpenURI:function(uiid,pm,urlPm)
     {
         var uri = uiid + ".html";
         ;
         if(uri.indexOf("_v=") < 0 && window.EnvParameter.v)
         {
             uri += (uri.indexOf("?") > 0 ? "&" : "?") + "_v=" + window.EnvParameter.v;
+        }
+        if(urlPm)
+        {
+            var join = uri.indexOf("?") < 0 ? "?" : "&";
+            for(var nm in urlPm)
+            {
+                uri += join + nm + "=" + encodeURIComponent(urlPm[nm]);
+                join = "&";
+            }
         }
         if(pm)
         {
@@ -25472,9 +28601,16 @@ Xjs.ui.UIUtil = {
     /*xjs.ui.util.UIUtil.wopenUI*/
     wopenUI:function(title,uiid,pm)
     {
-        var uri = Xjs.ui.UIUtil.buildUIOpenURI(uiid,pm);
-        if(!Xjs.ui.UIUtil.openInIFrame(title,uri))
-            window.open(uri,"_blank");
+        Xjs.ui.UIUtil.wopen(title,Xjs.ui.UIUtil.buildUIOpenURI(uiid,pm));
+    },
+    /*xjs.ui.util.UIUtil.wopen*/
+    wopen:function(title,url)
+    {
+        if(url)
+        {
+            if(!Xjs.ui.UIUtil.openInIFrame(title,url))
+                window.open(url,"_blank");
+        }
     },
     /*xjs.ui.util.UIUtil.openInIFrame*/
     openInIFrame:function(title,uri)
@@ -25655,15 +28791,22 @@ Xjs.ui.UIUtil = {
     /*xjs.ui.util.UIUtil.performConfirm*/
     performConfirm:function(r,onConfirm)
     {
+        var w = null;
         if(r.type == 1)
         {
-            Xjs.ui.UIUtil.showMessageBox("question",r.title,r.prompt,onConfirm,r.confirmMsgBoxBtns == null ? Xjs.ui.UIUtil.newYesNoBtnText() : r.confirmMsgBoxBtns,r.confirmMsgBoxOpts,r.confirmMsgBoxCfg);
+            w = Xjs.ui.UIUtil.showMessageBox("question",r.title,r.prompt,onConfirm,r.confirmMsgBoxBtns == null ? Xjs.ui.UIUtil.newYesNoBtnText() : r.confirmMsgBoxBtns,r.confirmMsgBoxOpts,r.confirmMsgBoxCfg);
         } else if(r.type == 2)
         {
             r.showConfirm.call(onConfirm);
         } else 
         {
-            Xjs.ui.UIUtil.showConfirmDialog(r.title,r.prompt,onConfirm,null,r.confirmMsgBoxOpts,r.confirmMsgBoxCfg);
+            w = Xjs.ui.UIUtil.showConfirmDialog(r.title,r.prompt,onConfirm,null,r.confirmMsgBoxOpts,r.confirmMsgBoxCfg);
+        }
+        if(w)
+        {
+            if(r.onClosed)
+                w.addListener("onClosed",r.onClosed);
+            w._forConfirmReq = r;
         }
     },
     /*xjs.ui.util.UIUtil._newConfirmPromise1*/
@@ -25736,7 +28879,7 @@ Xjs.ui.UIUtil = {
     /*xjs.ui.util.UIUtil.addHtmCls*/
     addHtmCls:function(cls)
     {
-        var html = document.getElementsByTagName("html")[0],
+        var html = Xjs.DOM.getHTML(),
             c = {};
         for(var i=0;i < cls.length;i++)
         {
@@ -25779,7 +28922,7 @@ Xjs.ui.UIUtil = {
         if(!c)
             return;
         var rmCls = restore ? c.addCls : c.rmCls,
-            html = document.getElementsByTagName("html")[0];
+            html = Xjs.DOM.getHTML();
         if(rmCls)
             for(var j=0;j < rmCls.length;j++)
             {
@@ -25790,6 +28933,30 @@ Xjs.ui.UIUtil = {
             for(var j=0;j < addCls.length;j++)
             {
                 Xjs.DOM.addClass(html,addCls[j]);
+            }
+    },
+    /*xjs.ui.util.UIUtil.removeScript*/
+    removeScript:function(e)
+    {
+        for(var n in e)
+        {
+            var v = e[n];
+            if(n.startsWith("on") && typeof(v) == "function")
+            {
+                e[n] = null;
+            }
+        }
+        var a = e.childNodes;
+        if(a)
+            for(var j=a.length - 1;j >= 0;j--)
+            {
+                if(a[j].tagName == "SCRIPT")
+                {
+                    e.removeChild(a[j]);
+                } else 
+                {
+                    Xjs.ui.UIUtil.removeScript(a[j]);
+                }
             }
     }
 };
@@ -25806,6 +28973,14 @@ Xjs.ui.UIUtil = {
             this.onRunCall.call(retValue);
         }
     },
+    /*xjs.ui.util.TempProgressOnRunListebner.onRunProgressErr*/
+    onRunProgressErr:function(progPane,err)
+    {
+        if(this.onRunErrCall)
+        {
+            this.onRunErrCall.call(err);
+        }
+    },
     /*xjs.ui.util.TempProgressOnRunListebner.onLockRunProgress*/
     onLockRunProgress:function(progPane,lock)
     {
@@ -25820,17 +28995,227 @@ Xjs.ui.UIUtil = {
         Function.setTimeout(progressPane.removeListener,progressPane,100,false,this);
     }
 },Xjs.ui.DefaultProgressPaneListener);
-/*xjs/util/ConfirmPerform.java*/
+/*xjs/util/BigUtils.java*/
 Xjs.namespace("Xjs.util");
-Xjs.util.ConfirmPerform=function(title,closeReq,perform){
+Xjs.util.BigUtils=function(){};
+Xjs.apply(Xjs.util.BigUtils,{
+    /*xjs.util.BigUtils.add*/
+    add:function(arg1,arg2)
+    {
+        if(!arg1)
+        {
+            arg1 = 0;
+        }
+        if(!arg2)
+        {
+            arg2 = 0;
+        }
+        var value1Str = arg1 + "",
+            ps = value1Str.split("."),
+            deci1Len = ps[1] ? ps[1].length : 0,
+            value2Str = arg2 + "";
+        ps = value2Str.split(".");
+        var deci2Len = ps[1] ? ps[1].length : 0,
+            len = deci1Len > deci2Len ? deci1Len : deci2Len,
+            valueNum = parseFloat(Xjs.util.BigUtils.movePoint(value1Str,len)) + parseFloat(Xjs.util.BigUtils.movePoint(value2Str,len));
+        valueNum = parseFloat(Xjs.util.BigUtils.movePoint(valueNum + "",-len));
+        return valueNum;
+    },
+    /*xjs.util.BigUtils.sub*/
+    sub:function(arg1,arg2)
+    {
+        return Xjs.util.BigUtils.add(arg1,-arg2);
+    },
+    /*xjs.util.BigUtils.mul*/
+    mul:function(arg1,arg2)
+    {
+        if(!arg1)
+        {
+            arg1 = 0;
+        }
+        if(!arg2)
+        {
+            arg2 = 0;
+        }
+        var value1Str = arg1 + "",
+            ps = value1Str.split("."),
+            deci1Len = ps[1] ? ps[1].length : 0,
+            value2Str = arg2 + "";
+        ps = value2Str.split(".");
+        var deci2Len = ps[1] ? ps[1].length : 0,
+            len = deci1Len + deci2Len,
+            valueNum = parseFloat(value1Str.replace(".","")) * parseFloat(value2Str.replace(".",""));
+        if(!Xjs.util.BigUtils.isSafeInteger(valueNum))
+        {
+            var bigNumStr = Xjs.util.BigUtils.bigMul(value1Str.replace(".",""),value2Str.replace(".",""));
+            valueNum = parseFloat(Xjs.util.BigUtils.movePoint(bigNumStr + "",-len));
+        } else 
+        {
+            valueNum = parseFloat(Xjs.util.BigUtils.movePoint(valueNum + "",-len));
+        }
+        return valueNum;
+    },
+    /*xjs.util.BigUtils.div*/
+    div:function(arg1,arg2)
+    {
+        if(!arg1)
+        {
+            arg1 = 0;
+        }
+        if(!arg2)
+        {
+            arg2 = 0;
+        }
+        var value1Str = arg1 + "",
+            ps = value1Str.split("."),
+            deci1Len = ps[1] ? ps[1].length : 0,
+            value2Str = arg2 + "";
+        ps = value2Str.split(".");
+        var deci2Len = ps[1] ? ps[1].length : 0,
+            len = deci1Len - deci2Len,
+            valueNum = parseFloat(value1Str.replace(".","")) / parseFloat(value2Str.replace(".",""));
+        valueNum = parseFloat(Xjs.util.BigUtils.movePoint(valueNum + "",-len));
+        return valueNum;
+    },
+    /*xjs.util.BigUtils.bigMul*/
+    bigMul:function(sArg1,sArg2)
+    {
+        var arg1 = sArg1.startsWith("-") ? sArg1.substring(1) : sArg1,
+            isNeg1 = sArg1.startsWith("-"),
+            arg2 = sArg2.startsWith("-") ? sArg2.substring(1) : sArg2,
+            isNeg2 = sArg2.startsWith("-"),
+            len1 = arg1.length,
+            len2 = arg2.length,
+            arg1Arr = arg1.split(""),
+            arg2Arr = arg2.split(""),
+            ans = [];
+        for(var i=len1 - 1;i >= 0;i--)
+        {
+            for(var j=len2 - 1;j >= 0;j--)
+            {
+                var index1 = i + j,
+                    index2 = i + j + 1,
+                    mul = parseInt(arg1Arr[i]) * parseInt(arg2Arr[j]) + (ans[index2] ? ans[index2] : 0);
+                ans[index1] = Math.floor(mul / 10) + (ans[index1] ? ans[index1] : 0);
+                ans[index2] = mul % 10;
+            }
+        }
+        var result = ans.join("");
+        result = result.replace(/^0+/,"");
+        if(isNeg1 && !isNeg2 || !isNeg1 && isNeg2)
+        {
+            result = "-" + result;
+        }
+        return result;
+    },
+    /*xjs.util.BigUtils.isSafeInteger*/
+    isSafeInteger:function(valueNum)
+    {
+        if(Number.isSafeInteger)
+        {
+            return Number.isSafeInteger(valueNum);
+        } else 
+        {
+            return Math.abs(valueNum) <= 9007199254740991;
+        }
+    },
+    /*xjs.util.BigUtils.movePoint*/
+    movePoint:function(str,scale)
+    {
+        if(scale >= 0)
+            return Xjs.util.BigUtils.movePointRight(str,scale);
+        else 
+            return Xjs.util.BigUtils.movePointLeft(str,-scale);
+    },
+    /*xjs.util.BigUtils.movePointRight*/
+    movePointRight:function(str,scale)
+    {
+        var ch = ".",
+            s = str ? str : "";
+        if(scale <= 0)
+            return s;
+        var ps = s.split("."),
+            s1 = ps[0] ? ps[0] : "",
+            s2 = ps[1] ? ps[1] : "";
+        if(s2.length <= scale)
+        {
+            ch = "";
+            s2 = Xjs.util.BigUtils.padRight(s2,scale,null);
+        }
+        return s1 + s2.substring(0,scale) + ch + s2.substring(scale,s2.length);
+    },
+    /*xjs.util.BigUtils.movePointLeft*/
+    movePointLeft:function(str,scale)
+    {
+        var ch = ".",
+            sign = "",
+            s = str ? str : "";
+        if(scale <= 0)
+            return s;
+        var ps = s.split("."),
+            s1 = ps[0] ? ps[0] : "",
+            s2 = ps[1] ? ps[1] : "";
+        if(s1.startsWith("-"))
+        {
+            s1 = s1.substring(1);
+            sign = "-";
+        }
+        if(s1.length <= scale)
+        {
+            ch = "0.";
+            s1 = Xjs.util.BigUtils.padLeft(s1,scale,null);
+        }
+        return sign + s1.substring(0,s1.length - scale) + ch + s1.substring(s1.length - scale) + s2;
+    },
+    /*xjs.util.BigUtils.padLeft*/
+    padLeft:function(str,nSize,ch)
+    {
+        var len = 0,
+            s = str ? str : "";
+        ch = ch ? ch : "0";
+        len = s.length;
+        while(len < nSize)
+        {
+            s = ch + s;
+            len++;
+        }
+        return s;
+    },
+    /*xjs.util.BigUtils.padRight*/
+    padRight:function(str,nSize,ch)
+    {
+        var len = 0,
+            s = str ? str : "";
+        ch = ch ? ch : "0";
+        len = s.length;
+        while(len < nSize)
+        {
+            s += ch;
+            len++;
+        }
+        return s;
+    }
+});
+/*xjs/util/ConfirmPerform.java*/
+Xjs.util.ConfirmPerform=function(title,closeReq,perform,opts){
     this.closeReq = closeReq;
     this.perform = perform;
-    this.title = title;
-    perform.args = Array.cloneArray(perform.args || []);
-    perform.args.push(this);
+    if(!(opts & 1))
+    {
+        perform.args = Array.cloneArray(perform.args || []);
+        perform.args.push(this);
+    }
 };
 Xjs.apply(Xjs.util.ConfirmPerform.prototype,{
-    i:0,
+    /*xjs.util.ConfirmPerform.onPerformed*/
+    onPerformed:function(result,ex)
+    {
+        window.console.log("result=" + result + ",ex=" + ex);
+        if(this.callOnPerformed)
+        {
+            this.callOnPerformed.apply([result,ex]);
+        }
+    },
     /*xjs.util.ConfirmPerform.confirmPerform*/
     confirmPerform:function()
     {
@@ -25838,21 +29223,35 @@ Xjs.apply(Xjs.util.ConfirmPerform.prototype,{
             perform = this.perform;
         if(!p)
         {
-            perform.call();
+            var result = perform.apply(null);
+            this.onPerformed(result,null);
         } else 
         {
+            var _this = this;
             p.then(function(v){
-            perform.call();
+            var result = perform.apply(null);
+            _this.onPerformed(result,null);
         }).catch(function(ex){
+            _this.onPerformed(null,ex);
             if(!ex.dummy)
                 throw ex;
         });
         }
+    },
+    /*xjs.util.ConfirmPerform.asFuncCall*/
+    asFuncCall:function()
+    {
+        return new Xjs.FuncCall(this.confirmPerform,this);
     }
 });
 /*xjs/util/DateUtils.java*/
 Xjs.util.DateUtils=function(){};
 Xjs.apply(Xjs.util.DateUtils,{
+    /*xjs.util.DateUtils.incDate*/
+    incDate:function(date,day)
+    {
+        return new Date(date.getFullYear(),date.getMonth(),date.getDate() + day);
+    },
     /*xjs.util.DateUtils.formatDate*/
     formatDate:function(date,format)
     {
@@ -25885,6 +29284,12 @@ Xjs.apply(Xjs.util.DateUtils,{
             return format;
         }
         return format;
+    },
+    /*xjs.util.DateUtils.nowDay*/
+    nowDay:function()
+    {
+        var serverTime = Date.getServerTime();
+        return new Date(serverTime.getFullYear(),serverTime.getMonth(),serverTime.getDate());
     }
 });
 /*xjs/util/JsLoad.java*/
@@ -26297,6 +29702,123 @@ Xjs.apply(Xjs.util.LazyLoadValue,{
         return v instanceof Xjs.util.LazyLoadValue ? v.getValue() : v;
     }
 });
+/*xjs/util/LoadingLogo.java*/
+Xjs.util.LoadingLogo=function(config){
+    if(!config)
+    {
+        config = {};
+    }
+    this.owidth = config.owidth || 0;
+    this.oheight = config.oheight || 0;
+    this.showText = config.showText || "";
+    this._createLoadingDOM();
+};
+Xjs.extend(Xjs.util.LoadingLogo,Xjs.Observable,{
+  _js$className_:"Xjs.util.LoadingLogo",
+    /*xjs.util.LoadingLogo.loading*/
+    loading:function(show)
+    {
+        if(show)
+        {
+            this.showLoading();
+        } else 
+        {
+            this.removeLoading();
+        }
+    },
+    /*xjs.util.LoadingLogo.showLoading*/
+    showLoading:function()
+    {
+        this.showLoading1(document.body);
+    },
+    /*xjs.util.LoadingLogo.showLoading*/
+    showLoading1:function(parent)
+    {
+        var p = parent;
+        if(!parent)
+        {
+            p = document.body;
+        }
+        if(this.dom.parentNode != p)
+        {
+            p.appendChild(this.dom);
+        }
+        this.locateCenter();
+    },
+    /*xjs.util.LoadingLogo.removeLoading*/
+    removeLoading:function()
+    {
+        Xjs.DOM.remove(this.dom);
+    },
+    /*xjs.util.LoadingLogo.getDOM*/
+    getDOM:function()
+    {
+        return this.dom;
+    },
+    /*xjs.util.LoadingLogo._createLoadingDOM*/
+    _createLoadingDOM:function()
+    {
+        if(this.dom)
+        {
+            return;
+        }
+        this.dom = this._createImgDOM();
+    },
+    /*xjs.util.LoadingLogo._createImgDOM*/
+    _createImgDOM:function()
+    {
+        var root = document.createElement("div");
+        this.setRootAttr(root);
+        var load = document.createElement("div");
+        this.setLoadAttr(load);
+        root.appendChild(load);
+        var img = document.createElement("img");
+        img.src = "data:image/gif;base64,R0lGODlhIwAjAOZTANLh/9Pi//r8/9/q/+fv/9Xj//P3//b5//X4/+Dq/8vc//r7/8fZ/8bZ//3+//7+/+Ls//X5/+/0/87e/8XY//T3//7//9Ti//v8/+bv//T4/8fa//z9/8jb/+/1/8XZ/+Lr/87f/8nb/4St/8rc/4Cr/+jv//v9/8ja/2yc/4Cq/5+//2eZ/3Kh/4Os//n7/4ev/+zz/6DA/2+f/2mb/97p/9nm/2yd/7LL/7LM/6bD/9bk/9rm//L2/3ml/3qm/7TO/8zd/6XD/2qb/93p/26f/7XO/7TN/+3z/56+/4av/7PM/6bE/93o/+Hr/3il/4iv/2aZ/8PX/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/wtYTVAgRGF0YVhNUDw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQ4IDc5LjE2NDAzNiwgMjAxOS8wOC8xMy0wMTowNjo1NyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIxLjAgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjI5OTJGNjg4ODdBNDExRUFBRTRBQUIyOThFRDQ3QjQzIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjI5OTJGNjg5ODdBNDExRUFBRTRBQUIyOThFRDQ3QjQzIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6Mjk5MkY2ODY4N0E0MTFFQUFFNEFBQjI5OEVENDdCNDMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6Mjk5MkY2ODc4N0E0MTFFQUFFNEFBQjI5OEVENDdCNDMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4B//79/Pv6+fj39vX08/Lx8O/u7ezr6uno5+bl5OPi4eDf3t3c29rZ2NfW1dTT0tHQz87NzMvKycjHxsXEw8LBwL++vby7urm4t7a1tLOysbCvrq2sq6qpqKempaSjoqGgn56dnJuamZiXlpWUk5KRkI+OjYyLiomIh4aFhIOCgYB/fn18e3p5eHd2dXRzcnFwb25tbGtqaWhnZmVkY2JhYF9eXVxbWllYV1ZVVFNSUVBPTk1MS0pJSEdGRURDQkFAPz49PDs6OTg3NjU0MzIxMC8uLSwrKikoJyYlJCMiISAfHh0cGxoZGBcWFRQTEhEQDw4NDAsKCQgHBgUEAwIBAAAh+QQFCABTACwAAAAAIwAjAAAH/4BTgoOEUxxBMiMtKVMMCgEJEhaFlJWCSCszUZubU1KfnyIDApaWAjpDnKqeoKAfIA+lhE4/qrasraAhB7JTOze2t7m5GwalBggqwavDrQACxpQHDADJqiwuODY9UxgVGQG5zwAMvIQOIZ/VylEwRKUIBeoCAJ8TDoQQzgguS72CBALQawVh0IIPuQL8KxSuFYUFggYMI7CQEIFhA6Y8EJGrQMVC8lp1eOBhGIKPhCIMk5AgIUqGuQZcyJXhJaEMuS6QyKXB5qAKuRQ0yIXBp6ATuRoY/Ti0VVGjSFs12Nmqp1GgrRTMbEXR6MVWF1q2Umi0IagBJXNF8Kkyl4QHHX86+gwJauQUibm6fjSBUdACCi5Rmv30cJA+UM8C6JVlQmA9UAUHOZgw73GBtZYihBxnDx+haZzHEtDAwZCGgOLolatkYGCzT7iaPYvGesNr2LelFOt1gPLr2LkmmOvlAATgYcAJg/BcccEAFLmAoxgA0acFlgGETmnwKNIkWYEAACH5BAUIAFMALAUAAAAZAAkAAAdtgFOCgxYeCQEKDFMpLSMyChyDkoMCAyJSmJhTUZycMytIk1MPEB+Zp5udnUNCAoMHIaeyqaqdPwlTBhuys7W1NzsCALyovqoqCFPCsgEZFRhTPTY4LizHyYLLUgXYolNEMJzIkwIBBN6iRy7dgQAh+QQFCABTACwSAAAAEQARAAAHbYAMCgEJEhZTiImKU1KNjSIDAouKjpUfIA+TjJWVIQeTnJwbBouhlQAIBYoYFRkBnKglKQmaqY2xUVE+L5pTBAEIJbm5Or2II8O5NDHGQMm5K8ZTMM8zHMY1LM8k0sjJSdI4zyPSNs8t0gbPKYEAIfkEBQgAUwAsGgAFAAkAGQAAB3eAU4ICBoKGUwIADAeHiVJSEw6DAI+PEIIBlY8UC1MEmo8DggWgHQ9TEaBSEpigolMZoBeCFaAKgiegDYe8ggZRwMApgjbBwC2COcZRI4Ijy0lTNSzLJFNQyzMcRstRK1MuyzQxUwgqxjqG5sA+L4fmKQm9CAWHgQAh+QQFCABTACwSABIAEQARAAAHcYBTgoOEJ1KHhw2Ei1MViIcKjIQEj1IXkoMBlQOYUxGVUhKdBZUdD5gmoJyYmo8UC5JGI1MAjxCMNTBRUSW0hxMOghU8OSMsu7u9AAwHg8jPyL0GhNDQNzuL1cg+q9TVNEIvktBFKzGdKS0jMgocnYKBACH5BAUIAFMALAUAGgAZAAkAAAdtgFOCCCNAgoeIiCYBAokIJVFRMDWJiBEFUlIAjYOQkVEsIzk8FVMcGgQBmaubU4+fsJ9Tq7SsAjs3sbGztbQbBlMDT7qyvasTB4cvQjTEvLUUIA6VMStFu7UoAwuViBwKMiMtKVMNCgEJEhaVgQAh+QQFCABTACwAABIAEQARAAAHboApUYODPVOHiIkthIM8iY9TI4xROZCJMpMulohBkyw1m1McM5MwoVMrk1FAoTE0kyOnOowlUwEEmy8+g7UAUlIFEZYJKb2/x7caHIkFU77H0L+PBhvR0ZAHE9bHlg4gFNuhCwMo16cWEgkBCg2BACH5BAUIAFMALAAABQAJABkAAAd0gFOCUwUIg4MJKSWGgy8/UVGLg0yQkJIxQ5WQI1MrmpBHHDOfSlNBnyxNUzKfLoIjnziCLZ88gimfPYe7gg1Sv78YgiTAvxqCF8VSBIIJygGCHspSEVMPHcoFggPTzAsUz4IQxQACgg4Tv+WHBwzruwbmgoEAOw==";
+        load.appendChild(img);
+        var span = document.createElement("span");
+        this.setSpanAttr(span);
+        load.appendChild(span);
+        return root;
+    },
+    /*xjs.util.LoadingLogo.setSpanAttr*/
+    setSpanAttr:function(span)
+    {
+        span.innerHTML = this.showText;
+        var cs = span.style;
+        cs.display = "block";
+        cs.marginTop = "10px";
+    },
+    /*xjs.util.LoadingLogo.setLoadAttr*/
+    setLoadAttr:function(load)
+    {
+        load.className = "loading";
+        var cs = load.style;
+        cs.color = "#999";
+        cs.fontFamily = "微软雅黑";
+        cs.fontSize = "14px";
+        cs.textAlign = "center";
+    },
+    /*xjs.util.LoadingLogo.setRootAttr*/
+    setRootAttr:function(root)
+    {
+        root.className = "m-loading";
+        var cs = root.style;
+        cs.zIndex = 999999;
+    },
+    /*xjs.util.LoadingLogo.locateCenter*/
+    locateCenter:function()
+    {
+        this.dom.style.position = "fixed";
+        var vw = Xjs.DOM.getViewportWidth(),
+            vh = Xjs.DOM.getViewportHeight(),
+            size = Xjs.DOM.getSize(this.dom),
+            x = (vw - this.owidth - size.width) / 2,
+            y = (vh - this.oheight - size.height) / 2,
+            scroll = Xjs.DOM.getScroll(null);
+        this.dom.style.left = x + scroll.x + "px";
+        this.dom.style.top = y + scroll.y + "px";
+    }
+});
 /*xjs/util/MapArray.java*/
 Xjs.util.MapArray=function(o){
     this.ks = o.ks;
@@ -26504,6 +30026,50 @@ Xjs.apply(Xjs.util.SortedArray.prototype,{
     join:function(s)
     {
         return this.data.join(s);
+    }
+});
+/*xjs/util/UrlUtils.java*/
+Xjs.util.UrlUtils=function(){};
+Xjs.apply(Xjs.util.UrlUtils,{
+    paramStart:"?",
+    paramSpilt:"&",
+    paramSpilt2:"=",
+    /*xjs.util.UrlUtils.getParamByUrl*/
+    getParamByUrl:function(url,paramName)
+    {
+        var nameParam = url.indexOf(paramName);
+        if(nameParam < 0)
+        {
+            return null;
+        }
+        var valueindex = url.indexOf(Xjs.util.UrlUtils.paramSpilt2,nameParam);
+        if(valueindex == -1)
+        {
+            valueindex = url.indexOf(Xjs.util.UrlUtils.paramStart,nameParam);
+        }
+        var end = url.indexOf(Xjs.util.UrlUtils.paramSpilt,valueindex + 1);
+        if(end == -1)
+        {
+            return url.substring(valueindex + 1);
+        }
+        return url.substring(valueindex + 1,end);
+    },
+    /*xjs.util.UrlUtils.getParams*/
+    getParams:function(url)
+    {
+        var hasStart = url.indexOf(Xjs.util.UrlUtils.paramStart);
+        if(hasStart > 0)
+        {
+            url = url.substring(hasStart);
+        }
+        var params = url.split(Xjs.util.UrlUtils.paramSpilt),
+            js = {};
+        for(var i=0;i < params.length;i++)
+        {
+            var paramkv = params[i].split(Xjs.util.UrlUtils.paramSpilt2);
+            js[paramkv[0]] = paramkv[1];
+        }
+        return js;
     }
 });
 /*xjs/util/Utils.java*/

@@ -15,6 +15,7 @@ function prepareMediaSource(url,params){
 	/*
 	  testvideo://http-caoyuwu.eu.org/video/oceans.mp4
 	  testvideo://http-172.20.0.20/media/oceans.mp4
+	  testvideo://http-192.168.1.12/media/oceans.mp4
 	*/
 	if( path.startsWith("http-")){
 		return "http://"+path.substring(5);

@@ -19,6 +19,6 @@
 //  accessToken:"fa2bd753-77e5-4807-a651-91800395b4a7",
 //  serverHost:null,
   //options:0,
-  ajaxInvokeProxy:"http://proxy.caoyuwu.eu.org:1080"
+   ajaxInvokeProxy:"http://proxy.lan:1080"
 }
 ]

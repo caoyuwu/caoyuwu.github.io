@@ -400,7 +400,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
             header["X-Via-ESocks-Proxy"] = "default";
             var onSuccess = new Xjs.FuncCall(this.onAjaxSigninSuccess,this,[settings],2),
                 onError = new Xjs.FuncCall(this.onAjaxSigninFail,this,[settings],2),
-                proxyServer = Xjs.ROOTPATH.startsWith("https://") ? "https://proxy.caoyuwu.top:1443" : "http://proxy.caoyuwu.top:1080";
+                proxyServer = Xjs.ROOTPATH.startsWith("https://") ? "https://proxy.lan:1443" : "http://proxy.lan:1080";
             this.ajaxGET(proxyServer + "/https-request/" + settings.serverHost + "/home/user/sign_in?uid=" + userId + "&ver=" + snsoftx.vlive.didi.DiDiLiveService.AppVersion + "&lob=1",header,null,onSuccess,onError,2);
         }
     },

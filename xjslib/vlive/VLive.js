@@ -616,7 +616,13 @@ Xjs.extend(snsoftx.vlive.VLiveRoomList,snsoftx.vlive.VLive,{
         r.refreshTime = (new Date()).getTime();
         r.errInfo = null;
         this.renderRooms(r,0);
-        this.service.refreshRooms(r);
+        try
+        {
+            this.service.refreshRooms(r);
+        }catch(ex)
+        {
+            this.onRoomsLoadFail(r,ex);
+        }
     },
     /*snsoftx.vlive.VLiveRoomList.onRoomsLoaded*/
     onRoomsLoaded:function(rooms)
@@ -876,13 +882,13 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
         {
             queryParams = Xjs.urlEncode(params);
         }
-        if(method == null)
+        if(!method)
             method = postParams != null ? "post" : "get";
         if(method.toLowerCase() == "post")
         {
             if(contentType == null || contentType.startsWith("application/json"))
             {
-                postBody = Xjs.JSON.encode(postParams,null,1);
+                postBody = postParams == null ? null : Xjs.JSON.encode(postParams,null,1);
                 if(contentType == null)
                     contentType = "application/json;charset=utf-8";
             } else 
