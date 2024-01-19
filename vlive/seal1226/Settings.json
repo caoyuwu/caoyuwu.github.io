@@ -1,0 +1,10 @@
+/*
+  https://caoyuwu.eu.org/vlive/didi/Settings.json
+  http://localhost/caoyuwu.github.io/vlive/List.html?vlive=DiDi
+*/
+[
+{
+  appServer:"https://app01.posoyo.com",
+  ajaxInvokeProxy:"http://proxy.lan:1080"
+}
+]
