@@ -201,6 +201,13 @@ Xjs.extend(snsoftx.vlive.seal1226.Seal1226LiveService,snsoftx.vlive.VLiveService
         if(!this.agoraToken)
             throw new Error("AgoraToken is null");
         window.console.log("加入 %s: token=%s,uid=%s",this.roomId,this.agoraToken,this.agoraUid);
+        var url = "http://192.168.1.12/caoyuwu.github.io/video/AgoraPlay.html#?channel=" + this.roomId + "&token=" + encodeURIComponent(this.agoraToken) + "&uid=" + this.agoraUid;
+        window.console.log("url=%s",url);
+        if(true)
+        {
+            alert("打开: " + url);
+            return;
+        }
         this.agoraClient.join(this.AgoraAppid,this.roomId,this.agoraToken,parseInt(this.agoraUid));
     },
     /*snsoftx.vlive.seal1226.Seal1226LiveService.handleUserPublished*/
