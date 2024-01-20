@@ -49,4 +49,6 @@ jstv,JSTV.js
 
 haoqu99|haoqu99-list|haoqu99-urls,Haoqu99.js
 
+seal1226|seal1226-list,Seal1226.js
+
 testvideo|test-menu-list,Test.js,x=1&y=2

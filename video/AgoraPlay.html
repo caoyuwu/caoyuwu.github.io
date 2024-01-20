@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+
+<html style="width:100%;height:100%">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+ <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+ 
+ <title>Agora播放</title>
+<script type="text/javascript">
+	 /*
+	 http://localhost/caoyuwu.github.io/video/AgoraPlay.html
+	 http://localhost/caoyuwu.github.io/video/AgoraPlay.html#?channel=xx1&token=xx2&uid=xx3
+	 */
+var agoraAppid;//="b86555215e9e4b67a15260c6a144564a";
+//roomId,this.agoraToken,parseInt(this.agoraUid
+var agoraChannel ,agoraToken,agoraUid;
+var agoraClient;
+ function startPlay(){
+	 appendLog("%s",window.location.hash);
+	 if( !window.location.hash.startsWith("#?") )
+	 	return;
+	 var a = window.location.hash.substring(2).split("&");
+			for (var i = 0; i < a.length; i++)
+			{
+				var p = a[i].indexOf('=');
+				if (p > 0)
+				{
+					var name = a[i].substring(0, p);
+					var val = decodeURIComponent(a[i].substring(p + 1));
+					switch( name ){
+						case "channel":
+						   agoraChannel = val; break;
+						 case "token":
+						     agoraToken = val; break;
+						 case "uid":
+						     agoraUid = parseInt(val); break;
+						 case "appid":
+						 	agoraAppid = val; break;
+					}
+				}
+			}
+	appendLog("agoraAppid="+agoraAppid);		
+	appendLog("agoraChannel="+agoraChannel);
+	appendLog("agoraToken="+agoraToken);
+	appendLog("agoraUid="+agoraUid);
+	appendLog("Promise="+window.Promise);
+	//if( true ) return;
+	  if( agoraChannel && agoraToken && agoraAppid ) try{
+		  agoraClient = AgoraRTC.createClient({mode:"live",codec:"h264"});
+          agoraClient.on("user-published",handleUserPublished);
+          agoraClient.on("user-unpublished",handleUserUnpublished);
+          agoraClient.setClientRole("audience",{level:1}).then(join);
+ 	  } catch( ex ){
+		   appendLog("错误: "+ex);
+	   }
+ };
+ function join(){
+	console.log("[加入频道]:agoraChannel=%s,agoraToken=%s,agoraUid=%s",agoraChannel ,agoraToken,agoraUid);
+	try {
+		agoraClient.join(agoraAppid,agoraChannel,agoraToken,agoraUid);
+	} catch( ex ){
+		   appendLog("join-错误: "+ex);
+	   }
+ }
+ function handleUserPublished(user,mediaType)
+    {
+      //  window.console.log("[处理]接受到消息-user-published: user=%s",user.uid);
+       appendLog("[处理]接受到消息-user-published: user="+user.uid);
+        subscribe(user,mediaType);
+    };
+    /*snsoftx.vlive.seal1226.Seal1226LiveService.subscribe*/
+    function subscribe(user,mediaType)
+    {
+        this.agoraClient.subscribe(user,mediaType).then(function(){
+			onMediaSubscribed(user,mediaType);
+		});
+    };
+    /*snsoftx.vlive.seal1226.Seal1226LiveService.onVideoSubscribed*/
+    function onMediaSubscribed(user,mediaType)
+    {
+       // window.console.log("[%s]订阅成功: user=%s",mediaType,user.uid);
+        appendLog("["+mediaType+"]订阅成功: user="+user.uid);
+        if(mediaType == "video")
+        {
+          //  var videoDom = document.getElementById("video-player-wrapper");
+           // Xjs.DOM.removeAllChild(videoDom);
+           // videoDom.style.width = "360px";
+           // videoDom.style.height = "640px";
+            user.videoTrack.play("video-player-wrapper",{fit:"contain"});
+        } else if(mediaType == "audio")
+        {
+            user.audioTrack.play();
+        }
+    };
+    /*snsoftx.vlive.seal1226.Seal1226LiveService.handleUserUnpublished*/
+   function handleUserUnpublished(){
+	   
+   }
+ function leave(){
+	 if( agoraClient ){
+		 agoraClient.leave();
+	 }
+ }
+ function appendLog(log){
+	 var w = document.getElementById("log-wrapper");
+	 if( !w ) return;
+	 var s = document.createElement("span");
+	 s.textContent = log;
+	 w.appendChild(s);
+	 w.appendChild(document.createElement("br"));
+ }
+window.onload = startPlay;
+window.onunload = leave;
+
+ </script>
+ <body  style="width:100%;height:100%;overflow: hidden;">
+	 <!--
+ <h3 style="position: absolute;right:10px">播放1</h3>
+ -->
+ 	<div id="video-player-wrapper" style="width:50%;height:100%;"></div>
+<!--
+ 	<div id="video-player-wrapper" style="width:50%;height:100%;position: absolute;"></div>
+ <div id="log-wrapper" style="position:fixed;left:50%;top:0px;height: 100%;"></div>
+-->
+</body>
+</html>
