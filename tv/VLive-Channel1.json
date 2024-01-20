@@ -137,7 +137,14 @@
 		]
 	},	
 	
-
+    {label:"小红帽",locked:1,items:[
+		 {label:"5",items:"@seal1226-list:5"},
+		 {label:"6",items:"@seal1226-list:6"},
+	     {label:"7",items:"@seal1226-list:7"},
+	     {label:"8",items:"@seal1226-list:8"}
+	]
+	},	
+	
 //{label:"http://ich.vaiwan.com/qun/",locked:1,items:"@webdirlist:http://ich.vaiwan.com/qun/"},
 
    {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"},
