@@ -124,7 +124,9 @@ function loadMenus(url,params){
 	{
 		Source = 2; CategoryId = path;
 	}
-	var url = AppServer+"/live?Source="+Source+"&CategoryId="+CategoryId+"&PageSize=20&PageIndex=1";
+	var page = 1;
+	var pageSize = 50;
+	var url = AppServer+"/live?Source="+Source+"&CategoryId="+CategoryId+"&PageSize="+pageSize+"&PageIndex="+page;
 	var header = {};
     buildHttpReqHeader(header,true);
     var text = utils.httpGetAsString(
@@ -147,11 +149,14 @@ function loadMenus(url,params){
         }
         if(li.payPrice != null)
             title += "-" + li.payPrice; 
-		vCh.push({title:title,url:"seal1226:"+li.roomNum});
+		vCh.push({title:toStr3((page-1)*pageSize+i+1)+":"+title,url:"seal1226:"+li.roomNum});
 	}
 	return vCh;
 }
 
-
+function toStr3(x){
+	s = "00"+x;
+	return s.substring(s.length-3);
+}
 
 
