@@ -15,7 +15,7 @@ function getAccessToken(){
 	if( !accessToken )
 		 accessToken = utils.getConfigPreference("USER.Seal1226.AccessToken");
 	lb_auth:if( accessToken ){
-		var authParts = this.AccessToken.split(".");
+		var authParts = accessToken.split(".");
                 if(authParts.length != 3)
                     break lb_auth;
                 var payload = JSON.parse(atob(authParts[1])),
