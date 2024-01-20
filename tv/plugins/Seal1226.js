@@ -18,7 +18,7 @@ function getAccessToken(){
 		var authParts = accessToken.split(".");
                 if(authParts.length != 3)
                     break lb_auth;
-                var payload = JSON.parse(atob(authParts[1])),
+                var payload = JSON.parse(utils.base64UrlDecode(authParts[1])),
                     exp = payload.exp,
                     expT = (new Date()).getTime() / 1000 - exp;
                 if(expT < -5)
