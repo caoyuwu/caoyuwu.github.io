@@ -137,7 +137,7 @@
 		]
 	},	
 	
-    {label:"小红帽",locked:1,items:[
+    {label:"Seal1226",locked:1,items:[
 		 {label:"5",items:"@seal1226-list:5"},
 		 {label:"6",items:"@seal1226-list:6"},
 	     {label:"7",items:"@seal1226-list:7"},
