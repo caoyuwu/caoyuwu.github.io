@@ -139,7 +139,7 @@
 	
     {label:"Seal1226",locked:1,items:[
 		 {label:"5",items:"@seal1226-list:5"},
-		 {label:"VIP",items:"@seal1226-list:6"},
+		 {label:"VIP",items:"@seal1226-list:6",countSubMenuPages:5},
 	     {label:"游戏",items:"@seal1226-list:7"},
 	     {label:"体育",items:"@seal1226-list:8"}
 	]
