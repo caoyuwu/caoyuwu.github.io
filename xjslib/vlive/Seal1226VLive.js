@@ -9,12 +9,13 @@ snsoftx.vlive.seal1226.Seal1226LiveService=function(){
     this.initSettingType();
     this.AccessToken = window.localStorage[this.name + ".AccessToken"];
     this.RefreshToken = window.localStorage[this.name + ".RefreshToken"];
-    this.options = 1;
+    this.options = 0;
 };
 Xjs.extend(snsoftx.vlive.seal1226.Seal1226LiveService,snsoftx.vlive.VLiveService,{
   _js$className_:"snsoftx.vlive.seal1226.Seal1226LiveService",
     AppServer:"https://app01.posoyo.com",
     AgoraAppid:"b86555215e9e4b67a15260c6a144564a",
+    ChatHost:"signal001.jinxiangtiyu.com",
     /*snsoftx.vlive.seal1226.Seal1226LiveService.getCurrentSettings*/
     getCurrentSettings:function()
     {
@@ -24,10 +25,10 @@ Xjs.extend(snsoftx.vlive.seal1226.Seal1226LiveService,snsoftx.vlive.VLiveService
     /*snsoftx.vlive.seal1226.Seal1226LiveService.getRefreshRoomsOpts*/
     getRefreshRoomsOpts:function()
     {
-        return [{name:"CategoryId",options:[5,6,7,8]}];
+        return [{name:"CategoryId",options:[5,"6:VIP","7:娱乐","8:体育",1,2,3,4,9,10]},{name:"Source",options:[2,1,3,4,5]}];
     },
     /*snsoftx.vlive.seal1226.Seal1226LiveService.prepareAuthorization*/
-    prepareAuthorization:function(rooms)
+    prepareAuthorization:function(type,rooms)
     {
         lb_auth:if(this.AccessToken)
             {
@@ -39,10 +40,12 @@ Xjs.extend(snsoftx.vlive.seal1226.Seal1226LiveService,snsoftx.vlive.VLiveService
                     expT = (new Date()).getTime() / 1000 - exp;
                 if(expT < -5)
                 {
-                    if(rooms)
+                    if(type == 0)
                         this.onAuthed4RefreshRooms(rooms);
-                    else 
+                    else if(type == 1)
                         this.onAuthed4PrepareJoin();
+                    else if(type == 2)
+                        this.onAuthed4GetChatToken();
                     return;
                 }
                 window.console.log("过期 : " + expT + " 秒");
@@ -55,10 +58,10 @@ Xjs.extend(snsoftx.vlive.seal1226.Seal1226LiveService,snsoftx.vlive.VLiveService
         window.console.log("重新获取AccessToken %s",url);
         var header = {};
         this.buildHttpReqHeader(header,false);
-        this.ajaxPOST(url,header,null,null,new Xjs.FuncCall(this.onRefreshTokenRet,this,[rooms],2),new Xjs.FuncCall(this.msgListener.onRoomsLoadFail,this.msgListener,[rooms],2),0);
+        this.ajaxPOST(url,header,null,null,new Xjs.FuncCall(this.onRefreshTokenRet,this,[type,rooms],2),new Xjs.FuncCall(this.msgListener.onRoomsLoadFail,this.msgListener,[rooms],2),0);
     },
     /*snsoftx.vlive.seal1226.Seal1226LiveService.onRefreshTokenRet*/
-    onRefreshTokenRet:function(rooms,ret)
+    onRefreshTokenRet:function(type,rooms,ret)
     {
         if(!ret.success)
         {
@@ -68,10 +71,12 @@ Xjs.extend(snsoftx.vlive.seal1226.Seal1226LiveService,snsoftx.vlive.VLiveService
         }
         window.localStorage[this.name + ".AccessToken"] = this.AccessToken = ret.data.accessToken;
         window.localStorage[this.name + ".RefreshToken"] = this.RefreshToken = ret.data.refreshToken;
-        if(rooms)
+        if(type == 0)
             this.onAuthed4RefreshRooms(rooms);
-        else 
+        else if(type == 1)
             this.onAuthed4PrepareJoin();
+        else if(type == 2)
+            this.onAuthed4GetChatToken();
     },
     /*snsoftx.vlive.seal1226.Seal1226LiveService.buildHttpReqHeader*/
     buildHttpReqHeader:function(headers,addAuth)
@@ -102,14 +107,15 @@ Xjs.extend(snsoftx.vlive.seal1226.Seal1226LiveService,snsoftx.vlive.VLiveService
     /*snsoftx.vlive.seal1226.Seal1226LiveService.refreshRooms*/
     refreshRooms:function(rooms)
     {
-        this.prepareAuthorization(rooms);
+        this.prepareAuthorization(0,rooms);
     },
     /*snsoftx.vlive.seal1226.Seal1226LiveService.onAuthed4RefreshRooms*/
     onAuthed4RefreshRooms:function(rooms)
     {
-        var CategoryId = rooms.refreshParams.CategoryId;
+        var CategoryId = rooms.refreshParams.CategoryId,
+            Source = rooms.refreshParams.Source;
         window.console.log("CategoryId = " + CategoryId);
-        var url = this.AppServer + "/live?Source=2&CategoryId=" + CategoryId + "&PageSize=20&PageIndex=1";
+        var url = this.AppServer + "/live?Source=" + Source + "&CategoryId=" + CategoryId + "&PageSize=100&PageIndex=1";
         window.console.log("url=" + url);
         var header = {};
         this.buildHttpReqHeader(header,true);
@@ -144,7 +150,10 @@ Xjs.extend(snsoftx.vlive.seal1226.Seal1226LiveService,snsoftx.vlive.VLiveService
         this.msgListener.onRoomsLoaded(rooms);
     },
     /*snsoftx.vlive.seal1226.Seal1226LiveService.enterRoom*/
-    enterRoom:Xjs.emptyFn,
+    enterRoom:function()
+    {
+        this.prepareAuthorization(2,null);
+    },
     /*snsoftx.vlive.seal1226.Seal1226LiveService.requestVideoURL*/
     requestVideoURL:function()
     {
@@ -171,7 +180,7 @@ Xjs.extend(snsoftx.vlive.seal1226.Seal1226LiveService,snsoftx.vlive.VLiveService
     /*snsoftx.vlive.seal1226.Seal1226LiveService.prepareJoin*/
     prepareJoin:function()
     {
-        this.prepareAuthorization(null);
+        this.prepareAuthorization(1,null);
     },
     /*snsoftx.vlive.seal1226.Seal1226LiveService.onAuthed4PrepareJoin*/
     onAuthed4PrepareJoin:function()
@@ -203,11 +212,6 @@ Xjs.extend(snsoftx.vlive.seal1226.Seal1226LiveService,snsoftx.vlive.VLiveService
         window.console.log("加入 %s: token=%s,uid=%s",this.roomId,this.agoraToken,this.agoraUid);
         var url = "http://192.168.1.12/caoyuwu.github.io/video/AgoraPlay.html#?channel=" + this.roomId + "&token=" + encodeURIComponent(this.agoraToken) + "&uid=" + this.agoraUid;
         window.console.log("url=%s",url);
-        if(true)
-        {
-            alert("打开: " + url);
-            return;
-        }
         this.agoraClient.join(this.AgoraAppid,this.roomId,this.agoraToken,parseInt(this.agoraUid));
     },
     /*snsoftx.vlive.seal1226.Seal1226LiveService.handleUserPublished*/
@@ -239,6 +243,51 @@ Xjs.extend(snsoftx.vlive.seal1226.Seal1226LiveService,snsoftx.vlive.VLiveService
     },
     /*snsoftx.vlive.seal1226.Seal1226LiveService.handleUserUnpublished*/
     handleUserUnpublished:Xjs.emptyFn,
+    /*snsoftx.vlive.seal1226.Seal1226LiveService.onAuthed4GetChatToken*/
+    onAuthed4GetChatToken:function()
+    {
+        var headers = {};
+        headers.Authorization = "Bearer " + this.AccessToken;
+        var url = "https://" + this.ChatHost + "/hubs/chat/" + this.roomId + "/negotiate?negotiateVersion=1";
+        this.ajaxPOST(url,headers,null,null,new Xjs.FuncCall(this.onGetChatTokenReturn,this,[],2),new Xjs.FuncCall(this.onGetChatTokenFail,this,[],2),0);
+    },
+    /*snsoftx.vlive.seal1226.Seal1226LiveService.onGetChatTokenReturn*/
+    onGetChatTokenReturn:function(ret)
+    {
+        window.console.log("onGetChatTokenReturn : ret=" + JSON.stringify(ret));
+        if(!ret || !ret.connectionToken)
+        {
+            this.onGetChatTokenFail(null);
+            return;
+        }
+        var url = "wss://" + this.ChatHost + "/hubs/user?id=" + ret.connectionToken,
+            headers = {};
+        headers.Authorization = "Bearer " + this.AccessToken;
+        window.console.log("connectionToken = %s",ret.connectionToken);
+        window.console.log("AccessToken = %s",this.AccessToken);
+    },
+    /*snsoftx.vlive.seal1226.Seal1226LiveService.onWebSocketOpen*/
+    onWebSocketOpen:function(ev)
+    {
+        snsoftx.vlive.seal1226.Seal1226LiveService.superclass.onWebSocketOpen.call(this,ev);
+        var m = {};
+        m.protocol = "json";
+        m.version = 1;
+        this.sendWebSocketMessage(m);
+        m = {};
+        m.type = 6;
+        this.sendWebSocketMessage(m);
+    },
+    /*snsoftx.vlive.seal1226.Seal1226LiveService.onWebSocketMessage*/
+    onWebSocketMessage:function(ev)
+    {
+        window.console.log(ev.data);
+    },
+    /*snsoftx.vlive.seal1226.Seal1226LiveService.onGetChatTokenFail*/
+    onGetChatTokenFail:function(ex)
+    {
+        this.msgListener.onMessage("enterroom-fail",null,ex == null ? null : ex.toString());
+    },
     /*snsoftx.vlive.seal1226.Seal1226LiveService.exitRoom*/
     exitRoom:function()
     {

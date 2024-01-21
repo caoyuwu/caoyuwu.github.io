@@ -125,7 +125,7 @@ function loadMenus(url,params){
 		Source = 2; CategoryId = path;
 	}
 	var page = params ? params._pgIdx || 0 : 0;
-	var pageSize = 50;
+	var pageSize = 100;
 	var url = AppServer+"/live?Source="+Source+"&CategoryId="+CategoryId+"&PageSize="+pageSize+"&PageIndex="+(page+1);
 	var header = {};
     buildHttpReqHeader(header,true);

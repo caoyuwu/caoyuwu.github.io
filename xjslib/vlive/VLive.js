@@ -257,6 +257,14 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
             Xjs.DOM.setTextContent(this.enterRootBtnDOM,this.roomEntered ? "退出" : "登入");
         }
     },
+    /*snsoftx.vlive.VLiveRoom.enableEnterRootBtn*/
+    enableEnterRootBtn:function()
+    {
+        if(this.enterRootBtnDOM)
+        {
+            this.enterRootBtnDOM.disabled = false;
+        }
+    },
     /*snsoftx.vlive.VLiveRoom.disableEnterRoomBtn*/
     disableEnterRoomBtn:function()
     {
@@ -400,6 +408,13 @@ Xjs.extend(snsoftx.vlive.VLiveRoom,snsoftx.vlive.VLive,{
             return;
         case "buf-username":
             this.setBufUserName(title,message);
+            return;
+        case "enterroom-fail":
+            this.enableEnterRootBtn();
+            if(message)
+            {
+                this.infoMsg(title,message,null);
+            }
             return;
         default:
             {
@@ -951,7 +966,7 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     /*snsoftx.vlive.VLiveService.getLocalSettingsDef*/
     getLocalSettingsDef:Xjs.emptyFn,
     /*snsoftx.vlive.VLiveService.openWebSocket*/
-    openWebSocket:function(wsUrl)
+    openWebSocket:function(wsUrl,headers)
     {
         this.closeWebSocket();
         if(wsUrl == null)
@@ -1004,7 +1019,7 @@ Xjs.apply(snsoftx.vlive.VLiveService.prototype,{
     /*snsoftx.vlive.VLiveService.sendWebSocketMessage*/
     sendWebSocketMessage:function(m)
     {
-        var s = Xjs.JSON.encode(m,null,1);
+        var s = JSON.stringify(m);
         this.websocket.send(s);
     },
     /*snsoftx.vlive.VLiveService.onInitListRooms*/

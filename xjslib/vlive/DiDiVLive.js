@@ -161,7 +161,7 @@ Xjs.extend(snsoftx.vlive.didi.DiDiLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.didi.DiDiLiveService.enterRoom*/
     enterRoom:function()
     {
-        this.openWebSocket(this.getWebsocketURL());
+        this.openWebSocket(this.getWebsocketURL(),null);
     },
     /*snsoftx.vlive.didi.DiDiLiveService.requestVideoURL*/
     requestVideoURL:function()

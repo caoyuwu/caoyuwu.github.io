@@ -126,7 +126,7 @@ Xjs.extend(snsoftx.vlive.jsyl.JsylLiveService,snsoftx.vlive.VLiveService,{
     /*snsoftx.vlive.jsyl.JsylLiveService.enterRoom*/
     enterRoom:function()
     {
-        this.openWebSocket(this.getWebsocketURL());
+        this.openWebSocket(this.getWebsocketURL(),null);
     },
     /*snsoftx.vlive.jsyl.JsylLiveService.requestVideoURL*/
     requestVideoURL:function()
