@@ -265,6 +265,7 @@ Xjs.extend(snsoftx.vlive.seal1226.Seal1226LiveService,snsoftx.vlive.VLiveService
         headers.Authorization = "Bearer " + this.AccessToken;
         window.console.log("connectionToken = %s",ret.connectionToken);
         window.console.log("AccessToken = %s",this.AccessToken);
+        this.openWebSocket(url,headers);
     },
     /*snsoftx.vlive.seal1226.Seal1226LiveService.onWebSocketOpen*/
     onWebSocketOpen:function(ev)
