@@ -52,6 +52,7 @@ function buildCKey(url,cnlid){
 }
 
 /*
+ cnlid/pid
  yangshipin:2000210103/600001859
 */
 function prepareMediaSource(url,params){
@@ -127,14 +128,28 @@ function prepareMediaSource(url,params){
 		  req,
 		  0x400
 	  ); 
- //print(text);
+// print(text);
 	  var retVal = JSON.parse(text);
 	  if( retVal.code!=0 ){
 		  return null;
 	  }
 	  var data = retVal.data;
-	  if( data.playurl ){
-		  return  { url:data.playurl,headers:data.http_header};
+       var url ;
+	  if( url=data.playurl ){
+		  var chanll = JSON.parse(data.chanll).code;
+		  chanll = utils.base64Decode(chanll);
+		  /*
+		 var des_key = "Rd/ieE5JUUZ2kQjif3TH6w==";        
+ var des_iv = "OseH0V06jHU=";    
+		  */
+		  var regex = /var des_key = "([^"]+).+var des_iv = "([^"]+)/;
+		  var regV = regex.exec(chanll);
+		  if( regV.length==3 ){
+			  var des_key = regV[1], des_iv = regV[2];
+			  //print("des_key="+des_key+",des_iv="+des_iv);
+			  url += "&revoi="+encryptTripleDES(pid,des_key,des_iv);
+		  }
+		  return  { url:url,headers:data.http_header};
 	  }
 	  /*
 	  cctv3 : 2000203803/600001801
@@ -173,3 +188,38 @@ function stringHashCode(s){
 	}
 	return h;
 }
+
+function encryptTripleDES(pid,key,iv){
+	var opts = {
+		"iv.encoding":"base64",
+		"key.encoding":"base64","key.minLen":24,
+		"result.encoding":"HEX"
+	};
+	var curl = "https://www.yangshipin.cn/#/tv/home?pid="+pid;
+	var cref = "";//https://www.yangshipin.cn/#/tv/home?pid="+pid;
+	//var canvas = "YSPANGLE(Apple,AppleM1Pro,OpenGL4.1)";
+	var canvas = "YSPANGLE(Intel,Intel(R)Iris(R)XeGraphics(0x0000A7A0)Direct3D11vs_5_0ps_5_0,D3D11)";
+	var plain = {         
+		   mver: "1",          
+		subver: "1.2",         
+   		host: getStrByUrl(curl),      
+        referer: getStrByUrl(cref),       
+        canvas: canvas //getCanvas()  
+     };  
+	//var message = "123456";
+	var message = JSON.stringify(plain);    
+//print(message);	    
+	return utils.encrypt("DESede/CBC/PKCS7Padding",iv,key,message,opts );
+}
+
+function getStrByUrl(url)
+{ 
+	url = url.replace('http://', ''); 
+    url = url.replace('https://', '');       
+    if (url.length>32){  
+		url = url.substr(0,32);      
+    }
+   return url;   
+} 
+          
+
