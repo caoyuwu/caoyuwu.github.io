@@ -2,6 +2,7 @@
  "label":"电视", "groupIdx":2,
  "menus":[
 	 {"label":"央视频","items":"@txtloader:https://caoyuwu.eu.org/tv/channels/yangshipin.txt"},
+	 {"label":"tvlist1","items":"@txtloader:https://caoyuwu.eu.org/tv/channels/tvlist1.txt"},
 	 {"label":"xhdwc.tk","items":"@txtloader:https://xhdwc.tk/tvlive/txt"},
 	 {"label":"好趣网","items":"@haoqu99-list:"},
    {"label":"NettvPro","items":"@nettvpro-list:Asia/china/1"},

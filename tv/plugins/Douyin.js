@@ -1,7 +1,6 @@
 /*
-  https://live.douyin.com/56101854482 
-    => douyinlive://56101854482
-    douyinlive:208823316033 // CCTV-6
+  https://live.douyin.com/208823316033    // CCTV-6
+    => douyinlive://208823316033
     douyinlive:746495143885 // 嘉佳
   参考：
    https://www.jianshu.com/p/43c10df00be3  
