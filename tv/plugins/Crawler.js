@@ -3,7 +3,13 @@
  html-crawler-list://xvideo/jieav.json#List2;https://www.jieav.com/1/index.html
  html-crawler://-https://www.jieav.com/1/index.html?xxx
 */
-
+var cacheDefs = {};
+function loadDef(defUrl){
+	var defs = cacheDefs[defUrl];
+	if( defs ) return defs;
+	var defText = utils.httpGetAsString(utils.toAbsoluteURL(_scriptURL,defUrl));
+	return  cacheDefs[defUrl] = JSON.parse(defText);
+}
 function load(url){
 	var p = url.indexOf(':');
 	if( p<0 )
@@ -26,8 +32,7 @@ function load(url){
 	{
 		defType = forList ? "List" : "MediaSource";
 	}   
-	var defText = utils.httpGetAsString(utils.toAbsoluteURL(_scriptURL,defUrl));
-	var defs = JSON.parse(defText);
+	var defs = loadDef(defUrl);
 	var defsA = [];
 	for(var defName in defs){
 		if( defName==defType || defName.startsWith(defType+"-") ){
