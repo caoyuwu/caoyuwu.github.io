@@ -1,5 +1,6 @@
 
 /*
+ http://caoyuwu.eu.org/tv/plugins/Seal1226.js
  USER.Seal1226.RefreshToken=51xztxawntk2f435
  USER.Seal1226.AccessToken
 */
