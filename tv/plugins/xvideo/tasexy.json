@@ -1,0 +1,16 @@
+{
+	"List":{
+		"htmlSelector":">body > div.container >div.site > a",
+		"url": "@crawler-list://xvideo/tasexy.json#List2;https://www.tasexy.com${URLDOM.attr.href}",
+		"filterExp":"/list/\\d\\d\\d\\.html$",
+		"filterVal":"${URLDOM.attr.href}"
+	},
+	"List2":{
+		"htmlSelector":">body > div.container >div.list_box > ul > a",
+		"url": "crawler://xvideo/tasexy.json;https://www.tasexy.com/embed/${URLDOM.attr.href.name}",
+		"title": "${URLDOM.attr.title}"
+	},
+	"MediaSource":{
+		"urlMatcherRegExp" : ".+url:\\s?'((https|http):\\/\\/.+)'.+"
+	}
+}
