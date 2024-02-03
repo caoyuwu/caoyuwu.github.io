@@ -1,8 +1,8 @@
 /*
  http://caoyuwu.eu.org/tv/plugins/Crawler.js
- html-crawler-list://xvideo/jieav.json;https://www.jieav.com
- html-crawler-list://xvideo/jieav.json#List2;https://www.jieav.com/1/index.html
- html-crawler://-https://www.jieav.com/1/index.html?xxx
+ crawler-list://xvideo/jieav.json;https://www.jieav.com
+ crawler-list://xvideo/jieav.json#List2;https://www.jieav.com/1/index.html
+ crawler://-https://www.jieav.com/1/index.html?xxx
 */
 var cacheDefs = {};
 function loadDef(defUrl){
@@ -74,6 +74,7 @@ function prepareMediaSource(url,params){
 
 
 function loadMenus(url,params){
+print("loadMenus " + url);	
 	var v = load(url);
 	if( !v )
 	   return ;
