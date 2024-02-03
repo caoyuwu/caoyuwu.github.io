@@ -74,7 +74,7 @@ function prepareMediaSource(url,params){
 
 
 function loadMenus(url,params){
-print("loadMenus " + url);	
+//print("loadMenus " + url);	
 	var v = load(url);
 	if( !v )
 	   return ;
