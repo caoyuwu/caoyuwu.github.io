@@ -7,7 +7,7 @@
 	},
 	"List2":{
 		"htmlSelector" : ">body >div#container > div#content > div.list_box ul >  a",
-		"url": "@crawler://xvideo/jieav.json;https://www.jieav.com/video/${URLDOM.attr.href.name}",
+		"url": "crawler://xvideo/jieav.json;https://www.jieav.com/video/${URLDOM.attr.href.name}",
 		"title": "${URLDOM.attr.title}"
 	},	
 	"MediaSource":{
