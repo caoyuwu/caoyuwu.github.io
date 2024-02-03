@@ -9,7 +9,7 @@ var X_NS = "0000000000";// "420levuvopj"; // 随机数
 var X_ID = "Seal20kdwU29p20K"; // 固定
 var DeviceCode = "29f0fc834109719680bb0a27865107ab";
 var DeviceName = "HMA-AL00";
-var AppServer = "https://app01.posoyo.com";
+var AppServer = "https://app01.yncpy.com";
 var accessToken;
 function getAccessToken(){
 	if( !accessToken )
