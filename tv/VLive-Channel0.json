@@ -150,12 +150,14 @@
            // https://www.nettvpro.live/hongkong/147.html nettvpro://hongkong/147
           "ifeng.com|https://playtimeshift-live.ifeng.com/timeshift/live/06OLEGEGM4G/timeshift.m3u8?txKbps=702&delay=1",
    		 "0472.org(IPV6)|https://0472.org/hls/youzaiSB/fhzw.m3u8",
+   		 "2409:8087:2001:20:2800:0:df6e:eb22|http://[2409:8087:2001:20:2800:0:df6e:eb22]:80/ott.mobaibox.com/PLTV/3/224/3221228527/1.m3u8",
    		"nettvpro://hongkong/147"	
    //      "凤凰秀|http://live.fengshows.com/live/PCC_500k/index.m3u8"  // 
          ]},
   {id:"凤凰资讯",num:"23",urls:[
         "ifeng.com|https://playtimeshift-live.ifeng.com/timeshift/live/06OLEEWQKN4/timeshift.m3u8?txKbps=702&delay=1",
         "0472.org(IPV6)|https://0472.org/hls/youzaiSB/fhzx.m3u8",
+        "2409:8087:2001:20:2800:0:df6e:eb22|http://[2409:8087:2001:20:2800:0:df6e:eb19]:80/ott.mobaibox.com/PLTV/3/224/3221228524/1.m3u8",
         "nettvpro://hongkong/146"	
        ]},
   
