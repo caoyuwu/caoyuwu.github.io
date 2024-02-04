@@ -120,7 +120,7 @@
    {label:"短片-71000",locked:1,items:["[71000-71999]"]},
    {label:"短片-72000",locked:1,items:["[72000-72999]"]},
    {label:"电视剧-78000",items:["[78000-78099]"]},
-   {label:"192.168.1.8",locked:1,items:"@webdirlist:http://192.168.1.8/mydoc-html/tv-channels/"},
+   {label:"192.168.1.8",locked:1,items:"@webdirlist:http://192.168.1.8/mydoc-html/x-channels/"},
    {label:"router.lan",locked:1,items:"@webdirlist:http://router.lan/x-channels/"},
 
   {label:"小红帽",locked:1,items:[
