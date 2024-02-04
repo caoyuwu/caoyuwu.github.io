@@ -7,7 +7,8 @@
 	 {"label":"xhdwc.tk","items":"@txtloader:https://xhdwc.tk/tvlive/txt"},
 	 {"label":"好趣网","items":"@haoqu99-list:"},
    {"label":"NettvPro","items":"@nettvpro-list:Asia/china/1"},
-     {"label":"Youtube","items":"@youtube-list"}     		  
+     {"label":"Youtube","items":"@youtube-list"},
+     {"label":"router.lan","items":"@webdirlist:http://router.lan/tv-channels/"}     		  
   ]
   
 }

@@ -13,7 +13,7 @@ snsoftx.vlive.seal1226.Seal1226LiveService=function(){
 };
 Xjs.extend(snsoftx.vlive.seal1226.Seal1226LiveService,snsoftx.vlive.VLiveService,{
   _js$className_:"snsoftx.vlive.seal1226.Seal1226LiveService",
-    AppServer:"https://app01.posoyo.com",
+    AppServer:"https://app01.yncpy.com",
     AgoraAppid:"b86555215e9e4b67a15260c6a144564a",
     ChatHost:"signal001.jinxiangtiyu.com",
     /*snsoftx.vlive.seal1226.Seal1226LiveService.getCurrentSettings*/
