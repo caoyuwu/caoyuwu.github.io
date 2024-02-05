@@ -95,6 +95,16 @@ function  loadMenus4HtmlSelector(defs,content){
 	//print(ea.length);	
 		for(var i=0;i<ea.length;i++){
 			//var headE = ea[i].querySelector(">div > h3");
+			if( def.matcherRegExpByContent ){
+				var r = new RegExp(def.matcherRegExpByContent);
+//print(v.content);		
+				var v = r.exec(ea[i].getAllNodeValue());
+				if( v && v.length>=3 ){
+					items.push({url:v[2],title:v[1]});  
+				}
+				continue;
+				   
+			}
 			var titE = def.titSelector ? ea[i].querySelector(def.titSelector) : ea[i];
 			var urlE = def.urlSelector ? ea[i].querySelector(def.urlSelector) : ea[i];
 			var title = "";//

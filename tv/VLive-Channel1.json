@@ -14,17 +14,6 @@
 "玩美台,http://live.redtraffic.xyz:80/pov.m3u8",
 "限制级,http://cdn.adultiptv.net/blonde.m3u8?streamType=livеhls",
 
-"午夜1,http://live.redtraffic.xyz:80/interracial.m3u8",
-"午夜2,http://live.redtraffic.xyz:80/bigtits.m3u8",
-"午夜3,http://live.redtraffic.xyz/latina.m3u8?fluxuslust.m3u8",
-"午夜4,http://live.redtraffic.xyz/fetish.m3u8?fluxuslust.m3u8",
-"午夜5,http://live.redtraffic.xyz/lesbian.m3u8?fluxuslust.m3u8",
-"午夜6,http://cdn.adultiptv.net/lesbian.m3u8",
-"午夜7,http://live.redtraffic.xyz:80/teen.m3u8",
-"午夜8,http://live.redtraffic.xyz:80/pornstar.m3u8",
-"午夜9,http://live.redtraffic.xyz/milf.m3u8?fluxuslust.m3u8",
-"午夜10,http://live.redtraffic.xyz:80/cuckold.m3u8",
-"午夜11,http://live.redtraffic.xyz/pornstar.m3u8?fluxuslust.m3u8",
 
 "东热01,https://video1.rhsj520.com/nyrm3/2011225/DR/n0011/index.m3u8",
 "东热02,https://video1.rhsj520.com/nyrm3/2011225/DR/n0010/index.m3u8",
@@ -157,11 +146,11 @@
    {label:"直播-4000",locked:1,items:["[4000-4999]"]},
    {label:"5000",locked:1,items:["[5000-5999]"]},
    {label:"6000",locked:1,items:["[6000-6999]"]},
-   {label:"短片-70000",locked:1,items:["[70000-70999]"]},
-   {label:"短片-71000",locked:1,items:["[71000-71999]"]},
-   {label:"短片-72000",locked:1,items:["[72000-72999]"]},
-   {label:"电视剧-78000",items:["[78000-78099]"]},
-   {label:"192.168.1.8",locked:1,items:"@webdirlist:http://192.168.1.8/mydoc-html/x-channels/"},
+  // {label:"短片-70000",locked:1,items:["[70000-70999]"]},
+   //{label:"短片-71000",locked:1,items:["[71000-71999]"]},
+  // {label:"短片-72000",locked:1,items:["[72000-72999]"]},
+  // {label:"电视剧-78000",items:["[78000-78099]"]},
+  // {label:"192.168.1.8",locked:1,items:"@webdirlist:http://192.168.1.8/mydoc-html/x-channels/"},
    {label:"router.lan",locked:1,items:"@webdirlist:http://router.lan/x-channels/"},
 
   {label:"小红帽",locked:1,items:[
@@ -185,6 +174,7 @@
 	     {label:"8-体育",items:"@seal1226-list:8"}
 	]
 	},	
+	{label:"yibababa-x","locked":1,"items":"@crawler-list://xvideo/yibababa18+.json;https://www.yibababa.com/vod"},
 	{label:"www.jieav.com","locked":1,items:"@crawler-list://xvideo/jieav.json;https://www.jieav.com"},
 	{label:"www.tasexy.com","locked":1,items:"@crawler-list://xvideo/tasexy.json;https://www.tasexy.com/list.html"},
 
