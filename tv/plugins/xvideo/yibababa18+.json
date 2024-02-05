@@ -1,0 +1,6 @@
+{
+	"List":{
+		"htmlSelector":">body > div#page >div#main div#primary > div#content article p",
+		"matcherRegExpByContent":"(.+)\\[18\\+\\](?::|：)\\s*((https|http):\\/\\/.+)"
+	}
+}	
