@@ -174,7 +174,7 @@
 	     {label:"8-体育",items:"@seal1226-list:8"}
 	]
 	},	
-	{label:"yibababa-x","locked":1,"items":"@crawler-list://xvideo/yibababa18+.json;https://www.yibababa.com/vod"},
+	{label:"美国1888网-x直播源","locked":1,"items":"@crawler-list://xvideo/yibababa18+.json;https://www.yibababa.com/vod"},
 	{label:"www.jieav.com","locked":1,items:"@crawler-list://xvideo/jieav.json;https://www.jieav.com"},
 	{label:"www.tasexy.com","locked":1,items:"@crawler-list://xvideo/tasexy.json;https://www.tasexy.com/list.html"},
 
