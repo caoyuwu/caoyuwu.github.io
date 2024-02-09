@@ -1466,6 +1466,7 @@
       		 { label:"抖音直播",items:[
 				{label:"收藏",items: [//"tag:抖音直播收藏"
 				   {label:"央视网快看",url:,"douyinlive:127453393722",tag:"抖音直播收藏"}
+				   {label:"CCTV13",url:,"douyinlive:282773369501",tag:"抖音直播收藏"}
 				  //    {label:"潮白老王",url:"douyinlive:764108230882",tag:"抖音直播收藏"}
 				   ]},   
       		    {label:"娱乐天地",items:"@douyinlive-list:3_10000",countSubMenuPages:5},
