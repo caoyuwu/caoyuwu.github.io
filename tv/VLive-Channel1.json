@@ -156,7 +156,7 @@
   {label:"小红帽",locked:1,items:[
 	   {label:"热门-1",items:"@didilive-list:hot/1"},
 	    {label:"收费-1",items:"@didilive-list:vip/1"},
-	   {label:"关注",items:"@didilive-list:onlineFriends/1"},
+	  // {label:"关注",items:"@didilive-list:onlineFriends/1"},
  		{label:"颜-1",items:"@didilive-list:vegan/1"},
 	   {label:"热门-2",items:"@didilive-list:hot/2"},
 	   {label:"热门-3",items:"@didilive-list:hot/3"},
