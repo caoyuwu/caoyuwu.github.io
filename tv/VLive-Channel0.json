@@ -743,7 +743,7 @@
       "蜻蜓|qingtingfm://20211620"
        ]},
   {id:"北京交通广播",urls:[
-      "喜马拉雅|ximalayaradio://93",
+   //   "喜马拉雅|ximalayaradio://93",
       "蜻蜓|qingtingfm://336",
         "http://audiolive.rbc.cn:1935/live/fm1039/96K/tzwj_video.m3u8"
        ]},
