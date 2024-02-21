@@ -20,6 +20,7 @@ mgtv,MGTV.js
 cetv,CETV.js
 
 qingtingfm,QingtingFM.js
+tingtingfm,TingtingFM.js
 ximalayaradio,Ximalaya.js
 
 music163|163music|163mv|mv163|163video|video163,Music163.js

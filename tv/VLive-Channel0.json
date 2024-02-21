@@ -699,6 +699,7 @@
       
     {id:"北京音乐广播",tag:"蜻蜓-北京台,蜻蜓-音乐台",urls:[  // fm97.4
       "喜马拉雅|ximalayaradio://95",
+      "听听FM|tingtingfm://R6gayOdeVM",
       "蜻蜓|qingtingfm://332"
       ]}, 
    {id:"北京文艺广播",urls:[  // fm87.6
@@ -744,6 +745,7 @@
        ]},
   {id:"北京交通广播",urls:[
    //   "喜马拉雅|ximalayaradio://93",
+       "听听FM|tingtingfm://EOAonLJy7G",
       "蜻蜓|qingtingfm://336",
         "http://audiolive.rbc.cn:1935/live/fm1039/96K/tzwj_video.m3u8"
        ]},

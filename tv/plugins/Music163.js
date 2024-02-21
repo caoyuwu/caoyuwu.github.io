@@ -94,7 +94,7 @@ function buildLiveUrl( type, id) {
     		formParams,
     		0x400
     	);
- print("retText="+retText);   
+ //print("retText="+retText);   
     var m = JSON.parse(retText);
     var objData = type==3?m.urls:m.data; //m.get(type==3?"urls":"data");
     //final java.util.Map<String,Object> data;
