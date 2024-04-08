@@ -37,8 +37,8 @@ function getSettings() {
 		if( !s.serverHost ) {
 			//s.serverHost = "q6icqldt.mascotones.com";
 			//s.serverHost = "lmwu6n.mascotones.com";
-			//s.serverHost = "api.moonscap.com";
-			s.serverHost = "yjakzm.zbbks.com";
+			s.serverHost = "api.moonscap.com";
+			//s.serverHost = "yjakzm.zbbks.com";
 		}
 		if( !s.serverURL ){
 		    // GET live/studio/list
