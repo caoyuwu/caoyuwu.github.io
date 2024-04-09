@@ -155,7 +155,7 @@ function prepareMediaSource(url,params){
 		  req,
 		  0x400
 	  ); 
-if(_debug) print(text);
+//if(_debug) print(text);
 	  var retVal = JSON.parse(text);
 	  if( retVal.code!=0 ){
 		  return null;
