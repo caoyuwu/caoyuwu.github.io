@@ -4,6 +4,7 @@
     douyinlive:746495143885 // 嘉佳
   参考：
    https://www.jianshu.com/p/43c10df00be3  
+   https://gitee.com/fitworks/real-url/blob/master/douyin.py
  签名：
   __ac_signature 根据   __ac_nonce 签名 获得
   算法在：
