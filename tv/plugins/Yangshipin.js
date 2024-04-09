@@ -155,7 +155,7 @@ function prepareMediaSource(url,params){
 		  req,
 		  0x400
 	  ); 
-//if(_debug) print(text);
+if(_debug) print(text);
 	  var retVal = JSON.parse(text);
 	  if( retVal.code!=0 ){
 		  return null;
@@ -182,10 +182,11 @@ function prepareMediaSource(url,params){
 		  //print("des_key="+des_key+",des_iv="+des_iv);
 			  url += "&revoi="+encryptTripleDES(pid,des_key,des_iv);
 		  }
+		  /*
 		  if( _debug ){
 		     var revoi = execTripleDES(pid,chanll);
    //		  url += "&revoi="+revoi;
-		  }
+		  } */
 		  if ( data.extended_param ){
 			  url += data.extended_param;
 		  }
