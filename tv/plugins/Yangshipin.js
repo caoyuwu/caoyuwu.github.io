@@ -18,7 +18,7 @@ Al=48e5918a74ae21c972b90cce8af6c8be,kl=9a7e7d23610266b1d9fbf98581384d92
 */
 
 
-
+var APP_ID = "519748109";
 var APP_VER = "V1.0.0";
 var GUID="lqce65cx_pbamyg8qwje";
 var MAGIC = "mg3c3b04ba";
@@ -26,25 +26,39 @@ var PLATFORM = "5910204";
 var CKey_AESKEY = "48e5918a74ae21c972b90cce8af6c8be";
 var CKey_AESIV = "9a7e7d23610266b1d9fbf98581384d92";
 
-var SIG_MAGIC = "0f$IVHi9Qno?G";
+var GETLIVE_SIG_MAGIC = "0f$IVHi9Qno?G";
+var AUTH_SIG_MAGIC = "Q0uVOpuUpXTOUwRn";
 
 var GR_USER_ID = "d82407bd-ebd0-41a1-a146-f151634b9032";
 
+/*
+String s = "586B08E81F6D0BC79B43AA09C259A44A68A4C01A53C070F77ACD43C550943CF6743DB523B466E4C520F9C434B486720F01134274C6F6A099A75EDB35C127F83D0E6313876752244DF94A776C6F022A4C09C18FA7C9C21E12C7AA1A67C8EF66ACCFFD600112B7F3F98E3450D8EC105FBD4A78C7CA489633D5FCDF73B3D31B41FA6A63DD5B322B0422E6743862E72DCC57EF936D9DC739F1AC9ED4BC29D26F4FA3";
+		var CKey_AESKEY = "48e5918a74ae21c972b90cce8af6c8be";
+		var CKey_AESIV = "9a7e7d23610266b1d9fbf98581384d92";
+		JSUtils utils = new JSUtils(null,null);
+		java.util.Map opts = new java.util.HashMap<>();  
+		opts.put("iv.encoding","hex");
+		opts.put("key.encoding","hex");
+		opts.put("data.encoding","hex");
+			//{"iv.encoding":"hex","key.encoding":"hex","result.encoding":"HEX"};
+		String data = utils.aescbcDecrypt(CKey_AESIV, CKey_AESKEY, s,opts);
+		System.out.println(data);
+*/
 function buildCKey(url,cnlid){
 	var time = utils.currentTimeSeconds();
 //time = 1704445490;	
 	var s =  "|"+cnlid //2000210103
 	        +"|"+time
 	        +"|"+MAGIC // mg3c3b04ba
-	        +"|"+APP_VER
+	        +"|"+APP_VER //V1.0.0
 	        +"|"+GUID  //lqce65cx_pbamyg8qwje
-	        +"|"+PLATFORM
+	        +"|"+PLATFORM //5910204
 	        +"|"+url.substring(0,24)
 	        +"|"+WEB_UserAgent.toLowerCase().substring(0,24)
 	        +"|"
-	        +"|"+WEB_AppCodeName
-	        +"|"+WEB_AppName
-	        +"|"+WEB_Platform
+	        +"|"+WEB_AppCodeName //Mozilla
+	        +"|"+WEB_AppName  // Netscape
+	        +"|"+WEB_Platform //Win32
 	        +"|";
 	s = "|"+stringHashCode(s)+s;
 	//print(s);       
@@ -67,7 +81,42 @@ function prepareMediaSource(url,params){
 		path += "/600001859"; 
 		 //return null;
 	}
+	var randomStrV = randonStr();
 	var pid = path.substring(p+1), 	cnlid =  path.substring(0,p);
+	
+	   var cookie =  "guid="+GUID+"; "
+	                 +"gr_user_id="+GR_USER_ID+"; "
+	                 +"versionName=99.99.99; versionCode=999999; vplatform=109; platformVersion=Chrome; deviceModel=120; seqId=111111; "
+	                 +"request-id=999999"+randomStrV+utils.currentTime();
+       var header = {
+		   "Yspappid":APP_ID,//"519748109",
+		  // "Content-Type": "application/json;charset=UTF-8",
+		   "Referer":"https://www.yangshipin.cn/",
+		   "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+		   "Cookie":cookie
+	   };
+	
+	/*
+	 auth:
+	*/
+ /*	
+	var req = {
+		pid: pid,//"600001859",
+		guid: GUID,//"lqce65cx_pbamyg8qwje",
+		appid: "ysp_pc",
+		rand_str: randomStrV //randonStr() //
+	};
+	req.signature = genSignature(req,AUTH_SIG_MAGIC);
+	var text = utils.httpPostAsString(
+		  "https://player-api.yangshipin.cn/v1/player/auth",
+		  header,
+		  "application/x-www-form-urlencoded;charset=UTF-8",
+		  req,
+		  0x400
+	  ); 
+//if(_debug) print(text);
+ 	*/  
+	
 	var wurl = "https://www.yangshipin.cn/#/tv/home?pid="+pid;
 	var cKey = buildCKey(wurl,cnlid);
 	//print(cKey);
@@ -87,49 +136,26 @@ function prepareMediaSource(url,params){
             otype: "ojson",
             appVer: APP_VER,
             app_version: APP_VER,
-            rand_str: randonStr(),
+            rand_str: randomStrV,//randonStr(),
             channel: "ysp_tx",
     		sphttps:"1",
     		defn: "fhd"       
        };
-       var reqNames = [];
-       for( var name in req){
-		   reqNames.push(name);
-	   }
-       reqNames.sort();
-       var s = "";
-       for(var i=0;i<reqNames.length;i++){
-		   var name = reqNames[i];
-		   var val = req[name];
-		   if( val instanceof Array ) val = val.join();
-		   if( i ) s += "&";
-		   s += name+"="+decodeURI(val);
-	   }
-	   s += SIG_MAGIC;
-	  // print("MD5原文 "+s);
-	   var signature = utils.md5LowerCaseHex(s);
+       
+       
 	//   print("signature="+signature);
-	   req.signature = signature;
-	   var cookie =  "guid="+GUID+"; "
-	                 +"gr_user_id="+GR_USER_ID+"; "
-	                 +"versionName=99.99.99; versionCode=999999; vplatform=109; platformVersion=Chrome; deviceModel=120; seqId=111111; "
-	                 +"request-id=999999"+randonStr()+utils.currentTime();
-       var header = {
-		   "Yspappid":"519748109",
-		   "Content-Type": "application/json;charset=UTF-8",
-		   "Referer":"https://www.yangshipin.cn/",
-		   "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-		   "Cookie":cookie
-	   };
+//	var signature = genSignature(req,GETLIVE_SIG_MAGIC);
+	   req.signature = genSignature(req,GETLIVE_SIG_MAGIC);
+	
   
 	  var text = utils.httpPostAsString(
 		  "https://player-api.yangshipin.cn/v1/player/get_live_info",
 		  header,
-		  null,
+		  "application/json;charset=UTF-8",
 		  req,
 		  0x400
 	  ); 
-// print(text);
+//if(_debug) print(text);
 	  var retVal = JSON.parse(text);
 	  if( retVal.code!=0 ){
 		  return null;
@@ -137,6 +163,12 @@ function prepareMediaSource(url,params){
 	  var data = retVal.data;
        var url ;
 	  if( url=data.playurl ){
+		  /*
+		  var regex = /&svrtime=(\d*)&/;
+		  var regV = regex.exec(url);
+		  if(regV.length==2 ){
+			  svrtime = regV[1];
+		  } */
 		  var chanll = JSON.parse(data.chanll).code;
 		  chanll = utils.base64Decode(chanll);
 		  /*
@@ -147,9 +179,24 @@ function prepareMediaSource(url,params){
 		  var regV = regex.exec(chanll);
 		  if( regV.length==3 ){
 			  var des_key = regV[1], des_iv = regV[2];
-			  //print("des_key="+des_key+",des_iv="+des_iv);
+		  //print("des_key="+des_key+",des_iv="+des_iv);
 			  url += "&revoi="+encryptTripleDES(pid,des_key,des_iv);
 		  }
+		  if( _debug ){
+		     var revoi = execTripleDES(pid,chanll);
+   //		  url += "&revoi="+revoi;
+		  }
+		  if ( data.extended_param ){
+			  url += data.extended_param;
+		  }
+		  /*
+		  url += "&app_id="+APP_ID //519748109
+			  +"&guid="+GUID//lqce65cx_pbamyg8qwje
+			  +"&ysign="  //f98fffdf8f51492723b2b1ffb1e67862
+			  +"&ytime="+svrtime
+			  +"&ytype=1"
+			  ;
+			 */ 
 		  return  { url:url,headers:data.http_header};
 	  }
 	  /*
@@ -172,6 +219,32 @@ function prepareMediaSource(url,params){
 	  return null;
 }
 
+/*
+function auth(pid){
+	var req = {
+			pid: pid,//"600001859",
+		guid: GUID,//"lqce65cx_pbamyg8qwje",
+		"appid": "ysp_pc",
+		"rand_str": randonStr() //"KlriNjkYcB" 
+	};
+	var cookie =  "guid="+GUID+"; "
+	                 +"gr_user_id="+GR_USER_ID+"; "
+	                 +"versionName=99.99.99; versionCode=999999; vplatform=109; platformVersion=Chrome; deviceModel=120; seqId=111111; "
+	                 +"request-id=999999"+randonStr()+utils.currentTime();
+       var header = {
+		   "Yspappid":APP_ID,//"519748109",
+		   "Content-Type": "application/json;charset=UTF-8",
+		   "Referer":"https://www.yangshipin.cn/",
+		   "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+		   "Cookie":cookie
+	   };
+  
+	  
+if(_debug) print(text);
+	  var retVal = JSON.parse(text);
+	  return  retVal.code==0;
+} */
+
 function randonStr(t) {
  // return "0000000000";	
         t = t || 10;
@@ -188,6 +261,25 @@ function stringHashCode(s){
 		h &= h;
 	}
 	return h;
+}
+
+function genSignature(req,magic){
+	var reqNames = [];
+       for( var name in req){
+		   reqNames.push(name);
+	   }
+       reqNames.sort();
+       var s = "";
+       for(var i=0;i<reqNames.length;i++){
+		   var name = reqNames[i];
+		   var val = req[name];
+		   if( val instanceof Array ) val = val.join();
+		   if( i ) s += "&";
+		   s += name+"="+decodeURI(val);
+	   }
+	   s += magic;//||SIG_MAGIC;
+	  // print("MD5原文 "+s);
+	  return utils.md5LowerCaseHex(s);
 }
 
 function encryptTripleDES(pid,key,iv){
@@ -222,5 +314,39 @@ function getStrByUrl(url)
     }
    return url;   
 } 
-          
+
+
+/*
+-----------
+*/
+var document = {};
+function execTripleDES(pid,code){
+	var curl = "https://www.yangshipin.cn/#/tv/home?pid="+pid;
+	var cref = "";//https://www.yangshipin.cn/#/tv/home?pid="+pid;
+	document.URL = curl;
+	document.referrer = cref;
+	const FuncCanvasPrefix = "function getCanvas()"; 
+	var p = code.indexOf(FuncCanvasPrefix);
+	if( p<0 )
+		return null;
+	p += FuncCanvasPrefix.length;
+	for(;code.charCodeAt(p)<=0x20;p++)
+		;
+	if( code.charCodeAt(p)!=123 ) // "{"
+	   return null;	
+	code = code.substring(0,p+1)+" return 'YSPANGLE(Intel,Intel(R)Iris(R)XeGraphics(0x0000A7A0)Direct3D11vs_5_0ps_5_0,D3D11)';"+ code.substring(p+1);
+	//print(code);
+	return eval(code);  
+}
+     
+function test(){
+	var s = genSignature({
+		pid: "600001859",
+		guid: "lqce65cx_pbamyg8qwje",
+		"appid": "ysp_pc",
+		"rand_str": "KlriNjkYcB" 
+	},"Q0uVOpuUpXTOUwRn");
+	// 8eb46c2a4c71e022235147a78bf6a9a2
+		print(s); 
+}          
 
