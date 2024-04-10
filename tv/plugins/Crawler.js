@@ -17,8 +17,13 @@ function loadDef(defUrl){
 	if( defs ) return defs;
 	var defText = utils.httpGetAsString(utils.toAbsoluteURL(_scriptURL,defUrl));
 	defs =  cacheDefs[defUrl] = JSON.parse(defText);
+	var contentUrl = null;
 	for(var defName in defs){
 		var def = defs[defName];
+		if( defName=="contentUrl" ){
+			contentUrl = def;
+			continue;
+		}
 		if( typeof(def.filterExp)=="string" )
 		    def.filterExp =  new RegExp(def.filterExp);
 		if( typeof(def.bodyFilterExp)=="string" )
@@ -30,8 +35,19 @@ function loadDef(defUrl){
 		    def.urlMatcherRegExp =  new RegExp(def.urlMatcherRegExp);      
 		        
 	}
+	if( contentUrl ){
+		delete  defs.contentUrl;
+		for(var defName in defs){
+			var def = defs[defName];
+			if( !def.contentUrl )
+			    def.contentUrl = contentUrl;
+		}
+	}
 	return defs;
 }
+
+/*
+*/
 function load(url){
 	var p = url.indexOf(':');
 	if( p<0 )
@@ -42,10 +58,14 @@ function load(url){
 	for(;url.length>0 && url[0]=='/';)
 	   url = url.substring(1);
 	p = url.indexOf(';');
-	if( p<0 )
-	   return null;
-	var defUrl = url.substring(0,p), defType;
-	    url = url.substring(p+1);
+	var defUrl, defType, contentUrl ;
+	if( p>=0 ) {   
+	    defUrl = url.substring(0,p);
+	    contentUrl = url.substring(p+1);
+	 } else {
+		 defUrl = url;
+		 contentUrl = null;
+	 }
 	p = defUrl.indexOf('#');
 	if( p>0 ){
 		defType = defUrl.substring(p+1);  // List, List2, MediaSource
@@ -68,13 +88,25 @@ function load(url){
 		//defType : defType,
 		defs : defsA,
 		def : defsA[0],
-		content: utils.httpGetAsString(url,0x408)
+		contentUrl : contentUrl
+		//content: url?utils.httpGetAsString(url,0x408):null
 	};
 //	print("defText="+defText);
 //	print("defType="+defType);
 }
 
+function loadContent(url,cache){
+	return catch[url] 
+		|| ( catch[url] = utils.httpGetAsString(url,0x408))
+		;   
+}
 
+function loadHTMLDoc(url,cache){
+	  const  key = "[HTML-DOC]"+url;
+	  return catch[key]  
+	     || ( catch[key]  = utils.newHTMLDocument(loadContent(url,cache)) )
+	    ; 
+}
 
 
 function prepareMediaSource(url,params){
@@ -82,20 +114,21 @@ function prepareMediaSource(url,params){
 	if( !v )
 	   return ;
 	const def = v.def;   
+	const content = loadContent(v.contentUrl||v.def.contentUrl,{});
 //print(v.def.urlMatcherRegExp)	   
     if( def.urlMatcherRegExp ){
-		var r = def.urlMatcherRegExp;
+		const r = def.urlMatcherRegExp;
 //print(v.content);		
-		v = r.exec(v.content);
+		v = r.exec(content);
 		if( v && v.length>1 ){
 			return v[1];
 		}
 		return null;
 	} else if( def.htmlSelector ){
-		var doc = utils.newHTMLDocument(v.content);
-		var e = doc.getBody().querySelector(def.htmlSelector);
+		const doc = utils.newHTMLDocument(content);
+		const e = doc.getBody().querySelector(def.htmlSelector);
 		if( !e ) return null;
-		var tagName = e.getTagName().toUpperCase();
+		const tagName = e.getTagName().toUpperCase();
 		if( tagName=="VIDEO" ){
 			return e.getAttribute("src");
 		}
@@ -110,27 +143,27 @@ function loadMenus(url,params){
 	if( !v )
 	   return ;
 //if(_debug) print(v.content);	   
-	return loadMenus4Def(v.defs,v.content,null,null);   
+    const contentCache = {};
+	return loadMenus4Def(v.defs,v.contentUrl,contentCache,null);   
 }
 
-function loadMenus4Def(defs,content,doc,macros){
+function loadMenus4Def(defs,contentUrl,contentCache,macros){
 	if( !defs )
 	    return;
 	if( ! ( defs instanceof Array) )
 	     defs = [defs];   
 	if( defs[0].htmlSelector ){
-		 if( !doc )
-		 	doc = utils.newHTMLDocument(content);
-		return loadMenus4HtmlSelector(defs,content,doc,macros);
+		return loadMenus4HtmlSelector(defs,contentCache,macros);
 	}   
 }
 
 var RegMacroID = /\$\{(\w|\.|\-)+\}/g;
-function  loadMenus4HtmlSelector(defs,content,doc,macros){
+function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 		var items = [];
     //for(var i=0;i<defs.length;i++)
     for(var def of defs)
     {
+		const doc = loadHTMLDoc(contentUrl||def.contentUrl,contentCache);
 		//var def = defs[i];
 	//print("defName="+defName+","+def.selector);
 	   	var bodys ;
@@ -257,7 +290,7 @@ function  loadMenus4HtmlSelector(defs,content,doc,macros){
 					newMacro[n] = macros[n];
 				}
 				newMacro.PMENUDOMIDX = i;
-				item.items = loadMenus4Def(def.items,content,doc,newMacro);
+				item.items = loadMenus4Def(def.items,contentUrl,contentCache,newMacro);
 			}
 			items.push(item);  
 			//urlE.getAttribute("href");
