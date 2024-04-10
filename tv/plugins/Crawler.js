@@ -5,7 +5,8 @@
  
  crawler-list:tv/ainm.json;http://ainm.cc/c/m/
 */
-var cacheDefs = {};
+const cacheDefs = {};
+const RegMacroID = /\$\{(\w|\.|\-)+\}/g;
 /*
 @param defUrl  xvideo/jieav.json
 @return def
@@ -157,7 +158,7 @@ function loadMenus4Def(defs,contentUrl,contentCache,macros){
 	}   
 }
 
-var RegMacroID = /\$\{(\w|\.|\-)+\}/g;
+
 function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 		var items = [];
     //for(var i=0;i<defs.length;i++)
