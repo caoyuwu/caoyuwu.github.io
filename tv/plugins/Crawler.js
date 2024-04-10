@@ -90,7 +90,7 @@ function prepareMediaSource(url,params){
 		}
 		return null;
 	} else if( def.htmlSelector ){
-		var doc = utils.newHTMLDocument(def.content);
+		var doc = utils.newHTMLDocument(v.content);
 		var e = doc.getBody().querySelectorAll(def.htmlSelector);
 		var tagName = e.getTagName().toUpperCase();
 		if( tagName=="VIDEO" ){
