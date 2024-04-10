@@ -10,6 +10,7 @@
 //      红松  极限电影(jstv)
 "setChannelNum=4000",
 
+
 "z88.ubtvfans.com-松视1,https://z88.ubtvfans.com:443/live/rx3/402/2d5f45ef7b7b90e9b47c6963be6d5120/index.m3u8??[proxy=*]",
 "z88.ubtvfans.com-松视2,https://z88.ubtvfans.com:443/live/rx3/403/169cf37c3b80aa73066703f16f161f7d/index.m3u8??[proxy=*]",
 "z88.ubtvfans.com-松视3,https://z88.ubtvfans.com:443/live/rx3/404/f879380802739b846ed31d934c19b4de/index.m3u8??[proxy=*]",
@@ -26,6 +27,9 @@
 "玩美台,http://live.redtraffic.xyz:80/pov.m3u8",
 "限制级,http://cdn.adultiptv.net/blonde.m3u8?streamType=livеhls",
 
+"iptvxxx.net-hardcore,http://play.iptvxxx.net/hardcore.m3u8",
+"iptvxxx.net-gay,http://play.iptvxxx.net/gay.m3u8",
+"iptvxxx.net-gangbang,http://play.iptvxxx.net/gangbang.m3u8",
 
 "东热01,https://video1.rhsj520.com/nyrm3/2011225/DR/n0011/index.m3u8",
 "东热02,https://video1.rhsj520.com/nyrm3/2011225/DR/n0010/index.m3u8",
@@ -187,8 +191,8 @@
 	]
 	},	
 	{label:"1888网-x直播源","locked":1,"items":"@crawler-list:xvideo/yibababa18+.json;https://www.yibababa.com/vod"},
-	//{label:"www.jieav.com","locked":1,items:"@crawler-list:xvideo/jieav.json;https://www.jieav.com"},
-	//{label:"www.tasexy.com","locked":1,items:"@crawler-list:xvideo/tasexy.json;https://www.tasexy.com/list.html"},
+	{label:"www.jieav.com","locked":1,items:"@crawler-list:xvideo/jieav.json;https://www.jieav.com"},
+	{label:"www.tasexy.com","locked":1,items:"@crawler-list:xvideo/tasexy.json;https://www.tasexy.com/list.html"},
 
 
 //{label:"http://ich.vaiwan.com/qun/",locked:1,items:"@webdirlist:http://ich.vaiwan.com/qun/"},
