@@ -1,0 +1,13 @@
+{
+	"List":{
+		"htmlSelector":">body > div#wlds > div.nav-box > ul >li  > a ",
+		"url" : null,
+		"items":{
+			"htmlBodySelector" : ">body > div#wlds > div#wlds-bd  div#tabBox1-bd >div",
+			 "bodyFilterMatch":"${HTMLDOMCHILDIDX}",
+			 "bodyFilterVal":"${PMENUDOMIDX}",
+			"htmlSelector":">div  ul > li  a"
+		}
+		
+	}
+}

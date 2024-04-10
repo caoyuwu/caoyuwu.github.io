@@ -2,14 +2,31 @@
  http://caoyuwu.eu.org/tv/plugins/Crawler.js
  crawler-list://xvideo/jieav.json;https://www.jieav.com
  crawler-list://xvideo/jieav.json#List2;https://www.jieav.com/1/index.html
- crawler://-https://www.jieav.com/1/index.html?xxx
+ 
+ crawler-list:tv/ainm.json;http://ainm.cc/c/m/
 */
 var cacheDefs = {};
+/*
+@param defUrl  xvideo/jieav.json
+  
+*/
 function loadDef(defUrl){
 	var defs = cacheDefs[defUrl];
 	if( defs ) return defs;
 	var defText = utils.httpGetAsString(utils.toAbsoluteURL(_scriptURL,defUrl));
-	return  cacheDefs[defUrl] = JSON.parse(defText);
+	defs =  cacheDefs[defUrl] = JSON.parse(defText);
+	for(var defName in defs){
+		var def = defs[defName];
+		if( typeof(def.filterExp)=="string" )
+		    def.filterExp =  new RegExp(def.filterExp);
+		if( typeof(def.bodyFilterExp)=="string" )
+		    def.bodyFilterExp =  new RegExp(def.bodyFilterExp);
+		    //def.matcherRegExpByContent
+		 if( typeof(def.matcherRegExpByContent)=="string" )
+		    def.matcherRegExpByContent =  new RegExp(def.matcherRegExpByContent);   
+		        
+	}
+	return defs;
 }
 function load(url){
 	var p = url.indexOf(':');
@@ -27,8 +44,8 @@ function load(url){
 	    url = url.substring(p+1);
 	p = defUrl.indexOf('#');
 	if( p>0 ){
-		defType = defUrl.substring(p+1);
-		defUrl = defUrl.substring(0,p);
+		defType = defUrl.substring(p+1);  // List, List2, MediaSource
+		defUrl = defUrl.substring(0,p); // xxxx.json
 	} else
 	{
 		defType = forList ? "List" : "MediaSource";
@@ -78,25 +95,80 @@ function loadMenus(url,params){
 	var v = load(url);
 	if( !v )
 	   return ;
-	if( v.defs[0].htmlSelector ){
-		return loadMenus4HtmlSelector(v.defs,v.content);
+//if(_debug) print(v.content);	   
+	return loadMenus4Def(v.defs,v.content,null,null);   
+}
+
+function loadMenus4Def(defs,content,doc,macros){
+	if( !defs )
+	    return;
+	if( ! ( defs instanceof Array) )
+	     defs = [defs];   
+	if( defs[0].htmlSelector ){
+		 if( !doc )
+		 	doc = utils.newHTMLDocument(content);
+		return loadMenus4HtmlSelector(defs,content,doc,macros);
 	}   
 }
 
-function  loadMenus4HtmlSelector(defs,content){
-	var  doc = utils.newHTMLDocument(content);   
+var RegMacroID = /\$\{(\w|\.|\-)+\}/g;
+function  loadMenus4HtmlSelector(defs,content,doc,macros){
 		var items = [];
-    for(var i=0;i<defs.length;i++){
-		var def = defs[i];
-		
-	//print("defName="+defName+","+def.selector);	
-		var ea = doc.getBody().querySelectorAll(def.htmlSelector);
+    //for(var i=0;i<defs.length;i++)
+    for(var def of defs)
+    {
+		//var def = defs[i];
+	//print("defName="+defName+","+def.selector);
+	   	var bodys ;
+//if(_debug) print("  ;htmlBodySelector="+def.htmlBodySelector);	   	
+	   	if( def.htmlBodySelector ) {
+			  bodys = []; 
+			   var ea = doc.getBody().querySelectorAll(def.htmlBodySelector);
+ //if(_debug) print("ea.length="+ea.length+"  ;htmlBodySelector="+def.htmlBodySelector);			    
+			   for(var i=0;i<ea.length;i++){
+				   var replaceFunc = function($0){
+					   var id = $0.substring(2,$0.length-1);
+					     switch( id ){
+							 case "HTMLDOMCHILDIDX":
+							    return ""+i;
+							 default:
+								if( macros && macros[id]!=null ){
+									return macros[id];
+								}
+							  break; 
+						}
+					   return $0;
+					};
+				   if( def.bodyFilterExp ){
+					  var filterVal = def.bodyFilterVal.replace(RegMacroID,replaceFunc);
+				      if( !def.bodyFilterExp .test(filterVal) )
+				        continue;
+				   }	
+				   if( def.bodyFilterMatch ){
+					   var filterVal = def.bodyFilterVal.replace(RegMacroID,replaceFunc);
+					   var filterMatch = def.bodyFilterMatch.replace(RegMacroID,replaceFunc);
+			//if(_debug) print("filterVal="+filterVal+",filterMatch="+filterMatch);	 		   
+					   if( filterMatch!=filterVal ){
+						   continue;
+					   }
+				   }
+				   bodys.push(ea[i]);	
+			   }
+		 } else
+		 {
+			 bodys = [doc.getBody()];
+		 }
+	//if(_debug) print("bodys.length="+bodys.length);	 
+	for( var body of bodys)	{ 
+		var ea = body.querySelectorAll(def.htmlSelector); 
+		//htmlSelector(doc.getBody(),def.htmlSelector,macros);//doc.getBody().querySelectorAll(def.htmlSelector);
 		//var titSelector = def
 	//print(ea.length);	
 		for(var i=0;i<ea.length;i++){
 			//var headE = ea[i].querySelector(">div > h3");
+			// "matcherRegExpByContent":"(.+)\\[18\\+\\](?::|：)\\s*((https|http):\\/\\/.+)"
 			if( def.matcherRegExpByContent ){
-				var r = new RegExp(def.matcherRegExpByContent);
+				var r = def.matcherRegExpByContent;
 //print(v.content);		
 				var v = r.exec(ea[i].getAllNodeValue());
 				if( v && v.length>=3 ){
@@ -122,25 +194,48 @@ function  loadMenus4HtmlSelector(defs,content){
 					case "URLDOM.attr.title": return urlE.getAttribute("title");
 					case "url": return url;
 					case "title": return title;
+					default:
+					{
+						if( macros && macros[id]!=null ){
+							return macros[id];
+						}
+						break;
+					}
 				}
 				return $0;
 			};
-			title = def.title ? def.title.replace(/\$\{(\w|\.|\-)+\}/g,replaceFunc) 
-							  : titE.getAllNodeValue(); 
-			if( def.url )				  
-		   	   url = def.url.replace(/\$\{(\w|\.|\-)+\}/g,replaceFunc);
+			title = def.title ? def.title.replace(RegMacroID,replaceFunc) 
+							  : titE.getAllNodeValue();
+			if( def.url===null )
+				url =  null;			   
+			else if( def.url  )				  
+		   	   url = def.url.replace(RegMacroID,replaceFunc);
 		   	else {
-			   def.url = urlE.getAttribute("href"); // href	   
+			   url = urlE.getAttribute("href"); // href	   
 			}   
 			if( def.filterExp ){
 				//var filterE = new RegExp(def.filterExp);
-				var filterVal = def.filterVal.replace(/\$\{(\w|\.|\-)+\}/g,replaceFunc);
-				if( !new RegExp(def.filterExp) .test(filterVal) )
+				var filterVal = def.filterVal.replace(RegMacroID,replaceFunc);
+				if( !def.filterExp .test(filterVal) )
 				   continue;
 			}
-			items.push({url:url,title:title.trim()});  
+			var item = {title:title.trim()};
+			if( url && url!=""  )
+				item.url = url;
+			if( def.items ){
+				var newMacro = {};
+				if( macros) for(var n in macros ){
+					newMacro[n] = macros[n];
+				}
+				newMacro.PMENUDOMIDX = i;
+				item.items = loadMenus4Def(def.items,content,doc,newMacro);
+			}
+			items.push(item);  
 			//urlE.getAttribute("href");
-		}
+		} // forea.length
+	 }// bodys
 	}
 		return items;
 }
+
+
