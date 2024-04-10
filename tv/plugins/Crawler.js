@@ -88,6 +88,14 @@ function prepareMediaSource(url,params){
 			return v[1];
 		}
 		return null;
+	} else if( def.htmlSelector ){
+		var doc = utils.newHTMLDocument(content);
+		var e = doc.getBody().querySelectorAll(def.htmlSelector);
+		var tagName = e.getTagName().toUpperCase();
+		if( tagName=="VIDEO" ){
+			return e.getAttribute("src");
+		}
+		
 	}	   
 }
 
