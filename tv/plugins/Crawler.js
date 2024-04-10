@@ -153,7 +153,7 @@ function loadMenus4Def(defs,contentUrl,contentCache,macros){
 	if( ! ( defs instanceof Array) )
 	     defs = [defs];   
 	if( defs[0].htmlSelector ){
-		return loadMenus4HtmlSelector(defs,contentCache,macros);
+		return loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros);
 	}   
 }
 
