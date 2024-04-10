@@ -8,6 +8,8 @@
 var cacheDefs = {};
 /*
 @param defUrl  xvideo/jieav.json
+@return def
+	 def.options#1 : 
   
 */
 function loadDef(defUrl){
@@ -23,7 +25,7 @@ function loadDef(defUrl){
 		    def.bodyFilterExp =  new RegExp(def.bodyFilterExp);
 		    //def.matcherRegExpByContent
 		 if( typeof(def.matcherRegExpByContent)=="string" )
-		    def.matcherRegExpByContent =  new RegExp(def.matcherRegExpByContent);   
+		    def.matcherRegExpByContent =  new RegExp(def.matcherRegExpByContent,"g");   
 		        
 	}
 	return defs;
@@ -139,19 +141,19 @@ function  loadMenus4HtmlSelector(defs,content,doc,macros){
 						}
 					   return $0;
 					};
-				   if( def.bodyFilterExp ){
+				if( def.bodyFilterVal ){	
 					  var filterVal = def.bodyFilterVal.replace(RegMacroID,replaceFunc);
-				      if( !def.bodyFilterExp .test(filterVal) )
+				   if( def.bodyFilterExp && !def.bodyFilterExp .test(filterVal) ){
 				        continue;
 				   }	
 				   if( def.bodyFilterMatch ){
-					   var filterVal = def.bodyFilterVal.replace(RegMacroID,replaceFunc);
 					   var filterMatch = def.bodyFilterMatch.replace(RegMacroID,replaceFunc);
 			//if(_debug) print("filterVal="+filterVal+",filterMatch="+filterMatch);	 		   
 					   if( filterMatch!=filterVal ){
 						   continue;
 					   }
 				   }
+				   }//def.bodyFilterVal
 				   bodys.push(ea[i]);	
 			   }
 		 } else
@@ -163,22 +165,10 @@ function  loadMenus4HtmlSelector(defs,content,doc,macros){
 		var ea = body.querySelectorAll(def.htmlSelector); 
 		//htmlSelector(doc.getBody(),def.htmlSelector,macros);//doc.getBody().querySelectorAll(def.htmlSelector);
 		//var titSelector = def
-	//print(ea.length);	
+//if(_debug)print("ea.length="+ea.length);	
 		for(var i=0;i<ea.length;i++){
 			//var headE = ea[i].querySelector(">div > h3");
 			// "matcherRegExpByContent":"(.+)\\[18\\+\\](?::|：)\\s*((https|http):\\/\\/.+)"
-			if( def.matcherRegExpByContent ){
-				var r = def.matcherRegExpByContent;
-//print(v.content);		
-				var v = r.exec(ea[i].getAllNodeValue());
-				if( v && v.length>=3 ){
-					items.push({url:v[2],title:v[1]});  
-				}
-				continue;
-				   
-			}
-			var titE = def.titSelector ? ea[i].querySelector(def.titSelector) : ea[i];
-			var urlE = def.urlSelector ? ea[i].querySelector(def.urlSelector) : ea[i];
 			var title = "";//
 			var url = "";
 			var replaceFunc = function($0){
@@ -194,6 +184,8 @@ function  loadMenus4HtmlSelector(defs,content,doc,macros){
 					case "URLDOM.attr.title": return urlE.getAttribute("title");
 					case "url": return url;
 					case "title": return title;
+					case "DOMCONTENT": return ea[i].getAllNodeValue().trim();
+					case "PREVDOMID": return i>0 ? ea[i-1].getAttribute("id") : null; 
 					default:
 					{
 						if( macros && macros[id]!=null ){
@@ -204,6 +196,8 @@ function  loadMenus4HtmlSelector(defs,content,doc,macros){
 				}
 				return $0;
 			};
+			var titE = def.titSelector ? ea[i].querySelector(def.titSelector) : ea[i];
+			var urlE = def.urlSelector ? ea[i].querySelector(def.urlSelector) : ea[i];
 			title = def.title ? def.title.replace(RegMacroID,replaceFunc) 
 							  : titE.getAllNodeValue();
 			if( def.url===null )
@@ -213,11 +207,34 @@ function  loadMenus4HtmlSelector(defs,content,doc,macros){
 		   	else {
 			   url = urlE.getAttribute("href"); // href	   
 			}   
-			if( def.filterExp ){
+			if( def.filterVal ){
+			    var filterVal = def.filterVal.replace(RegMacroID,replaceFunc);
+			   if( def.filterExp && !def.filterExp .test(filterVal) ){
 				//var filterE = new RegExp(def.filterExp);
-				var filterVal = def.filterVal.replace(RegMacroID,replaceFunc);
-				if( !def.filterExp .test(filterVal) )
 				   continue;
+			    }
+				if( def.filterMatch ){
+				//var filterE = new RegExp(def.filterExp);
+				    var filterMatch = def.filterMatch.replace(RegMacroID,replaceFunc);
+				   if( filterMatch!=filterVal )
+				     continue;
+			    }
+			}
+			
+			if( def.matcherRegExpByContent ){
+				var r = def.matcherRegExpByContent;
+//print(v.content);		
+                 var text = ea[i].getAllNodeValue().trim();//.split("");
+                for(;;){ 
+				var v = r.exec(text);
+				if( !v )
+				   break;
+				if( v.length>=3 ){
+					items.push({url:v[2],title:v[1]});  
+				}
+				}
+				continue;
+				   
 			}
 			var item = {title:title.trim()};
 			if( url && url!=""  )

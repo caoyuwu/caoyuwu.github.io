@@ -1,6 +1,9 @@
 {
 	"List":{
-		"htmlSelector":">body > div#page >div#main div#primary > div#content article p",
-		"matcherRegExpByContent":"(.+)\\[18\\+\\](?::|：)\\s*((https|http):\\/\\/.+)"
+		"htmlSelector":">body div.w3-container p",
+		"matcherRegExpByContent":"([^\n]+)(?::|：)\\s*((https|http):\\/\\/[^\n]+)",
+		"filterMatch":"18",
+		"filterVal":"${PREVDOMID}"
+		
 	}
 }	
