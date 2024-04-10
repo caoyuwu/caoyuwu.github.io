@@ -79,9 +79,10 @@ function prepareMediaSource(url,params){
 	var v = load(url);
 	if( !v )
 	   return ;
+	const def = v.def;   
 //print(v.def.urlMatcherRegExp)	   
-    if( v.def.urlMatcherRegExp ){
-		var r = new RegExp(v.def.urlMatcherRegExp);
+    if( def.urlMatcherRegExp ){
+		var r = new RegExp(def.urlMatcherRegExp);
 //print(v.content);		
 		v = r.exec(v.content);
 		if( v && v.length>1 ){
@@ -89,7 +90,7 @@ function prepareMediaSource(url,params){
 		}
 		return null;
 	} else if( def.htmlSelector ){
-		var doc = utils.newHTMLDocument(content);
+		var doc = utils.newHTMLDocument(def.content);
 		var e = doc.getBody().querySelectorAll(def.htmlSelector);
 		var tagName = e.getTagName().toUpperCase();
 		if( tagName=="VIDEO" ){
