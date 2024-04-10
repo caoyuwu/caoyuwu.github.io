@@ -93,7 +93,8 @@ function prepareMediaSource(url,params){
 		return null;
 	} else if( def.htmlSelector ){
 		var doc = utils.newHTMLDocument(v.content);
-		var e = doc.getBody().querySelectorAll(def.htmlSelector);
+		var e = doc.getBody().querySelector(def.htmlSelector);
+		if( !e ) return null;
 		var tagName = e.getTagName().toUpperCase();
 		if( tagName=="VIDEO" ){
 			return e.getAttribute("src");
