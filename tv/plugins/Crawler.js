@@ -26,6 +26,8 @@ function loadDef(defUrl){
 		    //def.matcherRegExpByContent
 		 if( typeof(def.matcherRegExpByContent)=="string" )
 		    def.matcherRegExpByContent =  new RegExp(def.matcherRegExpByContent,"g");   
+		 if( typeof(def.urlMatcherRegExp)=="string" )
+		    def.urlMatcherRegExp =  new RegExp(def.urlMatcherRegExp);      
 		        
 	}
 	return defs;
@@ -82,7 +84,7 @@ function prepareMediaSource(url,params){
 	const def = v.def;   
 //print(v.def.urlMatcherRegExp)	   
     if( def.urlMatcherRegExp ){
-		var r = new RegExp(def.urlMatcherRegExp);
+		var r = def.urlMatcherRegExp;
 //print(v.content);		
 		v = r.exec(v.content);
 		if( v && v.length>1 ){
