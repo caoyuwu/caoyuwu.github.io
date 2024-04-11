@@ -20,7 +20,8 @@
 	"MediaSource":{
 		  "xxxhtmlSelector":">body  video",
 		  "urlMatcherRegExp":[
-		      "\\<video\\>.*src\\=\\\"((https|http):\\/\\/.+)\\\".*\\<\\/video\\>"
+		      "\\<video\\>.*src\\=\\\"((https|http):\\/\\/.+)\\\".*\\<\\/video\\>",
+		      "new HlsJsPlayer\\(\\{.*\\\"url\\\"\\:\\\"((https|http):\\/\\/[^\"]+)\\\".*\\}.*\\)"
 		  ]
 	}
 	
