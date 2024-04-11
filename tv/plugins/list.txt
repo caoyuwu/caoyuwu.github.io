@@ -52,7 +52,7 @@ jstv,JSTV.js
 
 seal1226|seal1226-list,Seal1226.js
 
-crawler|crawler-list,Crawler.js 
+crawler|crawler-list|crawler-urls,Crawler.js 
 
 testvideo|test-menu-list,Test.js,x=1&y=2
 
