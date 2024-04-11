@@ -2,7 +2,7 @@
 	"List":{
 		"contentUrl":"https://www.jieav.com",
 		"htmlSelector":">body > div#menu ul#menuul > li > a",
-		"url": "@crawler-list://xvideo/jieav.json#List2;https://www.jieav.com${URLDOM.attr.href}",
+		"items": "@crawler-list://xvideo/jieav.json#List2;https://www.jieav.com${URLDOM.attr.href}",
 		"filterExp":"/index\\.html$",
 		"filterVal":"${URLDOM.attr.href}"
 	},
