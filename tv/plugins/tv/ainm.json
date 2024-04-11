@@ -1,13 +1,14 @@
 {
 	"List":{
+	    "contentUrl" : "http://ainm.cc/c/m/",
 		"htmlSelector":">body > div#wlds > div.nav-box > ul >li  > a ",
 		"url" : null,
 		"items":{
 			"htmlBodySelector" : ">body > div#wlds > div#wlds-bd  div#tabBox1-bd >div",
 			 "bodyFilterMatch":"${HTMLDOMCHILDIDX}",
 			 "bodyFilterVal":"${PMENUDOMIDX}",
-			"htmlSelector":">div  ul > li  a",
-			"url":"crawler:tv/ainm.json;${URLDOM.attr.href}"
+			 "htmlSelector":">div  ul > li  a",
+		 	 "url":"crawler:tv/ainm.json;${URLDOM.attr.href}"
 		}
 		
 	},

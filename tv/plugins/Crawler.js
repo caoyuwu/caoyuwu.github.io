@@ -13,18 +13,33 @@ const RegMacroID = /\$\{(\w|\.|\-)+\}/g;
 	 def.options#1 : 
   
 */
+const DefRegExpIds = ["filterExp","bodyFilterExp","matcherRegExpByContent/g","urlMatcherRegExp","urlLineMatcherRegExp"];
+
 function loadDef(defUrl){
 	var defs = cacheDefs[defUrl];
 	if( defs ) return defs;
 	var defText = utils.httpGetAsString(utils.toAbsoluteURL(_scriptURL,defUrl));
 	defs =  cacheDefs[defUrl] = JSON.parse(defText);
 	var contentUrl = null;
-	for(var defName in defs){
-		var def = defs[defName];
+	for(const defName in defs){
+		const def = defs[defName];
 		if( defName=="contentUrl" ){
 			contentUrl = def;
 			continue;
 		}
+		def._name = defName;
+		for( var id of DefRegExpIds){
+			const p = id.lastIndexOf("/");
+			var flags = null;
+			if( p>0 ){
+				flags = id.substring(p+1);
+				id = id.substring(0,p);
+			}
+			if( typeof(def[id])=="string" ){
+		    	def[id] = flags ? new RegExp(def[id],flags)  : new RegExp(def[id]);
+		    }
+		}
+		/*
 		if( typeof(def.filterExp)=="string" )
 		    def.filterExp =  new RegExp(def.filterExp);
 		if( typeof(def.bodyFilterExp)=="string" )
@@ -34,16 +49,20 @@ function loadDef(defUrl){
 		    def.matcherRegExpByContent =  new RegExp(def.matcherRegExpByContent,"g");   
 		 if( typeof(def.urlMatcherRegExp)=="string" )
 		    def.urlMatcherRegExp =  new RegExp(def.urlMatcherRegExp);      
-		        
+		  */      
 	}
 	if( contentUrl ){
 		delete  defs.contentUrl;
 		for(var defName in defs){
-			var def = defs[defName];
+			const def = defs[defName];
 			if( !def.contentUrl )
 			    def.contentUrl = contentUrl;
 		}
 	}
+/*	
+ if(_debug ){
+	 print("defUrl="+defUrl+":defs="+JSON.stringify(defs));
+ } */	
 	return defs;
 }
 
@@ -59,7 +78,7 @@ function load(url){
 	for(;url.length>0 && url[0]=='/';)
 	   url = url.substring(1);
 	p = url.indexOf(';');
-	var defUrl, defType, contentUrl ;
+	var defUrl, defType, contentUrl, params ;
 	if( p>=0 ) {   
 	    defUrl = url.substring(0,p);
 	    contentUrl = url.substring(p+1);
@@ -67,6 +86,21 @@ function load(url){
 		 defUrl = url;
 		 contentUrl = null;
 	 }
+	if( defUrl.charCodeAt(defUrl.length-1)==93) // ']'
+	{
+		p = defUrl.lastIndexOf('?[');
+		if( p>0 ){
+			params = {};
+			var a = defUrl.substring(p+2,defUrl.length-1).split("&");
+			defUrl =defUrl.substring(0,p);
+			for(var s of a){
+				p = s.indexOf("=");
+				if( p>0) {
+				   params[s.substring(0,p)] = encodeURIComponent(s.substring(p+1));	
+				}
+			} 
+		}
+	} 
 	p = defUrl.indexOf('#');
 	if( p>0 ){
 		defType = defUrl.substring(p+1);  // List, List2, MediaSource
@@ -75,6 +109,7 @@ function load(url){
 	{
 		defType = forList ? "List" : "MediaSource";
 	}   
+//if(_debug) print("params="+ JSON.stringify(params)+",contentUrl="+contentUrl+",defUrl="+defUrl);	    
 	var defs = loadDef(defUrl);
 	var defsA = [];
 	for(var defName in defs){
@@ -89,7 +124,8 @@ function load(url){
 		//defType : defType,
 		defs : defsA,
 		def : defsA[0],
-		contentUrl : contentUrl
+		contentUrl : contentUrl,
+		params : params
 		//content: url?utils.httpGetAsString(url,0x408):null
 	};
 //	print("defText="+defText);
@@ -97,25 +133,49 @@ function load(url){
 }
 
 function loadContent(url,cache){
-	return catch[url] 
-		|| ( catch[url] = utils.httpGetAsString(url,0x408))
+	return cache[url] 
+		|| ( cache[url] = utils.httpGetAsString(url,0x408))
 		;   
 }
 
 function loadHTMLDoc(url,cache){
 	  const  key = "[HTML-DOC]"+url;
-	  return catch[key]  
-	     || ( catch[key]  = utils.newHTMLDocument(loadContent(url,cache)) )
+	  return cache[key]  
+	     || ( cache[key]  = utils.newHTMLDocument(loadContent(url,cache)) )
 	    ; 
 }
 
+function replaceMacro(s){
+	if( arguments.length<=1 || !s || s.indexOf("${")<0 ){
+		return s;
+	}
+	const macros = Array.prototype.slice.call(arguments,1);
+	const replaceFunc = function($0){
+			const id = $0.substring(2,$0.length-1);
+			for(const macro of macros){
+				if( !macro )
+				  	continue;
+				 var v;
+				 if( typeof(macro)=="function" ){
+					  v = macro(id);
+				 } else {	 	
+				 	v = macro[id];
+				 }
+				 if( v!==undefined )
+				    return v;
+
+			}		   
+		 return $0;
+	  };
+	  return s.replace(RegMacroID,replaceFunc);
+}
 
 function prepareMediaSource(url,params){
 	var v = load(url);
 	if( !v )
 	   return ;
 	const def = v.def;   
-	const content = loadContent(v.contentUrl||v.def.contentUrl,{});
+	const content = loadContent(replaceMacro(v.contentUrl||v.def.contentUrl,v.params),{});
 //print(v.def.urlMatcherRegExp)	   
     if( def.urlMatcherRegExp ){
 		const r = def.urlMatcherRegExp;
@@ -124,18 +184,43 @@ function prepareMediaSource(url,params){
 		if( v && v.length>1 ){
 			return v[1];
 		}
-		return null;
-	} else if( def.htmlSelector ){
+		//return null;
+	} 
+//if(_debug) print("def.htmlSelector="+def.htmlSelector);	
+	if( def.htmlSelector ){
 		const doc = utils.newHTMLDocument(content);
 		const e = doc.getBody().querySelector(def.htmlSelector);
-		if( !e ) return null;
-		const tagName = e.getTagName().toUpperCase();
-		if( tagName=="VIDEO" ){
-			return e.getAttribute("src");
+//if(_debug) print("e="+e);		
+		if( e ) {
+			const tagName = e.getTagName().toUpperCase();
+//if(_debug) print("tagName="+tagName);			
+			if( tagName=="VIDEO" ){
+				var src = e.getAttribute("src");
+				if( src )
+				   return src;
+				 /*
+				  ??? 获取不到  source
+				 */  
+				src = e.querySelector("source");
+		//if(_debug)print("src="+src);		
+				if( src && src.src ){
+					return src.src;
+				}   
+			}
+			
 		}
-		
 	}	   
 }
+
+function loadUrls(url,params)
+{
+	var v = load(url);
+	if( !v )
+	   return ;
+//if(_debug) print(v.content);	   
+    const contentCache = {};
+	return loadMenus4Def(v.defs,v.contentUrl,contentCache,v.params);   
+}	
 
 
 function loadMenus(url,params){
@@ -145,7 +230,7 @@ function loadMenus(url,params){
 	   return ;
 //if(_debug) print(v.content);	   
     const contentCache = {};
-	return loadMenus4Def(v.defs,v.contentUrl,contentCache,null);   
+	return loadMenus4Def(v.defs,v.contentUrl,contentCache,v.params);   
 }
 
 function loadMenus4Def(defs,contentUrl,contentCache,macros){
@@ -155,59 +240,65 @@ function loadMenus4Def(defs,contentUrl,contentCache,macros){
 	     defs = [defs];   
 	if( defs[0].htmlSelector ){
 		return loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros);
+	}
+	if( defs[0].linesByHtmlSelector ){
+		return loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros);		
 	}   
 }
 
+function _getBodys4HtmlBodySelector(def,doc,macros){
+	if( !def.htmlBodySelector ){
+		return [doc.getBody()];
+	}
+	if( def.htmlBodySelector.startsWith("@") ){
+		
+		return [macros[def.htmlBodySelector.substring(1)]];
+	}
+	bodys = []; 
+	   var ea = doc.getBody().querySelectorAll(def.htmlBodySelector);
+		 //if(_debug) print("ea.length="+ea.length+"  ;htmlBodySelector="+def.htmlBodySelector);			    
+	   for(var i=0;i<ea.length;i++){
+		   const macro1 = function(id){
+			     switch( id ){
+					 case "HTMLDOMCHILDIDX":
+					    return ""+i;
+				}
+			};
+		if( def.bodyFilterVal ){	
+			  const filterVal = replaceMacro(def.bodyFilterVal,macro1,macros);
+		     if( def.bodyFilterExp && !def.bodyFilterExp .test(filterVal) ){
+		        continue;
+		     }	
+		     if( def.bodyFilterMatch ){
+			   const filterMatch = replaceMacro(def.bodyFilterMatch,macro1,macros);
+	//if(_debug) print("filterVal="+filterVal+",filterMatch="+filterMatch);	 		   
+			   if( filterMatch!=filterVal ){
+				   continue;
+			   }
+		     }
+		   }//def.bodyFilterVal
+		   bodys.push(ea[i]);
+       }
+	return bodys;			   	
+}
 
 function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 		var items = [];
     //for(var i=0;i<defs.length;i++)
     for(var def of defs)
     {
-		const doc = loadHTMLDoc(contentUrl||def.contentUrl,contentCache);
+//if(_debug) print("  [loadMenus4HtmlSelector]def._name="+def._name+",contentUrl="+def.contentUrl);
+        const _contentUrl = replaceMacro(contentUrl||def.contentUrl,macros);			
+		const doc = loadHTMLDoc(_contentUrl,contentCache);
 		//var def = defs[i];
 	//print("defName="+defName+","+def.selector);
-	   	var bodys ;
+	   	const bodys = _getBodys4HtmlBodySelector(def,doc,macros);
 //if(_debug) print("  ;htmlBodySelector="+def.htmlBodySelector);	   	
-	   	if( def.htmlBodySelector ) {
-			  bodys = []; 
-			   var ea = doc.getBody().querySelectorAll(def.htmlBodySelector);
- //if(_debug) print("ea.length="+ea.length+"  ;htmlBodySelector="+def.htmlBodySelector);			    
-			   for(var i=0;i<ea.length;i++){
-				   var replaceFunc = function($0){
-					   var id = $0.substring(2,$0.length-1);
-					     switch( id ){
-							 case "HTMLDOMCHILDIDX":
-							    return ""+i;
-							 default:
-								if( macros && macros[id]!=null ){
-									return macros[id];
-								}
-							  break; 
-						}
-					   return $0;
-					};
-				if( def.bodyFilterVal ){	
-					  var filterVal = def.bodyFilterVal.replace(RegMacroID,replaceFunc);
-				   if( def.bodyFilterExp && !def.bodyFilterExp .test(filterVal) ){
-				        continue;
-				   }	
-				   if( def.bodyFilterMatch ){
-					   var filterMatch = def.bodyFilterMatch.replace(RegMacroID,replaceFunc);
-			//if(_debug) print("filterVal="+filterVal+",filterMatch="+filterMatch);	 		   
-					   if( filterMatch!=filterVal ){
-						   continue;
-					   }
-				   }
-				   }//def.bodyFilterVal
-				   bodys.push(ea[i]);	
-			   }
-		 } else
-		 {
-			 bodys = [doc.getBody()];
-		 }
+	   	
 	//if(_debug) print("bodys.length="+bodys.length);	 
-	for( var body of bodys)	{ 
+	for( var body of bodys)	{
+	//if(_debug) print("def.htmlBodySelector="+def.htmlBodySelector+"; bodys.length="+bodys.length);	 
+	//if(_debug) print("body="+body+";"+typeof(body)+"; def.htmlSelector="+def.htmlSelector);	
 		var ea = body.querySelectorAll(def.htmlSelector); 
 		//htmlSelector(doc.getBody(),def.htmlSelector,macros);//doc.getBody().querySelectorAll(def.htmlSelector);
 		//var titSelector = def
@@ -217,9 +308,8 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 			// "matcherRegExpByContent":"(.+)\\[18\\+\\](?::|：)\\s*((https|http):\\/\\/.+)"
 			var title = "";//
 			var url = "";
-			var replaceFunc = function($0){
-				//print("$0="+$0);	
-				var id = $0.substring(2,$0.length-1);
+			var urls = null;
+			const macros1 = function(id){
 				switch( id ){
 					case "URLDOM.attr.href": return urlE.getAttribute("href");
 					case "URLDOM.attr.href.name": {
@@ -233,35 +323,31 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 					case "DOMCONTENT": return ea[i].getAllNodeValue().trim();
 					case "PREVDOMID": return i>0 ? ea[i-1].getAttribute("id") : null; 
 					default:
-					{
-						if( macros && macros[id]!=null ){
-							return macros[id];
-						}
-						break;
-					}
+						 if( id.startsWith("URLDOM.attr.") ) {
+							 return urlE.getAttribute(id.substring(12));
+						 } 
 				}
-				return $0;
 			};
 			var titE = def.titSelector ? ea[i].querySelector(def.titSelector) : ea[i];
 			var urlE = def.urlSelector ? ea[i].querySelector(def.urlSelector) : ea[i];
-			title = def.title ? def.title.replace(RegMacroID,replaceFunc) 
+			title = def.title ? replaceMacro(def.title,macros1,macros)
 							  : titE.getAllNodeValue();
 			if( def.url===null )
 				url =  null;			   
 			else if( def.url  )				  
-		   	   url = def.url.replace(RegMacroID,replaceFunc);
+		   	   url = replaceMacro(def.url,macros1,macros);
 		   	else {
 			   url = urlE.getAttribute("href"); // href	   
 			}   
 			if( def.filterVal ){
-			    var filterVal = def.filterVal.replace(RegMacroID,replaceFunc);
+			    const filterVal = replaceMacro(def.filterVal,macros1,macros);
 			   if( def.filterExp && !def.filterExp .test(filterVal) ){
 				//var filterE = new RegExp(def.filterExp);
 				   continue;
 			    }
 				if( def.filterMatch ){
 				//var filterE = new RegExp(def.filterExp);
-				    var filterMatch = def.filterMatch.replace(RegMacroID,replaceFunc);
+				    const filterMatch = replaceMacro(def.filterMatch,macros1,macros);
 				   if( filterMatch!=filterVal )
 				     continue;
 			    }
@@ -285,20 +371,84 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 			var item = {title:title.trim()};
 			if( url && url!=""  )
 				item.url = url;
+			if( urls ) // todo
+			    item.urls = urls;
 			if( def.items ){
 				var newMacro = {};
 				if( macros) for(var n in macros ){
 					newMacro[n] = macros[n];
 				}
 				newMacro.PMENUDOMIDX = i;
-				item.items = loadMenus4Def(def.items,contentUrl,contentCache,newMacro);
+				newMacro.PMENUDOM = ea[i];
+				item.items = loadMenus4Def(def.items,_contentUrl,contentCache,newMacro);
 			}
 			items.push(item);  
 			//urlE.getAttribute("href");
-		} // forea.length
+		} // for ea.length
 	 }// bodys
-	}
+	} // defs
 		return items;
 }
 
-
+function  loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros){
+		var items = [];
+    //for(var i=0;i<defs.length;i++)
+    for(var def of defs)
+    {
+//if(_debug) print("  [loadMenus4HtmlSelector]def._name="+def._name+",contentUrl="+def.contentUrl);
+        const _contentUrl = replaceMacro(contentUrl||def.contentUrl,macros);			
+		const doc = loadHTMLDoc(_contentUrl,contentCache);
+		//var def = defs[i];
+	//print("defName="+defName+","+def.selector);
+	   	const bodys = _getBodys4HtmlBodySelector(def,doc,macros);
+	   for( var body of bodys)	{ 
+		  var ea = body.querySelectorAll(def.linesByHtmlSelector); 
+		//htmlSelector(doc.getBody(),def.htmlSelector,macros);//doc.getBody().querySelectorAll(def.htmlSelector);
+		//var titSelector = def
+//if(_debug)print("ea.length="+ea.length);	
+		  for(var i=0;i<ea.length;i++){
+				const lines = ea[i].getAllNodeValue().trim().split("\n");//.split("");
+				var lastGrpTit = null;
+				var lastSubItems = null;  var urlsByTit = null;
+				var r;
+				if( r=def.urlLineMatcherRegExp ){
+					for(var line of lines){
+						line = line.trim();
+						if( line=="" || line.charCodeAt(0)==35 ) // '#'
+						{
+							continue;
+						}
+						var v = r.exec(line);
+//if(_debug) print(line+" v="+v);						
+						if( v ){
+							if( !lastSubItems ){
+								lastSubItems = [];
+								items.push({title:lastGrpTit,items:lastSubItems});
+								urlsByTit = new Map();
+							}
+							const tit = v[1];
+							var o = urlsByTit.get(tit);
+							if( o ){
+								if( !o.urls ){
+									o.urls  = [o.url];
+									delete o.url;
+								}
+								o.urls.push(v[2]);
+							} else 
+							{
+								o = {title:tit,url:v[2]};//urls = [v[2]];
+								urlsByTit.set(tit,o);
+								lastSubItems.push(o);
+							}
+							//items.push({url:v[2],title:v[1]});  
+						} else {
+							lastGrpTit = line;
+							lastSubItems = null;
+						}
+					}
+				}   
+		  } //for ea.length
+	  } // bodys
+	}
+	return items;	 
+}

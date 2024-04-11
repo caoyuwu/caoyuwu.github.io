@@ -7,6 +7,11 @@ testvideo://1
  JSMediaDataSourcePrepare.main
 参数：
   _scriptURL 
+
+返回:{
+	label:"",
+	url:...
+} 
   
 */
 function prepareMediaSource(url,params){
@@ -35,7 +40,11 @@ function prepareMediaSource(url,params){
 	//print("a instanceof Uint8Array : "+(a instanceof Uint8Array)+", length="+a.length);
 }
 
-
+/*
+  return [
+	  {title, url}
+  ]
+*/
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
   print("TestMenuList: url = "+url);

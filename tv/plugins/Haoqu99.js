@@ -26,7 +26,7 @@ function loadUrls(url,params)
     var ulSelector = " > body > div#bd > div.col-sya.p-cols > div.p-col1 div.bx-syc div.bd div.tab-syb ul.tab-list-syb > li";
    var ea = doc.getBody().querySelectorAll(ulSelector);
    var  urls = [];
- print(ea.length);	
+ //print(ea.length);	
 	for(var i=0;i<ea.length;i++){
 		 var id = ea[i].getAttribute("data-player");
 		 if( !id )

@@ -1,5 +1,6 @@
 {
 	"List":{
+		"contentUrl":"https://www.tasexy.com/list.html",
 		"htmlSelector":">body > div.container >div.site > a",
 		"url": "@crawler-list://xvideo/tasexy.json#List2;https://www.tasexy.com${URLDOM.attr.href}",
 		"filterExp":"/list/\\d\\d\\d\\.html$",
