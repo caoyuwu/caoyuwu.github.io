@@ -2,7 +2,7 @@
 	"List":{
 		"contentUrl":"http://tv.haoqu99.com/",
 		"htmlSelector":">body div#bd > div.filter > div.bd >  dl.filter-area  ul.filter-list > li a",
-		"url": "@crawler-list:tv/haoqu99.json#List2;http://tv.haoqu99.com${URLDOM.attr.href}"
+		"items": "@crawler-list:tv/haoqu99.json#List2;http://tv.haoqu99.com${URLDOM.attr.href}"
 	},
 	"List2":{
 		"htmlSelector":" > body > div#bd > div.col-sya.p-cols > div.p-col1  div.channel-list > div.bx-sya > div.bd",
