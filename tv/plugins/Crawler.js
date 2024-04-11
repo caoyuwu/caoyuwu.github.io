@@ -384,14 +384,18 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 			if( urls ) // todo
 			    item.urls = urls;
 			if( def.items ){
-				var newMacro = {};
-				if( macros) for(var n in macros ){
-					newMacro[n] = macros[n];
+				if( typeof(def.items)=="string" ){
+					item.items = replaceMacro(def.items,macros1,macros);
+				} else {
+					var newMacro = {};
+					if( macros) for(var n in macros ){
+						newMacro[n] = macros[n];
+					}
+					newMacro.PMENUDOMIDX = i;
+					newMacro.PMENUDOM = ea[i];
+					item.items = loadMenus4Def(def.items,_contentUrl,contentCache,newMacro);
 				}
-				newMacro.PMENUDOMIDX = i;
-				newMacro.PMENUDOM = ea[i];
-				item.items = loadMenus4Def(def.items,_contentUrl,contentCache,newMacro);
-			}
+			} //def.items
 			items.push(item);  
 			//urlE.getAttribute("href");
 		} // for ea.length
