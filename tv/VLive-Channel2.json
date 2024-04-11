@@ -6,9 +6,10 @@
 	 {"label":"agit.ai/Yoursmile7","items":"@txtloader:https://agit.ai/Yoursmile7/TVBox/raw/branch/master/live.txt"},
 	 {"label":"tvlist1@caoyuwu.eu.org","items":"@txtloader:http://caoyuwu.eu.org/tv/channels/tvlist1.txt"},
 	 {"label":"xhdwc.tk","items":"@txtloader:https://xhdwc.tk/tvlive/txt"},
-	 {"label":"好趣网","items":"@haoqu99-list:"},
+	 //{"label":"好趣网","items":"@haoqu99-list:"},
+	 {"label":"好趣网haoqu99.com","items":"@crawler-list:tv/haoqu99.json"},
 	 {"label":"yibababa.com","items":"@crawler-list:tv/yibababa.json"},
-   {"label":"NettvPro","items":"@nettvpro-list:Asia/china/1"},
+     {"label":"NettvPro","items":"@nettvpro-list:Asia/china/1"},
      {"label":"Youtube","items":"@youtube-list"},
      {"label":"router.lan","items":"@webdirlist:http://router.lan/tv-channels/"}     		  
   ]

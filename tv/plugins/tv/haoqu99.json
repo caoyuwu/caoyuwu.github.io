@@ -18,7 +18,10 @@
 		"url": "@crawler:tv/haoqu99.json;http://tv.haoqu99.com/e/extend/tv.php?id=${URLDOM.attr.data-player}"
 	},
 	"MediaSource":{
-		  "htmlSelector":">body  video"
+		  "xxxhtmlSelector":">body  video",
+		  "urlMatcherRegExp":[
+		      '\<video\>.*src\=\"((https|http):\\/\\/.+)\".*\<\/video\>'
+		  ]
 	}
 	
 }	

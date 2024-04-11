@@ -35,9 +35,16 @@ function loadDef(defUrl){
 				flags = id.substring(p+1);
 				id = id.substring(0,p);
 			}
-			if( typeof(def[id])=="string" ){
-		    	def[id] = flags ? new RegExp(def[id],flags)  : new RegExp(def[id]);
-		    }
+			var o = def[id];
+			if( !o )
+			   continue;
+			if( typeof(o)=="string" ){
+		    	def[id] = flags ? new RegExp(o,flags)  : new RegExp(o);
+		    } else if( o instanceof Array ){
+				for(var j=0;j<o.length;j++){
+					o[j] = flags ? new RegExp(o[j],flags)  : new RegExp(o[j]);
+				}
+			}
 		}
 		/*
 		if( typeof(def.filterExp)=="string" )
@@ -171,18 +178,21 @@ function replaceMacro(s){
 }
 
 function prepareMediaSource(url,params){
-	var v = load(url);
-	if( !v )
+	const defv = load(url);
+	if( !defv )
 	   return ;
-	const def = v.def;   
-	const content = loadContent(replaceMacro(v.contentUrl||v.def.contentUrl,v.params),{});
-//print(v.def.urlMatcherRegExp)	   
+	const def = defv.def;   
+	const content = loadContent(replaceMacro(defv.contentUrl||def.contentUrl,defv.params),{});
+//print(def.urlMatcherRegExp)	   
     if( def.urlMatcherRegExp ){
-		const r = def.urlMatcherRegExp;
-//print(v.content);		
-		v = r.exec(content);
-		if( v && v.length>1 ){
-			return v[1];
+		const ra = def.urlMatcherRegExp  instanceof Array ? def.urlMatcherRegExp : [def.urlMatcherRegExp];
+		for(const r of ra){
+			//const r = def.urlMatcherRegExp;
+	//print(defv.content);		
+			const v = r.exec(content);
+			if( v && v.length>1 ){
+				return v[1];
+			}
 		}
 		//return null;
 	} 

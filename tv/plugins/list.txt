@@ -48,7 +48,7 @@ ahtv,AHTV.js
 jstv,JSTV.js
 #zjtv,ZJTV.js
 
-haoqu99|haoqu99-list|haoqu99-urls,Haoqu99.js
+#haoqu99|haoqu99-list|haoqu99-urls,Haoqu99.js
 
 seal1226|seal1226-list,Seal1226.js
 
