@@ -21,7 +21,7 @@
 		  "xxxhtmlSelector":">body  video",
 		  "urlMatcherRegExp":[
 		      "<video>.*src=\"((https|http):\\/\\/.+)\".*<\\/video>",
-		      "new HlsJsPlayer\\(\\{.*\"url\":\"((https|http):\\/\\/[^\"]+)\".*\\}.*\\)"
+		      "new\\sHlsJsPlayer\\(\\{.*\"url\":\"((https|http):\\/\\/[^\"]+)\".*\\}.*\\)"
 		  ]
 	}
 	
