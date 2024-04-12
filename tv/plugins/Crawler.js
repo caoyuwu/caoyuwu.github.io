@@ -508,9 +508,10 @@ function  loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros){
   ]
 */
 function  evalCondMatched(condVal,macros1,macros){
+	  /*
 	   if( _debug && condVal.logMessage ){
 		   print("调试信息: "+replaceMacro(condVal.logMessage,macros1,macros));
-	   }
+	   } */
 		const cmpVal = replaceMacro(condVal.cmpVal,macros1,macros);
 		if( condVal.regExp ){
 			const  regExps = _toArray(toRegExpField(condVal,"regExp",null));
