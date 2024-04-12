@@ -3,8 +3,10 @@
 		"contentUrl":"https://www.yibababa.com/vod",
 		"htmlSelector":">body div.w3-container p",
 		"matcherRegExpByContent":"([^\n]+)(?::|：)\\s*((https|http):\\/\\/[^\n]+)",
-		"filterMatch":"18",
-		"filterVal":"${PREVDOMID}"
+		"filter" :{
+			"cmpMatch":"18",
+			"cmpVal":"${PREVDOMID}"
+		}
 		
 	}
 }	

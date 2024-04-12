@@ -1,11 +1,33 @@
 /*
 http://caoyuwu.eu.org/tv/plugins/NettvPro.js
-  https://www.nettvpro.live/
+  https://www.nettvpro.xyz/
 */
 //var HOMEURL =  "https://www.nettvpro.live/";
 var HOMEURL =  "https://www.nettvpro.xyz/";
 /*
-   nettvpro://hongkong/146 => view-source:https://www.nettvpro.live/hongkong/146.html
+   nettvpro://hongkong/146 => view-source:https://www.nettvpro.xyz/hongkong/146.html
+   
+   亞洲
+      中國
+          中央電視台 (末)
+		  衛星頻道 (末)
+          山西 
+			晋中 (末)
+			长治
+			... 
+          陝西
+          ..
+
+	  日本 (末)
+      蒙古国
+      ..
+    歐洲
+       土耳其
+	   英国
+	     安圭拉岛
+		 百慕大
+	   法国  
+   
 */
 function loadUrls(url,params)
 {
@@ -112,7 +134,7 @@ function loadMenus(url,params){
      }
      var selector = DocSelector1+
         ( deep>0 ? " div.nav-channal ul >li  a"
-    	       :" div.channals-list   a"
+    	         : " div.channals-list   a"
     	  );
     var ea = doc.getBody().querySelectorAll(selector) ; 
   //print("ea.length = "+ea.length+", deep"+deep+", selector="+selector);

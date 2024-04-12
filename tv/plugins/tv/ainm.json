@@ -5,8 +5,10 @@
 		"url" : null,
 		"items":{
 			"htmlBodySelector" : ">body > div#wlds > div#wlds-bd  div#tabBox1-bd >div",
-			 "bodyFilterMatch":"${HTMLDOMCHILDIDX}",
-			 "bodyFilterVal":"${PMENUDOMIDX}",
+			 "bodyFilter":{
+			 	"cmpMatch":"${HTMLDOMCHILDIDX}",
+			 	"cmpVal":"${PMENUDOMIDX}"
+			 } ,
 			 "htmlSelector":">div  ul > li  a",
 		 	 "url":"crawler:tv/ainm.json;${URLDOM.attr.href}"
 		}
