@@ -13,8 +13,8 @@ const RegMacroID = /\$\{(\w|\.|\-)+\}/g;
 	 def.options#1 : 
   
 */
-const DefRegExpIds = ["filterExp","bodyFilterExp","matcherRegExpByContent/g","urlMatcherRegExp","urlLineMatcherRegExp"];
-
+const DefRegExpIds = ["filterExp","matcherRegExpByContent/g","urlMatcherRegExp","urlLineMatcherRegExp","regExpForUrl"];
+//"bodyFilterExp",
 function loadDef(defUrl){
 	var defs = cacheDefs[defUrl];
 	if( defs ) return defs;
@@ -35,16 +35,7 @@ function loadDef(defUrl){
 				flags = id.substring(p+1);
 				id = id.substring(0,p);
 			}
-			var o = def[id];
-			if( !o )
-			   continue;
-			if( typeof(o)=="string" ){
-		    	def[id] = flags ? new RegExp(o,flags)  : new RegExp(o);
-		    } else if( o instanceof Array ){
-				for(var j=0;j<o.length;j++){
-					o[j] = flags ? new RegExp(o[j],flags)  : new RegExp(o[j]);
-				}
-			}
+			toRegExpField(def,id,flags);
 		}
 		/*
 		if( typeof(def.filterExp)=="string" )
@@ -72,7 +63,23 @@ function loadDef(defUrl){
  } */	
 	return defs;
 }
-
+function toRegExpField(o,id,flags){
+			var v = o[id];
+			if( !v )
+			   return;
+			if( typeof(v)=="string" ){
+		    	o[id] = flags ? new RegExp(v,flags)  : new RegExp(v);
+		    } else if( v instanceof Array ){
+				for(var j=0;j<v.length;j++){
+					if( typeof(v[j])=="string" )
+						v[j] = flags ? new RegExp(v[j],flags)  : new RegExp(v[j]);
+				}
+			}
+	return o[id];
+}
+function _toArray(o){
+	return o && o instanceof Array ? o : [o];
+}
 /*
 */
 function load(url){
@@ -80,7 +87,8 @@ function load(url){
 	if( p<0 )
 	    return null;
 	var protocol = url.substring(0,p);
-	var forList = protocol.endsWith("-list");
+	const forList = protocol.endsWith("-list");
+	const forUrls = protocol.endsWith("-urls");
 	url = url.substring(p+1);
 	for(;url.length>0 && url[0]=='/';)
 	   url = url.substring(1);
@@ -103,7 +111,7 @@ function load(url){
 			for(var s of a){
 				p = s.indexOf("=");
 				if( p>0) {
-				   params[s.substring(0,p)] = encodeURIComponent(s.substring(p+1));	
+				   params[s.substring(0,p)] = decodeURIComponent(s.substring(p+1));	
 				}
 			} 
 		}
@@ -114,7 +122,7 @@ function load(url){
 		defUrl = defUrl.substring(0,p); // xxxx.json
 	} else
 	{
-		defType = forList ? "List" : "MediaSource";
+		defType = forList ? "List" : (forUrls ? "Urls" : "MediaSource" );
 	}   
 //if(_debug) print("params="+ JSON.stringify(params)+",contentUrl="+contentUrl+",defUrl="+defUrl);	    
 	var defs = loadDef(defUrl);
@@ -183,12 +191,13 @@ function prepareMediaSource(url,params){
 	   return ;
 	const def = defv.def;   
 	const content = loadContent(replaceMacro(defv.contentUrl||def.contentUrl,defv.params),{});
+//if(_debug) 	print("content="+content);
 //print(def.urlMatcherRegExp)	   
     if( def.urlMatcherRegExp ){
 		const ra = def.urlMatcherRegExp  instanceof Array ? def.urlMatcherRegExp : [def.urlMatcherRegExp];
 		for(const r of ra){
 			//const r = def.urlMatcherRegExp;
-	//print(defv.content);		
+//if(_debug) print("r="+r);		
 			const v = r.exec(content);
 			if( v && v.length>1 ){
 				return v[1];
@@ -268,25 +277,18 @@ function _getBodys4HtmlBodySelector(def,doc,macros){
 	   var ea = doc.getBody().querySelectorAll(def.htmlBodySelector);
 		 //if(_debug) print("ea.length="+ea.length+"  ;htmlBodySelector="+def.htmlBodySelector);			    
 	   for(var i=0;i<ea.length;i++){
-		   const macro1 = function(id){
+		   const macros1 = function(id){
 			     switch( id ){
 					 case "HTMLDOMCHILDIDX":
 					    return ""+i;
 				}
 			};
-		if( def.bodyFilterVal ){	
-			  const filterVal = replaceMacro(def.bodyFilterVal,macro1,macros);
-		     if( def.bodyFilterExp && !def.bodyFilterExp .test(filterVal) ){
-		        continue;
-		     }	
-		     if( def.bodyFilterMatch ){
-			   const filterMatch = replaceMacro(def.bodyFilterMatch,macro1,macros);
-	//if(_debug) print("filterVal="+filterVal+",filterMatch="+filterMatch);	 		   
-			   if( filterMatch!=filterVal ){
-				   continue;
-			   }
-		     }
-		   }//def.bodyFilterVal
+		if( def.bodyFilter
+		   && !evalCondMatched(def.bodyFilter,macros1,macros)
+		   ){
+	//if(_debug) print(" 不要满足 bodyFilter 的条件: "+def.bodyFilter.cmpVal+",");		   
+			continue;
+		}	
 		   bodys.push(ea[i]);
        }
 	return bodys;			   	
@@ -298,7 +300,8 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
     for(var def of defs)
     {
 //if(_debug) print("  [loadMenus4HtmlSelector]def._name="+def._name+",contentUrl="+def.contentUrl);
-        const _contentUrl = replaceMacro(contentUrl||def.contentUrl,macros);			
+        const _contentUrl = replaceMacro(contentUrl||def.contentUrl,macros);
+//if(_debug) print("  ;_contentUrl="+_contentUrl);        			
 		const doc = loadHTMLDoc(_contentUrl,contentCache);
 		//var def = defs[i];
 	//print("defName="+defName+","+def.selector);
@@ -319,6 +322,8 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 			var title = "";//
 			var url = "";
 			var urls = null;
+			const titE = def.titSelector ? ea[i].querySelector(def.titSelector) : ea[i];
+			const urlE = def.urlSelector ? ea[i].querySelector(def.urlSelector) : ea[i];
 			const macros1 = function(id){
 				switch( id ){
 					case "URLDOM.attr.href": return urlE.getAttribute("href");
@@ -327,42 +332,34 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 						p = s ? s.lastIndexOf("/") : -1;
 						return p>=0 ? s.substring(p+1) : s;
 					}
+					case "URLDOM.attr.href.lastpath": {
+						var s = urlE.getAttribute("href");
+						p = s ? s.lastIndexOf("/") : -1;
+						if( p<0 )
+						   return null;
+						s = s.substring(0,p);
+						p =  s.lastIndexOf("/") ;    
+						return p>=0 ? s.substring(p+1) : s;
+					}
 					case "URLDOM.attr.title": return urlE.getAttribute("title");
-					case "url": return url;
-					case "title": return title;
+					//case "url": return url;
+					//case "title": return title;
 					case "DOMCONTENT": return ea[i].getAllNodeValue().trim();
 					case "PREVDOMID": return i>0 ? ea[i-1].getAttribute("id") : null; 
 					default:
 						 if( id.startsWith("URLDOM.attr.") ) {
 							 return urlE.getAttribute(id.substring(12));
 						 } 
+						 break;
 				}
 			};
-			var titE = def.titSelector ? ea[i].querySelector(def.titSelector) : ea[i];
-			var urlE = def.urlSelector ? ea[i].querySelector(def.urlSelector) : ea[i];
-			title = def.title ? replaceMacro(def.title,macros1,macros)
-							  : titE.getAllNodeValue();
-			if( def.url===null )
-				url =  null;			   
-			else if( def.url  )				  
-		   	   url = replaceMacro(def.url,macros1,macros);
-		   	else {
-			   url = urlE.getAttribute("href"); // href	   
-			}   
-			if( def.filterVal ){
-			    const filterVal = replaceMacro(def.filterVal,macros1,macros);
-			   if( def.filterExp && !def.filterExp .test(filterVal) ){
-				//var filterE = new RegExp(def.filterExp);
-				   continue;
-			    }
-				if( def.filterMatch ){
-				//var filterE = new RegExp(def.filterExp);
-				    const filterMatch = replaceMacro(def.filterMatch,macros1,macros);
-				   if( filterMatch!=filterVal )
-				     continue;
-			    }
-			}
 			
+			if( def.filter 
+			   && !evalCondMatched(def.filter,macros1,macros)
+			   ){
+//if(_debug) print(" 不满足: "+def.filter.cmpVal);				   
+				continue;
+			}
 			if( def.matcherRegExpByContent ){
 				var r = def.matcherRegExpByContent;
 //print(v.content);		
@@ -378,14 +375,45 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 				continue;
 				   
 			}
+
+            var defTitle = def.title, defUrl = def.url, defItems = def.items;  
+			
+			if( def.condVals ){
+				const condVal = getMatchedCondVal(def.condVals,macros1,macros);
+				if( !condVal )
+				   continue;
+				if( condVal.title!==undefined) 
+				   	defTitle = condVal.title;
+				if( condVal.url!==undefined) 
+				   	defUrl = condVal.url;
+				if( condVal.items!==undefined) 
+				   	defItems = condVal.items;
+			}
+									
+			title = defTitle ? replaceMacro(defTitle,macros1,macros)
+							  : titE.getAllNodeValue();
+			if( defUrl===null )
+				url =  null;			   
+			else if( defUrl  )				  
+		   	   url = replaceMacro(defUrl,macros1,macros);
+		   	else {
+			   url = urlE.getAttribute("href"); // href	   
+			}   
+			if( def.regExpForUrl && url ){
+				var v = def.regExpForUrl.exec(url);
+				if( !v )
+				   continue;
+				 url = v[1];  
+			}
 			var item = {title:title.trim()};
 			if( url && url!=""  )
 				item.url = url;
 			if( urls ) // todo
 			    item.urls = urls;
-			if( def.items ){
-				if( typeof(def.items)=="string" ){
-					item.items = replaceMacro(def.items,macros1,macros);
+			    
+			if( defItems ){
+				if( typeof(defItems)=="string" ){
+					item.items = replaceMacro(defItems,macros1,macros);
 				} else {
 					var newMacro = {};
 					if( macros) for(var n in macros ){
@@ -393,9 +421,9 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 					}
 					newMacro.PMENUDOMIDX = i;
 					newMacro.PMENUDOM = ea[i];
-					item.items = loadMenus4Def(def.items,_contentUrl,contentCache,newMacro);
+					item.items = loadMenus4Def(defItems,_contentUrl,contentCache,newMacro);
 				}
-			} //def.items
+			} //defItems
 			items.push(item);  
 			//urlE.getAttribute("href");
 		} // for ea.length
@@ -465,4 +493,81 @@ function  loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros){
 	  } // bodys
 	}
 	return items;	 
+}
+
+/*
+  condVals:[
+	  {
+		  url/items :"",...
+		  op:"=",
+		  cmpVal = ""..
+		  regExp = "..." // op=="regexp"
+		  cmpMatch = "" // op=="=",">", 等 使用 : cmpVal > cmpMatch
+		  
+	  }
+  ]
+*/
+function  evalCondMatched(condVal,macros1,macros){
+	   if( _debug && condVal.logMessage ){
+		   print("调试信息: "+replaceMacro(condVal.logMessage,macros1,macros));
+	   }
+		const cmpVal = replaceMacro(condVal.cmpVal,macros1,macros);
+		if( condVal.regExp ){
+			const  regExps = _toArray(toRegExpField(condVal,"regExp",null));
+			for(const  regExp of regExps){
+// if(_debug ) print("regExp="+regExp+",cmpVal="+cmpVal);				
+				if( regExp.test(cmpVal) ){
+					return true;
+				}    
+			}
+			return false;
+		}
+		const cmpMatch = replaceMacro(condVal.cmpMatch,macros1,macros);
+		switch( condVal.op || "=" ){
+			case "=" : return cmpVal==cmpMatch;
+			case "!=" : return cmpVal!=cmpMatch; 
+			case ">" : return cmpVal>cmpMatch;
+			case "<" : return cmpVal<cmpMatch;
+			case ">=" : return cmpVal>=cmpMatch;
+			case "<=" : return cmpVal<=cmpMatch;
+			case "contains" :
+				 return cmpVal.indexOf(cmpMatch)>=0;
+			case "!contains" :
+				 return cmpVal.indexOf(cmpMatch)<0;
+			case "!in":
+			case "in" :
+				for(var v of cmpMatch){
+					if( v==cmpVal )
+				  	 	return condVal.op=="in";
+				} 
+				return  condVal.op!="in";
+			case "default":
+				 return true;
+		}
+		return condVal.name=="default"; 
+}
+
+function  getMatchedCondVal(condVals,macros1,macros){
+	 for(const condVal of  condVals){
+		if( evalCondMatched(condVal,macros1,macros) ){
+			if( condVal.aliasFor ){
+				for(const c of  condVals){
+					if( condVal.aliasFor==c.name ){
+				//if(_debug) print("通过aliasFor="+condVal.aliasFor+"获取到: "+c.name);		
+					   return c;
+					 }
+				}
+			}
+			return condVal;
+		}
+	}
+	return null;
+}
+
+function  evalValueByCond(condVals,nameVal,macros1,macros){
+	for(const condVal of  condVals){
+		if( evalCondMatched(condVal,macros1,macros) ){
+				return replaceMacro(condVal[nameVal||"value"],macros1,macros);
+		}
+	}
 }
