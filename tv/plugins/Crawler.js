@@ -270,14 +270,16 @@ function _getBodys4HtmlBodySelector(def,doc,macros){
 	   var ea = doc.getBody().querySelectorAll(def.htmlBodySelector);
 		 //if(_debug) print("ea.length="+ea.length+"  ;htmlBodySelector="+def.htmlBodySelector);			    
 	   for(var i=0;i<ea.length;i++){
-		   const macros1 = function(id){
+			const macro = new Macro(
+				function(id){
 			     switch( id ){
 					 case "HTMLDOMCHILDIDX":
 					    return ""+i;
 				}
-			};
+			   }, macros
+			);
 		if( def.bodyFilter
-		   && !evalCondMatched(def.bodyFilter,macros1,macros)
+		   && !def.bodyFilter(macro) //evalCondMatched(def.bodyFilter,macros1,macros)
 		   ){
 	//if(_debug) print(" 不要满足 bodyFilter 的条件: "+def.bodyFilter.cmpVal+",");		   
 			continue;

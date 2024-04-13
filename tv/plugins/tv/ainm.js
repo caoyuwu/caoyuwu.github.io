@@ -5,12 +5,13 @@
 		"url" : null,
 		"items":{
 			"htmlBodySelector" : ">body > div#wlds > div#wlds-bd  div#tabBox1-bd >div",
-			 "bodyFilter":{
-			 	"cmpMatch":"${HTMLDOMCHILDIDX}",
-			 	"cmpVal":"${PMENUDOMIDX}"
+			 "bodyFilter": function(macro){
+				 return macro.get("PMENUDOMIDX")==macro.get("HTMLDOMCHILDIDX");
+			 	//"cmpMatch":"${HTMLDOMCHILDIDX}",
+			 	//"cmpVal":"${PMENUDOMIDX}"
 			 } ,
 			 "htmlSelector":">div  ul > li  a",
-		 	 "url":"crawler:tv/ainm.json;${URLDOM.attr.href}"
+		 	 "url":"crawler:tv/ainm.js;${URLDOM.attr.href}"
 		}
 		
 	},
