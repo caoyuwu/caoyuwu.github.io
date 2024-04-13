@@ -450,7 +450,7 @@ function  loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros){
 			   const content = e.getAllNodeValue();
 	//if(_debug)print("content  = "+content);			   
 	//if(_debug)print("content.length  = "+content.length);		  
-				const lines = content.split("\\n");//.split("");
+				const lines = content.split("\n");//.split("");
 	//	if(_debug)print("["+i+"]lines.length = "+lines.length+"; e==e-1"+(e==ea[i-1]));		
 				var lastGrpTit = null;
 				var lastSubItems = null;  var urlsByTit = null;
