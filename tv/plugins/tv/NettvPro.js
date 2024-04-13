@@ -1,24 +1,47 @@
 {
 	"List":{
 		"contentUrl":"https://www.nettvpro.xyz/",
-		"xxcontentUrl":"http://127.0.0.1/nettvpro/",
+		//"xxcontentUrl":"http://127.0.0.1/nettvpro/",
 		"htmlSelector":"> body > div#wrapper > div.main_sidebar div.sidebar div.sections ul > li > a",
-		"items": "@crawler-list:tv/NettvPro.json#List2?[PATH=${URLDOM.attr.href}&PATHS=${URLDOM.attr.href.lastpath}]",
-		"filter": {
-			"cmpVal":"${URLDOM.attr.href}",
-			"regExp":"\/.+\/"
+		"items": "@crawler-list:tv/NettvPro.js#List2?[PATH=${URLDOM.attr.href}&PATHS=${URLDOM.attr.href.lastpath}]",
+		"filter": function(macro){
+			var href = macro.get("URLDOM.attr.href");
+			return href && /\/.+\//.test(href);
+			//"cmpVal":"${URLDOM.attr.href}",
+		//	"regExp":"\/.+\/"
 		}
 	},
 	"List2":{
 		"contentUrl":"https://www.nettvpro.xyz${PATH}",
-		"xxcontentUrl":"http://127.0.0.1/nettvpro${PATH}",
+		//"xxcontentUrl":"http://127.0.0.1/nettvpro${PATH}",
 		"htmlSelector":"> body > div#wrapper  div.main_content div.nav-channal ul >li  a ",
-		"filter" :{
-			"cmpVal":"/${PATHS}/",
-			"op":"!contains",
-			"cmpMatch":"/${URLDOM.attr.href.lastpath}/"
-			, "xxlogMessage":"cmpVal=/${URLDOM.attr.href.lastpath}/ , cmpMatch=/${PATHS}/ "
+		"filter" : function(macro){
+			 macro.get("PATHS").split("/") .indexOf(macro.get("URLDOM.attr.href.lastpath"))<0;
+			//"cmpVal":"/${PATHS}/",
+		//	"op":"!contains",
+		//	"cmpMatch":"/${URLDOM.attr.href.lastpath}/"
+			//, "xxlogMessage":"cmpVal=/${URLDOM.attr.href.lastpath}/ , cmpMatch=/${PATHS}/ "
 		},
+		getValue: function(macro){
+			const lastPath = macro.get("URLDOM.attr.href.lastpath");
+			var lastLv = true;
+			if( lastPath=="china" ){
+				lastLv = false;
+			} else {
+				const paths = macro.get("PATHS").split("/");
+				if( paths[1]=="china" ){
+					// 
+					lastLv = paths.length < ( lastPath=="cctv" && lastPath=="weishi" ? 2 :3 );
+				}
+			}
+			return  {
+				items : lastLv ?  "@crawler-list:tv/NettvPro.js#List3?[PATH=${URLDOM.attr.href}&PAGEIDX=1]"
+				    : "@crawler-list:tv/NettvPro.js#List2?[PATH=${URLDOM.attr.href}&PATHS=${PATHS}/${URLDOM.attr.href.lastpath}]"
+				
+			} 
+			
+		}
+		/*
 		"condVals":[
 			{
 				"aliasFor":"default",
@@ -42,7 +65,7 @@
 				"name": "default", 
 				"items": "@crawler-list:tv/NettvPro.json#List3?[PATH=${URLDOM.attr.href}&PAGEIDX=1]"
 			 }
-		]
+		] */
 	},
 	"List3":{
 		"contentUrl":"https://www.nettvpro.xyz/${PATH}/list_${PAGEIDX}.html",
@@ -54,7 +77,7 @@
 		"xxcontentUrl":"http://127.0.0.1/nettvpro${PATH}",
 		"htmlSelector":"> body > div#wrapper  div.main_content div.video-info  ul li a",
 		"url":"${URLDOM.attr.onClick}",
-		"regExpForUrl":"frame\\('(.*)',.*\\)"
+		"regExpForUrl":/frame\('(.*)',.*\)/
 	}
 	
 }

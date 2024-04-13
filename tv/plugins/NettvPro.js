@@ -49,8 +49,16 @@ function loadUrls(url,params)
      	    if( !href || href!="javascript:void(0);" ) 
      	        continue;
      	    var onClick = ea[i].getAttribute("onClick");
-     	    // frame('/player/ckx2.html?url 
-     	    //frame('/player/play.html?url=https://v3.mediacast.hk/webcast/bshdlive-pc/playlist.m3u8&amp;t=video','100%','650')"
+     	    /*
+     	     frame('/player/ckx2.html?url=...' 
+     	      frame('/player/play.html?url=https://v3.mediacast.hk/webcast/bshdlive-pc/playlist.m3u8&amp;t=video','100%','650')"
+     	      frame('/embed/cctv13.php',...)
+     	         重定向到  /player/video.html?url=https://....
+     	      frame('/embed/loudi.php?id=cctv13',...)
+     	         重定向到  /player/videojs.php?url=https://...
+     	      frame('player/play.html?url=cctv13&amp;t=cnsy',...)
+     	      frame('/player/video.html?url=...)
+     	    */
      	    if( !onClick || 
      	       ( !onClick.startsWith("frame('/player/play.html?")
      	         && !onClick.startsWith("frame('/player/ckx2.html?")

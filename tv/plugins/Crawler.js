@@ -7,27 +7,67 @@
 */
 const cacheDefs = {};
 const RegMacroID = /\$\{(\w|\.|\-)+\}/g;
+(function(){
+	RegExp.prototype.exec1 = function(s){
+		const v = this.exec(s);
+		return  v && v.length>1 ? v[1] : null;
+	};
+})();
 /*
 @param defUrl  xvideo/jieav.json
 @return def
 	 def.options#1 : 
   
 */
-const DefRegExpIds = ["filterExp","matcherRegExpByContent/g","urlMatcherRegExp","urlLineMatcherRegExp","regExpForUrl"];
+//const DefRegExpIds = ["filterExp","matcherRegExpByContent/g","urlMatcherRegExp","urlLineMatcherRegExp","regExpForUrl"];
 //"bodyFilterExp",
+function Macro(){
+	this.macros = Array.prototype.slice.call(arguments,0);	
+};
+Macro.prototype.get = function(id){
+	for(const macro of this.macros){
+				if( !macro )
+				  	continue;
+				 var v;
+				 if( typeof(macro)=="function" ){
+					  v = macro(id);
+				 } else {	 	
+				 	v = macro[id];
+				 }
+				 if( v!==undefined )
+				    return v;
+
+	}	
+}
+
+Macro.prototype.replace = function(s){
+	  if(  !s || s.indexOf("${")<0 ){
+		return s;
+	  }
+	  const m = this;	
+	  return s.replace(RegMacroID,
+	        function($0){
+				const v = m.get($0.substring(2,$0.length-1));	   
+		 		return v===undefined ? $0 : v;
+	  		}		
+	  ); 
+}
+
 function loadDef(defUrl){
 	var defs = cacheDefs[defUrl];
 	if( defs ) return defs;
 	var defText = utils.httpGetAsString(utils.toAbsoluteURL(_scriptURL,defUrl));
-	defs =  cacheDefs[defUrl] = JSON.parse(defText);
+	//defs =  cacheDefs[defUrl] = JSON.parse(defText);
+	defs =  cacheDefs[defUrl] = eval("("+defText+")");
 	var contentUrl = null;
-	for(const defName in defs){
-		const def = defs[defName];
+	for(var defName in defs){
+		var def = defs[defName];
 		if( defName=="contentUrl" ){
 			contentUrl = def;
 			continue;
 		}
 		def._name = defName;
+		/*
 		for( var id of DefRegExpIds){
 			const p = id.lastIndexOf("/");
 			var flags = null;
@@ -37,22 +77,12 @@ function loadDef(defUrl){
 			}
 			toRegExpField(def,id,flags);
 		}
-		/*
-		if( typeof(def.filterExp)=="string" )
-		    def.filterExp =  new RegExp(def.filterExp);
-		if( typeof(def.bodyFilterExp)=="string" )
-		    def.bodyFilterExp =  new RegExp(def.bodyFilterExp);
-		    //def.matcherRegExpByContent
-		 if( typeof(def.matcherRegExpByContent)=="string" )
-		    def.matcherRegExpByContent =  new RegExp(def.matcherRegExpByContent,"g");   
-		 if( typeof(def.urlMatcherRegExp)=="string" )
-		    def.urlMatcherRegExp =  new RegExp(def.urlMatcherRegExp);      
-		  */      
-	}
+		*/
+	} // for defs
 	if( contentUrl ){
 		delete  defs.contentUrl;
 		for(var defName in defs){
-			const def = defs[defName];
+			var def = defs[defName];
 			if( !def.contentUrl )
 			    def.contentUrl = contentUrl;
 		}
@@ -63,20 +93,7 @@ function loadDef(defUrl){
  } */	
 	return defs;
 }
-function toRegExpField(o,id,flags){
-			var v = o[id];
-			if( !v )
-			   return;
-			if( typeof(v)=="string" ){
-		    	o[id] = flags ? new RegExp(v,flags)  : new RegExp(v);
-		    } else if( v instanceof Array ){
-				for(var j=0;j<v.length;j++){
-					if( typeof(v[j])=="string" )
-						v[j] = flags ? new RegExp(v[j],flags)  : new RegExp(v[j]);
-				}
-			}
-	return o[id];
-}
+
 function _toArray(o){
 	return o && o instanceof Array ? o : [o];
 }
@@ -160,37 +177,13 @@ function loadHTMLDoc(url,cache){
 	    ; 
 }
 
-function replaceMacro(s){
-	if( arguments.length<=1 || !s || s.indexOf("${")<0 ){
-		return s;
-	}
-	const macros = Array.prototype.slice.call(arguments,1);
-	const replaceFunc = function($0){
-			const id = $0.substring(2,$0.length-1);
-			for(const macro of macros){
-				if( !macro )
-				  	continue;
-				 var v;
-				 if( typeof(macro)=="function" ){
-					  v = macro(id);
-				 } else {	 	
-				 	v = macro[id];
-				 }
-				 if( v!==undefined )
-				    return v;
-
-			}		   
-		 return $0;
-	  };
-	  return s.replace(RegMacroID,replaceFunc);
-}
 
 function prepareMediaSource(url,params){
 	const defv = load(url);
 	if( !defv )
 	   return ;
 	const def = defv.def;   
-	const content = loadContent(replaceMacro(defv.contentUrl||def.contentUrl,defv.params),{});
+	const content = loadContent(replaceMacro1(defv.contentUrl||def.contentUrl,defv.params),{});
 //if(_debug) 	print("content="+content);
 //print(def.urlMatcherRegExp)	   
     if( def.urlMatcherRegExp ){
@@ -300,7 +293,7 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
     for(var def of defs)
     {
 //if(_debug) print("  [loadMenus4HtmlSelector]def._name="+def._name+",contentUrl="+def.contentUrl);
-        const _contentUrl = replaceMacro(contentUrl||def.contentUrl,macros);
+        const _contentUrl = replaceMacro1(contentUrl||def.contentUrl,macros);
 //if(_debug) print("  ;_contentUrl="+_contentUrl);        			
 		const doc = loadHTMLDoc(_contentUrl,contentCache);
 		//var def = defs[i];
@@ -324,7 +317,8 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 			var urls = null;
 			const titE = def.titSelector ? ea[i].querySelector(def.titSelector) : ea[i];
 			const urlE = def.urlSelector ? ea[i].querySelector(def.urlSelector) : ea[i];
-			const macros1 = function(id){
+			const macro = new Macro(
+				function(id){
 				switch( id ){
 					case "URLDOM.attr.href": return urlE.getAttribute("href");
 					case "URLDOM.attr.href.name": {
@@ -352,12 +346,13 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 						 } 
 						 break;
 				}
-			};
+			},macros);
 			
 			if( def.filter 
-			   && !evalCondMatched(def.filter,macros1,macros)
+			   && !def.filter(macro)
+			   //&& !evalCondMatched(def.filter,macros1,macros)
 			   ){
-//if(_debug) print(" 不满足: "+def.filter.cmpVal);				   
+//if(_debug) print(" 不满足: "+def.filter);				   
 				continue;
 			}
 			if( def.matcherRegExpByContent ){
@@ -373,29 +368,28 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 				}
 				}
 				continue;
-				   
 			}
 
             var defTitle = def.title, defUrl = def.url, defItems = def.items;  
 			
-			if( def.condVals ){
-				const condVal = getMatchedCondVal(def.condVals,macros1,macros);
-				if( !condVal )
+			if( def.getValue ){
+				const val = def.getValue(macro);// getMatchedCondVal(def.condVals,macros1,macros);
+				if( !val )
 				   continue;
-				if( condVal.title!==undefined) 
-				   	defTitle = condVal.title;
-				if( condVal.url!==undefined) 
-				   	defUrl = condVal.url;
-				if( condVal.items!==undefined) 
-				   	defItems = condVal.items;
+				if( val.title!==undefined) 
+				   	defTitle = val.title;
+				if( val.url!==undefined) 
+				   	defUrl = val.url;
+				if( val.items!==undefined) 
+				   	defItems = val.items;
 			}
 									
-			title = defTitle ? replaceMacro(defTitle,macros1,macros)
+			title = defTitle ? macro.replace(defTitle) // replace-Macro(defTitle,macros1,macros)
 							  : titE.getAllNodeValue();
 			if( defUrl===null )
 				url =  null;			   
 			else if( defUrl  )				  
-		   	   url = replaceMacro(defUrl,macros1,macros);
+		   	   url = macro.replace(defUrl);//replace-Macro(defUrl,macros1,macros);
 		   	else {
 			   url = urlE.getAttribute("href"); // href	   
 			}   
@@ -413,7 +407,7 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 			    
 			if( defItems ){
 				if( typeof(defItems)=="string" ){
-					item.items = replaceMacro(defItems,macros1,macros);
+					item.items = macro.replace(defItems);//replace-Macro(defItems,macros1,macros);
 				} else {
 					var newMacro = {};
 					if( macros) for(var n in macros ){
@@ -438,8 +432,7 @@ function  loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros){
     for(var def of defs)
     {
 //if(_debug) print("  [loadMenus4HtmlSelector]def._name="+def._name+",contentUrl="+def.contentUrl);
-        const _contentUrl = replaceMacro(contentUrl||def.contentUrl,macros);			
-		const doc = loadHTMLDoc(_contentUrl,contentCache);
+ 		const doc = loadHTMLDoc(replaceMacro1(contentUrl||def.contentUrl,macros),contentCache);
 		//var def = defs[i];
 	//print("defName="+defName+","+def.selector);
 	   	const bodys = _getBodys4HtmlBodySelector(def,doc,macros);
@@ -447,9 +440,16 @@ function  loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros){
 		  var ea = body.querySelectorAll(def.linesByHtmlSelector); 
 		//htmlSelector(doc.getBody(),def.htmlSelector,macros);//doc.getBody().querySelectorAll(def.htmlSelector);
 		//var titSelector = def
-//if(_debug)print("ea.length="+ea.length);	
-		  for(var i=0;i<ea.length;i++){
-				const lines = ea[i].getAllNodeValue().trim().split("\n");//.split("");
+//if(_debug)print("ea.length="+ea.length+"; "+def.linesByHtmlSelector+"; body="+body.getTagName());	
+		  for(var i=0;i<ea.length;i++)
+		  //for(const e of ea )
+		  {
+			  const e  = ea[i];
+			   const content = e.getAllNodeValue();
+	//if(_debug)print("content  = "+content);			   
+	//if(_debug)print("content.length  = "+content.length);		  
+				const lines = content.split("\\n");//.split("");
+	//	if(_debug)print("["+i+"]lines.length = "+lines.length+"; e==e-1"+(e==ea[i-1]));		
 				var lastGrpTit = null;
 				var lastSubItems = null;  var urlsByTit = null;
 				var r;
@@ -461,7 +461,7 @@ function  loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros){
 							continue;
 						}
 						var v = r.exec(line);
-//if(_debug) print(line+" v="+v);						
+//if(_debug) print(line+" v="+v+";  r="+r);						
 						if( v ){
 							if( !lastSubItems ){
 								lastSubItems = [];
@@ -494,7 +494,12 @@ function  loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros){
 	}
 	return items;	 
 }
-
+function replaceMacro1(s,macro){
+	if( !macro || !s || s.indexOf("${")<0 ){
+		return s;
+	}
+	return new Macro(macro).replace(s);
+}
 /*
   condVals:[
 	  {
@@ -507,11 +512,13 @@ function  loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros){
 	  }
   ]
 */
+
+/*
 function  evalCondMatched(condVal,macros1,macros){
 	  /*
 	   if( _debug && condVal.logMessage ){
 		   print("调试信息: "+replaceMacro(condVal.logMessage,macros1,macros));
-	   } */
+	   } * /
 		const cmpVal = replaceMacro(condVal.cmpVal,macros1,macros);
 		if( condVal.regExp ){
 			const  regExps = _toArray(toRegExpField(condVal,"regExp",null));
@@ -572,3 +579,45 @@ function  evalValueByCond(condVals,nameVal,macros1,macros){
 		}
 	}
 }
+
+function toRegExpField(o,id,flags){
+			var v = o[id];
+			if( !v )
+			   return;
+			if( typeof(v)=="string" ){
+		    	o[id] = flags ? new RegExp(v,flags)  : new RegExp(v);
+		    } else if( v instanceof Array ){
+				for(var j=0;j<v.length;j++){
+					if( typeof(v[j])=="string" )
+						v[j] = flags ? new RegExp(v[j],flags)  : new RegExp(v[j]);
+				}
+			}
+	return o[id];
+}
+
+function replaceMacro(s){
+	if( arguments.length<=1 || !s || s.indexOf("${")<0 ){
+		return s;
+	}
+	const macros = Array.prototype.slice.call(arguments,1);
+	const replaceFunc = function($0){
+			const id = $0.substring(2,$0.length-1);
+			for(const macro of macros){
+				if( !macro )
+				  	continue;
+				 var v;
+				 if( typeof(macro)=="function" ){
+					  v = macro(id);
+				 } else {	 	
+				 	v = macro[id];
+				 }
+				 if( v!==undefined )
+				    return v;
+
+			}		   
+		 return $0;
+	  };
+	  return s.replace(RegMacroID,replaceFunc);
+}
+
+*/
