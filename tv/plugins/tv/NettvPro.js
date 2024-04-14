@@ -1,6 +1,6 @@
 {
 	"List":{
-		"contentUrl":"https://www.nettvpro.xyz/",
+		"contentUrl":"http://www.nettvpro.xyz/",
 		//"xxcontentUrl":"http://127.0.0.1/nettvpro/",
 		"htmlSelector":"> body > div#wrapper > div.main_sidebar div.sidebar div.sections ul > li > a",
 		"items": "@crawler-list:tv/NettvPro.js#List2?[PATH=${URLDOM.attr.href}&PATHS=${URLDOM.attr.href.lastpath}]",
@@ -12,7 +12,7 @@
 		}
 	},
 	"List2":{
-		"contentUrl":"https://www.nettvpro.xyz${PATH}",
+		"contentUrl":"http://www.nettvpro.xyz${PATH}",
 		//"contentUrl":"http://127.0.0.1/nettvpro${PATH}",
 		"htmlSelector":"> body > div#wrapper  div.main_content div.nav-channal ul >li  a ",
 		"filter" : function(macro){
@@ -63,13 +63,13 @@
 		] */
 	},
 	"List3":{
-		"contentUrl":"https://www.nettvpro.xyz/${PATH}/list_${PAGEIDX}.html",
+		"contentUrl":"http://www.nettvpro.xyz/${PATH}/list_${PAGEIDX}.html",
 		"htmlSelector":"> body > div#wrapper  div.main_content div.channals-list   a",
 		"url":"@crawler-urls:tv/NettvPro.js?[PATH=${URLDOM.attr.href}]"
 	},
 	"Urls":{
-		"contentUrl":"https://www.nettvpro.xyz/${PATH}",
-		"//contentUrl":"http://127.0.0.1/nettvpro${PATH}",
+		"contentUrl":"http://www.nettvpro.xyz/${PATH}",
+		//"contentUrl":"http://127.0.0.1/nettvpro${PATH}",
 		"htmlSelector":"> body > div#wrapper  div.main_content div.video-info  ul li a",
 		//"url":"${URLDOM.attr.onClick}",
 		//"regExpForUrl":/frame\('(.*)',.*\)/
@@ -82,12 +82,22 @@
      	         重定向到  /player/videojs.php?url=https://...
      	      frame('player/play.html?url=cctv13&amp;t=cnsy',...)
      	      frame('/player/video.html?url=...)
+     	      
+     	      url = /embed/cctv13.php
+url = /embed/loudi.php?id=cctv13
+url = /player/play.html?url=cctv13&t=cnsy
+url = /player/play.html?url=cctv13&t=bupt
+url = /player/play.html?url=cctv13&t=cctv
+url = /embed/migu.php?id=cctv13
+url = /wuxianlu.html
+
 		*/
 		getUrl(macro){
-			var url = /frame\('(.*)',.*\)/ .exec1(macro.get("URLDOM.attr.onClick"));
+			var url = /frame\('([^']*)',.*\)/ .exec1(macro.get("URLDOM.attr.onClick"));
 			if( !url ){
 				return null;
 			}
+		//	print("url = "+url);//	
 			if( url.startsWith("/player/") ){
 				var params = parseUrlParams(url);
 				return params ? params.url : null;
@@ -104,8 +114,16 @@
 			if( !path )
 			    return null;
 			 if( path.startsWith("/embed/") ){
-				 var v = utils.httpGetRespHeaders("https://www.nettvpro.xyz"+path,null,0x420);
-				 return v ? v.Location || v.location : null;
+				 var v = utils.httpGetRespHeaders("http://www.nettvpro.xyz"+path,null,0x420);
+				 var url = v ? v.Location || v.location : null;
+				// print("url = "+url);
+				 if( !url )
+				     return null;
+				 if( url.startsWith("/player/") ){
+				      var params = parseUrlParams(url);
+				     return params ? params.url : null;
+			    }        
+				 return  url;
 			 }   
 		}
 	}

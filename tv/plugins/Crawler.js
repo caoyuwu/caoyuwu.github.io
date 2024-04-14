@@ -179,13 +179,17 @@ function load(url){
 }
 
 function loadContent(url,cache){
- if( _debug )print("[loadContent] url = "+url);
+	if( !url )
+	   return null;
+ //if( _debug )print("[loadContent] url = "+url);
 	return cache[url] 
 		|| ( cache[url] = utils.httpGetAsString(url,0x408))
 		;   
 }
 
 function loadHTMLDoc(url,cache){
+	if( !url )
+	   return null;
 	  const  key = "[HTML-DOC]"+url;
 	  return cache[key]  
 	     || ( cache[key]  = utils.newHTMLDocument(loadContent(url,cache)) )
@@ -239,7 +243,7 @@ function prepareMediaSource(url,params){
 		return null;
 	}	  
 	if( def.getUrl ){
-		return def.getUrl(new Macro(v.params));
+		return def.getUrl(new Macro(defv.params));
 	} 
 }
 
@@ -548,6 +552,7 @@ function  parseUrlParams(url){
 	    return  params;
 	var a = url.substring(p+1).split("&");
 	for(var s of a){
+//	print(s);	
 		p = s.indexOf("=");
 		if( p>0) {
 		   params[s.substring(0,p)] = decodeURIComponent(s.substring(p+1));	
