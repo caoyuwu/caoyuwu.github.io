@@ -12,15 +12,12 @@
 		}
 	},
 	"List2":{
-		"contentUrl":"https://www.nettvpro.xyz${PATH}",
-		//"xxcontentUrl":"http://127.0.0.1/nettvpro${PATH}",
+		//"contentUrl":"https://www.nettvpro.xyz${PATH}",
+		"contentUrl":"http://127.0.0.1/nettvpro${PATH}",
 		"htmlSelector":"> body > div#wrapper  div.main_content div.nav-channal ul >li  a ",
 		"filter" : function(macro){
-			 macro.get("PATHS").split("/") .indexOf(macro.get("URLDOM.attr.href.lastpath"))<0;
-			//"cmpVal":"/${PATHS}/",
-		//	"op":"!contains",
-		//	"cmpMatch":"/${URLDOM.attr.href.lastpath}/"
-			//, "xxlogMessage":"cmpVal=/${URLDOM.attr.href.lastpath}/ , cmpMatch=/${PATHS}/ "
+			var lastPath = macro.get("URLDOM.attr.href.lastpath");
+			return lastPath && macro.get("PATHS").split("/") .indexOf()<0;
 		},
 		getValue: function(macro){
 			const lastPath = macro.get("URLDOM.attr.href.lastpath");
