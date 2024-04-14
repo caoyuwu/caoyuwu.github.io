@@ -68,8 +68,8 @@
 		"url":"@crawler-urls:tv/NettvPro.js?[PATH=${URLDOM.attr.href}]"
 	},
 	"Urls":{
-		//"contentUrl":"https://www.nettvpro.xyz/${PATH}",
-		"contentUrl":"http://127.0.0.1/nettvpro${PATH}",
+		"contentUrl":"https://www.nettvpro.xyz/${PATH}",
+		"//contentUrl":"http://127.0.0.1/nettvpro${PATH}",
 		"htmlSelector":"> body > div#wrapper  div.main_content div.video-info  ul li a",
 		//"url":"${URLDOM.attr.onClick}",
 		//"regExpForUrl":/frame\('(.*)',.*\)/
