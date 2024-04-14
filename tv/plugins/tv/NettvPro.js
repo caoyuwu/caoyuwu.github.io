@@ -12,7 +12,7 @@
 		}
 	},
 	"List2":{
-		"contentUrl":"http://www.nettvpro.xyz${PATH}",
+		"contentUrl":"https://www.nettvpro.xyz${PATH}",
 		//"contentUrl":"http://127.0.0.1/nettvpro${PATH}",
 		"htmlSelector":"> body > div#wrapper  div.main_content div.nav-channal ul >li  a ",
 		"filter" : function(macro){
@@ -63,12 +63,12 @@
 		] */
 	},
 	"List3":{
-		"contentUrl":"http://www.nettvpro.xyz/${PATH}/list_${PAGEIDX}.html",
+		"contentUrl":"https://www.nettvpro.xyz/${PATH}/list_${PAGEIDX}.html",
 		"htmlSelector":"> body > div#wrapper  div.main_content div.channals-list   a",
 		"url":"@crawler-urls:tv/NettvPro.js?[PATH=${URLDOM.attr.href}]"
 	},
 	"Urls":{
-		"contentUrl":"http://www.nettvpro.xyz/${PATH}",
+		"contentUrl":"https://www.nettvpro.xyz/${PATH}",
 		//"contentUrl":"http://127.0.0.1/nettvpro${PATH}",
 		"htmlSelector":"> body > div#wrapper  div.main_content div.video-info  ul li a",
 		//"url":"${URLDOM.attr.onClick}",
@@ -114,7 +114,7 @@ url = /wuxianlu.html
 			if( !path )
 			    return null;
 			 if( path.startsWith("/embed/") ){
-				 var v = utils.httpGetRespHeaders("http://www.nettvpro.xyz"+path,null,0x420);
+				 var v = utils.httpGetRespHeaders("https://www.nettvpro.xyz"+path,null,0x420);
 				 var url = v ? v.Location || v.location : null;
 				// print("url = "+url);
 				 if( !url )
