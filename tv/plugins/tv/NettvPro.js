@@ -12,8 +12,8 @@
 		}
 	},
 	"List2":{
-		//"contentUrl":"https://www.nettvpro.xyz${PATH}",
-		"contentUrl":"http://127.0.0.1/nettvpro${PATH}",
+		"contentUrl":"https://www.nettvpro.xyz${PATH}",
+		//"contentUrl":"http://127.0.0.1/nettvpro${PATH}",
 		"htmlSelector":"> body > div#wrapper  div.main_content div.nav-channal ul >li  a ",
 		"filter" : function(macro){
 			var lastPath = macro.get("URLDOM.attr.href.lastpath");
