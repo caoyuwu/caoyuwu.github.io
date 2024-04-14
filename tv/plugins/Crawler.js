@@ -525,12 +525,31 @@ function  loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros){
 	}
 	return items;	 
 }
+
 function replaceMacro1(s,macro){
 	if( !macro || !s || s.indexOf("${")<0 ){
 		return s;
 	}
 	return new Macro(macro).replace(s);
 }
+
+function  parseUrlParams(url){
+	if( !url )
+	   return null;
+	var p = url.lastIndexOf("?");
+	 var params = {};
+	if( p<0 )
+	    return  params;
+	var a = url.substring(p+1).split("&");
+	for(var s of a){
+		p = s.indexOf("=");
+		if( p>0) {
+		   params[s.substring(0,p)] = decodeURIComponent(s.substring(p+1));	
+		}
+	} 
+	return  params;		
+}
+
 /*
   condVals:[
 	  {
