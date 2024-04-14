@@ -1,6 +1,6 @@
 {
 	"List":{
-		"contentUrl":"http://www.nettvpro.xyz/",
+		"contentUrl":"https://www.nettvpro.xyz/",
 		//"xxcontentUrl":"http://127.0.0.1/nettvpro/",
 		"htmlSelector":"> body > div#wrapper > div.main_sidebar div.sidebar div.sections ul > li > a",
 		"items": "@crawler-list:tv/NettvPro.js#List2?[PATH=${URLDOM.attr.href}&PATHS=${URLDOM.attr.href.lastpath}]",
