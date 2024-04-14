@@ -401,14 +401,17 @@ if(_debug) {
 				   	defUrl = val.url;
 				if( val.items!==undefined) 
 				   	defItems = val.items;
-			} else if( def.getUrl ){
-				var val = def.getUrl(macro);
-				if( val!==undefined) 
+			} else {
+			   if( def.getUrl ){
+				  var val = def.getUrl(macro);
+				  if( val!==undefined) 
 				   	defUrl = val;
-			} else if( def.getItems ){
-				var val = def.getItems(macro);
-				if( val!==undefined) 
-				   	defItems = val;
+				 }
+				 if( def.getItems ){
+					var val = def.getItems(macro);
+					if( val!==undefined) 
+				   		defItems = val;
+				}
 			}
 			title = defTitle ? macro.replace(defTitle) // replace-Macro(defTitle,macros1,macros)
 							  : titE.getAllNodeValue();
@@ -452,7 +455,7 @@ if(_debug) {
 	 }// bodys
 	} // defs
 		return items;
-}
+} // loadMenus4HtmlSelector
 
 function  loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros){
 		var items = [];

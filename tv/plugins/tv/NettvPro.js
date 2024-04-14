@@ -19,7 +19,8 @@
 			var lastPath = macro.get("URLDOM.attr.href.lastpath");
 			return lastPath && macro.get("PATHS").split("/") .indexOf()<0;
 		},
-		getValue: function(macro){
+		url:null,
+		getItems: function(macro){
 			const lastPath = macro.get("URLDOM.attr.href.lastpath");
 			var lastLv = true;
 			if( lastPath=="china" ){
@@ -31,12 +32,9 @@
 					lastLv = paths.length < ( lastPath=="cctv" && lastPath=="weishi" ? 2 :3 );
 				}
 			}
-			return  {
-				items : lastLv ?  "@crawler-list:tv/NettvPro.js#List3?[PATH=${URLDOM.attr.href}&PAGEIDX=1]"
+			return  lastLv ?  "@crawler-list:tv/NettvPro.js#List3?[PATH=${URLDOM.attr.href}&PAGEIDX=1]"
 				    : "@crawler-list:tv/NettvPro.js#List2?[PATH=${URLDOM.attr.href}&PATHS=${PATHS}/${URLDOM.attr.href.lastpath}]"
-				
-			} 
-			
+				;
 		}
 		/*
 		"condVals":[
