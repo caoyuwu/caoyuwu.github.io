@@ -323,7 +323,7 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 		var ea = body.querySelectorAll(def.htmlSelector); 
 		//htmlSelector(doc.getBody(),def.htmlSelector,macros);//doc.getBody().querySelectorAll(def.htmlSelector);
 		//var titSelector = def
-if(_debug)print("ea.length="+ea.length);	
+//if(_debug)print("ea.length="+ea.length);	
 		for(var i=0;i<ea.length;i++){
 			//var headE = ea[i].querySelector(">div > h3");
 			// "matcherRegExpByContent":"(.+)\\[18\\+\\](?::|：)\\s*((https|http):\\/\\/.+)"
@@ -447,7 +447,7 @@ if(_debug) {
 					item.items = loadMenus4Def(defItems,_contentUrl,contentCache,newMacro);
 				}
 			} //defItems
-			if( !item.url && !item.items && !item.urls){
+			if( item.url || item.items || item.urls){
 				items.push(item);  
 			}
 			//urlE.getAttribute("href");
