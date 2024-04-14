@@ -9,6 +9,8 @@ const cacheDefs = {};
 const RegMacroID = /\$\{(\w|\.|\-)+\}/g;
 (function(){
 	RegExp.prototype.exec1 = function(s){
+		if( !s )
+		    return null;
 		const v = this.exec(s);
 		return  v && v.length>1 ? v[1] : null;
 	};
@@ -234,7 +236,11 @@ function prepareMediaSource(url,params){
 			}
 			
 		}
-	}	   
+		return null;
+	}	  
+	if( def.getUrl ){
+		return def.getUrl(new Macro(v.params));
+	} 
 }
 
 function loadUrls(url,params)

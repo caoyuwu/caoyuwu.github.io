@@ -68,11 +68,46 @@
 		"url":"@crawler-urls:tv/NettvPro.js?[PATH=${URLDOM.attr.href}]"
 	},
 	"Urls":{
-		"contentUrl":"https://www.nettvpro.xyz/${PATH}",
-		"xxcontentUrl":"http://127.0.0.1/nettvpro${PATH}",
+		//"contentUrl":"https://www.nettvpro.xyz/${PATH}",
+		"contentUrl":"http://127.0.0.1/nettvpro${PATH}",
 		"htmlSelector":"> body > div#wrapper  div.main_content div.video-info  ul li a",
-		"url":"${URLDOM.attr.onClick}",
-		"regExpForUrl":/frame\('(.*)',.*\)/
+		//"url":"${URLDOM.attr.onClick}",
+		//"regExpForUrl":/frame\('(.*)',.*\)/
+		/*
+		    frame('/player/ckx2.html?url=...' 
+     	      frame('/player/play.html?url=https://v3.mediacast.hk/webcast/bshdlive-pc/playlist.m3u8&amp;t=video','100%','650')"
+     	      frame('/embed/cctv13.php',...)
+     	         重定向到  /player/video.html?url=https://....
+     	      frame('/embed/loudi.php?id=cctv13',...)
+     	         重定向到  /player/videojs.php?url=https://...
+     	      frame('player/play.html?url=cctv13&amp;t=cnsy',...)
+     	      frame('/player/video.html?url=...)
+		*/
+		getUrl(macro){
+			var url = /frame\('(.*)',.*\)/ .exec1(macro.get("URLDOM.attr.onClick"));
+			if( !url ){
+				return null;
+			}
+			if( url.startsWith("/player/") ){
+				var params = parseUrlParams(url);
+				return params ? params.url : null;
+			}
+			if( url.startsWith("/embed/") ){
+				 return "crawler:tv/NettvPro.js?[PATH="+encodeURIComponent(url)+"]";
+			}
+			return null;
+		}
+	},
+	"MediaSource":{
+		getUrl(macro) {
+			var path = macro.get("PATH");
+			if( !path )
+			    return null;
+			 if( path.startsWith("/embed/") ){
+				 var v = utils.httpGetRespHeaders("https://www.nettvpro.xyz"+path,null,0x420);
+				 return v ? v.Location || v.location : null;
+			 }   
+		}
 	}
 	
 }
