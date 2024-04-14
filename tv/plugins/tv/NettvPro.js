@@ -17,7 +17,7 @@
 		"htmlSelector":"> body > div#wrapper  div.main_content div.nav-channal ul >li  a ",
 		"filter" : function(macro){
 			var lastPath = macro.get("URLDOM.attr.href.lastpath");
-			return lastPath && macro.get("PATHS").split("/") .indexOf()<0;
+			return lastPath && macro.get("PATHS").split("/") .indexOf(lastPath)<0;
 		},
 		url:null,
 		getItems: function(macro){
@@ -65,7 +65,7 @@
 	"List3":{
 		"contentUrl":"https://www.nettvpro.xyz/${PATH}/list_${PAGEIDX}.html",
 		"htmlSelector":"> body > div#wrapper  div.main_content div.channals-list   a",
-		"url":"@crawler-urls:tv/NettvPro.json?[PATH=${URLDOM.attr.href}]"
+		"url":"@crawler-urls:tv/NettvPro.js?[PATH=${URLDOM.attr.href}]"
 	},
 	"Urls":{
 		"contentUrl":"https://www.nettvpro.xyz/${PATH}",
