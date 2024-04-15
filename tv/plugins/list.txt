@@ -35,20 +35,16 @@ douyulive|douyulive-list,Douyu.js
 
 douyinlive|douyinvideo|douyinlive-list,Douyin.js
 
-#jsyllive|jsyllive-list,Jsyl.js
 didilive|didilive-list,Didi.js
 
 4gtv|4gtv-list,4GTV.js
 
-nettvpro|nettvpro-urls|nettvpro-list,NettvPro.js
-#dsj|dsj-urls|dsj-list,DSJ.js
 
 yangshipin|yangshipin-list,Yangshipin.js
 ahtv,AHTV.js
 jstv,JSTV.js
 #zjtv,ZJTV.js
 
-#haoqu99|haoqu99-list|haoqu99-urls,Haoqu99.js
 
 seal1226|seal1226-list,Seal1226.js
 
@@ -57,3 +53,7 @@ crawler|crawler-list|crawler-urls,Crawler.js
 testvideo|test-menu-list,Test.js,x=1&y=2
 
 
+#jsyllive|jsyllive-list,Jsyl.js
+#haoqu99|haoqu99-list|haoqu99-urls,Haoqu99.js
+#nettvpro|nettvpro-urls|nettvpro-list,NettvPro.js
+#dsj|dsj-urls|dsj-list,DSJ.js
