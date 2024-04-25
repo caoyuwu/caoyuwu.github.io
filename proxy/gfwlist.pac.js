@@ -104,6 +104,9 @@ var hostGrps = function(){
 		// 爬的
 		"apollo.io",
 		
+		//非 GFW 封的地址 services are not available ,
+		"coze.com",
+		
 		"***"  // 最后一个被忽略 
   ];
   var rootGrps = {};	
