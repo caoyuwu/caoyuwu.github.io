@@ -15,11 +15,6 @@
 "redtraffic.xyz-玩美台,http://live.redtraffic.xyz:80/pov.m3u8",
 "redtraffic.xyz-限制级,http://cdn.adultiptv.net/blonde.m3u8?streamType=livеhls",
 
-"svi-studio.com-惊艳台,https://18.svi-studio.com/live/673960949860/294164781253/1.m3u8",
-"svi-studio.com-潘多拉,https://18.svi-studio.com/live/673960949860/294164781253/3.m3u8",
-"svi-studio.com-香蕉台,https://18.svi-studio.com/live/673960949860/294164781253/4.m3u8",
-"svi-studio.com-松视1台,https://18.svi-studio.com/live/673960949860/294164781253/5.m3u8",
-"svi-studio.com-松视2台,https://18.svi-studio.com/live/673960949860/294164781253/6.m3u8",
 
 
 "z88.ubtvfans.com-松视1,https://z88.ubtvfans.com:443/live/rx3/402/2d5f45ef7b7b90e9b47c6963be6d5120/index.m3u8??[proxy=*]",
@@ -122,8 +117,14 @@
 "午夜10,http://live.redtraffic.xyz:80/cuckold.m3u8",
 
 
-// 短片
+// 待废弃直播短片
 "setChannelNum=70000",
+
+"svi-studio.com-惊艳台,https://18.svi-studio.com/live/673960949860/294164781253/1.m3u8",
+"svi-studio.com-潘多拉,https://18.svi-studio.com/live/673960949860/294164781253/3.m3u8",
+"svi-studio.com-香蕉台,https://18.svi-studio.com/live/673960949860/294164781253/4.m3u8",
+"svi-studio.com-松视1台,https://18.svi-studio.com/live/673960949860/294164781253/5.m3u8",
+"svi-studio.com-松视2台,https://18.svi-studio.com/live/673960949860/294164781253/6.m3u8",
 
 
 // s级
@@ -170,7 +171,7 @@
    {label:"直播-4000",locked:1,items:["[4000-4999]"]},
    {label:"5000",locked:1,items:["[5000-5999]"]},
    {label:"6000",locked:1,items:["[6000-6999]"]},
-  // {label:"短片-70000",locked:1,items:["[70000-70999]"]},
+  // {label:"待废弃直播-70000",locked:1,items:["[70000-70999]"]},
    //{label:"短片-71000",locked:1,items:["[71000-71999]"]},
   // {label:"短片-72000",locked:1,items:["[72000-72999]"]},
   // {label:"电视剧-78000",items:["[78000-78099]"]},
