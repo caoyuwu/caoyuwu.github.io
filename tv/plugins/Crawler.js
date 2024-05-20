@@ -243,7 +243,7 @@ function prepareMediaSource(url,params){
 		return null;
 	}	  
 	if( def.getUrl ){
-		return def.getUrl(new Macro(defv.params));
+		return def.getUrl(new Macro(defv.params),content);
 	} 
 }
 
@@ -273,7 +273,7 @@ function loadMenus4Def(defs,contentUrl,contentCache,macros){
 	    return;
 	if( ! ( defs instanceof Array) )
 	     defs = [defs];   
-	if( defs[0].htmlSelector ){
+	if( defs[0].htmlSelector || defs[0].htmlSelectors ){
 		return loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros);
 	}
 	if( defs[0].linesByHtmlSelector ){
@@ -330,7 +330,9 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 	for( var body of bodys)	{
 	//if(_debug) print("def.htmlBodySelector="+def.htmlBodySelector+"; bodys.length="+bodys.length);	 
 	//if(_debug) print("body="+body+";"+typeof(body)+"; def.htmlSelector="+def.htmlSelector);	
-		var ea = body.querySelectorAll(def.htmlSelector); 
+	   const htmlSelectors = def.htmlSelectors ? def.htmlSelectors : [def.htmlSelector];
+	  for(var htmlSelector of htmlSelectors ) {
+		var ea = body.querySelectorAll(htmlSelector); 
 		//htmlSelector(doc.getBody(),def.htmlSelector,macros);//doc.getBody().querySelectorAll(def.htmlSelector);
 		//var titSelector = def
 //if(_debug)print("ea.length="+ea.length);	
@@ -365,6 +367,13 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 					//case "title": return title;
 					case "DOMCONTENT": return ea[i].getAllNodeValue().trim();
 					case "PREVDOMID": return i>0 ? ea[i-1].getAttribute("id") : null; 
+					case "CONTENTURL" : return _contentUrl;
+					case "CONTENTURLORIGIN" :{
+						var s = _contentUrl;
+						var p1 = s.indexOf("://"); if( p1<0 ) return null;
+						var p2 = s.indexOf("/",p1+3);
+						return p2>=0 ? s.substring(0,p2) : s;
+					}
 					default:
 						 if( id.startsWith("URLDOM.attr.") ) {
 							 return urlE.getAttribute(id.substring(12));
@@ -462,6 +471,7 @@ if(_debug) {
 			}
 			//urlE.getAttribute("href");
 		} // for ea.length
+	   } // htmlSelectors	
 	 }// bodys
 	} // defs
 		return items;
@@ -559,6 +569,20 @@ function  parseUrlParams(url){
 		}
 	} 
 	return  params;		
+}
+
+/*
+不要删除, 留给 脚本调用
+  opt:#1 : 需要加 {}
+*/
+function extractJsonValues(text,prefix,suffix,opt){
+	var p1 = text.indexOf(prefix);
+	if( p1<0 ) return null;
+	var p2 = text.indexOf(suffix,p1+prefix.length);
+	if( p2<0 ) return null;
+	var s = text.substring(p1+prefix.length,p2);
+	if( opt&1 ) s = "{"+s+"}";
+	return JSON.parse(s);
 }
 
 /*
