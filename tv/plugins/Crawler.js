@@ -97,8 +97,15 @@ function loadDef(defUrl){
 		delete  defs.contentUrl;
 		for(var defName in defs){
 			var def = defs[defName];
-			if( !def.contentUrl )
+			if( !def.contentUrl ) {
 			    def.contentUrl = contentUrl;
+			 } else if( def.contentUrl.startsWith("${DFTCONTENTURL}")) {
+				 def.contentUrl = contentUrl+def.contentUrl.substring(16);
+				 //var p = def.contentUrl.indexOf("${DFTCONTENTURL}");
+				 //if( p>=0 ){
+				//	 def.contentUrl = def.contentUrl
+				 //}
+			 }
 		}
 	}
 /*	
@@ -112,6 +119,7 @@ function _toArray(o){
 	return o && o instanceof Array ? o : [o];
 }
 /*
+   crawler--list:video/test.js?[PATH={URLDOM.attr.href}]
 */
 function load(url){
 	var p = url.indexOf(':');
