@@ -9,7 +9,7 @@
 		                ">body > div.container > div.row  > div.stui-warp-head > div.stui-pannel  > ul.stui-pannel__menu  > li a"
 		                ],
 		//"htmlSelector":">body > div.container > div.row > div   ul > li a",
-		"items": "@crawler-list://xvideo/hsck.js#ListPg;${CONTENTURL}${URLDOM.attr.href}",
+		"items": "@crawler-list://xvideo/hsck.js#ListPg;${CONTENTURLORIGIN}/${URLDOM.attr.href}",
 		"filter": function(macro){
 			var href = macro.get("URLDOM.attr.href");
 			return href && href.endsWith(".html");
@@ -20,7 +20,7 @@
 		BODY > DIV.container > DIV.row > DIV.stui-warp-content > DIV.stui-pannel.clearfix > DIV.stui-pannel-ft > UL.stui-page.text-center.clearfix
 		*/
 		htmlSelector : ">BODY > DIV.container > DIV.row > DIV.stui-warp-content > DIV.stui-pannel > DIV.stui-pannel-ft > UL.stui-page > li a",
-		items: "@crawler-list://xvideo/hsck.js#List2;${CONTENTURL}${URLDOM.attr.href}",
+		items: "@crawler-list://xvideo/hsck.js#List2;${CONTENTURLORIGIN}/${URLDOM.attr.href}",
 		filter: function(macro){
 			var tit = macro.get("DOMCONTENT");
 			if( !tit || ! /^\s*[-+]?\d+(\.\d+)?\s*$/ .test(tit) ){
