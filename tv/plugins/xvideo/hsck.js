@@ -3,7 +3,7 @@
 		   http://hsck.net , hscangku.com 跳转的 界面
 		*/
 	//"contentUrl":"http://777995.xyz/",
-	contentUrl : "http://hsck323.cc",
+	contentUrl : "http://hsck324.cc",
 	List:{
 		htmlSelectors:[ ">body > div.container > div.row > div.stui-header__top > ul.stui-header__menu > li a",
 		                ">body > div.container > div.row  > div.stui-warp-head > div.stui-pannel  > ul.stui-pannel__menu  > li a"
