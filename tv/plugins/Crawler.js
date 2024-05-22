@@ -374,6 +374,7 @@ function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
 					//case "url": return url;
 					//case "title": return title;
 					case "DOMCONTENT": return ea[i].getAllNodeValue().trim();
+					case "TITLEDOMCONTENT": return titE.getAllNodeValue().trim();
 					case "PREVDOMID": return i>0 ? ea[i-1].getAttribute("id") : null; 
 					case "CONTENTURL" : return _contentUrl;
 					case "CONTENTURLORIGIN" :{
@@ -434,6 +435,11 @@ if(_debug) {
 				  if( val!==undefined) 
 				   	defUrl = val;
 				 }
+				 if( def.getTitle ){
+					   var val = def.getTitle(macro);
+				       if( val!==undefined) 
+				      	defTitle = val;
+				  }
 				 if( def.getItems ){
 					var val = def.getItems(macro);
 					if( val!==undefined) 

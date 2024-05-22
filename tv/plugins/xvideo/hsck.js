@@ -8,6 +8,7 @@
 	//"http://hsck324.cc",
 	contentUrl : function(){
 		var url = "https://666937.xyz:8899/?u=http://hsck.net/&p=/"; // 从 http://hsck.net 返回获取
+		// https://666937.xyz:8899/?u=
 		var m = utils.httpGetRespHeaders(url,{},0x20|0x400);	
 		return m.Location;	
 	},
@@ -18,6 +19,15 @@
 		//"htmlSelector":">body > div.container > div.row > div   ul > li a",
 		//"items": "@crawler-list://xvideo/hsck.js#ListPg;${CONTENTURLORIGIN}${URLDOM.attr.href}",
 		"items": "@crawler-list://xvideo/hsck.js#ListPg?[PATH=${URLDOM.attr.href}]",
+		getTitle: function(macro){
+		    	var tit = macro.get("TITLEDOMCONTENT");
+		    	if( tit ) {
+					var v = /([^0-9]+)/ .exec(tit);
+					if( v && v.length>0 ) tit = v[0];
+					return tit;
+				}
+				
+		},
 		"filter": function(macro){
 			var href = macro.get("URLDOM.attr.href");
 			return href && href.endsWith(".html");
