@@ -77,7 +77,7 @@ function loadDef(defUrl){
 	for(var defName in defs){
 		var def = defs[defName];
 		if( defName=="contentUrl" ){
-			contentUrl = def;
+			contentUrl = typeof(def)=="function" ? def() : def;
 			continue;
 		}
 		def._name = defName;

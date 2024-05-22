@@ -1,9 +1,16 @@
 {
 	/*
 		   http://hsck.net , hscangku.com 跳转的 界面
+		      var strU="https://666937.xyz:8899/?u="+window.location+"&p="+
+		   https://666937.xyz:8899/?u=http://hsck.net/&p=/
 		*/
 	//"contentUrl":"http://777995.xyz/",
-	contentUrl : "http://hsck324.cc",
+	//"http://hsck324.cc",
+	contentUrl : function(){
+		var url = "https://666937.xyz:8899/?u=http://hsck.net/&p=/"; // 从 http://hsck.net 返回获取
+		var m = utils.httpGetRespHeaders(url,{},0x20|0x400);	
+		return m.Location;	
+	},
 	List:{
 		htmlSelectors:[ ">body > div.container > div.row > div.stui-header__top > ul.stui-header__menu > li a",
 		                ">body > div.container > div.row  > div.stui-warp-head > div.stui-pannel  > ul.stui-pannel__menu  > li a"
