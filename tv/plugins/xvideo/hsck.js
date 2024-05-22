@@ -1,6 +1,6 @@
 {
 	/*
-		   http://hsck.net , hscangku.com 跳转的 界面
+		   http://hsck.net , http://hsck.cc ,hscangku.com 跳转的 界面
 		      var strU="https://666937.xyz:8899/?u="+window.location+"&p="+
 		   https://666937.xyz:8899/?u=http://hsck.net/&p=/
 		*/
