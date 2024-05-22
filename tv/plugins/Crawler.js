@@ -99,8 +99,8 @@ function loadDef(defUrl){
 			var def = defs[defName];
 			if( !def.contentUrl ) {
 			    def.contentUrl = contentUrl;
-			 } else if( def.contentUrl.startsWith("${DFTCONTENTURL}")) {
-				 def.contentUrl = contentUrl+def.contentUrl.substring(16);
+			 } else if( def.contentUrl.startsWith("~")) {
+				 def.contentUrl = contentUrl+def.contentUrl.substring(1);
 				 //var p = def.contentUrl.indexOf("${DFTCONTENTURL}");
 				 //if( p>=0 ){
 				//	 def.contentUrl = def.contentUrl

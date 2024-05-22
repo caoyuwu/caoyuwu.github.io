@@ -17,7 +17,7 @@
 		}
 	},
 	ListPg:{
-		contentUrl:"${DFTCONTENTURL}${PATH}",
+		contentUrl:"~${PATH}",
 		/*
 		BODY > DIV.container > DIV.row > DIV.stui-warp-content > DIV.stui-pannel.clearfix > DIV.stui-pannel-ft > UL.stui-page.text-center.clearfix
 		*/
@@ -34,7 +34,7 @@
 		}
 	},
 	"List2":{
-		contentUrl:"${DFTCONTENTURL}${PATH}",
+		contentUrl:"~${PATH}",
 		// http://777995.xyz/vodtype/8.html
 		"htmlSelector":">body > div.container > div.row >div.stui-warp-content > div.stui-pannel > div.stui-pannel-bd > ul.stui-vodlist > li h4 >a  ",
 		//"url":"crawler://xvideo/hsck.js;${CONTENTURLORIGIN}${URLDOM.attr.href}",
@@ -46,7 +46,7 @@
 	 },
 	 
 	 "MediaSource":{
-		 contentUrl:"${DFTCONTENTURL}${PATH}",
+		 contentUrl:"~${PATH}",
 		 /*
 		 <script type="text/javascript">var player_aaaa={  }</script>
 		   "url":"https:\/\/t25.cdn2020.com\/video\/m3u8\/2024\/05\/18\/4184631e\/index.m3u8"
