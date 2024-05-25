@@ -487,13 +487,15 @@ if(_debug) {
 			}
 			title = defTitle ? macro.replace(defTitle) // replace-Macro(defTitle,macros1,macros)
 							  : titE.getAllNodeValue();
-			if( defUrl===null )
+			if( defUrl===null ){
 				url =  null;			   
-			else if( defUrl  )				  
+			} else if( defUrl  ){				  
 		   	   url = macro.replace(defUrl);//replace-Macro(defUrl,macros1,macros);
-		   	else {
+		    } else if( !defItems ){
 			   url = urlE.getAttribute("href"); // href	   
-			}   
+			} else {
+			     url =  null;	
+			 }
 			if( def.regExpForUrl && url ){
 				var v = def.regExpForUrl.exec(url);
 				if( !v )
