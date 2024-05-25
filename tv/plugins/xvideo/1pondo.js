@@ -48,10 +48,11 @@
 			//var title = i.Title");
 			//var movieID = i.get("MovieID");
 			//var release = (String)mi.get("Release");
-			var MemberFiles = i.MemberFiles;
+			//var MemberFiles = i.MemberFiles;
+			var SampleFiles = i.SampleFiles;
 			items.push({
 				title:i.Title+"("+i.Release+")",
-				url :MemberFiles[MemberFiles.length-1].URL
+				url : SampleFiles[SampleFiles.length-1].URL
 			});
 		}
 		return items;
