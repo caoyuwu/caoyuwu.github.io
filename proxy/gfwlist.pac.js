@@ -98,9 +98,8 @@ var hostGrps = function(){
 		"fanqiangdang.com",
 		"v2rayssr.com",
 		// 其他x:
-		"1pondo.tv", // 
+		//"1pondo.tv", // 
 		"r18.com", //日本
-		"oidhfjg.com",  // didi-live
 		"pornhub.com", "naiadsystems.com","livehdcams.com",
 		// 爬的
 		"apollo.io",
