@@ -51,8 +51,8 @@
 			//var MemberFiles = i.MemberFiles;
 			var SampleFiles = i.SampleFiles;
 			items.push({
-				title:i.Title+"("+i.Release+","+i.Actor+")",
-				url : SampleFiles[SampleFiles.length-1].URL
+				title : i.Title+"("+i.Release+","+i.Actor+")",
+				url   : SampleFiles[SampleFiles.length-1].URL
 			});
 		}
 		return items;
