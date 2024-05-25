@@ -323,7 +323,7 @@ function loadMenus4Def(defs,contentUrl,contentCache,macros){
 	if( def.loadItems ){
         	const _contentUrl = replaceMacro1(contentUrl||def.contentUrl,macros);
       //  print("def._parent = "+def._parent);	
-        	def.loadItems(items,_contentUrl);
+        	def.loadItems(items,_contentUrl,contentCache,macros);
         	continue;
 	 }
 	} // for defs
@@ -392,6 +392,8 @@ function  loadMenus4HtmlSelector(items,def,contentUrl,contentCache,macros){
 			const macro = new Macro(
 				function(id){
 				switch( id ){
+					case "URLDOM" : return urlE;
+					case "TITLEDOM" : return titE;
 					case "URLDOM.attr.href": return urlE.getAttribute("href");
 					case "URLDOM.attr.href.name": {
 						var s = urlE.getAttribute("href");

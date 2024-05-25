@@ -22,7 +22,7 @@
 		getTitle: function(macro){
 		    	var tit = macro.get("TITLEDOMCONTENT");
 		    	if( tit ) {
-					var v = /([^0-9]+)/ .exec(tit);
+					var v = /[^0-9]+/ .exec(tit);
 					if( v && v.length>0 ) tit = v[0];
 					return tit;
 				}

@@ -193,6 +193,7 @@
 	},	
 
 	{label:"1888网-x直播源","locked":1,"items":"@crawler-list:xvideo/yibababa18+.js"},
+	{label:"cn.pornhub.com","locked":1,items:"@crawler-list:xvideo/pornhub.js"},
 	{label:"hsck.net","locked":1,items:"@crawler-list:xvideo/hsck.js"},
 	{label:"1pondo.tv","locked":1,items:"@crawler-list:xvideo/1pondo.js"},
 	{label:"www.jieav.com","locked":1,items:"@crawler-list:xvideo/jieav.js"},

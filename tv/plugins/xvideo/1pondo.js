@@ -9,6 +9,11 @@
 			*/
 			var json = utils.httpGetAsString(contentUrl,0x408);
 			var m = JSON.parse(json);
+			var page1Items = this._parent.parseContentRows(m.Rows);
+			if( m.TotalRows<=m.SplitSize ){
+				for( var i  of page1Items) items.push(i);
+				return;
+			}
 			//var TotalRows = m.TotalRows, SplitSize = m.SplitSize;
 //	print("this="+this);	
 //	print("this._parent.num2Str="+this._parent.num2Str);		
@@ -18,8 +23,8 @@
 				var title = this._parent.num2Str(i,4)+" - "+this._parent.num2Str(i2,4);
 				if( i==0 ){
 					items.push({
-					items: this._parent.parseContentRows(m.Rows),
-					title:title
+					items: page1Items,
+					title : title
 				  });
 				} else {
 				items.push({
