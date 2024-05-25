@@ -4,8 +4,8 @@
 	List:{
 		contentUrl : "~/categories",
 		htmlSelector : "> BODY > DIV.wrapper > DIV.container > DIV.categoriesPage > DIV.nf-videos > DIV#categoriesListingWrapper > UL.categoriesListSection > LI .categoryTitleWrapper a ",
-		//items: "@crawler-list://xvideo/pornhub.js#List2?[PATH=${URLDOM.attr.href}",
-		items: "@crawler-list://xvideo/pornhub.js#ListPg?[PATH=${URLDOM.attr.href}",
+		//items: "@crawler-list://xvideo/pornhub.js#List2?[PATH=${URLDOM.attr.href}]",
+		items: "@crawler-list://xvideo/pornhub.js#ListPg?[PATH=${URLDOM.attr.href}]",
 		url : null,
 		getTitle: function(macro){
 			var tit = macro.get("TITLEDOMCONTENT");
@@ -34,7 +34,7 @@
 		// https://cn.pornhub.com/video?c=28
 		contentUrl : "~${PATH}",
 		htmlSelector : ">BODY > DIV.wrapper > DIV.container > DIV.paginationGated > ul > li.page_number > a  ",
-		items: "@crawler-list://xvideo/pornhub.js#List2?[PATH=${URLDOM.attr.href}"
+		items: "@crawler-list://xvideo/pornhub.js#List2?[PATH=${URLDOM.attr.href}]"
 		// https://cn.pornhub.com/video?c=28 ?
 		
 	},
