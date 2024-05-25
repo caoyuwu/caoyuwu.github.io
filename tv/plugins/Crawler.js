@@ -74,13 +74,18 @@ function loadDef(defUrl){
 	//defs =  cacheDefs[defUrl] = JSON.parse(defText);
 	defs =  cacheDefs[defUrl] = eval("("+defText+")");
 	var contentUrl = null;
+	var config = null; 
 	for(var defName in defs){
 		var def = defs[defName];
 		if( defName=="contentUrl" ){
 			contentUrl = typeof(def)=="function" ? def() : def;
 			continue;
 		}
+		if( typeof(def)=="string" || typeof(def)=="function" || typeof(def)=="number" ){
+			continue;
+		} 
 		def._name = defName;
+		def._parent = defs;
 		/*
 		for( var id of DefRegExpIds){
 			const p = id.lastIndexOf("/");
@@ -97,6 +102,9 @@ function loadDef(defUrl){
 		delete  defs.contentUrl;
 		for(var defName in defs){
 			var def = defs[defName];
+			if( typeof(def)=="string" || typeof(def)=="function" || typeof(def)=="number" ){
+				continue;
+			}
 			if( !def.contentUrl ) {
 			    def.contentUrl = contentUrl;
 			 } else if( def.contentUrl.startsWith("~")) {
@@ -166,7 +174,7 @@ function load(url){
 //if(_debug) print("params="+ JSON.stringify(params)+",contentUrl="+contentUrl+",defUrl="+defUrl);	    
 	var defs = loadDef(defUrl);
 	var defsA = [];
-	for(var defName in defs){
+	for(var defName in defs) {
 		if( defName==defType || defName.startsWith(defType+"-") ){
 			defsA.push(defs[defName]);
 		}
@@ -204,7 +212,11 @@ function loadHTMLDoc(url,cache){
 	    ; 
 }
 
-
+/** 
+  @return  
+        (1)  "http://..."
+  		(2) {url:"http://..."",proxy:"*",headers:{}} 
+*/
 function prepareMediaSource(url,params){
 	const defv = load(url);
 	if( !defv )
@@ -265,7 +277,13 @@ function loadUrls(url,params)
 	return loadMenus4Def(v.defs,v.contentUrl,contentCache,v.params);   
 }	
 
-
+/**
+ * @return 
+ *   { title:"...",items:"@crawler-list:"}
+ *  { title:"...",items:[{},...]}
+ *   { title:"...",url:"crawler:"}
+ * { title:"...",url:"http://..."}
+ */
 function loadMenus(url,params){
 //print("loadMenus " + url);	
 	var v = load(url);
@@ -275,18 +293,41 @@ function loadMenus(url,params){
     const contentCache = {};
 	return loadMenus4Def(v.defs,v.contentUrl,contentCache,v.params);   
 }
-
+/*
+  i => to
+*/
+/*
+function  addItemsTo(to, v){
+	if( !v ) return;
+	if( v instanceof)
+} */
 function loadMenus4Def(defs,contentUrl,contentCache,macros){
 	if( !defs )
 	    return;
 	if( ! ( defs instanceof Array) )
 	     defs = [defs];   
-	if( defs[0].htmlSelector || defs[0].htmlSelectors ){
-		return loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros);
+	var items = [];
+	for(var def of defs)
+    {     
+	if( def.htmlSelector || def.htmlSelectors ){
+		 loadMenus4HtmlSelector(items,def,contentUrl,contentCache,macros);
+		 continue;
 	}
-	if( defs[0].linesByHtmlSelector ){
-		return loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros);		
+	if( def.linesByHtmlSelector ){
+		loadMenus4LinesByHtmlSelector(items,def,contentUrl,contentCache,macros);	
+		continue;	
 	}   
+	/*
+	   必须最后处理 getItems, 因为 htmlSelector 情况下也有 
+	*/ 
+	if( def.loadItems ){
+        	const _contentUrl = replaceMacro1(contentUrl||def.contentUrl,macros);
+      //  print("def._parent = "+def._parent);	
+        	def.loadItems(items,_contentUrl);
+        	continue;
+	 }
+	} // for defs
+	return items;
 }
 
 function _getBodys4HtmlBodySelector(def,doc,macros){
@@ -320,11 +361,7 @@ function _getBodys4HtmlBodySelector(def,doc,macros){
 	return bodys;			   	
 }
 
-function  loadMenus4HtmlSelector(defs,contentUrl,contentCache,macros){
-		var items = [];
-    //for(var i=0;i<defs.length;i++)
-    for(var def of defs)
-    {
+function  loadMenus4HtmlSelector(items,def,contentUrl,contentCache,macros){
 //if(_debug) print("  [loadMenus4HtmlSelector]def._name="+def._name+",contentUrl="+def.contentUrl);
         const _contentUrl = replaceMacro1(contentUrl||def.contentUrl,macros);
 //if(_debug) print("  ;_contentUrl="+_contentUrl);        			
@@ -487,15 +524,10 @@ if(_debug) {
 		} // for ea.length
 	   } // htmlSelectors	
 	 }// bodys
-	} // defs
-		return items;
+	//	return items;
 } // loadMenus4HtmlSelector
 
-function  loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros){
-		var items = [];
-    //for(var i=0;i<defs.length;i++)
-    for(var def of defs)
-    {
+function  loadMenus4LinesByHtmlSelector(items,def,contentUrl,contentCache,macros){
 //if(_debug) print("  [loadMenus4HtmlSelector]def._name="+def._name+",contentUrl="+def.contentUrl);
  		const doc = loadHTMLDoc(replaceMacro1(contentUrl||def.contentUrl,macros),contentCache);
 		//var def = defs[i];
@@ -556,8 +588,7 @@ function  loadMenus4LinesByHtmlSelector(defs,contentUrl,contentCache,macros){
 				}   
 		  } //for ea.length
 	  } // bodys
-	}
-	return items;	 
+	//return items;	 
 }
 
 function replaceMacro1(s,macro){
