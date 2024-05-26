@@ -32,7 +32,8 @@
 		loadItems : function(items, contentUrl){
 			if( !contentUrl.endsWith(".html") )
 			   return;
-			 var urlPrefix = contentUrl.substring(0,contentUrl.length-5);
+			 var p1 =  contentUrl.indexOf("/",8);   // 确保 https:// 后的第一个
+			 var urlPrefix = contentUrl.substring(p1,contentUrl.length-5);
 			for(var page=2;page<=50;page++){
 				items.push({
 					title : ""+page,
