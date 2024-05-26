@@ -195,6 +195,7 @@
 	{label:"cn.pornhub.com","locked":1,items:"@crawler-list:xvideo/pornhub.js"},
 	{label:"hsck.net","locked":1,items:"@crawler-list:xvideo/hsck.js"},
 	{label:"1pondo.tv","locked":1,items:"@crawler-list:xvideo/1pondo.js"},
+	{label:"tokyo-hot.com","locked":1,items:"@crawler-list:xvideo/tokyo-hot.js"},
 	{label:"www.jieav.com","locked":1,items:"@crawler-list:xvideo/jieav.js"},
 	{label:"www.tasexy.com","locked":1,items:"@crawler-list:xvideo/tasexy.js"},
 
