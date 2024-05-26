@@ -226,6 +226,7 @@ function prepareMediaSource(url,params){
 //if(_debug) 	print("content="+content);
 //print(def.urlMatcherRegExp)	   
     if( def.urlMatcherRegExp ){
+		// /<video[\s\S]*>[\s\S]*src="((https|http):\/\/[^"]+)"[\s\S]*<\/video>/,
 		const ra = def.urlMatcherRegExp  instanceof Array ? def.urlMatcherRegExp : [def.urlMatcherRegExp];
 		for(var r of ra){
 			//const r = def.urlMatcherRegExp;
@@ -253,7 +254,7 @@ function prepareMediaSource(url,params){
 				  ??? 获取不到  source
 				 */  
 				src = e.querySelector("source");
-		//if(_debug)print("src="+src);		
+//		if(_debug)print("src="+src);		
 				if( src && src.src ){
 					return src.src;
 				}   
@@ -486,7 +487,7 @@ if(_debug) {
 				}
 			}
 			title = defTitle ? macro.replace(defTitle) // replace-Macro(defTitle,macros1,macros)
-							  : titE.getAllNodeValue();
+							  : removeMutiBlanks(titE.getAllNodeValue());
 			if( defUrl===null ){
 				url =  null;			   
 			} else if( defUrl  ){				  
@@ -634,6 +635,9 @@ function extractJsonValues(text,prefix,suffix,opt){
 	return JSON.parse(s);
 }
 
+function removeMutiBlanks(s){
+	return s ? s.replaceAll(/\s{2,}/g,' ') : s;
+}
 /*
   condVals:[
 	  {
