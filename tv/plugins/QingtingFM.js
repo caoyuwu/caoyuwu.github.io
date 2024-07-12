@@ -14,6 +14,8 @@ function prepareMediaSource(url,params){
 	  var a= "app_id=web&path="+urlEncodedPath+"&ts="+ts;
 	  var  sign = utils. hmacDigestAsHex("HmacMD5","Lwrpu$K5oP",a).toLowerCase();
 		  //StrUtils.toHexString(MessageDigestUtils.hmacDigest("HmacMD5", HmacMD5_Key, a.getBytes(StandardCharsets.UTF_8))).toLowerCase();
-	  return "http://lhttp.qingting.fm"+path+"?app_id=web&ts="+ts+"&sign="+sign;
+	  //https://lhttp-hw.qtfm.cn/live/336/64k.mp3?app_id=web&ts=669100f0&sign=da5c99b64c7b3493efc3af267f66a16d
+	//  return "http://lhttp.qingting.fm"+path+"?app_id=web&ts="+ts+"&sign="+sign;
+	  return "http://lhttp-hw.qtfm.cn"+path+"?app_id=web&ts="+ts+"&sign="+sign;
 }
 

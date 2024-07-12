@@ -3,11 +3,14 @@
  =>https://live.ximalaya.com/live-web/v1/radio?radioId=93
   ximalayaradio://93
   https://live.xmcdn.com/live/" + radioId + "/64.m3u8?transcode=ts"
+  https://live.ximalaya.com/live-web/v1/radio?radioId=964  //959年代音乐
+  => http://live.ximalaya.com/radio-first-page-app/live/964/64.m3u8?transcode=ts
 */
 
 function prepareRadioSource(radioId){
 	// https://live.xmcdn.com/live/" + radioId + "/64.m3u8?transcode=ts"
 	var text = utils.httpGetAsString("https://live.ximalaya.com/live-web/v1/radio?radioId="+radioId);
+//if(_debug)print(text);	
 	var data = JSON.parse(text);
 	if(data.ret)
 		 throw data.msg;
