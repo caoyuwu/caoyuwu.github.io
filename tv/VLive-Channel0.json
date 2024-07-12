@@ -134,7 +134,6 @@
   								"[CNTV]cntv://cctv14"
   								]},  
   {id:"CCTV-15",num:"15",urls:[
-  	"http://zy.otioi.cn/live/live.php?token=OTl3ByOe14&id=cctv15",
   				"ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221225601/index.m3u8$",
   				"dbiptv.sn.chinamobile.com|http://dbiptv.sn.chinamobile.com/PLTV/88888888/224/3221225785/1.m3u8",
   				"migu://673168223",
@@ -165,16 +164,14 @@
   
   {id:"凤凰卫视",num:"22",urls:[
            // https://www.nettvpro.live/hongkong/147.html nettvpro://hongkong/147
+           "临时|http://116.162.6.192/1.v.smtcdns.net/qctv.fengshows.cn/live/0701pcc72.m3u8",
           "ifeng.com|https://playtimeshift-live.ifeng.com/timeshift/live/06OLEGEGM4G/timeshift.m3u8?txKbps=702&delay=1",
-   		 "0472.org(IPV6)|https://0472.org/hls/youzaiSB/fhzw.m3u8",
-   		 "2409:8087:2001:20:2800:0:df6e:eb22|http://[2409:8087:2001:20:2800:0:df6e:eb22]:80/ott.mobaibox.com/PLTV/3/224/3221228527/1.m3u8",
    		"nettvpro://hongkong/147"	
    //      "凤凰秀|http://live.fengshows.com/live/PCC_500k/index.m3u8"  // 
          ]},
   {id:"凤凰资讯",num:"23",urls:[
+        "临时|http://116.162.6.192/1.v.smtcdns.net/qctv.fengshows.cn/live/0701pin72.m3u8", 
         "ifeng.com|https://playtimeshift-live.ifeng.com/timeshift/live/06OLEEWQKN4/timeshift.m3u8?txKbps=702&delay=1",
-        "0472.org(IPV6)|https://0472.org/hls/youzaiSB/fhzx.m3u8",
-        "2409:8087:2001:20:2800:0:df6e:eb22|http://[2409:8087:2001:20:2800:0:df6e:eb19]:80/ott.mobaibox.com/PLTV/3/224/3221228524/1.m3u8",
         "nettvpro://hongkong/146"	
        ]},
   
