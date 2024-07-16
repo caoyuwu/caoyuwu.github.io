@@ -1,9 +1,9 @@
 /*
  * docs/开发环境/GfwHost.txt
- * http://caoyuwu.eu.org/proxy/gfwlist.pac.js
+ * https://caoyuwu.eu.org/proxy/gfwlist.pac.js
  * http://localhost/doc/pac/gfwpac.pac.js
  * chrome://net-internals/#proxy : 重置代理
- * http://caoyuwu.eu.org/proxy/TestPac.html
+ * https://caoyuwu.eu.org/proxy/TestPac.html
  * 参考 
  * genpac 2.1.0 https://github.com/JinnLynn/genpac
 
@@ -50,6 +50,7 @@ var hostGrps = function(){
 		"whatsapp.com",
 
 		"twitter.com",
+		"x.com",
 		"twimg.com",
 		"t.co",
 
