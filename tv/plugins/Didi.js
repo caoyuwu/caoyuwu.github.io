@@ -1,5 +1,5 @@
 /*
-  http://caoyuwu.eu.org/tv/plugins/Didi.js
+  https://caoyuwu.eu.org/tv/plugins/Didi.js
   参考：
    DidiLiveService
   app下载:
@@ -104,9 +104,9 @@ function prepareMediaSource(url,params){
 	}
 	data = data.data;
 	if( !data.stream )
-		return null;//bkMediaSource[userId];
+		return bkMediaSource[userId] || null; //null;//
 	//data.stream.pull_url;
-	return  data.stream.pull_url ; //bkMediaSource[userId] =
+	return  bkMediaSource[userId] = data.stream.pull_url ; //bkMediaSource[userId] =
 }
 
 var AppVersion = "1.12.2";//"2.0.29";
