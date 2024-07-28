@@ -4,6 +4,7 @@
 	 {"label":"央视频","items":"@txtloader:http://caoyuwu.eu.org/tv/channels/yangshipin.txt"},
 	 {"label":"ainm.cc/c/m","items":"@crawler-list:tv/ainm.js"},
 	// {"label":"agit.ai/Yoursmile7","items":"@txtloader:https://agit.ai/Yoursmile7/TVBox/raw/branch/master/live.txt"},
+	 {"label":"TVBOX(jundie.top)","items":"@txtloader:http://home.jundie.top:81/Cat/tv/live.txt"},
 	 {"label":"tvlist1@caoyuwu.eu.org","items":"@txtloader:http://caoyuwu.eu.org/tv/channels/tvlist1.txt"},
 	 {"label":"xhdwc.tk","items":"@txtloader:https://xhdwc.tk/tvlive/txt"},
 	 //{"label":"好趣网","items":"@haoqu99-list:"},
