@@ -135,6 +135,9 @@ myIpAddress() 返回本机的 ip (貌似不太可靠，见 wikipedia 的说明)
 shExpMatch(str, pattern) 判断两个字符串是否匹配，pattern 中可以包含 shell 使用的通配符
 
  * https://www.google.com:8000/,www.google.com
+ 
+ /(?:^|\.)github\.com$/.test(host)
+ * 
  */
 
 function FindProxyForURL(url, host) {
