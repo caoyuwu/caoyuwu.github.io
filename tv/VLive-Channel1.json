@@ -276,7 +276,8 @@
   // {label:"电视剧-78000",items:["[78000-78099]"]},
   // {label:"192.168.1.8",locked:1,items:"@webdirlist:http://192.168.1.8/mydoc-html/x-channels/"},
    {label:"router.lan",locked:1,items:"@webdirlist:http://router.lan/x-channels/"},
-
+   {"label":"adultiptv.net",locked:1,"items":"@m3uloader:http://adultiptv.net/chs.m3u"},
+ 
   {label:"小红帽",locked:1,items:[
 	   {label:"热门-1",items:"@didilive-list:hot/1"},
 	    {label:"收费-1",items:"@didilive-list:vip/1"},
@@ -290,8 +291,7 @@
 	   {label:"颜-2",items:"@didilive-list:vegan/2"}
 		]
 	},	
-
-	{label:"1888网-x直播源","locked":1,"items":"@crawler-list:xvideo/yibababa18+.js"},
+ 	{label:"1888网-x直播源","locked":1,"items":"@crawler-list:xvideo/yibababa18+.js"},
 	{label:"cn.pornhub.com","locked":1,items:"@crawler-list:xvideo/pornhub.js"},
 	{label:"hsck.net","locked":1,items:"@crawler-list:xvideo/hsck.js"},
 	{label:"草榴(caoliuzyw.com)","locked":1,items:"@crawler-list:xvideo/caoliuzyw.js"},
