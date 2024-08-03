@@ -11,6 +11,7 @@
 	 {"label":"yibababa.com","items":"@crawler-list:tv/yibababa.js"},
     // {"label":"NettvPro","items":"@nettvpro-list:Asia/china/1"},
      {"label":"NettvPro","items":"@crawler-list:tv/NettvPro.js"},
+      {"label":"4gtv.mumi.rip","items":"@m3uloader:http://4gtv.mumi.rip:9877/index.m3u8"},
      {"label":"Youtube","items":"@youtube-list"},
      {"label":"router.lan","items":"@webdirlist:http://router.lan/tv-channels/"}     		  
   ]
