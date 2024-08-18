@@ -1241,6 +1241,12 @@
 "安徽家家购物,hhttp://zbbf2.ahtv.cn/live/da9.m3u8",  
     "setChannelNum=984200",//地方台-重庆 984200
     "setChannelNum=984225",//地方台-山西 984225
+ "黄河电视台,http://liveflash.sxrtv.com/live/huanghe.m3u8?sub_m3u8=true&edge_slice=true",
+ "山西经济与科技,http://liveflash.sxrtv.com/live/sxfinance.m3u8?sub_m3u8=true&edge_slice=true",
+ "山西影视,http://liveflash.sxrtv.com/live/sxfilm.m3u8?sub_m3u8=true&edge_slice=true",
+ "山西社会与法治,http://liveflash.sxrtv.com/live/sxedu.m3u8?sub_m3u8=true&edge_slice=true",
+ "山西文体生活,http://liveflash.sxrtv.com/live/sxpublic.m3u8?sub_m3u8=true&edge_slice=true",
+    
     "setChannelNum=984250",//地方台-湖北 984250
 "湖北经视频道,http://app.cjyun.org/video/player/index?video=http://live.cjyun.org/hubeitv/s10008-live-hbjs.m3u8&sid=1&autoStart=1",
 "湖北影视频道,http://livesafe.hbtv.com.cn/hubeitv/s10008-live-hbys.m3u8?sign=8ae98ad5b95598e5b57ae3d67e12ee38&t=5fd9a352&sign=8ae98ad5b95598e5b57ae3d67e12ee38&t=5fd9a352",
@@ -1301,6 +1307,10 @@
     "setChannelNum=984625", //地方台-内蒙古 984625
     "setChannelNum=984650",//地方台-青海 984650
     "setChannelNum=984675",//地方台-宁夏 984675
+ "宁夏公共,https://hls.ningxiahuangheyun.com/live/nxgg1M.m3u8",
+ "宁夏经济,https://hls.ningxiahuangheyun.com/live/nxjj1M.m3u8",
+ "宁夏少儿,https://hls.ningxiahuangheyun.com/live/nxse1M.m3u8",
+ "宁夏文旅,https://hls.ningxiahuangheyun.com/live/nxwl1M.m3u8",   
     "setChannelNum=984700",//地方台-甘肃 984700
     "setChannelNum=984725",//地方台-新疆 984725
     "setChannelNum=984750",//地方台-西藏 984750
@@ -1430,7 +1440,7 @@
         {label:"天津",items:["天津卫视","[984150-984174]"]},
         {label:"安徽",items:["安徽卫视","[984175-984199]"]},
         //{label:"重庆",items:["重庆卫视","[984200-984224]"]},
-        //{label:"山西",items:["山西卫视","[984225-984249]"]},
+        {label:"山西",items:["山西卫视","[984225-984249]"]},
         {label:"湖北",items:["湖北卫视","[984250-984274]"]},
         //{label:"黑龙江",items:["黑龙江卫视","[984275-984299]"]},
         {label:"山东",items:["山东卫视","[984300-984324]"]},
@@ -1448,7 +1458,7 @@
         //{label:"贵州",items:["贵州卫视","[984600-984624]"]},
         //{label:"内蒙古",items:["内蒙古卫视","[984625-984649]"]},
         //{label:"青海",items:["青海卫视","[984650-984674]"]},
-        //{label:"宁夏",items:["宁夏卫视","[984675-984699]"]},
+        {label:"宁夏",items:["宁夏卫视","[984675-984699]"]},
         //{label:"甘肃",items:["甘肃卫视","[984700-984724]"]},
         //{label:"新疆",items:["新疆卫视","[984725-984749]"]},
         //{label:"西藏",items:["西藏卫视","[984750-984774]"]},
