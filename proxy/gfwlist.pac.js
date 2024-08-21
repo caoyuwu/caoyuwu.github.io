@@ -102,6 +102,7 @@ var hostGrps = function(){
 		//"1pondo.tv", // 
 		"r18.com", //日本
 		"pornhub.com", "naiadsystems.com","livehdcams.com",
+		"gua.cool",
 		// 爬的
 		"apollo.io",
 		
