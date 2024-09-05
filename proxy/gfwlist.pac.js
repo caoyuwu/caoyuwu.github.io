@@ -15,10 +15,12 @@
        https://github.com/gfwlist/gfwlist 
  *  语言参考:
    http://findproxyforurl.com/pac-functions/
+  
  */
 
 //var proxy = 'SOCKS5 proxy.caoyuwu.eu.org:1080; DIRECT';
-var proxy = 'SOCKS5 proxy.lan:1080; DIRECT';
+//var proxy = 'SOCKS5 proxy.lan:1080; DIRECT';
+var proxy = 'PROXY proxy.lan:1080; DIRECT';
 //var proxy = 'PROXY proxy.caoyuwu.eu.org:1087; DIRECT';
 
 var hostGrps = function(){
