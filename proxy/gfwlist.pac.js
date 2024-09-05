@@ -1,14 +1,16 @@
 /*
- * docs/开发环境/GfwHost.txt
- * https://caoyuwu.eu.org/proxy/gfwlist.pac.js
- * http://localhost/doc/pac/gfwpac.pac.js
- * chrome://net-internals/#proxy : 重置代理
- * https://caoyuwu.eu.org/proxy/TestPac.html
- * 参考 
- * genpac 2.1.0 https://github.com/JinnLynn/genpac
+   docs/开发环境/GfwHost.txt
+   https://caoyuwu.eu.org/proxy/gfwlist.pac.js
+   http://localhost/doc/pac/gfwpac.pac.js
+   chrome://net-internals/#proxy : 重置代理
+   https://caoyuwu.eu.org/proxy/TestPac.html
+   scp /Third-src/GitHUB/caoyuwu.github.io/proxy/gfwlist.pac.js router:/www/proxy/
+   http://proxy.lan/proxy/gfwlist.pac.js
+   参考 
+   genpac 2.1.0 https://github.com/JinnLynn/genpac
 
- *     https://raw.githubusercontent.com/petronny/gfwlist2pac/master/gfwlist.pac
- *     https://github.com/gfwlist/gfwlist 
+       https://raw.githubusercontent.com/petronny/gfwlist2pac/master/gfwlist.pac
+       https://github.com/gfwlist/gfwlist 
  *  语言参考:
    http://findproxyforurl.com/pac-functions/
  */
