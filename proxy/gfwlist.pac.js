@@ -109,6 +109,9 @@ var hostGrps = function(){
 		//非 GFW 封的地址 services are not available ,
 		"coze.com",
 		
+		// ip 地址查询
+		"demo.ip-api.com",
+		
 		"***"  // 最后一个被忽略 
   ];
   var rootGrps = {};	
