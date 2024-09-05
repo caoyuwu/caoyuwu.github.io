@@ -5,7 +5,9 @@
    chrome://net-internals/#proxy : 重置代理
    https://caoyuwu.eu.org/proxy/TestPac.html
    scp /Third-src/GitHUB/caoyuwu.github.io/proxy/gfwlist.pac.js router:/www/proxy/
+   scp /Third-src/GitHUB/caoyuwu.github.io/proxy/TestPac.html router:/www/proxy/
    http://proxy.lan/proxy/gfwlist.pac.js
+   http://proxy.lan/proxy/TestPac.html
    参考 
    genpac 2.1.0 https://github.com/JinnLynn/genpac
 
