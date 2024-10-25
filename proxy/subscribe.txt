@@ -31,6 +31,22 @@ vless://9cdcbaf0-d244-4f37-b227-90166e43f5b5@cf-socks.caoyuwu.eu.org:443?encrypt
 #
 
 #
+# https://t.me/wz2023jd 威仔永久免费节点
+#
+
+vless://b111c17d-c8a4-4d4d-a417-fa40a020bcc8@www.visa.com:2082?encryption=none&security=none&fp=randomized&type=ws&host=24tg.hb01i8h0.workers.dev&path=%2F%3Fed%3D2560#%E3%80%90%E9%95%BF%E6%9C%9F%E6%9C%89%E6%95%88%E3%80%91TG%40wz2023jd
+vless://b111c17d-c8a4-4d4d-a417-fa40a020bcc8@www.visa.com:80?encryption=none&security=none&fp=randomized&type=ws&host=24tg.hb01i8h0.workers.dev&path=%2F%3Fed%3D2560#%E3%80%90%E9%95%BF%E6%9C%9F%E6%9C%89%E6%95%88%E3%80%91TG%40wz2023jd
+vless://b111c17d-c8a4-4d4d-a417-fa40a020bcc8@www.visa.com:2052?encryption=none&security=none&fp=randomized&type=ws&host=24tg.hb01i8h0.workers.dev&path=%2F%3Fed%3D2560#%E3%80%90%E9%95%BF%E6%9C%9F%E6%9C%89%E6%95%88%E3%80%91TG%40wz2023jd
+vless://b111c17d-c8a4-4d4d-a417-fa40a020bcc8@www.visa.com:2095?encryption=none&security=none&fp=randomized&type=ws&host=24tg.hb01i8h0.workers.dev&path=%2F%3Fed%3D2560#%E3%80%90%E9%95%BF%E6%9C%9F%E6%9C%89%E6%95%88%E3%80%91TG%40wz2023jd
+vless://b111c17d-c8a4-4d4d-a417-fa40a020bcc8@www.visa.com:8080?encryption=none&security=none&fp=randomized&type=ws&host=24tg.hb01i8h0.workers.dev&path=%2F%3Fed%3D2560#%E3%80%90%E9%95%BF%E6%9C%9F%E6%9C%89%E6%95%88%E3%80%91TG%40wz2023jd
+vless://b111c17d-c8a4-4d4d-a417-fa40a020bcc8@www.visa.com:8880?encryption=none&security=none&fp=randomized&type=ws&host=24tg.hb01i8h0.workers.dev&path=%2F%3Fed%3D2560#%E3%80%90%E9%95%BF%E6%9C%9F%E6%9C%89%E6%95%88%E3%80%91TG%40wz2023jd
+vless://b111c17d-c8a4-4d4d-a417-fa40a020bcc8@www.visa.com:2086?encryption=none&security=none&fp=randomized&type=ws&host=24tg.hb01i8h0.workers.dev&path=%2F%3Fed%3D2560#%E3%80%90%E9%95%BF%E6%9C%9F%E6%9C%89%E6%95%88%E3%80%91TG%40wz2023jd
+#
+# https://t.me/SSRSUB TG代理订阅分享
+#
+
+
+#
 # 鹏哥分享
 # https://www.youtube.com/channel/UCg_wVVtaVUKGS5JzTs5fTBQ
 # https://t.me/penggefx
@@ -45,9 +61,6 @@ vless://9cdcbaf0-d244-4f37-b227-90166e43f5b5@cf-socks.caoyuwu.eu.org:443?encrypt
 # https://lncn.org/
 #
 
-#
-# https://t.me/SSRSUB TG代理订阅分享
-#
 
 #
 # https://github.com/freefq/free
@@ -56,6 +69,5 @@ vless://9cdcbaf0-d244-4f37-b227-90166e43f5b5@cf-socks.caoyuwu.eu.org:443?encrypt
 #
 # 其他
 #
-vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIkdZIEhLIGlwdjYiLA0KICAiYWRkIjogImNpcC45NTE1MzUueHl6IiwNCiAgInBvcnQiOiAiNDQzIiwNCiAgImlkIjogIjlmNmY2ZDE5LTk2N2EtNGJhMS1hNDdmLTZiZTM0ZGE4YzYzNyIsDQogICJhaWQiOiAiMCIsDQogICJzY3kiOiAiYXV0byIsDQogICJuZXQiOiAid3MiLA0KICAidHlwZSI6ICJub25lIiwNCiAgImhvc3QiOiAiZ3l4LnR3ZWVrLmdheSIsDQogICJwYXRoIjogIi8iLA0KICAidGxzIjogInRscyIsDQogICJzbmkiOiAiZ3l4LnR3ZWVrLmdheSIsDQogICJhbHBuIjogIiIsDQogICJmcCI6ICIiDQp9
 
 
