@@ -6,6 +6,23 @@
 vless://9cdcbaf0-d244-4f37-b227-90166e43f5b5@cf-socks.caoyuwu.eu.org:443?encryption=none&security=tls&sni=cf-socks.caoyuwu.eu.org&fp=randomized&type=ws&host=cf-socks.caoyuwu.eu.org&path=%2F%3Fed%3D2048#cf-socks.caoyuwu.eu.org
 
 #
+# ExtractProxyNodeFromSkrapp.java 抽取的方法
+# 参考  https://github.com/zzzhhh1/ssvpn/
+#
+ss://aes-256-cfb:amazonskr05@47.129.170.82:443#JP, Tokyo
+ss://aes-256-cfb:amazonskr05@54.169.135.226:443#HK, Kowloon
+ss://aes-256-cfb:amazonskr05@54.200.54.11:443#CA, Vancouver
+ss://aes-256-cfb:amazonskr05@3.38.253.126:443#KR, Incheon
+ss://aes-256-cfb:amazonskr05@43.201.254.74:443#JP, Osaka
+ss://aes-256-cfb:amazonskr05@54.249.197.65:443#HK, New Territories
+ss://aes-256-cfb:amazonskr05@52.89.233.31:443#HK, Los Angeles
+ss://aes-256-cfb:amazonskr05@54.71.237.242:443#US, Houston
+ss://aes-256-cfb:amazonskr05@54.200.148.115:443#US, Dallas 2
+ss://aes-256-cfb:amazonskr05@52.221.255.53:443#JP, Tokyo 2
+ss://aes-256-cfb:amazonskr05@13.215.205.186:443#SG, Singapore
+ss://aes-256-cfb:amazonskr05@13.250.3.43:443#TW, Taipei
+
+#
 #  https://iyideng.win/welfare/free-xray-xtls-node.html
 #     ( https://t.me/iyideng 
 #       https://iyidengpro.github.io/
