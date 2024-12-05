@@ -555,14 +555,19 @@ function  loadMenus4LinesByHtmlSelector(items,def,contentUrl,contentCache,macros
 				var lastGrpTit = null;
 				var lastSubItems = null;  var urlsByTit = null;
 				var r;
-				if( r=def.urlLineMatcherRegExp ){
+				if( r=def.urlLineMatcher ){
 					for(var line of lines){
 						line = line.trim();
 						if( line=="" || line.charCodeAt(0)==35 ) // '#'
 						{
 							continue;
 						}
-						var v = r.exec(line);
+						var v;
+						if (typeof(r)=="function") {
+							v = r(line);
+						} else {
+							v = r.exec(line);
+						}
 //if(_debug) print(line+" v="+v+";  r="+r);						
 						if( v ){
 							if( !lastSubItems ){
