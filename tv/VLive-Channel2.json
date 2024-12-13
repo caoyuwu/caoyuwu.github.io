@@ -6,8 +6,9 @@
 	{"label":"范明明@GitHUB","items":"@m3uloader:https://raw.githubusercontent.com/fanmingming/live/refs/heads/main/tv/m3u/ipv6.m3u"},
 	 {"label":"好趣网","items":"@crawler-list:tv/haoqu99.js"},
 	 {"label":"yibababa.com","items":"@crawler-list:tv/yibababa.js"},
+	 // {"label":"??@GitHUB","items":"@m3uloader:"},
       {"label":"YanG-1989@GitHUB","items":"@m3uloader:https://raw.githubusercontent.com/YanG-1989/m3u/refs/heads/main/Gather.m3u"},
-    
+    {"label":"YueChan@GitHUB","items":"@m3uloader:https://raw.githubusercontent.com/YueChan/Live/refs/heads/main/APTV.m3u"},
      {"label":"NettvPro","items":"@crawler-list:tv/NettvPro.js"},
     // {"label":"Youtube","items":"@youtube-list"},
     //  {"label":"4gtv.mumi.rip","items":"@m3uloader:http://4gtv.mumi.rip:9877/index.m3u8"},
