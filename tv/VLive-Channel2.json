@@ -8,7 +8,13 @@
 	 {"label":"yibababa.com","items":"@crawler-list:tv/yibababa.js"},
 	 // {"label":"??@GitHUB","items":"@m3uloader:"},
       {"label":"YanG-1989@GitHUB","items":"@m3uloader:https://raw.githubusercontent.com/YanG-1989/m3u/refs/heads/main/Gather.m3u"},
-    {"label":"YueChan@GitHUB","items":"@m3uloader:https://raw.githubusercontent.com/YueChan/Live/refs/heads/main/APTV.m3u"},
+    {"label":"YueChan@GitHUB","items":[
+    	 {"label":"APTV","items":"@m3uloader:https://raw.githubusercontent.com/YueChan/Live/refs/heads/main/APTV.m3u"},
+    	 {"label":"Global","items":"@m3uloader:https://raw.githubusercontent.com/YueChan/Live/refs/heads/main/Global.m3u"},
+    	 {"label":"IPTV","items":"@m3uloader:https://raw.githubusercontent.com/YueChan/Live/refs/heads/main/IPTV.m3u"},
+    	 {"label":"Adult","items":"@m3uloader:https://raw.githubusercontent.com/YueChan/Live/refs/heads/main/Adult.m3u"},
+    	 {"label":"Radio","items":"@m3uloader:https://raw.githubusercontent.com/YueChan/Live/refs/heads/main/Radio.m3u"}
+    	],
      {"label":"NettvPro","items":"@crawler-list:tv/NettvPro.js"},
     // {"label":"Youtube","items":"@youtube-list"},
     //  {"label":"4gtv.mumi.rip","items":"@m3uloader:http://4gtv.mumi.rip:9877/index.m3u8"},

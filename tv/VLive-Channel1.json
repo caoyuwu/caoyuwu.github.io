@@ -300,7 +300,9 @@
 	// {label:"www.jieav.com","locked":1,items:"@crawler-list:xvideo/jieav.js"}, // 403 限制
 	//{label:"www.tasexy.com","locked":1,items:"@crawler-list:xvideo/tasexy.js"},  // 403 限制
 
-
+ {"label":"YueChan@GitHUB","locked":1,"items":"@m3uloader:https://raw.githubusercontent.com/YueChan/Live/refs/heads/main/Adult.m3u"},
+ 
+ 
 //{label:"http://ich.vaiwan.com/qun/",locked:1,items:"@webdirlist:http://ich.vaiwan.com/qun/"},
 
    {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"},
