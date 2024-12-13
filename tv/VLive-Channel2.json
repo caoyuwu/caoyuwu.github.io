@@ -1,18 +1,18 @@
 {
  "label":"电视", "groupIdx":2,
  "menus":[
-	 {"label":"央视频","items":"@txtloader:http://caoyuwu.eu.org/tv/channels/yangshipin.txt"},
-	 {"label":"ainm.cc/c/m","items":"@crawler-list:tv/ainm.js"},
 	// {"label":"agit.ai/Yoursmile7","items":"@txtloader:https://agit.ai/Yoursmile7/TVBox/raw/branch/master/live.txt"},
-	 {"label":"TVBOX(jundie.top)","items":"@txtloader:http://home.jundie.top:81/Cat/tv/live.txt"},
-	 {"label":"tvlist1@caoyuwu.eu.org","items":"@txtloader:https://caoyuwu.eu.org/tv/channels/tvlist1.txt"},
-	 //{"label":"好趣网","items":"@haoqu99-list:"},
+	 {"label":"TVBOX@jundie.top","items":"@txtloader:http://home.jundie.top:81/Cat/tv/live.txt"},
+	{"label":"范明明@GitHUB","items":"@m3uloader:https://raw.githubusercontent.com/fanmingming/live/refs/heads/main/tv/m3u/ipv6.m3u"},
 	 {"label":"好趣网","items":"@crawler-list:tv/haoqu99.js"},
 	 {"label":"yibababa.com","items":"@crawler-list:tv/yibababa.js"},
-    // {"label":"NettvPro","items":"@nettvpro-list:Asia/china/1"},
+    
      {"label":"NettvPro","items":"@crawler-list:tv/NettvPro.js"},
       {"label":"4gtv.mumi.rip","items":"@m3uloader:http://4gtv.mumi.rip:9877/index.m3u8"},
      {"label":"Youtube","items":"@youtube-list"},
+ 	 {"label":"央视频@caoyuwu.eu.org","items":"@txtloader:http://caoyuwu.eu.org/tv/channels/yangshipin.txt"},
+	 {"label":"ainm.cc/c/m","items":"@crawler-list:tv/ainm.js"},
+	 {"label":"tvlist1@caoyuwu.eu.org","items":"@txtloader:https://caoyuwu.eu.org/tv/channels/tvlist1.txt"},
      {"label":"router.lan","items":"@webdirlist:http://router.lan/tv-channels/"}     		  
   ]
   
