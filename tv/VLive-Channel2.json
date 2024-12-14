@@ -22,7 +22,14 @@
 	 {"label":"ainm.cc/c/m","items":"@crawler-list:tv/ainm.js"},
 	 {"label":"tvlist1@caoyuwu.eu.org","items":"@txtloader:https://caoyuwu.eu.org/tv/channels/tvlist1.txt"},
 	 
-	 
+	 {"label":"肥羊@192.168.1.21","items":[
+	 	{"label":"tv","items":"@m3uloader:http://192.168.1.21:35455/tv.m3u"},
+	 	{"label":"tptv","items":"@m3uloader:http://192.168.1.21:35455/tptv.m3u"},
+	 	{"label":"bililive","items":"@m3uloader:http://192.168.1.21:35455/bililive.m3u"},
+	 	{"label":"虎牙","items":"@m3uloader:http://192.168.1.21:35455/huayayqk.m3u"},
+	 	{"label":"斗鱼","items":"@m3uloader:http://192.168.1.21:35455/douyuyqk.m3u"},
+	 	{"label":"YY","items":"@m3uloader:http://192.168.1.21:35455/yylunbo.m3u"}
+	  ]},
 	 
      {"label":"router.lan","items":"@webdirlist:http://router.lan/tv-channels/"}     		  
   ]
