@@ -27,7 +27,7 @@ var hostGrps = function(){
   var proxyHosts = [
 		
 		"google.com",
-		"gstatic.com",
+		//"gstatic.com",
 		"googleusercontent.com",
 		//"googleadservices.com",
 		"googleapis.com",
