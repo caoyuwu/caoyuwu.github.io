@@ -1,6 +1,6 @@
 /*xjs/core/Xjs.java*/
 Xjs = {
-    version:'3.0.240117',
+    version:'3.0.241219',
     loadedXjs:[],
     objectTypes:{'regexp':RegExp,'array':Array,'date':Date,'error':Error},
     ROOTPATH:"",
@@ -13,7 +13,7 @@ Xjs = {
             for(var i=arguments.length - 1;i > 0;i--)
             {
                 var c = arguments[i];
-                if(typeof(c) == "object")
+                if(typeof(c) == "object" && c)
                 {
                     for(var p in c)
                     {
@@ -555,7 +555,7 @@ Xjs = {
     joinPromiseCommit:function(o,name)
     {
         var k = name || "_promiseCommits";
-        return new Promise(function(resolve,reject){
+        return new Promise((resolve,reject)=>{
             var r = {resolve:resolve,reject:reject};
             if(o[k])
                 (o[k]).push(r);
@@ -617,7 +617,7 @@ Xjs = {
         if(Xjs.reqParameter)
             return Xjs.reqParameter;
         var m = Xjs.reqParameter = {},
-            fnParse = function(s){
+            fnParse = (s)=>{
             var a = s.split("&");
             for(var i=0;i < a.length;i++)
             {
@@ -934,7 +934,6 @@ Xjs = {
         Xjs.osType = 2;
     else 
         Xjs.osType = 0;
-    var p = 0;
     if(ua.indexOf("opera") >= 0)
         Xjs.isOpera = true;
     Xjs.isStrict = document.compatMode == "CSS1Compat";
@@ -958,7 +957,7 @@ Xjs = {
         Xjs.TouchDev = 11;
     if(new RegExp("webkit|khtml").test(ua) && !Xjs.isChrome)
         Xjs.isSafari = true;
-    if(!Xjs.isOpera && (p = ua.indexOf("msie")) > -1 || 'ActiveXObject' in window)
+    if(!Xjs.isOpera && ua.indexOf("msie") > -1 || 'ActiveXObject' in window)
         Xjs.isIE = true;
     if(ua.indexOf("trident") > 0)
         Xjs.isTrident = true;
@@ -988,18 +987,10 @@ Xjs = {
     Xjs.namespace("Xjs.util","Xjs.io","Xjs.ui","Xjs.dx","Xjs.table","UI");
     if(!window.EnvParameter)
         window.EnvParameter = {};
-    var els = document.getElementsByTagName("script");
-    for(var i=0,len=els.length;i < len;i++)
     {
-        var src = els[i].src;
-        if(src == null || src == "" || src.indexOf("/xjs-base.js") < 0 && src.indexOf("/xjs-core.js") < 0)
-            continue;
-        p = src.indexOf("/xjslib");
-        if(p > 0)
-        {
-            Xjs.ROOTPATH = src.substring(0,p + 1);
-            break;
-        }
+        var pn = window.location.pathname,
+            path = pn.substring(0,pn.indexOf("/",1));
+        Xjs.ROOTPATH = window.location.origin + path + "/";
     }
     if(Xjs.isIE)
     {
@@ -1011,29 +1002,17 @@ Xjs = {
     }
     if(!Function.prototype.bind)
     {
-        Function.prototype.bind = function(oThis){
-            if(typeof(this) != "function")
-                throw new Error("Function.prototype.bind");
-            var aArgs = Array.prototype.slice.call(arguments,1),
-                fToBind = this,
-                fNOP = function(){},
-                fBound = function(){
-            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis,aArgs.concat(Array.prototype.slice.call(arguments)));
-        };
-            fNOP.prototype = this.prototype;
-            fBound.prototype = new fNOP();
-            return fBound;
-        };
+        window.console.error("todo : bind unsuported");
     }
     if(document.addEventListener)
     {
-        Xjs._DOMLoaded = function(){
+        Xjs._DOMLoaded = ()=>{
             document.removeEventListener("DOMContentLoaded",Xjs._DOMLoaded,false);
             Xjs._ready();
         };
     } else if(document.attachEvent)
     {
-        Xjs._DOMLoaded = function(){
+        Xjs._DOMLoaded = ()=>{
             if(document.readyState == "complete")
             {
                 document.detachEvent("onreadystatechange",Xjs._DOMLoaded);
@@ -1052,14 +1031,14 @@ Xjs.apply(Function,{
             _opts = catchErr ? 1 : 0;
         else 
             _opts = opts;
-        return function(ev){
+        return (ev)=>{
             var args = [ev || window.event,this];
             if(exArgs)
                 Array.pushAll(args,exArgs);
             var onerr = null;
             if(catchErr)
             {
-                var f = function(ex){
+                var f = (ex)=>{
             if(Xjs.alertErr)
             {
                 if(forcus && forcus.focusLatter && !ex.onClosing)
@@ -1088,7 +1067,7 @@ Xjs.apply(Function,{
     setTimeout:function(func,scope,timeout,catchErr)
     {
         var args = Array.prototype.slice.call(arguments,4);
-        setTimeout(function(){
+        setTimeout(()=>{
             if(catchErr)
             {
                 try
@@ -1109,7 +1088,7 @@ Xjs.apply(Function,{
     {
         var args = Array.prototype.slice.call(arguments,3);
         args[0] = {_callID:null,_times:maxTimes||1};
-        var f = function(){
+        var f = ()=>{
             var b;
             try
             {
@@ -1403,7 +1382,7 @@ Xjs.apply(Array,{
             if(!cmps[j])
                 cmps[j] = Xjs.objCmp;
         }
-        return function(a1,a2){
+        return (a1,a2)=>{
             if((a1 == null || a2 == null) && window._debug_)
             {
                 Xjs.diag.Diag.logStackTrace(null);
@@ -1429,7 +1408,7 @@ Xjs.apply(Array,{
     createCmp2:function(name)
     {
         var n = name.length;
-        return function(o1,o2){
+        return (o1,o2)=>{
             for(var j=0;j < n;j++)
             {
                 var v1 = o1 == null ? null : o1[name[j]],
@@ -1444,14 +1423,14 @@ Xjs.apply(Array,{
     /*xjs.core.XArray.createDescCmp*/
     createDescCmp:function(cmp)
     {
-        return function(o1,o2){
+        return (o1,o2)=>{
             return -cmp(o1,o2);
         };
     },
     /*xjs.core.XArray.createCmp3*/
     createCmp3:function(name,valueMap)
     {
-        return function(o1,o2){
+        return (o1,o2)=>{
             var v1 = o1 == null ? null : o1[name],
                 v2 = o2 == null ? null : o2[name];
             if(valueMap != null)
@@ -1467,14 +1446,14 @@ Xjs.apply(Array,{
     /*xjs.core.XArray.createKCmp1*/
     createKCmp1:function(name)
     {
-        return function(v,v2){
+        return (v,v2)=>{
             return Xjs.objCmp(v == null ? null : v[name],v2);
         };
     },
     /*xjs.core.XArray.createIdxCmp*/
     createIdxCmp:function(avals,vcmp)
     {
-        return function(o1,o2){
+        return (o1,o2)=>{
             return vcmp(avals[o1],avals[o2]);
         };
     },
@@ -1491,7 +1470,7 @@ Xjs.apply(Array,{
             return a[0];
         }
         var cmps = a;
-        return function(v1,v2){
+        return (v1,v2)=>{
             for(var j=0;j < cmps.length;j++)
             {
                 var k = cmps[j](v1,v2);
@@ -1637,8 +1616,8 @@ Xjs.apply(Error,{
             return null;
         redoIfErrConfirmed.setExtInfo(flag,cnt + 1);
         var perform = new Xjs.util.ConfirmPerform(null,req,redoIfErrConfirmed,1),
-            showMethod = function(ex){
-            perform.callOnPerformed = new Xjs.FuncCall(function(){
+            showMethod = (ex)=>{
+            perform.callOnPerformed = new Xjs.FuncCall(()=>{
             Xjs.DOM._onWMouseUp(null);
             if(ex.onClosing)
                 ex.onClosing.apply(null);
@@ -2568,7 +2547,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
             to.addListener(this);
             to.focusCompOnHide = this;
         }
-        to.addMenuNode(command,text,node);
+        return to.addMenuNode(command,text,node);
     },
     /*xjs.ui.Component.addPopupMenus*/
     addPopupMenus:function()
@@ -2635,7 +2614,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                 if(!this.valStoreDlg)
                 {
                     var c = this;
-                    Xjs.JsLoad.asynLoadJsLibsOfVar("Xjs.ui.tools.PaneValueStore").then(function(v){
+                    Xjs.JsLoad.asynLoadJsLibsOfVar("Xjs.ui.tools.PaneValueStore").then((v)=>{
             c.valStoreDlg = new Xjs.ui.tools.PaneValueStore(c);
             c.valStoreDlg.showDialog(cmd == "savevalue");
         });
@@ -2650,7 +2629,15 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                 var rootUIID = this.uidefRootUIID ? this.uidefRootUIID : this.getRootComponentMID();
                 if(rootUIID)
                 {
-                    var url = Xjs.RInvoke.buildUIInvokeURL(null,"90.UI.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                    var url = null;
+                    if(window.EnvParameter.micro)
+                    {
+                        url = Xjs.RInvoke.buildUIInvokeURL("/","90.UI.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                        url = Xjs.ui.Component.buildMicroUrl(url);
+                    } else 
+                    {
+                        url = Xjs.RInvoke.buildUIInvokeURL(null,"90.UI.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                    }
                     window.open(url,"_blank");
                 }
                 break;
@@ -2660,7 +2647,15 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                 var rootUIID = this.uidefRootUIID ? this.uidefRootUIID : this.getRootComponentMID();
                 if(rootUIID != null)
                 {
-                    var url = Xjs.RInvoke.buildUIInvokeURL(null,"90.ui.CMUI.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                    var url = null;
+                    if(window.EnvParameter.micro)
+                    {
+                        url = Xjs.RInvoke.buildUIInvokeURL("/","90.ui.CMUI.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                        url = Xjs.ui.Component.buildMicroUrl(url);
+                    } else 
+                    {
+                        url = Xjs.RInvoke.buildUIInvokeURL(null,"90.ui.CMUI.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                    }
                     window.open(url,"_blank");
                 }
                 break;
@@ -2670,7 +2665,15 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
                 var rootUIID = this.uidefRootUIID ? this.uidefRootUIID : this.getRootComponentMID();
                 if(rootUIID)
                 {
-                    var url = Xjs.RInvoke.buildUIInvokeURL(null,"90.UIXML.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                    var url = null;
+                    if(window.EnvParameter.micro)
+                    {
+                        url = Xjs.RInvoke.buildUIInvokeURL("/","90.UIXML.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                        url = Xjs.ui.Component.buildMicroUrl(url);
+                    } else 
+                    {
+                        url = Xjs.RInvoke.buildUIInvokeURL(null,"90.UIXML.html",0) + "?InitValue.muiid=" + encodeURIComponent(rootUIID) + "&AutoRefresh=1";
+                    }
                     window.open(url,"_blank");
                 }
                 break;
@@ -2754,7 +2757,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
             m.runMethod = rootUiid + "." + this.name + "." + m.runMethod;
         } else 
             m = rootUiid + "." + this.name + "." + m;
-        return Xjs.RInvoke._rinvoke(m,"ui",args);
+        return Xjs.RInvoke._rinvoke(m,"ui",args,null,null,this.getRootComponent().RootPath);
     },
     /*xjs.ui.Component.buildUIMethodInvokeURL*/
     buildUIMethodInvokeURL:function(method,opts)
@@ -2764,7 +2767,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     /*xjs.ui.Component.setDefaultValues*/
     setDefaultValues:function(values,opts)
     {
-        var compFilter = new Xjs.FuncCall(function(c){
+        var compFilter = new Xjs.FuncCall((c)=>{
             return c.isTable() ? 3 : 0;
         },null);
         Xjs.ui.Component.setCompValues(this,new Xjs.ui.InitValues(values,!(opts & 1)),1,compFilter);
@@ -3101,7 +3104,8 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
             var n = this.items.length;
             for(var i=0;i < n;i++)
             {
-                this.items[i]._findComps(a,t,true);
+                if("_findComps" in this.items[i])
+                    this.items[i]._findComps(a,t,true);
             }
         }
     },
@@ -3413,7 +3417,7 @@ Xjs.extend(Xjs.ui.Component,Xjs.Observable,{
     /*xjs.ui.Component.oncmd_calculator*/
     oncmd_calculator:function()
     {
-        Xjs.JsLoad.asynLoadJsLibsOfVar("Xjs.ui.tools.CalcDialogListener").then(function(){
+        Xjs.JsLoad.asynLoadJsLibsOfVar("Xjs.ui.tools.CalcDialogListener").then(()=>{
             Xjs.ui.tools.CalcDialogListener.invokeCalc(null);
         });
     },
@@ -3457,7 +3461,7 @@ Xjs.apply(Xjs.ui.Component,{
         }
         var htmlE = document.createElement("div"),
             s = Xjs.ui.AttachUtils.getInnerHTMLBody(html).trim();
-        s = s.replace(new RegExp("(<\\/[^>]+>)([^<>]+)(<[^>]+>)","g"),function($0,$1,$2,$3){
+        s = s.replace(new RegExp("(<\\/[^>]+>)([^<>]+)(<[^>]+>)","g"),($0,$1,$2,$3)=>{
             return $1 + $2.trim() + $3;
         });
         if(macro && s.indexOf("${") >= 0)
@@ -3486,6 +3490,12 @@ Xjs.apply(Xjs.ui.Component,{
         Xjs.Event.cancelEvent(e,true);
         popupMenu.showAtXY(p.x,p.y);
         return false;
+    },
+    /*xjs.ui.Component.buildMicroUrl*/
+    buildMicroUrl:function(url)
+    {
+        var path = Xjs.RInvoke.rmInvoke("snsoft.ui.xjs.XjsLibMeta.rgetMicroContextPath","SN-CMC");
+        return path + url;
     },
     /*xjs.ui.Component._getMainComponentByName*/
     _getMainComponentByName:function(items,name)
@@ -3858,6 +3868,13 @@ Xjs.apply(Xjs.ui.Component,{
     /*xjs.ui.Component._initComps*/
     _initComps:function(comp,initVals,pm,_loadUiOpts,refreshTbls,refreshTbls2,ctrls)
     {
+        {
+            var key = "$" + comp.mid.replace(new RegExp("[.-]","g"),"_"),
+                ui = window.UI[key],
+                resCache = ui.resCache;
+            if(resCache)
+                Xjs.apply(Xjs.ResBundle.resCache,resCache);
+        }
         if(_loadUiOpts & 2)
         {
             Xjs.ui.Component._onInitComps2(comp,_loadUiOpts,refreshTbls,refreshTbls2,ctrls);
@@ -3882,9 +3899,9 @@ Xjs.apply(Xjs.ui.Component,{
         {
             if(_loadUiOpts & 32)
             {
-                comp.asynUIInvoke("!init",params).then(function(vals){
+                comp.asynUIInvoke("!init",params).then((vals)=>{
             Xjs.ui.Component._onInitComps(comp,vals,initVals,_loadUiOpts,refreshTbls,refreshTbls2,ctrls);
-        }).catch(function(ex){
+        }).catch((ex)=>{
             Xjs.ui.SuccessInfo.showException(ex,comp.mtitle + ":失败","XJS");
         });
                 return;
@@ -4192,7 +4209,7 @@ Xjs.apply(Xjs.ui.Component,{
     }
 });
 {
-    (function(){
+    (()=>{
             var html = document.getElementsByTagName("html")[0],
                 uiC = "ui-" + Xjs.$browser;
             if(Xjs.$browser == "safari" || Xjs.$browser == "chrome")
@@ -4248,7 +4265,7 @@ Xjs.extend(Xjs.ui.Container,Xjs.ui.Component,{
                 Xjs.DOM.addListener(e,"click",this.getBtnClickDelegate(n.command,null));
             }
             Xjs.ui.Menu.setAttachedDomEnabled(n);
-            Xjs.ui.MenuPane.setAttachedDomVisible(n);
+            Xjs.ui.Menu.setAttachedDomVisible(n);
         }
     },
     /*xjs.ui.Container.attachButtons*/
@@ -6525,7 +6542,7 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
                     {
                         if(!fnClock)
                         {
-                            fnClock = new Xjs.FuncCall(function(_c,d,cls){
+                            fnClock = new Xjs.FuncCall((_c,d,cls)=>{
             Xjs.DOM.removeClass(d,cls);
         },null,[dom,btnGrp.popupMenuCls]);
                         }
@@ -6557,25 +6574,31 @@ Xjs.extend(Xjs.ui.Panel,Xjs.ui.Container,{
     /*xjs.ui.Panel.addAttachBtn*/
     addAttachBtn:function(tbName,btn,btnGrpName,idx)
     {
-        var tbComp = Xjs.ui.Component.getItemByName(this.getRootComponent(),tbName);
+        var tbComp = Xjs.ui.Component.getItemByName(this.getRootComponent(),tbName),
+            mNode = this.addToolbarButton(btn.command || "null",btn.text);
         if(tbComp)
         {
-            tbComp.callOnDomCreated(this,this._doAddAttachBtn,[tbComp,btn,btnGrpName,idx]);
+            tbComp.callOnDomCreated(this,this._doAddAttachBtn,[tbComp,btn,mNode,btnGrpName,idx]);
         }
+        return mNode;
     },
     /*xjs.ui.Panel._doAddAttachBtn*/
-    _doAddAttachBtn:function(tbComp,btn,btnGrpName,idx)
+    _doAddAttachBtn:function(tbComp,btn,mNode,btnGrpName,idx)
     {
         var pdom = tbComp.getDOM(),
-            dom = btn.getDOM();
+            dom = null;
         if(btn)
         {
-            var mNode = btn._menuNode = this.addToolbarButton(btn.command || "null",btn.text);
+            dom = btn.getDOM();
             dom.onclick = this.getBtnClickDelegate(btn.command,btn);
             mNode.attachedDom = mNode.dom = dom;
             var xprops = null;
             if(xprops = btn.xprops)
                 mNode.xprops = xprops;
+            if("disabled" in mNode)
+                Xjs.ui.Menu.setAttachDomEnabled(dom,!mNode.disabled);
+            if("visible" in mNode)
+                Xjs.ui.Menu.setAttachDomVisible(dom,mNode.visible);
         }
         if(btnGrpName)
         {
@@ -6779,6 +6802,55 @@ Xjs.extend(Xjs.ui.DialogPane,Xjs.ui.Panel,{
                 this._$backInitValues = {};
             }
         }
+    },
+    /*xjs.ui.DialogPane.autoInputOnSingle*/
+    autoInputOnSingle:function(sync)
+    {
+        var flds = [];
+        this.collectInputFields(flds,this.items);
+        this.collectInputFields(flds,this.items2);
+        if(flds.length == 0)
+            return;
+        if(sync)
+            flds.forEach((fld)=>{
+            this.doAidInputing(fld,fld);
+            fld.aidInputer.autoInputOnSingle(fld,this);
+        });
+        else 
+        {
+            this.autoInput(flds,0);
+        }
+    },
+    /*xjs.ui.DialogPane.autoInput*/
+    autoInput:function(flds,idx)
+    {
+        (new Promise((func)=>{
+            this.doAidInputing(flds[idx],flds[idx]);
+            flds[idx].aidInputer.autoInputOnSingle(flds[idx],this);
+            func();
+        })).then(()=>{
+            setTimeout(()=>{
+            if(idx + 1 < flds.length)
+                this.autoInput(flds,idx + 1);
+        },1);
+        });
+    },
+    /*xjs.ui.DialogPane.collectInputFields*/
+    collectInputFields:function(flds,items)
+    {
+        if(!items)
+            return;
+        for(var it of items)
+        {
+            if(it.items != null && it.items.length > 0)
+                this.collectInputFields(flds,it.items);
+            else if(it.items2 != null && it.items2.length > 0)
+                this.collectInputFields(flds,it.items);
+            else if(it.autoInputOnSingle && !it.getValue() && it.aidInputer && it.aidInputer.autoInputOnSingle)
+            {
+                flds.push(it);
+            }
+        }
     }
 });
 {
@@ -6805,10 +6877,25 @@ Xjs.extend(Xjs.ui.LayerAidInputer,Xjs.ui.Layer,{
         Xjs.ui.LayerAidInputer.superclass.__init.call(this);
         this.fitSizeOnAlign = 0;
     },
+    /*xjs.ui.LayerAidInputer.getSelOptions*/
+    getSelOptions:function(opts)
+    {
+        var o = this.selOptions || 0;
+        if(opts & 1 && this.parent && this.parent.orAidInputerSelOpts)
+        {
+            o |= this.parent.orAidInputerSelOpts;
+        }
+        return o;
+    },
+    /*xjs.ui.LayerAidInputer.bitSelOptions*/
+    bitSelOptions:function(bit,opts)
+    {
+        return (this.getSelOptions(opts) & bit) != 0;
+    },
     /*xjs.ui.LayerAidInputer.isMultiSelectable*/
     isMultiSelectable:function()
     {
-        return (this.selOptions & 4) != 0;
+        return this.bitSelOptions(4,1);
     },
     /*xjs.ui.LayerAidInputer.setParentValue*/
     setParentValue:function(value)
@@ -6999,7 +7086,7 @@ Xjs.extend(Xjs.ui.ComboAidInputerA,Xjs.ui.LayerAidInputer,{
     /*xjs.ui.ComboAidInputerA.isMidLevlSelectable*/
     isMidLevlSelectable:function(value)
     {
-        return (this.selOptions & 2) != 0;
+        return this.bitSelOptions(2,1);
     },
     /*xjs.ui.ComboAidInputerA.__init*/
     __init:function()
@@ -7371,7 +7458,7 @@ Xjs.extend(Xjs.ui.ComboAidInputerA,Xjs.ui.LayerAidInputer,{
         var btnCommands = ["select","all","clear","addnew","close","refresh"];
         if(this._onBtnClick == null)
         {
-            this._onBtnClick = Function.bindAsEventListener(this.onBtnClick,this);
+            this._onBtnClick = Function.bindAsEventListener(this.onBtnClick,this,0,true);
         }
         for(var i=0;i < btnCommands.length;i++)
         {
@@ -7609,9 +7696,9 @@ Xjs.extend(Xjs.ui.ComboAidInputerA,Xjs.ui.LayerAidInputer,{
             {
                 var t = typeof(value),
                     del = this.getMutiValueDelim();
-                if(t == "string")
+                if(t == "string" || this.parent.sqlType == 12)
                 {
-                    var a = value.split(","),
+                    var a = ("" + value).split(","),
                         v = null;
                     for(var j=0;j < a.length;j++)
                     {
@@ -7971,6 +8058,8 @@ Xjs.apply(Xjs.table.DefaultTableListener.prototype,{
     isRowPopupEditable:Xjs.emptyFn,
     /*xjs.table.DefaultTableListener.onPopupEditDialogShowing*/
     onPopupEditDialogShowing:Xjs.emptyFn,
+    /*xjs.table.DefaultTableListener.onPopupEditDialogShown*/
+    onPopupEditDialogShown:Xjs.emptyFn,
     /*xjs.table.DefaultTableListener.beforePopupEditClosing*/
     beforePopupEditClosing:Xjs.emptyFn,
     /*xjs.table.DefaultTableListener.onPopupEditClosing*/
@@ -8050,7 +8139,7 @@ Xjs.apply(Xjs.table.DefaultTableListener.prototype,{
     /*xjs.table.DefaultTableListener.round*/
     round:function(v,deci)
     {
-        return this.exeRound(this.exeRound(v,deci + 8),deci);
+        return Xjs.Data.numScale(v,deci);
     },
     /*xjs.table.DefaultTableListener.exeRound*/
     exeRound:function(v,deci)
@@ -8072,7 +8161,11 @@ Xjs.apply(Xjs.table.DefaultTableListener.prototype,{
     /*xjs.table.DefaultTableListener.getGroupDataParamTblid*/
     getGroupDataParamTblid:Xjs.emptyFn,
     /*xjs.table.DefaultTableListener.initGroupData*/
-    initGroupData:Xjs.emptyFn
+    initGroupData:Xjs.emptyFn,
+    /*xjs.table.DefaultTableListener.isTableDoable*/
+    isTableDoable:Xjs.emptyFn,
+    /*xjs.table.DefaultTableListener.onTableCellsPasting*/
+    onTableCellsPasting:Xjs.emptyFn
 });
 /*xjs/ui/AidInputerWindow.java*/
 Xjs.ui.AidInputerWindow=function(config){
@@ -8085,10 +8178,25 @@ Xjs.ui.AidInputerWindow=function(config){
 Xjs.extend(Xjs.ui.AidInputerWindow,Xjs.ui.Window,{
   _js$className_:"Xjs.ui.AidInputerWindow",
     nonBlankResID:"Aid.NulValueSelected",
+    /*xjs.ui.AidInputerWindow.getSelOptions*/
+    getSelOptions:function(opts)
+    {
+        var o = this.selOptions || 0;
+        if(opts & 1 && this.forInput && this.forInput.orAidInputerSelOpts)
+        {
+            o |= this.forInput.orAidInputerSelOpts;
+        }
+        return o;
+    },
+    /*xjs.ui.AidInputerWindow.bitSelOptions*/
+    bitSelOptions:function(bit,opts)
+    {
+        return (this.getSelOptions(opts) & bit) != 0;
+    },
     /*xjs.ui.AidInputerWindow.isMultiSelectable*/
     isMultiSelectable:function()
     {
-        return (this.selOptions & 4) != 0;
+        return this.bitSelOptions(4,1);
     },
     /*xjs.ui.AidInputerWindow.__init*/
     __init:function()
@@ -8212,10 +8320,13 @@ Xjs.extend(Xjs.ui.AidInputerWindow,Xjs.ui.Window,{
                         }
                     } else 
                     {
-                        var c = this.forInput.getMainParentComponent();
-                        if((copyFlag & 1) == 0 || c.getItemValue(n) == null)
+                        if(x !== undefined)
                         {
-                            c.setItemValue(n,x);
+                            var c = this.forInput.getMainParentComponent();
+                            if((copyFlag & 1) == 0 || c.getItemValue(n) == null)
+                            {
+                                c.setItemValue(n,x);
+                            }
                         }
                     }
                 }
@@ -8499,7 +8610,7 @@ Xjs.extend(Xjs.ui.ComboAidInputer,Xjs.ui.ComboAidInputerA,{
         if(this.listScrollbar)
         {
             var s = this.listScrollbar;
-            setTimeout(function(){
+            setTimeout(()=>{
             s.updateValue();
             s.resetBarPos();
         },1);
@@ -8648,7 +8759,7 @@ Xjs.extend(Xjs.ui.ComboAidInputer,Xjs.ui.ComboAidInputerA,{
             this.listDOM.tabIndex = "";
         this.listDOM.onkeydown = Function.bindAsEventListener(this.onListKeydown,this);
         this.listDOM.onkeyup = Function.bindAsEventListener(this.onListKeyup,this);
-        this.listDOM.onclick = Function.bindAsEventListener(this.onListClick,this);
+        this.listDOM.onclick = Function.bindAsEventListener(this.onListClick,this,0,true);
         this.listScrollbar = new Xjs.ui.util.CustomScrollbar("Combo.SBar",tblMode ? this.listBox : this.listDOM,1 | 4 | 8,null,null,null);
         var valuesDOM;
         this.valueList.ulDOM = valuesDOM = Xjs.DOM.find("#SeledtedVals ul",this.dom);
@@ -8802,8 +8913,8 @@ Xjs.extend(Xjs.ui.ComboAidInputer,Xjs.ui.ComboAidInputerA,{
     {
         if(!columns)
             return null;
-        return fmt.replace(/\$\{\w+(\?\w+\:\w+)?\}/g,function($0){
-            var id = $0.substring(2,$0.length - 1),
+        return fmt.replace(/\{\w+(\?\w+\:\w+)?\}/g,($0)=>{
+            var id = $0.substring(1,$0.length - 1),
                 j;
             for(j = 0;j < columns.length;j++)
             {
@@ -8862,6 +8973,31 @@ Xjs.extend(Xjs.ui.ComboAidInputer,Xjs.ui.ComboAidInputerA,{
             else 
                 Xjs.DOM.removeClass(a[i],"selected");
         }
+    },
+    /*xjs.ui.ComboAidInputer.autoInputOnSingle*/
+    autoInputOnSingle:function(tc,tbl)
+    {
+        this.parent = tc;
+        var optData = this.selectOptions = this.loadSelectOptions();
+        if(optData)
+            if(optData.length == 1)
+            {
+                this.setParentValue(optData[0][0]);
+            } else if((this.selOptions & 1) == 0)
+            {
+                findUniqueLeaf:{
+                    var code = null;
+                    for(var vs of optData)
+                        if(this.isLastLevlCode(vs[0]))
+                        {
+                            if(code)
+                                break findUniqueLeaf;
+                            code = vs[0];
+                        }
+                    if(code)
+                        this.setParentValue(code);
+                }
+            }
     },
     /*xjs.ui.ComboAidInputer._addOptions*/
     _addOptions:function()
@@ -10584,6 +10720,15 @@ Xjs.apply(Xjs.ui.Menu,{
             }
         return null;
     },
+    /*xjs.ui.Menu.setAttachDomVisible*/
+    setAttachDomVisible:function(e,visible)
+    {
+        if(e && visible !== undefined)
+        {
+            var ns = e.style;
+            ns.display = visible ? "" : "none";
+        }
+    },
     /*xjs.ui.Menu.setAttachDomEnabled*/
     setAttachDomEnabled:function(e,enabled)
     {
@@ -10625,6 +10770,14 @@ Xjs.apply(Xjs.ui.Menu,{
             Xjs.ui.Menu.setAttachDomEnabled(n.attachedDom,!n.disabled);
         }
     },
+    /*xjs.ui.Menu.setAttachedDomVisible*/
+    setAttachedDomVisible:function(n)
+    {
+        if(n.attachedDom)
+        {
+            Xjs.ui.Menu.setAttachDomVisible(n.attachedDom,n.visible);
+        }
+    },
     /*xjs.ui.Menu.updateNodeCheckIcon*/
     updateNodeCheckIcon:function(n)
     {
@@ -10647,7 +10800,7 @@ Xjs.apply(Xjs.ui.Menu,{
                 ns.display = visible ? n.$styleDisplay || "" : "none";
             }
             if(n.attachedDom)
-                Xjs.ui.MenuPane.setAttachedDomVisible(n);
+                Xjs.ui.Menu.setAttachDomVisible(n.attachedDom,n.visible);
         }
     },
     /*xjs.ui.Menu.setNodeVisibleByChild*/
@@ -10801,6 +10954,19 @@ Xjs.extend(Xjs.ui.ULComponent,Xjs.ui.Component,{
     setShowCode:function(showCode)
     {
         this.showCode = showCode;
+    },
+    /*xjs.ui.ULComponent.addDisVal*/
+    addDisVal:function(code,name)
+    {
+        if(!this.dislayValues)
+            this.dislayValues = {};
+        this.dislayValues[code] = name;
+    },
+    /*xjs.ui.ULComponent.addDisVals*/
+    addDisVals:function(vals)
+    {
+        for(var name in vals)
+            this.addDisVal(name,vals[name]);
     },
     /*xjs.ui.ULComponent.createLI*/
     createLI:function(value)
@@ -11097,7 +11263,7 @@ Xjs.apply(Xjs.Ajax.prototype,{
             var readyState = this.conn.readyState;
             if(this.onready)
             {
-                setTimeout(function(){
+                setTimeout(()=>{
             self.onready.call(self,readyState);
         },0);
             }
@@ -11112,7 +11278,7 @@ Xjs.apply(Xjs.Ajax.prototype,{
                     this._onError(status,ex);
                     return;
                 }
-                setTimeout(function(){
+                setTimeout(()=>{
             self.success.call(v,status);
         },0);
             }
@@ -11124,7 +11290,7 @@ Xjs.apply(Xjs.Ajax.prototype,{
         var self = this;
         if(this.error)
         {
-            setTimeout(function(){
+            setTimeout(()=>{
             self.error.call(ex,status);
         },0);
         }
@@ -11180,7 +11346,7 @@ Xjs.apply(Xjs.Ajax.prototype,{
     promise:function()
     {
         var _a = this;
-        return new Promise(function(resolve,reject){
+        return new Promise((resolve,reject)=>{
             _a.success = new Xjs.FuncCall(resolve,window);
             _a.error = new Xjs.FuncCall(reject,window);
             _a.request();
@@ -11356,6 +11522,7 @@ Xjs.Data = {
     IntRegExpr:/^\s*-?\d+\s*$/,
     NumRegExpr:/^(\s*[-+]?(\d*(\.\d+)?)|((\d\.)\d*)\s*)$/,
     IdRegExpr:/^[a-zA-Z_\$][a-zA-Z0-9_\$]*$/,
+    HalfScaleFixed:1.0E-12,
     commaExp:/\,/g,
     /*xjs.core.Data.equals*/
     equals:function(v1,v2)
@@ -11402,14 +11569,7 @@ Xjs.Data = {
                 return (v < 0 ? Math.floor(v * p) : Math.ceil(v * p)) / p;
             }
         }
-        var neg = v < 0;
-        if(neg)
-        {
-            v = -(v);
-        }
-        var v0 = v * p,
-            v2 = Math.round(v0) / p;
-        return neg ? -v2 : v2;
+        return parseFloat((v > 0 ? v + Xjs.Data.HalfScaleFixed : v - Xjs.Data.HalfScaleFixed).toFixed(deci));
     },
     /*xjs.core.Data.parseFromSqlType*/
     parseFromSqlType:function(value,sqlType)
@@ -11431,7 +11591,7 @@ Xjs.Data = {
             value = parseInt(s = value.toString());
             if(isNaN(value) || !Xjs.Data.IntRegExpr.test(s))
             {
-                throw new Error(Xjs.ResBundle.getString("ERRUI","ErrorDataformat.Integer",initValue));
+                throw new Error(Xjs.ResBundle.getResVal("UI.ErrorDataformat.Integer",initValue));
             }
             return value;
         case 2:
@@ -11443,7 +11603,7 @@ Xjs.Data = {
             value = parseFloat(s);
             if(isNaN(value) || !Xjs.Data.NumRegExpr.test(s))
             {
-                throw new Error(Xjs.ResBundle.getString("ERRUI","ErrorDataformat.Number",initValue));
+                throw new Error(Xjs.ResBundle.getResVal("UI.ErrorDataformat.Number",initValue));
             }
             return value;
         case -7:
@@ -11459,7 +11619,7 @@ Xjs.Data = {
                 return value;
             value = Date.parseDate(value,sqlType == 91 ? 7 : 5);
             if(!value)
-                throw new Error(Xjs.ResBundle.getString("ERRUI","ErrorDataformat.Date",initValue));
+                throw new Error(Xjs.ResBundle.getResVal("UI.ErrorDataformat.Date",initValue));
             return value;
         case 2000:
             if(typeof(value) == "string")
@@ -12409,7 +12569,7 @@ Xjs.DOM = {
     {
         if(!dom)
             return false;
-        var p = Xjs.DOM.getXY(dom);
+        var p = Xjs.DOM.getXY(dom,clientXY);
         return x >= p.x && y >= p.y && x < p.x + dom.offsetWidth && y < p.y + dom.offsetHeight;
     },
     /*xjs.core.DOM.scrollToDOM*/
@@ -13631,6 +13791,17 @@ Xjs.DOM = {
         if(left > x)
             return 1;
         return 0;
+    },
+    /*xjs.core.DOM.indexOfDOM*/
+    indexOfDOM:function(a,e)
+    {
+        if(a)
+            for(var i=0;i < a.length;i++)
+            {
+                if(a[i] == e)
+                    return i;
+            }
+        return -1;
     }
 };
 /*xjs/core/Event.java*/
@@ -14487,7 +14658,7 @@ Xjs.RInvoke = {
             if(md.asyn == 3)
             {
                 var _p = p;
-                promise = new Promise(function(resolve,reject){
+                promise = new Promise((resolve,reject)=>{
             _p.onRunCall = new Xjs.FuncCall(resolve);
             _p.onRunErrCall = new Xjs.FuncCall(reject);
         });
@@ -14502,7 +14673,7 @@ Xjs.RInvoke = {
         var url = urlP + "sv-" + rmethod;
         if(md.asyn == 2)
         {
-            return new Promise(function(resolve,reject){
+            return new Promise((resolve,reject)=>{
             Xjs.Ajax.invoke(url,body,params,md.amethod,32 | 16,new Xjs.FuncCall(resolve,window),new Xjs.FuncCall(reject,window));
         });
         }
@@ -14532,7 +14703,7 @@ Xjs.RInvoke = {
     armInvoke:function(m,success,error)
     {
         var args = Array.prototype.slice.call(arguments,3);
-        return Xjs.RInvoke._rinvoke(m,"st",args,success,error);
+        return Xjs.RInvoke._rinvoke(m,"st",args,success,error,null);
     },
     /*xjs.core.RInvoke.asynRMInvoke*/
     asynRMInvoke:function(m)
@@ -14581,7 +14752,7 @@ Xjs.RInvoke = {
         return Xjs.RInvoke._postForm(method,"st",params,success,error);
     },
     /*xjs.core.RInvoke._rinvoke*/
-    _rinvoke:function(m,type,args,success,error)
+    _rinvoke:function(m,type,args,success,error,rootPath)
     {
         var progMode = typeof(m) != "string",
             method;
@@ -14597,7 +14768,7 @@ Xjs.RInvoke = {
             Xjs.ui.UIUtil.progressRun(p);
             return;
         }
-        var url = Xjs.RInvoke.buildUIInvokeURL(null,(progMode ? type + "~" : type + "-") + method,1);
+        var url = Xjs.RInvoke.buildUIInvokeURL(rootPath,(progMode ? type + "~" : type + "-") + method,1);
         return Xjs.Ajax.invoke(url,args,null,null,16 | 32,success,error);
     },
     /*xjs.core.RInvoke._postForm*/
@@ -14619,8 +14790,8 @@ Xjs.RInvoke = {
     /*xjs.core.RInvoke._asynInvoke*/
     _asynInvoke:function(m,type,args)
     {
-        return new Promise(function(resolve,reject){
-            Xjs.RInvoke._rinvoke(m,type,args,new Xjs.FuncCall(resolve,window),new Xjs.FuncCall(reject,window));
+        return new Promise((resolve,reject)=>{
+            Xjs.RInvoke._rinvoke(m,type,args,new Xjs.FuncCall(resolve,window),new Xjs.FuncCall(reject,window),null);
         });
     }
 };
@@ -16070,7 +16241,7 @@ Xjs.ui.CellRenderer = {
         for(var i=0;i < key.length;i++)
         {
             if(knm[i])
-                key[i] = cell.table.getValue(knm[i]);
+                key[i] = cell.table.getValue(knm[i],row);
             else 
             {
                 key[i] = value;
@@ -16082,7 +16253,7 @@ Xjs.ui.CellRenderer = {
         return key;
     },
     /*xjs.ui.CellRenderer.getCellDisplayName*/
-    getCellDisplayName:function(cell,value)
+    getCellDisplayName:function(cell,value,row)
     {
         var o = cell.selectOptions;
         if(o == null)
@@ -16091,7 +16262,7 @@ Xjs.ui.CellRenderer = {
         {
             var codeData = o;
             codeData.prepareLoadParams(cell);
-            return codeData.getCodeName1(Xjs.ui.CellRenderer.getCodeKey(cell,value));
+            return codeData.getCodeName1(Xjs.ui.CellRenderer.getCodeKey(cell,value,row));
         }
         if(o instanceof Array)
         {
@@ -16143,48 +16314,6 @@ Xjs.ui.CellRenderer = {
             var n = cell.valueMap[codePrefix + value];
             if(n != null)
             {
-                if(fullName && (!codeData || (codeData.lvColumn || 0) == 0))
-                {
-                    var code = value.toString(),
-                        lvFullnm = cell.showLvFullnm,
-                        fnCodes = lvFullnm ? [n] : null;
-                    for(var i=code.length - 1;i > 0;i--)
-                    {
-                        var s = cell.valueMap[codePrefix + code.substring(0,i)];
-                        if(trimName && s)
-                            s = s.trim();
-                        if(s != null && s.length > 0)
-                        {
-                            n = n.length > 0 ? s + "-" + n : s;
-                            if(fnCodes)
-                            {
-                                fnCodes.splice(0,0,s);
-                            }
-                        }
-                    }
-                    if(fnCodes)
-                    {
-                        n = "";
-                        for(var i=0;i < fnCodes.length;i++)
-                        {
-                            var i1 = i + 1,
-                                i2 = -(fnCodes.length - 1 - i),
-                                show = false;
-                            for(var j=0;j < lvFullnm.length;j++)
-                            {
-                                if(lvFullnm[j] == i1 || lvFullnm[j] == i2)
-                                {
-                                    show = true;
-                                    break;
-                                }
-                            }
-                            if(show)
-                            {
-                                n += n.length > 0 ? "-" + fnCodes[i] : fnCodes[i];
-                            }
-                        }
-                    }
-                }
                 return n;
             } else if(n === null)
             {
@@ -16194,7 +16323,7 @@ Xjs.ui.CellRenderer = {
         }
         if(!cell.valueMap)
             cell.valueMap = {};
-        var nmText = fullName ? null : Xjs.ui.CellRenderer.getCellDisplayName(cell,value);
+        var nmText = fullName ? null : Xjs.ui.CellRenderer.getCellDisplayName(cell,value,row);
         if(nmText == null)
         {
             var m = null;
@@ -16346,6 +16475,10 @@ Xjs.ui.CellRenderer = {
             {
                 if(cell.percent == 100)
                     s += "%";
+                else if(cell.percent == 1000)
+                    s += "‰";
+                else if(cell.percent == 10000)
+                    s += "‱";
                 else 
                     s += "/" + cell.percent;
             }
@@ -17180,7 +17313,7 @@ Xjs.extend(Xjs.ui.CheckComboAidInputer,Xjs.ui.ComboAidInputerA,{
         if(name == null)
             name = "CHKA_" + this.parent.name;
         if(this._$onChanged == null)
-            this._$onChanged = Function.bindAsEventListener(this.onChanged,this);
+            this._$onChanged = Function.bindAsEventListener(this.onChanged,this,0,true);
         Xjs.DOM.removeAllChild(this.tblBody);
         var row = null;
         this.ckbox = [];
@@ -17209,6 +17342,16 @@ Xjs.extend(Xjs.ui.CheckComboAidInputer,Xjs.ui.ComboAidInputerA,{
             {
                 row = null;
             }
+        }
+    },
+    /*xjs.ui.CheckComboAidInputer.autoInputOnSingle*/
+    autoInputOnSingle:function(tc,tbl)
+    {
+        this.parent = tc;
+        var optData = this.selectOptions = this.loadSelectOptions();
+        if(optData && optData.length == 1)
+        {
+            this.setParentValue(optData[0][0]);
         }
     },
     /*xjs.ui.CheckComboAidInputer.refilter*/
@@ -17897,6 +18040,8 @@ Xjs.ui.GroupPane=function(cfg){
 };
 Xjs.extend(Xjs.ui.GroupPane,Xjs.ui.Container,{
   _js$className_:"Xjs.ui.GroupPane",
+    titleBarId:"GroupPaneTitleBar",
+    titleAfterBoxId:"titleAfterBox",
     /*xjs.ui.GroupPane.__init*/
     __init:function()
     {
@@ -17950,14 +18095,15 @@ Xjs.extend(Xjs.ui.GroupPane,Xjs.ui.Container,{
         var dom = this._createDom0(root,"div",null);
         if(dom.firstChild == null)
         {
-            var titBarDOM = Xjs.DOM.createChild(dom,"div","grouppane-titlebar");
-            titBarDOM.id = "GroupPaneTitleBar";
-            var titDOM = Xjs.DOM.createChild(titBarDOM,"div","grouppane-title");
+            this.titleBarDOM = Xjs.DOM.createChild(dom,"div","grouppane-titlebar");
+            this.titleBarDOM.id = this.titleBarId;
+            var titDOM = Xjs.DOM.createChild(this.titleBarDOM,"div","grouppane-title");
             Xjs.DOM.createChild(titDOM,"i","group-icon");
             var e = Xjs.DOM.createChild(titDOM,"span","group-title");
             e.id = "title";
             Xjs.DOM.setTextContent(e,this.title);
-            Xjs.DOM.createChild(titBarDOM,"div","group-ui-btn");
+            this.titleAfterBoxDOM = Xjs.DOM.createChild(this.titleBarDOM,"div","group-ui-btn");
+            this.id = this.titleAfterBoxId;
             var bodyDOM = Xjs.DOM.createChild(dom,"div","grouppane-body");
             if(this.id)
                 bodyDOM.id = this.id + "-container";
@@ -17969,16 +18115,19 @@ Xjs.extend(Xjs.ui.GroupPane,Xjs.ui.Container,{
     onDomCreated:function(root)
     {
         Xjs.ui.GroupPane.superclass.onDomCreated.call(this,root);
-        var titBar = Xjs.DOM.find("#GroupPaneTitleBar",this.dom);
-        if(titBar)
+        this.titleBarDOM = Xjs.DOM.findById(this.titleBarId,this.dom);
+        if(this.titleBarDOM)
         {
-            this.titbarBtns = Xjs.DOM.findAll(".ui-grppane-titbar-btn",titBar);
+            this.titbarBtns = Xjs.DOM.findAll(".ui-grppane-titbar-btn",this.titleBarDOM);
             if(this.titbarBtns && this.titbarBtns.length > 0)
             {
                 var f = this.onTitbarBtnClick.createDelegate(this);
                 for(var i=0;i < this.titbarBtns.length;i++)
                     this.titbarBtns[i].onclick = f;
             }
+        }
+        if(!this.titleAfterBoxDOM)
+        {
         }
         this.updateCollapseStat();
     }
@@ -18248,6 +18397,8 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             if(this.inputType == "file")
                 this.fn$onChanged = Function.bindAsEventListener(this.onChanged,this);
             this.fn$OnInput = Xjs.ui.InputField.asOnInputListener(this.inputDom,this.onInput,this);
+            if(this.replacePasteCR || this.pasteableIfEdDisable)
+                this.fn$onPaste = Function.bindAsEventListener(this.onPaste,this);
             this.fn$onKeyup = Function.bindAsEventListener(this._onKeyup,this);
             this.fn$onKeyDown = Function.bindAsEventListener(this._onKeyDown,this);
             this.fn$onKeyPress = Function.bindAsEventListener(this._onKeyPress,this,0,true,this);
@@ -18261,6 +18412,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         e.onkeypress = this.fn$onKeyPress;
         this.nm$onInput = "oninput" in e ? "oninput" : "onpropertychange";
         e[this.nm$onInput] = this.fn$OnInput;
+        e.onpaste = this.fn$onPaste;
         if(this.fn$onChanged)
             this.inputDom.onchange = this.fn$onChanged;
         if(this.tipIfOverflow || this.tipText || this.bgLabel)
@@ -18273,6 +18425,11 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         }
         e.onfocus = this.fn$onFocus;
         e.onblur = this.fn$onBlur;
+    },
+    /*xjs.ui.InputField.isEditable*/
+    isEditable:function()
+    {
+        return this.editable !== false;
     },
     /*xjs.ui.InputField.setInputDOM*/
     setInputDOM:function(inputDOM,dom)
@@ -18324,7 +18481,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         this._initValueBeforeChanged();
         if(this.maxCharsCntInd || this.charsCntInd || this.leftCharsCntInd)
         {
-            setTimeout(function(){
+            setTimeout(()=>{
             i.initCharsCntInd();
         },1);
         }
@@ -18336,7 +18493,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
                 this._resetFullWid = true;
             }
         }
-        setTimeout(function(){
+        setTimeout(()=>{
             i._updateDomSize();
         },1);
     },
@@ -18399,7 +18556,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             {
                 var e = this.inputDom,
                     mh = this.minHeight;
-                setTimeout(function(){
+                setTimeout(()=>{
             Xjs.ui.InputField.resizeHeight(e,mh);
         },10);
             }
@@ -19054,7 +19211,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         var s = this.getDisplayValue(true);
         if(s && this.sqlType && this.sqlType != 12)
         {
-            if(this.percent > 1 && s.endsWith("%"))
+            if(this.percent > 1 && (s.endsWith("%") || s.endsWith("‰") || s.endsWith("‱")))
             {
                 s = s.substring(0,s.length - 1);
             }
@@ -19062,14 +19219,8 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             if(this.percent > 1 && typeof(v) == "number")
             {
                 v = v / this.percent;
-                var inc = Xjs.ui.InputField.getValueIncSp(s) + 2,
-                    vstr = v.toString(),
-                    p = vstr.indexOf(".");
-                if(vstr.substring(p + 1).length > inc)
-                {
-                    var pow = Math.pow(10,inc);
-                    v = Math.round(v * pow) / pow;
-                }
+                var maxDeci = Xjs.ui.InputField._getDeciCount(s) + ("" + (this.percent - 1)).length;
+                v = Xjs.Data.numScale(v,maxDeci);
             }
             return v;
         }
@@ -19094,7 +19245,7 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
         var value = this.getDisplayValue(updateDOM);
         if(value && this.percent > 1)
         {
-            value = value.endsWith("%") ? value.substring(0,value.length - 1) : value;
+            value = value.endsWith("%") || value.endsWith("‰") || value.endsWith("‱") ? value.substring(0,value.length - 1) : value;
             var intv = "",
                 fv = "",
                 p = value.indexOf(".");
@@ -19523,8 +19674,19 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
     /*xjs.ui.InputField.onInput*/
     onInput:function(e)
     {
+        this._onInput(e,2);
+    },
+    /*xjs.ui.InputField._onInput*/
+    _onInput:function(e,onChangedOpts)
+    {
+        if(onChangedOpts === undefined)
+        {
+            onChangedOpts = 2;
+        }
         if(this.fitHeight)
+        {
             Xjs.ui.InputField.resizeHeight(this.inputDom,this.minHeight);
+        }
         if(this.inAISearch || this.aiOpts & 1)
         {
             if(this.aidInputer && !this.aidInputer.isAidInputerInShowing())
@@ -19535,11 +19697,32 @@ Xjs.extend(Xjs.ui.InputField,Xjs.ui.Component,{
             this.filterAISearch();
             if(this.aiSearchOnEd)
             {
-                this.onChanged(e,2,false);
+                this.onChanged(e,onChangedOpts,false);
             }
             return;
         }
-        this.onChanged(e,2,false);
+        this.onChanged(e,onChangedOpts,false);
+    },
+    /*xjs.ui.InputField.onPaste*/
+    onPaste:function(e)
+    {
+        if((this.replacePasteCR || this.pasteableIfEdDisable && !this.isEditable()) && !this.isReadonly() && e.clipboardData)
+        {
+            this.inputFromClipboard(e);
+            return Xjs.Event.cancelEvent(e,true);
+        }
+        return;
+    },
+    /*xjs.ui.InputField.inputFromClipboard*/
+    inputFromClipboard:function(e)
+    {
+        var s = e.clipboardData.getData("text/plain").trim();
+        if(this.replacePasteCR && s && s.indexOf("\n") >= 0)
+        {
+            s = s.replace(/(\n|\r|\t)+/g,this.replacePasteCR);
+        }
+        this.inputDom.value = s;
+        this._onInput(e,16);
     },
     /*xjs.ui.InputField.getTipText*/
     getTipText:function(opt)
@@ -19640,16 +19823,11 @@ Xjs.apply(Xjs.ui.InputField,{
         v.inputDom = inputDom;
         return v;
     },
-    /*xjs.ui.InputField.getValueIncSp*/
-    getValueIncSp:function(s)
+    /*xjs.ui.InputField._getDeciCount*/
+    _getDeciCount:function(s)
     {
-        var inc = 0,
-            p = s.indexOf(".");
-        if(s.length > 0 && p >= 0)
-        {
-            inc = s.substring(p + 1).length;
-        }
-        return inc;
+        var p = s.indexOf(".");
+        return p >= 0 ? s.substring(p + 1).length : 0;
     },
     /*xjs.ui.InputField.resizeHeight*/
     resizeHeight:function(ta,minHeight)
@@ -19669,12 +19847,12 @@ Xjs.apply(Xjs.ui.InputField,{
     {
         if("oninput" in e)
         {
-            return function(ev){
+            return (ev)=>{
             f.call(_this,ev || window.event);
         };
         } else 
         {
-            return function(ev){
+            return (ev)=>{
             if((ev || window.event).propertyName == "value")
                 f.call(_this,ev || window.event);
         };
@@ -19813,7 +19991,7 @@ Xjs.apply(Xjs.ui.LayDateAidInputer.prototype,{
     /*xjs.ui.LayDateAidInputer.inputFieldDone*/
     inputFieldDone:function(field)
     {
-        return function(value,date,enddate){
+        return (value,date,enddate)=>{
             if(field.table)
             {
                 if(field.table instanceof Xjs.ui.GridTable)
@@ -19849,12 +20027,12 @@ Xjs.extend(Xjs.ui.LazyComp,Xjs.ui.Component,{
         var _this = this;
         if(this.refComp)
         {
-            return new Promise(function(resolve,reject){
+            return new Promise((resolve,reject)=>{
             resolve(_this.refComp);
         });
         } else 
         {
-            return Xjs.JsLoad.asynLoadUI(this.getRootComponentMID() + "~" + this.name).then(function(ui){
+            return Xjs.JsLoad.asynLoadUI(this.getRootComponentMID() + "~" + this.name).then((ui)=>{
             _this.refComp = ui.getUI(0,0,null,null,_this.getRootComponent());
             _this.onCompLoaded(rootDOM);
             return _this.refComp;
@@ -20995,7 +21173,7 @@ Xjs.extend(Xjs.ui.MenuPane,Xjs.ui.Menu,{
         if(node.nodes != null)
         {
             var menuPane = this;
-            setTimeout(function(){
+            setTimeout(()=>{
             var pm = Xjs.ui.PopupMenu.showPopupMenu(menuPane,node,3);
             pm.parentMenu = menuPane;
             menuPane.activePopupNode = node;
@@ -21015,15 +21193,6 @@ Xjs.extend(Xjs.ui.MenuPane,Xjs.ui.Menu,{
     }
 });
 Xjs.apply(Xjs.ui.MenuPane,{
-    /*xjs.ui.MenuPane.setAttachedDomVisible*/
-    setAttachedDomVisible:function(n)
-    {
-        if(n.attachedDom && n.visible !== undefined)
-        {
-            var ns = n.attachedDom.style;
-            ns.display = n.visible ? "" : "none";
-        }
-    },
     /*xjs.ui.MenuPane.setAttachedDomText*/
     setAttachedDomText:function(n)
     {
@@ -21082,7 +21251,7 @@ Xjs.apply(Xjs.ui.MenuPaneNode.prototype,{
         {
             this.node.text = text;
             if(this.node.dom != null)
-                Xjs.DOM.setTextContent(this.node.dom,text);
+                Xjs.DOM.setTextContent(this.node.labelDom || this.node.dom,text);
         }
     }
 });
@@ -21690,7 +21859,7 @@ Xjs.extend(Xjs.ui.PopupMenu,Xjs.ui.Layer,{
                     {
                         sdom.appendChild(n.rComps[j].getDOM());
                     }
-                Xjs.ui.Menu._updateBgIcon(n,sdom);
+                Xjs.ui.Menu._updateBgIcon(n,liDOM);
             }
         }
         this.attachDOM(dom);
@@ -21847,7 +22016,7 @@ Xjs.extend(Xjs.ui.PopupMenu,Xjs.ui.Layer,{
         {
             var menuPane = this.menuPane,
                 _this = this;
-            setTimeout(function(){
+            setTimeout(()=>{
             var pm = Xjs.ui.PopupMenu.showPopupMenu(menuPane,node,2);
             pm.parentMenu = _this;
             _this.activePopupNode = node;
@@ -22063,6 +22232,26 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
         runBtn.setClassName("btn extanim16" + (this.runLock <= 0 ? "-0" : "") + (this.cancelable ? " ui-progress-cancelable" : ""));
         this.setToolbarIconEnabled("onClose",enabled);
     },
+    /*xjs.ui.ProgressPane._addMaskDOM*/
+    _addMaskDOM:function(add)
+    {
+        if(add && !this.maskDOM)
+        {
+            this.maskDOM = document.createElement("div");
+            this.maskDOM.className = "ui-mask";
+            this.maskDOM.disabled = true;
+            this.maskDOM.id = "LayerMask";
+            this.maskDOM.style.zIndex = Xjs.ui.Panel.maxZIndex() + 1;
+        }
+        if(add)
+        {
+            if(document.body != this.maskDOM.parentNode)
+                document.body.appendChild(this.maskDOM);
+        } else if(this.maskDOM && this.maskDOM.parentNode)
+        {
+            this.maskDOM.parentNode.removeChild(this.maskDOM);
+        }
+    },
     /*xjs.ui.ProgressPane.lockStart*/
     lockStart:function(lock)
     {
@@ -22087,6 +22276,10 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
         if(oldRunlock == 0 && lock && this.backgroundRun)
         {
             Xjs.ui.ProgressPane.getFixProgress().startProgress();
+            if(this.disableOnRun)
+            {
+                this._addMaskDOM(true);
+            }
         }
         this.fireEvent("onLockRunProgress",this.runLock);
         if(this.buttons)
@@ -22100,6 +22293,10 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
             if(this.backgroundRun)
             {
                 Xjs.ui.ProgressPane.getFixProgress().stopProgress();
+            }
+            if(this.maskDOM)
+            {
+                this._addMaskDOM(false);
             }
             if(this.msgWebSocket)
             {
@@ -22488,7 +22685,7 @@ Xjs.extend(Xjs.ui.ProgressPane,Xjs.ui.DialogPane,{
                 if(this.messagePane)
                 {
                     var msg = _exception.message || _exception.toString(),
-                        errorTip = Xjs.ResBundle.getString("ERRUI","ProgressPane.ErrorTip");
+                        errorTip = Xjs.ResBundle.getResVal("UI.ProgressPane.ErrorTip");
                     msg = "<span class='error-info'>" + errorTip + "</span></br><span class='error-info'>" + msg + "</span>";
                     this.messagePane.addHTML(msg);
                 }
@@ -22818,7 +23015,7 @@ Xjs.apply(Xjs.ui.FixProgress.prototype,{
         {
             var _fixProgBar = this.fixProgBar,
                 rmFunc = new Xjs.FuncCall(this.removeHtmlCls,this);
-            setTimeout(function(){
+            setTimeout(()=>{
             rmFunc.func.apply(rmFunc.scorp,[]);
             Xjs.DOM.remove(_fixProgBar);
         },500);
@@ -23427,7 +23624,7 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
             if(s >= 0 && s < this.tabs.length && this.tabs[s].comp instanceof Xjs.ui.LazyComp)
             {
                 var _this = this;
-                this.tabs[s].comp.loadUI(this._rootDOM).then(function(c){
+                this.tabs[s].comp.loadUI(this._rootDOM).then((c)=>{
             _this.tabs[s].comp = c;
             _this.setActiveTab(s);
         });
@@ -23749,7 +23946,7 @@ Xjs.extend(Xjs.ui.TabPanel,Xjs.ui.Container,{
         if(resortItems && this.items)
         {
             var _this = this,
-                cmp = function(c1,c2){
+                cmp = (c1,c2)=>{
             var j1 = _this.indexOfTabComp(c1),
                 j2 = _this.indexOfTabComp(c2);
             return j1 - j2;
@@ -24020,6 +24217,19 @@ Xjs.apply(Xjs.ui.TabPanel,{
                 return;
             t.setActiveTab(i);
         }
+    },
+    /*xjs.ui.TabPanel.getParentTabPanel*/
+    getParentTabPanel:function(comp)
+    {
+        if(comp == null)
+        {
+            return null;
+        }
+        if(comp.parent instanceof Xjs.ui.TabPanel)
+        {
+            return comp.parent;
+        }
+        return Xjs.ui.TabPanel.getParentTabPanel(comp.parent);
     }
 });
 /*xjs/ui/Toolbar.java*/
@@ -24708,7 +24918,7 @@ Xjs.extend(Xjs.ui.Tree,Xjs.ui.Menu,{
         if(this._treeSbar)
         {
             var s = this._treeSbar;
-            setTimeout(function(){
+            setTimeout(()=>{
             s.updateValue();
             s.resetBarPos();
         },1);
@@ -26329,7 +26539,9 @@ Xjs.extend(Xjs.ui.GridLayout,Xjs.ui.Layout,{
                             cell.align = xc.labelForComp.labelAlign;
                     } else 
                     {
-                        cell.align = this.labelAlign || (xc.labelPos == 1 ? "center" : "right");
+                        var align = this.labelAlign || (xc.labelPos == 1 ? "center" : null);
+                        if(align)
+                            cell.align = align;
                     }
                     if(xc.labelForComp && xc.labelForComp.labelVAlign)
                     {
@@ -26468,12 +26680,15 @@ Xjs.extend(Xjs.ui.ComponentMove,Xjs.Object,{
     /*xjs.ui.util.ComponentMove._moveToRect*/
     _moveToRect:function()
     {
-        var s = this.movingBar.style,
-            r = this.currentRect;
-        s.left = r.x - this.marginSize - 1 + "px";
-        s.top = r.y - this.marginSize - 1 + "px";
-        s.width = r.width + 2 * this.marginSize - 2 + "px";
-        s.height = r.height + 2 * this.marginSize - 2 + "px";
+        if(this.movingBar)
+        {
+            var s = this.movingBar.style,
+                r = this.currentRect;
+            s.left = r.x - this.marginSize - 1 + "px";
+            s.top = r.y - this.marginSize - 1 + "px";
+            s.width = r.width + 2 * this.marginSize - 2 + "px";
+            s.height = r.height + 2 * this.marginSize - 2 + "px";
+        }
     },
     /*xjs.ui.util.ComponentMove.setMargineSize*/
     setMargineSize:function(sz)
@@ -27154,7 +27369,7 @@ Xjs.apply(Xjs.ui.util.DialogPaneLoader.prototype,{
     asynLoad:function()
     {
         var _this = this;
-        return Xjs.JsLoad.asynLoadUI(this.uiid).then(function(ui){
+        return Xjs.JsLoad.asynLoadUI(this.uiid).then((ui)=>{
             return _this.toDialog(ui.getUI(0,_this.loadUIOpts,_this.initVals,_this.uiInitPM));
         });
     },
@@ -27572,6 +27787,53 @@ Xjs.apply(Xjs.ui.InitValues.prototype,{
     /*xjs.ui.util.InitValues.set*/
     set:Xjs.emptyFn
 });
+/*xjs/ui/util/MouseDrag.java*/
+Xjs.ui.util.MouseDrag=function(dragListener){
+    this.dragListener = dragListener;
+};
+Xjs.extend(Xjs.ui.util.MouseDrag,Xjs.Object,{
+  _js$className_:"Xjs.ui.util.MouseDrag",
+    /*xjs.ui.util.MouseDrag.startMouseMove*/
+    startMouseMove:function(ev)
+    {
+        this.startXY = this.endXY = {x:ev.clientX,y:ev.clientY};
+        Xjs.DOM.addWMDragListener(this,this._onMouseMove,this._onMouseUp);
+        if(this.dragListener)
+        {
+            this.dragListener.onMouseDragStart(this,ev);
+        }
+    },
+    /*xjs.ui.util.MouseDrag._onMouseMove*/
+    _onMouseMove:function(ev)
+    {
+        Xjs.Event.cancelEvent(ev,true);
+        this.mouseMoveTo(ev);
+    },
+    /*xjs.ui.util.MouseDrag.mouseMoveTo*/
+    mouseMoveTo:function(ev)
+    {
+        this.endXY = {x:ev.clientX,y:ev.clientY};
+        if(this.dragListener)
+            this.dragListener.onMouseDragMoved(this,ev);
+    },
+    /*xjs.ui.util.MouseDrag._onMouseUp*/
+    _onMouseUp:function(ev)
+    {
+        this.stopMouseMove(ev);
+    },
+    /*xjs.ui.util.MouseDrag.stopMouseMove*/
+    stopMouseMove:function(ev)
+    {
+        if(ev)
+        {
+            this.endXY = {x:ev.clientX,y:ev.clientY};
+        }
+        if(this.dragListener)
+        {
+            this.dragListener.onMouseDragStop(this,ev);
+        }
+    }
+});
 /*xjs/ui/util/MutilineTextInputer.java*/
 Xjs.ui.MutilineTextInputer=function(config){
     Xjs.ui.MutilineTextInputer.superclass.constructor.call(this,config);
@@ -27768,7 +28030,7 @@ Xjs.apply(Xjs.ui.util.UIUtil$MessageBoxLayer.prototype,{
     show:function()
     {
         var _this = this;
-        setTimeout(function(){
+        setTimeout(()=>{
             _this._show();
         },300);
     },
@@ -27883,7 +28145,10 @@ Xjs.ui.UIUtil = {
         if(p.options & 8)
             ui.layoutBottomBtnsMode = 2;
         ui.moveable = true;
-        ui.backgroundRun = (p.options & 0x200) != 0;
+        if(p.options & 0x200)
+            ui.backgroundRun = true;
+        if(p.options & 0x400)
+            ui.disableOnRun = true;
         ui.errShowTopLayer = p.errShowTopLayer;
         ui.exInfo = p.exInfo || null;
         if(p.size)
@@ -27929,6 +28194,21 @@ Xjs.ui.UIUtil = {
         var htmlURL = nameHTMLURL && window.uiHTLMURL ? window.uiHTLMURL[nameHTMLURL] : null;
         if(!htmlURL)
         {
+            if(window.EnvParameter.micro && !srootPath)
+            {
+                var contextPath = Xjs.JsLoad.getContextPath(uiid);
+                if(contextPath != null && !Xjs.ROOTPATH.endsWith(contextPath + "/"))
+                {
+                    var env = window.EnvParameter,
+                        t = window.location.pathname,
+                        sub = t.substring(t.indexOf("/",1),t.lastIndexOf("/") + 1);
+                    if(sub.length <= 1)
+                    {
+                        sub = "/uiinvoke/" + env.wsp + "/" + env.lang + "/" + env.theme + "/";
+                    }
+                    srootPath = window.location.origin + contextPath + sub;
+                }
+            }
             var url = srootPath || window.location.href,
                 p = url.lastIndexOf('?');
             if(p > 0)
@@ -27969,7 +28249,7 @@ Xjs.ui.UIUtil = {
     /*xjs.ui.util.UIUtil.asynLoadUIComp*/
     asynLoadUIComp:function(uiid,initVals,pm,autoRefresh,opts)
     {
-        return Xjs.JsLoad.asynLoadUI(uiid).then(function(ui){
+        return Xjs.JsLoad.asynLoadUI(uiid).then((ui)=>{
             return Xjs.ui.UIUtil._getUIComp(ui,initVals,pm,autoRefresh,opts);
         });
     },
@@ -28136,7 +28416,7 @@ Xjs.ui.UIUtil = {
             Xjs.ui.UIUtil.showMessageBoxLayer(type,message);
             if(onClose)
             {
-                setTimeout(function(){
+                setTimeout(()=>{
             onClose.call();
         },1);
             }
@@ -28246,9 +28526,9 @@ Xjs.ui.UIUtil = {
         Xjs.ui.UIUtil.showMessageBox("success",title,message,onClosing,null,0);
     },
     /*xjs.ui.util.UIUtil.showInfoDialog*/
-    showInfoDialog:function(title,message,onClosing)
+    showInfoDialog:function(title,message,onClosing,okText,opts)
     {
-        Xjs.ui.UIUtil.showMessageBox("information",title,message,onClosing,null,0);
+        Xjs.ui.UIUtil.showMessageBox("information",title,message,onClosing,okText,opts);
     },
     /*xjs.ui.util.UIUtil.showYesNoDialog*/
     showYesNoDialog:function(title,message,onOk,okText,opts)
@@ -28554,6 +28834,34 @@ Xjs.ui.UIUtil = {
                 join = "&";
             }
         }
+        if(window.EnvParameter.micro)
+        {
+            var env = window.EnvParameter,
+                contextPath = Xjs.JsLoad.getContextPath(uiid);
+            if(contextPath != null && !Xjs.ROOTPATH.endsWith(contextPath + "/"))
+            {
+                var t = window.location.pathname,
+                    sub = t.substring(t.indexOf("/",1),t.lastIndexOf("/") + 1);
+                if(sub.length <= 1)
+                {
+                    sub = "/uiinvoke/" + env.wsp + "/" + env.lang + "/" + env.theme + "/";
+                }
+                return window.location.origin + contextPath + sub + uri;
+            }
+        } else 
+        {
+            var env = window.EnvParameter,
+                t = window.location.pathname;
+            if(t.length > 1)
+            {
+                var sub = t.substring(t.indexOf("/",1),t.lastIndexOf("/") + 1);
+                if(sub.length <= 1)
+                {
+                    sub = "uiinvoke/" + env.wsp + "/" + env.lang + "/" + env.theme + "/";
+                    return Xjs.ROOTPATH + sub + uri;
+                }
+            }
+        }
         return uri;
     },
     /*xjs.ui.util.UIUtil.buildAttachURL*/
@@ -28812,8 +29120,8 @@ Xjs.ui.UIUtil = {
     /*xjs.ui.util.UIUtil._newConfirmPromise1*/
     _newConfirmPromise1:function(r)
     {
-        return new Promise(function(resolve,reject){
-            var onClose = function(d,cmd){
+        return new Promise((resolve,reject)=>{
+            var onClose = (d,cmd)=>{
             var f;
             if((cmd == "yes" || cmd == "ok") && (f = r.perform))
             {
@@ -28839,7 +29147,7 @@ Xjs.ui.UIUtil = {
             return p;
         if(p)
         {
-            return p.then(function(cmd){
+            return p.then((cmd)=>{
             return Xjs.ui.UIUtil._newConfirmPromise1(r);
         });
         } else 
@@ -29228,11 +29536,12 @@ Xjs.apply(Xjs.util.ConfirmPerform.prototype,{
         } else 
         {
             var _this = this;
-            p.then(function(v){
+            p.then((v)=>{
             var result = perform.apply(null);
             _this.onPerformed(result,null);
-        }).catch(function(ex){
+        }).catch((ex)=>{
             _this.onPerformed(null,ex);
+            Xjs.alertErr(ex);
             if(!ex.dummy)
                 throw ex;
         });
@@ -29294,6 +29603,7 @@ Xjs.apply(Xjs.util.DateUtils,{
 });
 /*xjs/util/JsLoad.java*/
 Xjs.JsLoad = {
+    microPaths:{},
     /*xjs.util.JsLoad.load*/
     load:function(js,mode)
     {
@@ -29312,12 +29622,33 @@ Xjs.JsLoad = {
             {
                 return null;
             }
-            var url = Xjs.ROOTPATH + "xjslib";
             if(window._debug_)
-                url += "_debug";
-            url += "/" + js + ".js";
-            if(!window._debug_ && mode == 1)
-                url += ".~gzip";
+            {
+                var p = js.indexOf("/xjslib/");
+                if(p >= 0)
+                {
+                    js = js.substring(0,p) + "/xjslib_debug/" + js.substring(p + 8);
+                }
+            }
+            var url;
+            if(js.startsWith("/"))
+            {
+                var tag = window._debug_ ? "/xjslib_debug/" : "/xjslib/",
+                    p = js.indexOf(tag);
+                if(p >= 0 && Xjs.loadedXjs.indexOf(js.substring(p + tag.length)) >= 0)
+                {
+                    return null;
+                }
+                url = window.location.origin + js + ".js";
+            } else 
+            {
+                url = Xjs.ROOTPATH + "xjslib";
+                if(window._debug_)
+                    url += "_debug";
+                url += "/" + js + ".js";
+                if(!window._debug_ && mode == 1)
+                    url += ".~gzip";
+            }
             if(window.EnvParameter && window.EnvParameter.v)
             {
                 url += "?_v=" + window.EnvParameter.v;
@@ -29374,7 +29705,7 @@ Xjs.JsLoad = {
             {
                 return Xjs.joinPromiseCommit(s0);
             }
-            return new Promise(function(resolve,reject){
+            return new Promise((resolve,reject)=>{
             if(s0._loadFail)
                 reject(s0.src);
             else 
@@ -29417,7 +29748,7 @@ Xjs.JsLoad = {
         }
         if(hasVar)
         {
-            return new Promise(function(resolve,reject){
+            return new Promise((resolve,reject)=>{
             resolve(true);
         });
         }
@@ -29491,12 +29822,12 @@ Xjs.JsLoad = {
         }
         if(hasVar)
         {
-            return new Promise(function(resolve,reject){
+            return new Promise((resolve,reject)=>{
             resolve(true);
         });
         }
         var url = Xjs.JsLoad.urlIfUnload({lib:lib,m:mode});
-        return Xjs.JsLoad.asynLoadJS(url).then(function(_v){
+        return Xjs.JsLoad.asynLoadJS(url).then((_v)=>{
             return true;
         });
     },
@@ -29541,6 +29872,23 @@ Xjs.JsLoad = {
             ui = window.UI[$uiid];
         if(!ui)
         {
+            var microPath = null;
+            if(window.EnvParameter.micro && !srootPath)
+            {
+                var contextPath = Xjs.JsLoad.getContextPath(uiid);
+                if(contextPath != null && !Xjs.ROOTPATH.endsWith(contextPath + "/"))
+                {
+                    var env = window.EnvParameter,
+                        t = window.location.pathname,
+                        sub = t.substring(t.indexOf("/",1),t.lastIndexOf("/") + 1);
+                    if(sub.length <= 1)
+                    {
+                        sub = "/uiinvoke/" + env.wsp + "/" + env.lang + "/" + env.theme + "/";
+                    }
+                    srootPath = window.location.origin + contextPath + sub;
+                    microPath = window.location.origin + contextPath + "/";
+                }
+            }
             var s = (srootPath || "") + uiid + ".js";
             if(window.EnvParameter && window.EnvParameter.v)
             {
@@ -29548,6 +29896,10 @@ Xjs.JsLoad = {
             }
             Xjs.JsLoad.ajaxLoadJS(s);
             ui = window.UI[$uiid];
+            if(microPath)
+            {
+                ui.RootPath = microPath;
+            }
             if(ui == null)
                 throw new Error(uiid + ":装载失败");
             Xjs.JsLoad.addUICssLinks(ui);
@@ -29572,7 +29924,7 @@ Xjs.JsLoad = {
             {
                 if(ui.status != 1)
                 {
-                    return new Promise(function(resolve,reject){
+                    return new Promise((resolve,reject)=>{
             resolve(ui);
         });
                 } else 
@@ -29581,17 +29933,39 @@ Xjs.JsLoad = {
                 }
             }
         }
+        var microPath = null;
+        if(window.EnvParameter.micro && !srootPath)
+        {
+            var contextPath = Xjs.JsLoad.getContextPath(uiid);
+            if(contextPath != null && !Xjs.ROOTPATH.endsWith(contextPath + "/"))
+            {
+                var env = window.EnvParameter,
+                    t = window.location.pathname,
+                    sub = t.substring(t.indexOf("/",1),t.lastIndexOf("/") + 1);
+                if(sub.length <= 1)
+                {
+                    sub = "/uiinvoke/" + env.wsp + "/" + env.lang + "/" + env.theme + "/";
+                }
+                srootPath = window.location.origin + contextPath + sub;
+                microPath = window.location.origin + contextPath + "/";
+            }
+        }
         var s = (srootPath || "") + uiid + ".js";
         if(window.EnvParameter && window.EnvParameter.v)
         {
             s += "?_v=" + window.EnvParameter.v;
         }
-        return Xjs.JsLoad.asynLoadJS(s).then(function(jsUrl){
+        var microPath1 = microPath;
+        return Xjs.JsLoad.asynLoadJS(s).then((jsUrl)=>{
             var ui = window.UI[$uiid];
+            if(microPath1)
+            {
+                ui.RootPath = microPath1;
+            }
             Xjs.JsLoad.addUICssLinks(ui);
             var urls = Xjs.JsLoad.getUIJSLibs(ui);
             ui.status = 1;
-            Xjs.JsLoad.asynAjaxLoadJS(urls,0).then(function(v){
+            Xjs.JsLoad.asynAjaxLoadJS(urls,0).then((v)=>{
             if(v.fail)
             {
                 ui.status = -2;
@@ -29672,9 +30046,20 @@ Xjs.JsLoad = {
                     continue;
                 all.push(Xjs.JsLoad.asynLoadJS(url));
             }
-        return Promise.all(all).then(function(urls){
+        return Promise.all(all).then((urls)=>{
             return {success:urls};
         });
+    },
+    /*xjs.util.JsLoad.getContextPath*/
+    getContextPath:function(code)
+    {
+        var p = code.indexOf('.'),
+            module = p > 0 ? code.substring(0,p) : code;
+        if(module in Xjs.JsLoad.microPaths)
+            return Xjs.JsLoad.microPaths[module];
+        var path = Xjs.RInvoke.rmInvoke("snsoft.ui.xjs.XjsLibMeta.rgetMicroContextPath",module);
+        Xjs.JsLoad.microPaths[module] = path;
+        return path;
     }
 };
 /*xjs/util/LazyLoadValue.java*/
@@ -29846,6 +30231,227 @@ Xjs.apply(Xjs.util.MapArray.prototype,{
         return a;
     }
 });
+/*xjs/util/MatchUtils.java*/
+Xjs.util.MatchUtils$MatchEntity=function(cfg){
+    Xjs.apply(this,cfg);
+    if(!this.data)
+    {
+        var tmprow = this.row || this.dataSet.getRow();
+        if(tmprow >= 0)
+        {
+            this.data = this.dataSet.getRowColValues(null,tmprow);
+        } else 
+        {
+            this.data = this.dataSet.defaultValues;
+        }
+    }
+    if(!this.data)
+    {
+        this.data = {};
+    }
+};
+Xjs.apply(Xjs.util.MatchUtils$MatchEntity.prototype,{
+    /*xjs.util.MatchUtils$MatchEntity.acceptNull*/
+    acceptNull:function()
+    {
+        return (this.flags & 0x1) != 0;
+    },
+    /*xjs.util.MatchUtils$MatchEntity.negMatch*/
+    negMatch:function()
+    {
+        return (this.flags & 0x2) != 0;
+    },
+    /*xjs.util.MatchUtils$MatchEntity.match*/
+    match:function()
+    {
+        if(this.op == Xjs.util.MatchUtils.Formular)
+            return this.matchFormular(this.data);
+        switch(this.sqltype)
+        {
+        case Xjs.util.MatchUtils.VARCHAR:
+            {
+                return this.matchString(this.data) != this.negMatch();
+            }
+        case Xjs.util.MatchUtils.INTEGER:
+        case Xjs.util.MatchUtils.NUMERIC:
+            {
+                return this.matchNumeric(this.data) != this.negMatch();
+            }
+        case Xjs.util.MatchUtils.DATE:
+            {
+                return this.matchDate(this.data) != this.negMatch();
+            }
+        default:
+            throw "Unexpected value: " + this.sqltype;
+        }
+    },
+    /*xjs.util.MatchUtils$MatchEntity.matchFormular*/
+    matchFormular:Xjs.falseFn,
+    /*xjs.util.MatchUtils$MatchEntity.matchString*/
+    matchString:function(data)
+    {
+        var val = data[this.name];
+        if(val == null)
+        {
+            if(this.op == Xjs.util.MatchUtils.IsNull)
+                return true;
+            else if(this.op == Xjs.util.MatchUtils.IsNotNull)
+                return false;
+            return this.acceptNull();
+        }
+        if(this.op == Xjs.util.MatchUtils.IsNotNull)
+            return true;
+        if(this.ref == null)
+            return false;
+        if(this.op == Xjs.util.MatchUtils.EQ)
+            return this.ref == val;
+        else if(this.op == Xjs.util.MatchUtils.NE)
+            return this.ref != val;
+        else if(this.op == Xjs.util.MatchUtils.GT)
+            return val > this.ref;
+        else if(this.op == Xjs.util.MatchUtils.GE)
+            return val >= this.ref;
+        else if(this.op == Xjs.util.MatchUtils.LT)
+            return val < this.ref;
+        else if(this.op == Xjs.util.MatchUtils.LE)
+            return val <= this.ref;
+        else if(this.op == Xjs.util.MatchUtils.Cons)
+            return val.toString().indexOf(this.ref) >= 0;
+        else if(this.op == Xjs.util.MatchUtils.Like)
+            return String.like(val.toString(),this.ref);
+        else if(this.op == Xjs.util.MatchUtils.Prefix)
+            return val.toString().startsWith(this.ref);
+        else if(this.op == Xjs.util.MatchUtils.Suffix)
+            return val.toString().endsWith(this.ref);
+        throw new Error("不支持的字符比较方式：" + this.op);
+    },
+    /*xjs.util.MatchUtils$MatchEntity.matchNumeric*/
+    matchNumeric:function(data)
+    {
+        var val = data[this.name];
+        if(val == null)
+        {
+            if(this.op == Xjs.util.MatchUtils.IsNull)
+                return true;
+            else if(this.op == Xjs.util.MatchUtils.IsNotNull)
+                return false;
+            return this.acceptNull();
+        }
+        if(this.op == Xjs.util.MatchUtils.IsNotNull)
+            return true;
+        if(this.ref == null)
+            return false;
+        if(this.op >= Xjs.util.MatchUtils.BitAnySet && this.op <= Xjs.util.MatchUtils.BitAllClear)
+        {
+            if(this.op == Xjs.util.MatchUtils.BitAnySet)
+                return (val & this.ref) != 0;
+            else if(this.op == Xjs.util.MatchUtils.BitAllSet)
+                return (val & this.ref) == this.ref;
+            else if(this.op == Xjs.util.MatchUtils.BitAnyClear)
+                return (val & this.ref) != this.ref;
+            else if(this.op == Xjs.util.MatchUtils.BitAllClear)
+                return (val & this.ref) == 0;
+        }
+        if(this.op == Xjs.util.MatchUtils.EQ)
+            return val == this.ref;
+        else if(this.op == Xjs.util.MatchUtils.NE)
+            return val != this.ref;
+        else if(this.op == Xjs.util.MatchUtils.GT)
+            return val > this.ref;
+        else if(this.op == Xjs.util.MatchUtils.GE)
+            return val >= this.ref;
+        else if(this.op == Xjs.util.MatchUtils.LT)
+            return val < this.ref;
+        else if(this.op == Xjs.util.MatchUtils.LE)
+            return val <= this.ref;
+        throw new Error("不支持的数字比较方式：" + this.op);
+    },
+    /*xjs.util.MatchUtils$MatchEntity.matchDate*/
+    matchDate:function(data)
+    {
+        var val = data[this.name];
+        if(val == null)
+        {
+            if(this.op == Xjs.util.MatchUtils.IsNull)
+                return true;
+            else if(this.op == Xjs.util.MatchUtils.IsNotNull)
+                return false;
+            return this.acceptNull();
+        }
+        if(this.op == Xjs.util.MatchUtils.IsNotNull)
+            return true;
+        if(this.ref == null)
+            return false;
+        if(this.op == Xjs.util.MatchUtils.EQ)
+            return this.ref == val;
+        else if(this.op == Xjs.util.MatchUtils.NE)
+            return this.ref != val;
+        else if(this.op == Xjs.util.MatchUtils.GT)
+            return val.getTime() > this.toDate(this.ref).getTime();
+        else if(this.op == Xjs.util.MatchUtils.GE)
+            return val.getTime() >= this.toDate(this.ref).getTime();
+        else if(this.op == Xjs.util.MatchUtils.LT)
+            return val.getTime() < this.toDate(this.ref).getTime();
+        else if(this.op == Xjs.util.MatchUtils.LE)
+            return val.getTime() <= this.toDate(this.ref).getTime();
+        throw new Error("不支持的日期比较方式：" + this.op);
+    },
+    /*xjs.util.MatchUtils$MatchEntity.toDate*/
+    toDate:function(val)
+    {
+        if(val instanceof Date)
+            return val;
+        if(val instanceof java.lang.String)
+        {
+            return Date.parseDate(val);
+        }
+        throw new Error("无法解析的日期值：" + val);
+    }
+});
+Xjs.util.MatchUtils=function(){};
+Xjs.apply(Xjs.util.MatchUtils,{
+    VARCHAR:12,
+    INTEGER:4,
+    NUMERIC:2,
+    DATE:91,
+    EQ:0,
+    NE:1,
+    GT:2,
+    GE:3,
+    LT:4,
+    LE:5,
+    IN:6,
+    NIN:7,
+    Cons:8,
+    Like:9,
+    Prefix:10,
+    Suffix:11,
+    IsNull:12,
+    IsNotNull:13,
+    BitAnySet:14,
+    BitAllSet:15,
+    BitAnyClear:16,
+    BitAllClear:17,
+    Formular:99,
+    /*xjs.util.MatchUtils.match*/
+    match:function(grpMap)
+    {
+        outer:for(var name in grpMap)
+            {
+                var list = grpMap[name];
+                for(var i=0;i < list.length;i++)
+                {
+                    var en = list[i];
+                    if(!en.match())
+                    {
+                        continue outer;
+                    }
+                }
+                return true;
+            }
+        return false;
+    }
+});
 /*xjs/util/ResBundle.java*/
 Xjs.util.ResBundle$Res=function(m){
     this.m = m;
@@ -29895,6 +30501,7 @@ Xjs.apply(Xjs.util.ResBundle$ResMap.prototype,{
     }
 });
 Xjs.ResBundle = {
+    resCache:{},
     /*xjs.util.ResBundle.getStrings*/
     getStrings:function(sysid)
     {
@@ -29965,6 +30572,49 @@ Xjs.ResBundle = {
         if(!text || text.indexOf("${RES.") < 0)
             return text;
         return String.macroReplace(text,Xjs.ResBundle.getResMap(),"${RES.","}",null,"?");
+    },
+    /*xjs.util.ResBundle.getResVal*/
+    getResVal:function(key,as)
+    {
+        var val = Xjs.ResBundle.getResVals([key])[key];
+        if(!val)
+            return key;
+        if(arguments.length > 1)
+        {
+            var args = new Array(arguments.length);
+            args[0] = val;
+            for(var j=1;j < arguments.length;j++)
+                args[j] = arguments[j];
+            val = String.format.apply(null,args);
+        }
+        return val;
+    },
+    /*xjs.util.ResBundle.getResVals*/
+    getResVals:function(keys)
+    {
+        var isEmpty = true;
+        for(var name in Xjs.ResBundle.resCache)
+        {
+            if(!Xjs.ResBundle.resCache[name])
+            {
+                isEmpty = false;
+                break;
+            }
+        }
+        if(isEmpty)
+        {
+            var vals = Xjs.ResBundle.getStrings("UI");
+            for(var i=0;i < vals.length;i++)
+                Xjs.ResBundle.resCache[vals[i][0]] = vals[i][1];
+        }
+        keys = keys.filter((key)=>{
+            return !(key in Xjs.ResBundle.resCache);
+        });
+        if(keys.length == 0)
+            return Xjs.ResBundle.resCache;
+        var rst = Xjs.RInvoke.rmInvoke("snsoft.bas.util.resbundle.DxResBundle.getResVals",keys);
+        Xjs.apply(Xjs.ResBundle.resCache,rst);
+        return Xjs.ResBundle.resCache;
     }
 };
 /*xjs/util/SortedArray.java*/
@@ -30102,9 +30752,9 @@ Xjs.Utils = {
         {
             return text;
         }
-        var prefix = new RegExp("^((if)|(try)|(for)|(while)|(loop)|(proc))(\\s|\\(|$)","g"),
-            suffix = new RegExp("^(end)(\\s)","g"),
-            middle = new RegExp("^((elif)|(else)|(catch)|(finally))(\\s?|$)","g"),
+        var prefix = new RegExp("^((if)|(try)|(for)|(while)|(loop)|(proc)|(如果)|(遍历)|(当)|(方法))(\\s|\\(|$)","g"),
+            suffix = new RegExp("^(end|结束)(\\s)","g"),
+            middle = new RegExp("^((elif)|(else)|(再如果)|(其他)|(catch)|(finally))(\\s?|$)","g"),
             lines = tac.split("\n"),
             cnt = 0,
             str = "";
