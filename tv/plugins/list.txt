@@ -57,3 +57,5 @@ testvideo|test-menu-list,Test.js,x=1&y=2
 #dsj|dsj-urls|dsj-list,DSJ.js
 
 #seal1226|seal1226-list,Seal1226.js
+
+[webview-js]https\://tv.cctv.com/live/.*,webview/video-fullscreen.js
