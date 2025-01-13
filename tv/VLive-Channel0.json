@@ -1339,7 +1339,7 @@
    {id:"192.168.1.8/test1",num:"99800",url:"rtmp://192.168.1.8/live/test1"},
    {id:"苹果测试源",url:"http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear2/prog_index.m3u8"},
    "browser-www.baidu.com|browser-https://www.baidu.com",
-   "browser-cctv13|browser-https://tv.cctv.com/live/cctv13/m/",
+   "browser-cctv15|browser-https://tv.cctv.com/live/cctv15/m/",
    "browser-172.20.0.20|browser-http://172.20.0.20/caoyuwu.github.io/video/VideoPlay.html",
    "oceans.mp4|http://o.snsoft.com.cn/demo/video/oceans.mp4",
    //{id:"oceans.mp4",url:"/sdcard/temp/oceans.mp4"},
