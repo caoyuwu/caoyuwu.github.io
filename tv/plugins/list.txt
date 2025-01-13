@@ -59,3 +59,7 @@ testvideo|test-menu-list,Test.js,x=1&y=2
 #seal1226|seal1226-list,Seal1226.js
 
 [webview-js]https\://tv.cctv.com/live/.*,webview/video-fullscreen.js
+
+
+[webview-js]http\://172.20.0.20/.*,webview/video-fullscreen.js 
+[webview-css]http\://172.20.0.20/.*,webview/video-fullscreen.css
