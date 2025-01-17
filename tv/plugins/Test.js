@@ -54,3 +54,41 @@ function loadMenus(url,params){
 	  {title:"CCTV-2",url:"http://cctvalih5ca.v.myalicdn.com/live/cctv2_2/index.m3u8"}
 	];
 }
+
+function httpService(params){
+	var uri = params.uri;
+	var method = params.method;
+	var headers = params.headers;
+	var text = method+" "+uri+"\ncontentType = "+params.contentType+"\n";
+	if( headers ) for(var name in headers ){
+		text += "Header."+name+" : "+headers[name]+"\n";
+	}
+	//path = 
+	var p = uri.indexOf("/",1);
+	var path = p>0 ? uri.substring(p+1) : "";
+	var content = params.content;
+	p = path.indexOf("?");
+	if (p>=0) path = path.substring(0,p);
+	if( path=="echo" || path.startsWith("echo/") ){
+		if( content instanceof ArrayBuffer) {
+			a = new Uint8Array(content);
+			for(var i=0;i<a.length;i++) a[i] += 1;
+		}
+		return {
+			contentType :params.contentType,
+			content : content || ""
+		}
+	}
+	 text += "path="+path+"\n";
+	if( content ){
+		if( typeof(content)=="string" ){
+			text += "\n"+content;
+		} else if( content.length ){
+			text += "\ncontent.length = "+content.length;
+		}
+	}
+	return {
+		contentType : "text/plain;charset=utf-8",
+		content : text
+	};
+}
