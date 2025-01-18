@@ -71,7 +71,7 @@ function httpService4TS(url){
 
 function getUrlSuffix(url){
 	var p = url.indexOf("?");
-	if( p>0 )url = url.substri(0,p) ;
+	if( p>0 )url = url.substring(0,p) ;
 	p = url.lastIndexOf('.');
-    return p>0 ? path0.substring(p+1) : null;
+    return p>0 ? url.substring(p+1) : null;
 }
