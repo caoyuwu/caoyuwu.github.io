@@ -43,6 +43,9 @@ function httpService(params){
 	if( suffix=="m3u8" ){
 		return httpService4M3zU8("https://"+path);
 	}
+	if( suffix=="ts" ){
+		return httpService4TS("https://"+path);
+	}
 	return {
 		    status : 404,
 			contentType : "text/plain;charset=utf-8",
@@ -53,7 +56,14 @@ function httpService(params){
 function httpService4M3zU8(url){
 	return {
 				contentType : "text/plain;charset=utf-8",
-				content : url
+				content : "m3u8 : "+url
+	};
+}
+
+function httpService4TS(url){
+	return {
+				contentType : "text/plain;charset=utf-8",
+				content : "ts : "+url
 	};
 }
 
