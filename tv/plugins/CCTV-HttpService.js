@@ -4,6 +4,8 @@ https://caoyuwu.eu.org/tv/plugins/CCTV-HttpService.js
 https://js.player.cntv.cn/creator/h5.worker?v=220805
 http://m.lan:8803/cctv-httpservice/info
 http://m.lan:8803/cctv-httpservice/ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100
+http://192.168.1.14:8803/cctv-httpservice/ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100
+
 */
 
 //(function(){
@@ -20,6 +22,7 @@ http://m.lan:8803/cctv-httpservice/ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvw
   //CNTVModule
   */
 //})()
+var NotFound = {status : 404,contentType : "text/plain;charset=utf-8",	content : "Not found"};
 function httpService(params){
 	var uri = params.uri;
 	/*
@@ -37,37 +40,76 @@ function httpService(params){
 		contentType : "text/plain;charset=utf-8",
 		content : text
 		};
-	}	
+	}
+	var p2 = uri.indexOf("/",p+1);
+	if( p2<0 )return NotFound;
+	var prefix2 = uri.substring(0,p2);	
+	var prefix1= uri.substring(0,p);	
 	/*
 	path = "ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100"
 	*/
 	var suffix = getUrlSuffix(path);
 	if( suffix=="m3u8" ){
-		return httpService4M3U8("https://"+path);
+		return httpService4M3U8("https://"+path,prefix1,prefix2);
 	}
 	if( suffix=="ts" ){
 		return httpService4TS("https://"+path);
 	}
-	return {
-		    status : 404,
-			contentType : "text/plain;charset=utf-8",
-			content : "Not found"
-		};
+	return NotFound;
 }
 
-function httpService4M3U8(url){
+/*
+prefix1=/cctv-httpservice, 
+prefix2=/cctv-httpservice/ldncctvwbcdtxy.liveplay.myqcloud.com
+*/
+function httpService4M3U8(url,prefix1,prefix2){
+	//var p = 
+	
+	var lines = utils.httpGetAsString(url,0x408).split("\n");
+	//print("lines.legth = "+lines.length);
+	for(var i=0;i<lines.length;i++){
+		var line = lines[i];
+	//	print("line = "+line);
+		if( line=="" || line.charCodeAt(0)==35 ){  // #
+			continue;
+		}
+		var suffix = getUrlSuffix(line);
+		//print("suffix="+suffix+" ; line = "+line);
+		if( suffix=="m3u8" || suffix=="ts" ){
+			// /cctv-httpservice/
+			if( line.charCodeAt(0)==47 ){ // "/"
+				lines[i] = prefix2+line;
+				continue;
+			}
+			if( line.startsWith("https://") ){
+				lines[i] = prefix1+line.substring(7);
+				continue;
+			}
+		}
+	} 
+	
 	return {
-				contentType : "text/plain;charset=utf-8",
-				content : "m3u8 : "+url
+				contentType : "application/vnd.apple.mpegurl;charset=utf-8", //text/plain;charset=utf-8",
+				content : lines.join("\n")
+				//prefix1="+prefix1+", prefix2="+prefix2+", url = "+url
 	};
 }
 
 function httpService4TS(url){
+	var data = utils.httpGetAsByteArray(url,0x408);
+	var headers = {
+		"Accept-Ranges":"none"
+		
+	};
 	return {
-				contentType : "text/plain;charset=utf-8",
-				content : "ts : "+url
+				contentType : "video/MP2T" ,//  "text/plain;charset=utf-8",
+				headers : headers,
+				content : data //"ts : "+url
+				
 	};
 }
+
+
 
 function getUrlSuffix(url){
 	var p = url.indexOf("?");
