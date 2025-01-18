@@ -1,5 +1,6 @@
 
 /*
+https://caoyuwu.eu.org/tv/plugins/CCTV-HttpService.js
 https://js.player.cntv.cn/creator/h5.worker?v=220805
 http://m.lan:8803/cctv-httpservice/info
 http://m.lan:8803/cctv-httpservice/ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100
@@ -28,8 +29,9 @@ function httpService(params){
 	var p = uri.indexOf("/",1);
 	var path = p>0 ? uri.substring(p+1) : "";
 	if( path=="" || path=="info" ){
-		text = "CNTVH5PlayerModule = "+CNTVH5PlayerModule
-		+"\n _jsmalloc = "+CNTVH5PlayerModule._jsmalloc
+		text = "CCTV-HttpService\n"; 
+		//"CNTVH5PlayerModule = "+CNTVH5PlayerModule
+		//+"\n _jsmalloc = "+CNTVH5PlayerModule._jsmalloc
 		  ;
 		return {
 		contentType : "text/plain;charset=utf-8",

@@ -54,7 +54,9 @@ function loadMenus(url,params){
 	  {title:"CCTV-2",url:"http://cctvalih5ca.v.myalicdn.com/live/cctv2_2/index.m3u8"}
 	];
 }
-
+/*
+http://192.168.1.14:8803/test-httpservice/
+*/
 function httpService(params){
 	var uri = params.uri;
 	var method = params.method;
