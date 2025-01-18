@@ -41,7 +41,7 @@ function httpService(params){
 	*/
 	var suffix = getUrlSuffix(path);
 	if( suffix=="m3u8" ){
-		return httpService4M3zU8("https://"+path);
+		return httpService4M3U8("https://"+path);
 	}
 	if( suffix=="ts" ){
 		return httpService4TS("https://"+path);
@@ -53,7 +53,7 @@ function httpService(params){
 		};
 }
 
-function httpService4M3zU8(url){
+function httpService4M3U8(url){
 	return {
 				contentType : "text/plain;charset=utf-8",
 				content : "m3u8 : "+url
