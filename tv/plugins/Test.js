@@ -85,7 +85,8 @@ function httpService(params){
 	if( path=="error" ){
 		throw new Error("httpService error ");
 	}
-	 text += "path="+path+"\n";
+	 text += "params.uri="+params.uri+"\n" 
+	        +"path="+path+"\n";
 	if( content ){
 		if( typeof(content)=="string" ){
 			text += "\n"+content;
