@@ -78,6 +78,7 @@ function httpService4M3U8(url,prefix1,prefix2){
 	}
 	var content = resp.content;
 	if( resp.status==200 && typeof(content)=="string" ){
+		var chaged = false;
 	var lines = content.split("\n");  //utils.httpGetAsString(url,0x408)
 	//print("lines.legth = "+lines.length);
 	for(var i=0;i<lines.length;i++){
@@ -92,19 +93,22 @@ function httpService4M3U8(url,prefix1,prefix2){
 			// /cctv-httpservice/
 			if( line.charCodeAt(0)==47 ){ // "/"
 				lines[i] = prefix2+line;
+				chaged = true;
 				continue;
 			}
 			if( line.startsWith("https://") ){
 				lines[i] = prefix1+line.substring(7);
+				chaged = true;
 				continue;
 			}
 			if( line.startsWith("http://") ){
 				lines[i] = prefix1+"http-"+line.substring(6);
+				chaged = true;
 				continue;
 			}
-		}
+		} // if suffix=="m3u8" || suffix=="ts"
 	}  // for lines
-	content = lines.join("\n");
+	if(chaged ) content = lines.join("\n");
 	}
 	return {
 				contentType : resp.contentType,// "application/vnd.apple.mpegurl;charset=utf-8", //text/plain;charset=utf-8",
