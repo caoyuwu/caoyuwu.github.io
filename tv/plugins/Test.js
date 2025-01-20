@@ -56,6 +56,7 @@ function loadMenus(url,params){
 }
 /*
 http://192.168.1.14:8803/test-httpservice/
+http://m.lan:8803/test-httpservice/error
 */
 function httpService(params){
 	var uri = params.uri;
@@ -80,6 +81,9 @@ function httpService(params){
 			contentType :params.contentType,
 			content : content || ""
 		}
+	}
+	if( path=="error" ){
+		throw new Error("httpService error ");
 	}
 	 text += "path="+path+"\n";
 	if( content ){

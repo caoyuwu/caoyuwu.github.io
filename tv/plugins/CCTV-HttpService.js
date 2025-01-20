@@ -95,16 +95,44 @@ function httpService4M3U8(url,prefix1,prefix2){
 	};
 }
 
+function decryptTS(content){
+	if( !(content instanceof ArrayBuffer) )
+	    return content;
+	utils.debug("CCTV-HttpService.js","解密: content : length= "+content.byteLength);
+	return content;
+}
+var RespTSHeaders = [
+	"Access-Control-Allow-Origin",
+     "Access-Control-Allow-Credentials",
+     "Cache-Control",
+     "Accept-Ranges",
+     "X-Tlive-SpanId",
+     "cdncip","cdnsip",
+     "Access-Control-Expose-Headers",
+     "Access-Control-Allow-Methods",
+     "Access-Control-Max-Age",
+     "X-SSL-PROTOCOL",
+     "X-NWS-LOG-UUID",
+     "Date",
+     "Last-Modified"
+     //"Server"
+   ]
 function httpService4TS(url){
-	var data = utils.httpGetAsByteArray(url,0x408);
-	var headers = {
-		"Accept-Ranges":"none"
-		
-	};
+	var resp = utils.httpGet(url,null,0x408|0x1000|1);
+	//var headers = resp.headers;
+	var headers = {}
+	for( var name of RespTSHeaders ){
+		if (resp.headers[name] ) headers[name] = resp.headers[name];
+	}
+	var contentType = resp.contentType;
+	var content = resp.content;
+	if( resp.status==200 ){
+		content = decryptTS(content);
+	}
 	return {
-				contentType : "video/MP2T" ,//  "text/plain;charset=utf-8",
-				headers : headers,
-				content : data //"ts : "+url
+			contentType :contentType,// "video/MP2T" ,//  "text/plain;charset=utf-8",
+			headers : headers,
+			content : content //"ts : "+url
 				
 	};
 }
