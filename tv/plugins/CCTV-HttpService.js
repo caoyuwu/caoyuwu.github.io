@@ -49,11 +49,18 @@ function httpService(params){
 	path = "ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100"
 	*/
 	var suffix = getUrlSuffix(path);
+	var httpPrefix =  "https://";
+	if( path.startsWith("https-") ){
+		path = path.substring(6);
+	} else if( path.startsWith("http-") ){
+		path = path.substring(5);
+		httpPrefix =  "http://";
+	}
 	if( suffix=="m3u8" ){
-		return httpService4M3U8("https://"+path,prefix1,prefix2);
+		return httpService4M3U8(httpPrefix+path,prefix1,prefix2);
 	}
 	if( suffix=="ts" ){
-		return httpService4TS("https://"+path);
+		return httpService4TS(httpPrefix+path);
 	}
 	return NotFound;
 }
@@ -83,6 +90,10 @@ function httpService4M3U8(url,prefix1,prefix2){
 			}
 			if( line.startsWith("https://") ){
 				lines[i] = prefix1+line.substring(7);
+				continue;
+			}
+			if( line.startsWith("http://") ){
+				lines[i] = prefix1+"http-"+line.substring(6);
 				continue;
 			}
 		}
