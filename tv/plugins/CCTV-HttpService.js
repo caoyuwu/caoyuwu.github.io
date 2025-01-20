@@ -71,8 +71,14 @@ prefix2=/cctv-httpservice/ldncctvwbcdtxy.liveplay.myqcloud.com
 */
 function httpService4M3U8(url,prefix1,prefix2){
 	//var p = 
-	
-	var lines = utils.httpGetAsString(url,0x408).split("\n");
+	var resp = utils.httpGet(url,null,0x408|0x1000|1);
+	var headers = {}
+		for( var name of RespTSHeaders ){
+			if (resp.headers[name] ) headers[name] = resp.headers[name];
+	}
+	var content = resp.content;
+	if( resp.status==200 && typeof(content)=="string" ){
+	var lines = content.split("\n");  //utils.httpGetAsString(url,0x408)
 	//print("lines.legth = "+lines.length);
 	for(var i=0;i<lines.length;i++){
 		var line = lines[i];
@@ -97,11 +103,13 @@ function httpService4M3U8(url,prefix1,prefix2){
 				continue;
 			}
 		}
-	} 
-	
+	}  // for lines
+	content = lines.join("\n");
+	}
 	return {
-				contentType : "application/vnd.apple.mpegurl;charset=utf-8", //text/plain;charset=utf-8",
-				content : lines.join("\n")
+				contentType : resp.contentType,// "application/vnd.apple.mpegurl;charset=utf-8", //text/plain;charset=utf-8",
+				headers : headers,
+				content : content //lines.join("\n")
 				//prefix1="+prefix1+", prefix2="+prefix2+", url = "+url
 	};
 }
@@ -137,7 +145,7 @@ function httpService4TS(url){
 	}
 	var contentType = resp.contentType;
 	var content = resp.content;
-	if( resp.status==200 ){
+	if( resp.status==200 && content instanceof ArrayBuffer ){
 		content = decryptTS(content);
 	}
 	return {
