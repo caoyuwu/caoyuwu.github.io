@@ -1706,6 +1706,7 @@ var _0x2b5eef = a0_0x3077
          //// 同步方式: 在 cctvModule.asm 已经被设置
 //console.log("[DEBUG]@1693设置 cctvModule.asm : _jsmalloc=%s",""+cctvModule.asm._jsmalloc);        
         cctvModule.addFunction = _0x58e857;  // [_0x2fc976('0xed')] cctvModule.addFunction
+		if( wb ){ // [CYW]
         var _0x4f26f9;
         cctvModule.then = function(_0x527b68) {  // [_0x2fc976('0xa6')] .then
             if (_0x4f26f9)
@@ -1720,7 +1721,8 @@ var _0x2b5eef = a0_0x3077
                 ;
             }
             return cctvModule;
-        }
+        } //cctvModule.then
+		}
         ;
         function _0x26a576(_0x36d04e) {
             var _0x5a6e02 = _0x2fc976;
