@@ -313,6 +313,7 @@ CCTVTSDecript.prototype = {
  decryptAVCNALu:function(data,type){
 	//if( !CNTVH5PlayerModule ) loadCNTVH5PlayerModule();
 	//var  i = 0, a = 0, n = new Uint8Array(0);
+if( true) return;	
 	var rootURL_len = 0;
 	var r = null;
     try {
