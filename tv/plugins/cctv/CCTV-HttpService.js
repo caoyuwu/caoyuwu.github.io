@@ -134,7 +134,7 @@ function decryptTS(content){
 	if( !(content instanceof ArrayBuffer) )
 	    return content;
 //*
-	if(!CNTVH5PlayerModule) loadCNTVH5PlayerModule();
+	//if(!CNTVH5PlayerModule) loadCNTVH5PlayerModule();
 	var rootURL = "https://tv.cctv.com/live/";
 	new CCTVTSDecript().decryptTS(content,rootURL);
 //*/	
