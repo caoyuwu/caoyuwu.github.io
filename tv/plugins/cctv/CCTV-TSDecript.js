@@ -697,8 +697,8 @@ parseAVCPES:function (pes,last){
         	//console.log("数据加密 = %s",unit.data.a[2]);//&1)!=0); // false
             if( unit.data.a[2]&1 ){
 				this.decryptAVCNALUType = 0;
-            	unit.data.a[2] &= 0xfe;//254&e.data[2];
-            	unit.data.copyToSrc(2,1);
+            	//unit.data.a[2] &= 0xfe;	unit.data.copyToSrc(2,1);
+				////254&e.data[2];
             }
 				/*
             if (!track.sps) {
