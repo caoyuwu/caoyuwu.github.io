@@ -1,3 +1,14 @@
+/*#
+#include CCTV-TSDecript.js
+#include h5.worker.js
+#*/  
+
+/*
+  1 : h5.worker.js 来自 tv.cctv.com https://js.player.cntv.cn/creator/h5.worker?v=220805
+     其中 标志 [CYW] 做了修改
+   2 : h5.worker.wasm   来自  h5.worker.js 中的 wb 
+   
+*/
 
 /*
 https://caoyuwu.eu.org/tv/plugins/CCTV-HttpService.js
@@ -122,7 +133,10 @@ function httpService4M3U8(url,prefix1,prefix2){
 function decryptTS(content){
 	if( !(content instanceof ArrayBuffer) )
 	    return content;
-	utils.debug("CCTV-HttpService.js","解密: content : length= "+content.byteLength);
+	if(!CNTVH5PlayerModule) loadCNTVH5PlayerModule();
+	var rootURL = "https://tv.cctv.com/live/";
+	new CCTVTSDecript().decryptTS(content,rootURL);
+	//utils.debug("CCTV-HttpService.js","解密: content : length= "+content.byteLength);
 	return content;
 }
 var RespTSHeaders = [
