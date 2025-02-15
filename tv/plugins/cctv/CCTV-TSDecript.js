@@ -312,8 +312,9 @@ CCTVTSDecript.prototype = {
 */
  decryptAVCNALu:function(data,type){
 	//if( !CNTVH5PlayerModule ) loadCNTVH5PlayerModule();
+	if( !CNTVH5PlayerModule ) return;
 	//var  i = 0, a = 0, n = new Uint8Array(0);
-//if( true) return;	
+// return;	 //[临时测试]
 	var rootURL_len = 0;
 	var r = null;
     try {
@@ -353,7 +354,7 @@ CCTVTSDecript.prototype = {
 		//console.log("解密结果 : size=%d; hash=%s; n=%d",size,arrayHashCode(data.a),n);
 		//console.log("解密结果 : size=%d; hash=%s",size,arrayHashCode(data.a));
 		//console.log(" 1--data = %s ",bytesToHex(data.a))
-		data.checkSrcMapsEq();
+	//	data.checkSrcMapsEq();
         //n = new Uint8Array(i);
         //for (var l = 0; l < n.byteLength; l++)
          //   n[l] = CNTVH5PlayerModule.HEAP8[r + l]
@@ -480,7 +481,7 @@ getTimestamp:function (data,index){
           (data[index+4] & 0xFE) / 2;
 }, //getTimestamp
 /*
- @param stream : ByteArray 
+ @param (ByteArray) stream : ByteArray 
 */
 parsePES:function (stream){
 	//stream.checkSrcMapsEq();
@@ -549,10 +550,11 @@ parsePES:function (stream){
 }, //parsePES
 
 //var decryptAVCNALUType;// = -1;// = false, decode1 = false;
-/*
- pes : parsePES 的返回结果 : { data: pesData, pts: pesPts, dts: pesDts}; 
+/** 
+ @param (object) pes : parsePES 的返回结果 : { data: pesData, pts: pesPts, dts: pesDts}; 
 */
 parseAVCPES:function (pes,last){
+//return;//[临时测试] 可能崩
 	var pesData = pes.data; // ByteArray
 	var a = pesData.a;
 	if( a.length!=pesData.size )
@@ -561,12 +563,14 @@ parseAVCPES:function (pes,last){
 	//pesData.checkSrcMapsEq();	
 	//console.log("parseAVCPES : payload.length=%d , hash=%d",a.length,arrayHashCode(a));
 	var units = this.parseAVCNALu(pesData); 
+//return;	 //[临时测试]
 	var push;
 	var avcSample = this.AvcSample;
 	units.forEach( (unit)=> {
 		
-		unit.data.checkSrcMapsEq();
+		//unit.data.checkSrcMapsEq();
 		//console.log("unit.type=%d, this.decryptAVCNALUType=%d",unit.type,this.decryptAVCNALUType)
+		//console.log("unit.type=%d, avcSample=%s",	unit.type,	""+avcSample);
 		if( (unit.type==1 || unit.type==5) && this.decryptAVCNALUType>=0) {
 			this.decryptAVCNALu(unit.data,this.decryptAVCNALUType);
 		}
@@ -831,7 +835,7 @@ _getLastNalUnit:function (){
   @return 
 */
 parseAVCNALu:function (pesData){
-	var array = pesData.a;
+	var array = pesData.a;  // Uint8Array
 	var i = 0,
           len = array.byteLength,
           value,
@@ -967,7 +971,7 @@ decryptTS:function (data,rootURL){
 	this.AvcSample = null;
 	this.decryptAVCNALUType = -1;
 	//callOnCNTVH5PlayerModuleLoaded(()=>this._decryptTS(data));
-//_decryptTS:function (data){
+//_decryptTS:function (data)
 	var avcSamples = this.avcTrackSamples = [];
 	var len = data.length - data.length%188;
 	var avcId =  -1,audioId = -1,id3Id = -1 , pmtId= -1;
@@ -979,7 +983,7 @@ decryptTS:function (data,rootURL){
 	for(var start=0;start<len;start += 188) {
 		if( data[start] != 0x47 ) // 71
 		{
-			//console.log("data[%d] = %d",start,data[start]);
+			console.log("错误TS数据包： data[%d] = %d",start,data[start]);
 			continue;
 		} 
         var  stt = !!(data[start + 1] & 0x40);  // 起始 payloadStartIndicator
@@ -1056,7 +1060,6 @@ decryptTS:function (data,rootURL){
           this.parseAVCPES(pes, true);
          // this.mediaTracks.avcTrack.pesData = null;
      }
-     
      //if(_debug) printAvcSamples(avcSamples);
-}
+} //decryptTS
 } //CCTVTSDecript.prototype

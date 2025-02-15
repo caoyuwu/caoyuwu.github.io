@@ -133,6 +133,12 @@ function httpService4M3U8(url,prefix1,prefix2){
 function decryptTS(content){
 	if( !(content instanceof ArrayBuffer) )
 	    return content;
+    // 需要  clone content 再返回， 否则 可能 crash; 	原因待查 
+	var a = new Uint8Array(content.byteLength);
+	a.set(new Uint8Array(content),0);
+	content = a.buffer;
+	//var a = new Uint8Array(content);
+	//console.log("length=%d,%s,%s,%s",content.byteLength,a[-1],a[0],a[content.byteLength]);
 //*
 	if(!CNTVH5PlayerModule) loadCNTVH5PlayerModule();
 	var rootURL = "https://tv.cctv.com/live/";
