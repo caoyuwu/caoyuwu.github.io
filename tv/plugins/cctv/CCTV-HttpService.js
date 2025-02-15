@@ -1,6 +1,6 @@
 /*#
 #include CCTV-TSDecript.js
-//#include h5.worker.js
+#include h5.worker.js
 #*/  
 
 /*
@@ -134,9 +134,9 @@ function decryptTS(content){
 	if( !(content instanceof ArrayBuffer) )
 	    return content;
 //*
-	//if(!CNTVH5PlayerModule) loadCNTVH5PlayerModule();
+	if(!CNTVH5PlayerModule) loadCNTVH5PlayerModule();
 	var rootURL = "https://tv.cctv.com/live/";
-	//new CCTVTSDecript().decryptTS(content,rootURL);
+	new CCTVTSDecript().decryptTS(content,rootURL);
 //*/	
 	//utils.debug("CCTV-HttpService.js","解密: content : length= "+content.byteLength);
 	return content;
