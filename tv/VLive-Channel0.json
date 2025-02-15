@@ -1361,9 +1361,10 @@
    {id:"局域网oceans.mp4",url:"http://192.168.3.17:8000/snsoft/video/oceans.mp4"},
     
     "CCTV1,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8",
-    "CCTV1代理,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8??[proxy=*]",
-    {id:"CCTV1代理",urls:["http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8??[proxy=*]"]},
-    "Youtube,youtube://GYtC4dkDi38",
+   // "CCTV1代理,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8??[proxy=*]",
+   // {id:"CCTV1代理",urls:["http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8??[proxy=*]"]},
+    "CCTV13-local8803,http://localhost:8803/cctv-httpservice/ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100",
+   // "Youtube,youtube://GYtC4dkDi38",
     {id:"ERR_02",urls:["http://1",
    				"http://2",
    				"[OCEANS]http://o.snsoft.com.cn/demo/video/oceans.mp4",
