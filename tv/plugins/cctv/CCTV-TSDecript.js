@@ -13,49 +13,7 @@ if( !this.window ){
 	};
 	wb = null;
 }
-/*
-function arrayHashCode(a,start,end){
-	if(a==null ){return 0;}
-	var result = 1;
-	if( start===undefined ) start = 0;
-	if( end===undefined ) end = a.length;
-    for(var i=start;i<end;i++)
-        result = (31 * result + a[i])&0x7fffffff;
-    return result;
-} // arrayHashCode
 
-function arrayHashCode2(a2,getBytes){
-			if(a2==null ){return 0;}
-			var result = 1;
-			for(var e of a2){
-				var a = getBytes(e); 
-		    	for(var i=0;i<a.length;i++)
-		        	result = (31 * result + a[i])&0x7fffffff;
-			}
-		    return result;
-} // arrayHashCode2
-function bytesToHex(a,start,end){
-	if( start===undefined ) start = 0;
-	if( end===undefined ) end = a.length;
-	var v = [];
-    for(var i=start;i<end;i++){
-		 v.push(a[i]<10?"0"+a[i].toString(16) : a[i].toString(16)); 
-	}
-	return v.join("");
-}
-function printAvcSamples(samples){
-		 for(var i=0;i<samples.length;i++){
-			var sample = samples[i];
-	
-			console.log("AvcSample[%d]: units.length=%d, hash=%d",
-			 i,
-			 //sample.frame,sample.key,sample.pts,
-			 sample.units.length,
-			 arrayHashCode2(sample.units,(u)=>u.data.toUint8Array())
-			 );
-		 }
-}  // printAvcSamples
-*/
 /*
 	 console.log("AvcSample[%d]: frame=%s, key=%s, pts=%s, units.length=%d, hash=%d",
 	 i,sample.frame,sample.key,sample.pts,sample.units.length,
@@ -320,7 +278,7 @@ CCTVTSDecript.prototype = {
     try {
         r = CNTVH5PlayerModule._jsmalloc(data.size+1024);// e.byteLength + 1024);
         // rootURL=https://tv.cctv.com/live/cctv13/,signalUrlSend=false
-       //console.log("解密:data.length=%d, t=%d ; r=%d; rootURL=%s,signalUrlSend=%s; hash=%s",data.size,type,r,this.rootURL,this.signalUrlSend,arrayHashCode(data.a));	  // r==5271064 ???
+       //if(_debug)console.log("解密:data.length=%d, t=%d ; r=%d; rootURL=%s,signalUrlSend=%s; hash=%s",data.size,type,r,this.rootURL,this.signalUrlSend,arrayHashCode(data.a));	  // r==5271064 ???
        //console.log(" 1--data = %s ",bytesToHex(data.a))
   // if( true ) return;       
         for (var i = 0; i < data.size; i++)
@@ -351,7 +309,7 @@ CCTVTSDecript.prototype = {
 		}
 	//	*/
 		 data.copyToSrc(0,size);
-		//console.log("解密结果 : size=%d; hash=%s; n=%d",size,arrayHashCode(data.a),n);
+		//if(_debug)console.log("解密结果 : size=%d; hash=%s",size,arrayHashCode(data.a));
 		//console.log("解密结果 : size=%d; hash=%s",size,arrayHashCode(data.a));
 		//console.log(" 1--data = %s ",bytesToHex(data.a))
 	//	data.checkSrcMapsEq();
