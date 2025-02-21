@@ -1,5 +1,10 @@
 {
  "label":"电视", "groupIdx":2,
+ channels :[
+	 {id:"CCTV-01",num:"01",urls:[
+		 ]
+	  }	  
+ ],
  "menus":[
 	// {"label":"agit.ai/Yoursmile7","items":"@txtloader:https://agit.ai/Yoursmile7/TVBox/raw/branch/master/live.txt"},
 	 {"label":"TVBOX@jundie.top","items":"@txtloader:http://home.jundie.top:81/Cat/tv/live.txt"},
