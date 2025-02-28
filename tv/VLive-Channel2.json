@@ -72,7 +72,7 @@
 	 {id:"CCTV5+",num:"21", urls:[
 		 "http://localhost:8803/ldcctvwbcdks.v.kcdnvip.com/ldcctvwbcd/cdrmldcctv5plus_1/index.m3u8?b=200-2100"
 		 ]
-	  },	"??|http://"
+	  },	
      {id:"CCTV4(欧洲版)",num:"22",urls:[
 		 "http://localhost:8803/ldocctvwbcdbd.a.bdydns.com/ldocctvwbcd/cdrmldcctveurope_1/index.m3u8?b=200-2100"
 		 ]
