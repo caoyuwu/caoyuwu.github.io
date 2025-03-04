@@ -38,7 +38,7 @@ function httpService(params){
 	var uri = params.uri;
 	/*
 	https://ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100
-	/cctv-httpservice/ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100
+	uri == /cctv-httpservice/ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100
 	*/
 	var p = uri.indexOf("/",1);
 	var path = p>0 ? uri.substring(p+1) : "";
