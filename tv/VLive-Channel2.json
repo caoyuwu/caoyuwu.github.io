@@ -2,83 +2,83 @@
  "label":"电视", "groupIdx":2,
  channels :[
 	 {id:"CCTV-01",num:"01",urls:[
-		 "http://localhost:8803/cctv-httpservice/ldncctvwbcdks.v.kcdnvip.com/ldncctvwbcd/cdrmldcctv1_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldncctvwbcdbd.a.bdydns.com/ldncctvwbcd/cdrmldcctv1_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV-02",num:"02",urls:[
-		 "http://localhost:8803/cctv-httpservice/ldncctvwbcdks.v.kcdnvip.com/ldncctvwbcd/cdrmldcctv2_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldocctvwbcdbd.a.bdydns.com/ldocctvwbcd/cdrmldcctv2_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV-03",num:"03",urls:[
-		 "http://localhost:8803/ldocctvwbcdtxy.liveplay.myqcloud.com/ldocctvwbcd/cdrmldcctv3_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldocctvwbcdbd.a.bdydns.com/ldocctvwbcd/cdrmldcctv3_1/index.m3u8?b=200-1200"
 		 ]
 	  },	  
 	 {id:"CCTV-04",num:"04",urls:[
-		 "http://localhost:8803/ldocctvwbcdtxy.liveplay.myqcloud.com/ldocctvwbcd/cdrmldcctv4_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldocctvwbcdali.v.myalicdn.com/ldocctvwbcd/cdrmldcctv4_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV-05",num:"05",urls:[
-		 "http://localhost:8803/ldocctvwbcdtxy.liveplay.myqcloud.com/ldocctvwbcd/cdrmldcctv5_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldcctvwbcdbd.a.bdydns.com/ldcctvwbcd/cdrmldcctv5_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV-06",num:"06",urls:[
-		 "http://localhost:8803/ldocctvwbcdtxy.liveplay.myqcloud.com/ldocctvwbcd/cdrmldcctv6_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldocctvwbcdks.v.kcdnvip.com/ldocctvwbcd/cdrmldcctv6_1/index.m3u8?b=200-1200"
 		 ]
 	  },	  
 	 {id:"CCTV-07",num:"07",urls:[
-		 "http://localhost:8803/ldocctvwbcdtxy.liveplay.myqcloud.com/ldocctvwbcd/cdrmldcctv7_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldocctvwbcdbd.a.bdydns.com/ldocctvwbcd/cdrmldcctv7_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV-08",num:"08",urls:[
-		 "http://localhost:8803/ldocctvwbcdtxy.liveplay.myqcloud.com/ldocctvwbcd/cdrmldcctv8_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldocctvwbcdbd.a.bdydns.com/ldocctvwbcd/cdrmldcctv8_1/index.m3u8?b=200-1200"
 		 ]
 	  },	  
 	 {id:"CCTV-09",num:"09",urls:[
-		 "http://localhost:8803/ldocctvwbcdtxy.liveplay.myqcloud.com/ldocctvwbcd/cdrmldcctv9_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldocctvwbcdbyte.volcfcdn.com/ldocctvwbcd/cdrmldcctv9_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV-10",num:"10",urls:[
-	    "http://localhost:8803/cctv-httpservice/ldncctvwbcdks.v.kcdnvip.com/ldncctvwbcd/cdrmldcctv10_1/index.m3u8?b=200-2100"
+	    "http://localhost:8803/cctv-httpservice/ldocctvwbcdtxy.liveplay.myqcloud.com/ldocctvwbcd/cdrmldcctv10_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV-11",num:"11",urls:[
-	    "http://localhost:8803/cctv-httpservice/ldncctvwbcdks.v.kcdnvip.com/ldncctvwbcd/cdrmldcctv11_1/index.m3u8?b=200-2100"
+	    "http://localhost:8803/cctv-httpservice/ldocctvwbcdcnc.v.wscdns.com/ldocctvwbcd/cdrmldcctv11_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV-12",num:"12",urls:[
-		 "http://localhost:8803/cctv-httpservice/ldncctvwbcdks.v.kcdnvip.com/ldncctvwbcd/cdrmldcctv12_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldocctvwbcdbd.a.bdydns.com/ldocctvwbcd/cdrmldcctv12_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV-13",num:"13",urls:[
-		 "http://localhost:8803/cctv-httpservice/ldncctvwbcdks.v.kcdnvip.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldncctvwbcdali.v.myalicdn.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV-14",num:"14",urls:[
-		 "http://localhost:8803/cctv-httpservice/ldncctvwbcdks.v.kcdnvip.com/ldncctvwbcd/cdrmldcctv14_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldocctvwbcdks.v.kcdnvip.com/ldocctvwbcd/cdrmldcctv14_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV-15",num:"15",urls:[
-		 "http://localhost:8803/cctv-httpservice/ldncctvwbcdks.v.kcdnvip.com/ldncctvwbcd/cdrmldcctv15_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldocctvwbcdtxy.liveplay.myqcloud.com/ldocctvwbcd/cdrmldcctv15_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV-16",num:"16",urls:[
-		 "http://localhost:8803/cctv-httpservice/ldncctvwbcdks.v.kcdnvip.com/ldncctvwbcd/cdrmldcctv16_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldcctvwbcdbd.a.bdydns.com/ldcctvwbcd/cdrmldcctv16_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV-17",num:"17",urls:[
-		 "http://localhost:8803/cctv-httpservice/ldncctvwbcdks.v.kcdnvip.com/ldncctvwbcd/cdrmldcctv17_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldocctvwbcdks.v.kcdnvip.com/ldocctvwbcd/cdrmldcctv17_1/index.m3u8?b=200-2100"
 		 ]
 	  },	  
 	 {id:"CCTV5+",num:"21", urls:[
-		 "http://localhost:8803/ldcctvwbcdks.v.kcdnvip.com/ldcctvwbcd/cdrmldcctv5plus_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldcctvwbcdbd.a.bdydns.com/ldcctvwbcd/cdrmldcctv5plus_1/index.m3u8?b=200-2100"
 		 ]
 	  },	
      {id:"CCTV4(欧洲版)",num:"22",urls:[
-		 "http://localhost:8803/ldocctvwbcdbd.a.bdydns.com/ldocctvwbcd/cdrmldcctveurope_1/index.m3u8?b=200-2100"
+		 "http://localhost:8803/cctv-httpservice/ldocctvwbcdbd.a.bdydns.com/ldocctvwbcd/cdrmldcctveurope_1/index.m3u8?b=200-2100"
 		 ]
 	  },
    {id:"CCTV4(美洲版)",num:"23",urls:[
-	   "http://localhost:8803/ldocctvwbcdcnc.v.wscdns.com/ldocctvwbcd/cdrmldcctvamerica_1/index.m3u8?b=200-2100"
+	   "http://localhost:8803/cctv-httpservice/ldocctvwbcdcnc.v.wscdns.com/ldocctvwbcd/cdrmldcctvamerica_1/index.m3u8?b=200-2100"
 		 ]
 	  },
 	  
