@@ -109,7 +109,9 @@ function prepareMediaSource(url,params){
 	return  bkMediaSource[userId] = data.stream.pull_url ; //bkMediaSource[userId] =
 }
 
-var AppVersion = "1.12.2";//"2.0.29";
+//var AppVersion = "1.12.2";//"2.0.29";
+var AppVersion = "1.17.1";// 2025-03-10 =>1.17.1 ; 参考 WsLoginServerRequest
+
 //var Platform = "100";
 //var VestCode = "200";
 
@@ -202,6 +204,11 @@ function onWebSocketEvent(id,type,msg,code){
 			break;
 	}
 }
+
+/*
+  com.qennnsad.aknkaksd.data.sources.websocket.LaWsService
+  WsLoginServerRequest
+*/
 function onWebSocketOpen(id){
 	utils.onMessage(null,id+"-消息打开");
 	var p = id.indexOf("/");
@@ -308,7 +315,7 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
 			try { _msgWebSocket.close();} catch( e ){}
 			_msgWebSocket = null;
 		}
-		var url = getSetting("websocketURL")+"?jwt_token="+getSetting("authToken");
+		var url = getSetting("websocketURL")+"?jwt_token="+getSetting("authToken")+"&ver="+AppVersion;
 		//utils.onMessage(null,userId+"-打开WS: "+url);
 		_msgWebSocket = utils.newJWebSocket(id,url);
 		//_msgWebSocket.userId = userId;
