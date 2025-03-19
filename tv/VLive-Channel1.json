@@ -282,13 +282,13 @@
 	   {label:"热门-1",items:"@didilive-list:hot/1"},
 	    {label:"收费-1",items:"@didilive-list:vip/1"},
 	  // {label:"关注",items:"@didilive-list:onlineFriends/1"},
- 		{label:"颜-1",items:"@didilive-list:vegan/1"},
-	   {label:"热门-2",items:"@didilive-list:hot/2"},
-	   {label:"热门-3",items:"@didilive-list:hot/3"},
-	   {label:"热门-4",items:"@didilive-list:hot/4"},
-	   {label:"收费-2",items:"@didilive-list:vip/2"},
-	   {label:"附近-1",items:"@didilive-list:nearby/1"},
-	   {label:"颜-2",items:"@didilive-list:vegan/2"}
+ 		{label:"颜-1",items:"@didilive-list:vegan/1"}
+ 	//   ,{label:"热门-2",items:"@didilive-list:hot/2"},
+	  // {label:"热门-3",items:"@didilive-list:hot/3"},
+	  // {label:"热门-4",items:"@didilive-list:hot/4"},
+	  // {label:"收费-2",items:"@didilive-list:vip/2"},
+	  // {label:"附近-1",items:"@didilive-list:nearby/1"},
+	  // {label:"颜-2",items:"@didilive-list:vegan/2"}
 		]
 	},	
  	{label:"1888网-x直播源","locked":1,"items":"@crawler-list:xvideo/yibababa18+.js"},
@@ -297,6 +297,7 @@
 	{label:"草榴(caoliuzyw.com)","locked":1,items:"@crawler-list:xvideo/caoliuzyw.js"},
 	{label:"1pondo.tv","locked":1,items:"@crawler-list:xvideo/1pondo.js"},
 	{label:"tokyo-hot.com","locked":1,items:"@crawler-list:xvideo/tokyo-hot.js"},
+	{label:"mycamtv直播(todo)","locked":1,items:"@crawler-list:xlive/mycamtv.js"},
 	// {label:"www.jieav.com","locked":1,items:"@crawler-list:xvideo/jieav.js"}, // 403 限制
 	//{label:"www.tasexy.com","locked":1,items:"@crawler-list:xvideo/tasexy.js"},  // 403 限制
 
