@@ -13,6 +13,7 @@
 		//items : "@crawler-list://xvideo/mycamtv.js#List2?[PATH=${URLDOM.attr.href}]"
 		loadItems: 	function(items,_contentUrl,contentCache,macros){
 			items.push(
+				{title:"推荐",items:"@crawler-list://xvideo/mycamtv.js#List2?[PATH=/girls/recommended]"},
 				{title:"中文",items:"@crawler-list://xvideo/mycamtv.js#List2?[PATH=/girls/chinese]"},
 					{title:"日语",items:"@crawler-list://xvideo/mycamtv.js#List2?[PATH=/girls/japanese]"},
 					{title:"顶级免费现场视频",items:"@crawler-list://xvideo/mycamtv.js#List2?[PATH=/girls/popular]"},
