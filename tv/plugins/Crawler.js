@@ -100,7 +100,7 @@ function loadDef(defUrl){
 	} // for defs
 	if( contentUrl ){
 		delete  defs.contentUrl;
-		for(var defName in defs){
+		for(var defName in defs) {
 			var def = defs[defName];
 			if( typeof(def)=="string" || typeof(def)=="function" || typeof(def)=="number" ){
 				continue;
@@ -127,7 +127,7 @@ function _toArray(o){
 	return o && o instanceof Array ? o : [o];
 }
 /*
-   crawler--list:video/test.js?[PATH={URLDOM.attr.href}]
+   crawler-list:video/test.js?[PATH={URLDOM.attr.href}]
 */
 function load(url){
 	var p = url.indexOf(':');
@@ -172,7 +172,7 @@ function load(url){
 		defType = forList ? "List" : (forUrls ? "Urls" : "MediaSource" );
 	}   
 //if(_debug) print("params="+ JSON.stringify(params)+",contentUrl="+contentUrl+",defUrl="+defUrl);	    
-	var defs = loadDef(defUrl);
+	var defs = loadDef(defUrl);  // {List:xxx, List-x:xxx,MediaSource:xxx}
 	var defsA = [];
 	for(var defName in defs) {
 		if( defName==defType || defName.startsWith(defType+"-") ){
@@ -194,21 +194,21 @@ function load(url){
 //	print("defType="+defType);
 }
 
-function loadContent(url,cache){
+function loadContent(def,url,cache){
 	if( !url )
 	   return null;
  //if( _debug )print("[loadContent] url = "+url);
 	return cache[url] 
-		|| ( cache[url] = utils.httpGetAsString(url,0x408))
+		|| ( cache[url] = utils.httpGetAsString(url,def.httpReqOpts||0x408))
 		;   
 }
 
-function loadHTMLDoc(url,cache){
+function loadHTMLDoc(def,url,cache){
 	if( !url )
 	   return null;
 	  const  key = "[HTML-DOC]"+url;
 	  return cache[key]  
-	     || ( cache[key]  = utils.newHTMLDocument(loadContent(url,cache)) )
+	     || ( cache[key]  = utils.newHTMLDocument(loadContent(def,url,cache)) )
 	    ; 
 }
 
@@ -222,7 +222,7 @@ function prepareMediaSource(url,params){
 	if( !defv )
 	   return ;
 	const def = defv.def;   
-	const content = loadContent(replaceMacro1(defv.contentUrl||def.contentUrl,defv.params),{});
+	const content = loadContent(def,replaceMacro1(defv.contentUrl||def.contentUrl,defv.params),{});
 //if(_debug) 	print("content="+content);
 //print(def.urlMatcherRegExp)	   
     if( def.urlMatcherRegExp ){
@@ -366,7 +366,7 @@ function  loadMenus4HtmlSelector(items,def,contentUrl,contentCache,macros){
 //if(_debug) print("  [loadMenus4HtmlSelector]def._name="+def._name+",contentUrl="+def.contentUrl);
         const _contentUrl = replaceMacro1(contentUrl||def.contentUrl,macros);
 //if(_debug) print("  ;_contentUrl="+_contentUrl);        			
-		const doc = loadHTMLDoc(_contentUrl,contentCache);
+		const doc = loadHTMLDoc(def,_contentUrl,contentCache);
 		//var def = defs[i];
 	//print("defName="+defName+","+def.selector);
 	   	const bodys = _getBodys4HtmlBodySelector(def,doc,macros);
@@ -534,7 +534,7 @@ if(_debug) {
 
 function  loadMenus4LinesByHtmlSelector(items,def,contentUrl,contentCache,macros){
 //if(_debug) print("  [loadMenus4HtmlSelector]def._name="+def._name+",contentUrl="+def.contentUrl);
- 		const doc = loadHTMLDoc(replaceMacro1(contentUrl||def.contentUrl,macros),contentCache);
+ 		const doc = loadHTMLDoc(def,replaceMacro1(contentUrl||def.contentUrl,macros),contentCache);
 		//var def = defs[i];
 	//print("defName="+defName+","+def.selector);
 	   	const bodys = _getBodys4HtmlBodySelector(def,doc,macros);
