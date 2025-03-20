@@ -298,6 +298,7 @@
 	{label:"1pondo.tv","locked":1,items:"@crawler-list:xvideo/1pondo.js"},
 	{label:"tokyo-hot.com","locked":1,items:"@crawler-list:xvideo/tokyo-hot.js"},
 	{label:"mycamtv直播(todo)","locked":1,items:"@crawler-list:xlive/mycamtv.js"},
+	{label:"myavlive直播(todo)","locked":1,items:"@crawler-list:xlive/myavlive.js"},
 	// {label:"www.jieav.com","locked":1,items:"@crawler-list:xvideo/jieav.js"}, // 403 限制
 	//{label:"www.tasexy.com","locked":1,items:"@crawler-list:xvideo/tasexy.js"},  // 403 限制
 
