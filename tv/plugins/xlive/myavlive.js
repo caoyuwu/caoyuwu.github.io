@@ -4,7 +4,7 @@ https://zh.myavlive.com/
 */
 {
 	contentUrl : "https://zh.myavlive.com",
-	
+	cookiesFromCfgFile : "Myavlive-Cookies.txt",
 	List: {
 			/*
 			BODY.visitor-agreement-hidden.non-touch > DIV#body > DIV.indexpage.main-layout.main-layout__with-navbar.sticky-header-desktop.sticky-header-mobile.sticky-subheader-mobile 

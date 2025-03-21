@@ -73,12 +73,16 @@ function loadDef(defUrl){
 	var defText = utils.httpGetAsString(utils.toAbsoluteURL(_scriptURL,defUrl));
 	//defs =  cacheDefs[defUrl] = JSON.parse(defText);
 	defs =  cacheDefs[defUrl] = eval("("+defText+")");
-	var contentUrl = null;
+	var contentUrl = null , cookiesFromCfgFile = null;
 	var config = null; 
 	for(var defName in defs){
 		var def = defs[defName];
 		if( defName=="contentUrl" ){
 			contentUrl = typeof(def)=="function" ? def() : def;
+			continue;
+		}
+		if( defName=="cookiesFromCfgFile" ){
+			cookiesFromCfgFile = typeof(def)=="function" ? def() : def;
 			continue;
 		}
 		if( typeof(def)=="string" || typeof(def)=="function" || typeof(def)=="number" ){
@@ -115,7 +119,10 @@ function loadDef(defUrl){
 				 //}
 			 }
 		}
-	}
+		if( cookiesFromCfgFile ){
+			utils.addHttpCookiesFromCfgFile(contentUrl,"configs/"+cookiesFromCfgFile);//"configs/Douyin-Cookies.txt");
+		}
+	} // if( contentUrl )
 /*	
  if(_debug ){
 	 print("defUrl="+defUrl+":defs="+JSON.stringify(defs));
