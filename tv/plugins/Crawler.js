@@ -206,7 +206,7 @@ function loadContent(def,url,cache){
 	   return null;
  //if( _debug )print("[loadContent] url = "+url);
 	return cache[url] 
-		|| ( cache[url] = utils.httpGetAsString(url,def.httpReqOpts||0x408))
+		|| ( cache[url] = utils.httpGetAsString(url,def.httpReqOpts||0x408))  //httpReqOpts :  0x488 使用代理
 		;   
 }
 
