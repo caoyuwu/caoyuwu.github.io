@@ -118,7 +118,7 @@ function loadDef(defUrl){
 				//	 def.contentUrl = def.contentUrl
 				 //}
 			 }
-		}
+		} // for(var defName in defs)
 		if( cookiesFromCfgFile ){
 			utils.addHttpCookiesFromCfgFile(contentUrl,"configs/"+cookiesFromCfgFile);//"configs/Douyin-Cookies.txt");
 		}
