@@ -4,8 +4,8 @@
    http://localhost/doc/pac/gfwpac.pac.js
    chrome://net-internals/#proxy : 重置代理
    https://caoyuwu.eu.org/proxy/TestPac.html
-   scp /Third-src/GitHUB/caoyuwu.github.io/proxy/gfwlist.pac.js router:/www/proxy/
-   scp /Third-src/GitHUB/caoyuwu.github.io/proxy/TestPac.html router:/www/proxy/
+   scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/proxy/gfwlist.pac.js router:/www/proxy/
+   scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/proxy/TestPac.html router:/www/proxy/
    http://proxy.lan/proxy/gfwlist.pac.js
    http://proxy.lan/proxy/TestPac.html
    参考 
@@ -109,6 +109,7 @@ var hostGrps = function(){
 		"r18.com", //日本
 		"pornhub.com", "naiadsystems.com","livehdcams.com",
 		"gua.cool",
+		"mycamtv.com","myavlive.com",
 		// 爬的
 		"apollo.io",
 		

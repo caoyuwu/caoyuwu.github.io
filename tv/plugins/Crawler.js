@@ -102,6 +102,7 @@ function loadDef(defUrl){
 		}
 		*/
 	} // for defs
+	//print("contentUrl="+contentUrl+",cookiesFromCfgFile="+cookiesFromCfgFile);
 	if( contentUrl ){
 		delete  defs.contentUrl;
 		for(var defName in defs) {
@@ -120,6 +121,7 @@ function loadDef(defUrl){
 			 }
 		} // for(var defName in defs)
 		if( cookiesFromCfgFile ){
+			delete defs.cookiesFromCfgFile;
 			utils.addHttpCookiesFromCfgFile(contentUrl,"configs/"+cookiesFromCfgFile);//"configs/Douyin-Cookies.txt");
 		}
 	} // if( contentUrl )
