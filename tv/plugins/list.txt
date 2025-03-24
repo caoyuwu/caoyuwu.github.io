@@ -62,9 +62,10 @@ crawler|crawler-list|crawler-urls,Crawler.js
 
 [webview-js]http\://172.20.0.20/.*,webview/video-fullscreen.js 
 [webview-css]http\://172.20.0.20/.*,webview/video-fullscreen.css
+#[webview-js]http\://172.20.0.20/.*,webview/httprequest.js
 
 [http-service]cctv-httpservice,cctv/CCTV-HttpService.js
 
-testvideo|test-menu-list,Test.js,x=1&y=2
-[http-service]test-httpservice,Test.js
+testvideo|test-menu-list,test/Test.js,x=1&y=2
+[http-service]test-httpservice,test/Test.js
 

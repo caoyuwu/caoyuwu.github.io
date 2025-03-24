@@ -1,6 +1,7 @@
 /*
 http://caoyuwu.eu.org/tv/plugins/Test.js
 testvideo://1
+test-menu-list://1
 ??[proxy=*]
 ??[proxy=default]
 测试:
@@ -45,10 +46,22 @@ function prepareMediaSource(url,params){
 	  {title, url}
   ]
 */
+var webview;
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
   print("TestMenuList: url = "+url);
   print("TestMenuList: params = "+params);//JSON.stringify(params));
+    
+    if( !webview ) webview = utils.getWebView();
+    print("webview = "+webview);
+    injectURL = utils.toAbsoluteURL(_scriptURL,"../webview/httprequest.js");
+    print("TestMenuList : injectURL="+injectURL);
+    webview.loadUrl("http://172.20.0.20/demo-web/test/adr/TestAdrWeb.html",[injectURL],1);
+    //webview.injectJavascritByURL("../webview/httprequest.js");
+    //evalOnPageFinished(String consJS,String js,int timeout,int opts){
+    var s = webview.evalOnPageFinished("typeof(window.httpGetAsString)=='function'",
+    	"httpGetAsString('/index.html'),null,0",5,1);
+    print("webview 返回="+s);
 	return [
 	  "CCTV-1,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8",
 	  {title:"CCTV-2",url:"http://cctvalih5ca.v.myalicdn.com/live/cctv2_2/index.m3u8"}
