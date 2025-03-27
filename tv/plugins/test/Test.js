@@ -60,12 +60,17 @@ function loadMenus(url,params){
     //webview.injectJavascritByURL("../webview/httprequest.js");
     //evalOnPageFinished(String consJS,String js,int timeout,int opts){
     var s = webview.evalOnPageFinished("typeof(window.httpGetAsString)=='function'",
-    	"httpGetAsString('/index.html'),null,0",5,1);
+    	//"httpGetAsString('/index.html',null,0)",
+    	"httpGetAsString('http://172.20.0.20/demo-web/test/adr/TestAdrMenu1.json',null,0)",
+    	5,1);
     print("webview 返回="+s);
+    return JSON.parse(s);
+    /*
 	return [
 	  "CCTV-1,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8",
 	  {title:"CCTV-2",url:"http://cctvalih5ca.v.myalicdn.com/live/cctv2_2/index.m3u8"}
 	];
+	*/
 }
 /*
 http://192.168.1.14:8803/test-httpservice/

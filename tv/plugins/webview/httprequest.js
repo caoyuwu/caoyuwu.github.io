@@ -1,4 +1,4 @@
-function  httpGetAsString(url,headers, opts){
+function httpGetAsString(url,headers, opts){
 	var conn =  new XMLHttpRequest();
 	if( headers ) for(var name in headers){
 		conn.setRequestHeader(name, headers[name]);

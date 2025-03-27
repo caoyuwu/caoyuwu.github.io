@@ -55,6 +55,25 @@ https://zh.myavlive.com/
 		},
 		List2: {
 			contentUrl : "~${PATH}", httpReqOpts:0x488,
+			
+			loadUrlContent : function(url) {
+				if( !webview ) webview = utils.getWebView();
+    			//print("webview = "+webview);
+    			var injectURL = utils.toAbsoluteURL(this._parent._defUrl,"../webview/httprequest.js");
+    			var homeUrl = utils.getHomeURL(url);
+    			print("myavlive.loadUrlContent : url="+url);
+    			print("homeUrl="+homeUrl);
+    			print("injectURL="+injectURL);
+    			webview.loadUrl(homeUrl,[injectURL],1);  // 1:Visible
+    			var s = webview.evalOnPageFinished("typeof(window.httpGetAsString)=='function'",
+    				//"httpGetAsString('/index.html',null,0)",
+    				"httpGetAsString('"+url+"',null,0)",
+    			10, // timeout
+    			1  // 隐藏 WebView
+    			);
+    			return s;
+			},
+			
 			/*
 			> DIV#body 
 			    > DIV.main-layout.main-layout__with-navbar.sticky-header-desktop.sticky-header-mobile.sticky-subheader-mobile.tag-layout

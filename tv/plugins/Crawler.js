@@ -15,6 +15,8 @@ const RegMacroID = /\$\{(\w|\.|\-)+\}/g;
 		return  v && v.length>1 ? v[1] : null;
 	};
 })();
+
+var webview;
 /*
 @param defUrl  xvideo/jieav.json
 @return def
@@ -67,10 +69,19 @@ Macro.prototype.replace = function(s){
 	  ); 
 }
 
+/*
+@param defUrl http://caoyuwu.github.io/tv/plugins/video/test.js?[PATH={URLDOM.attr.href}]
+@return {
+	  List:xxx, 
+	  List-x:xxx,
+	  MediaSource:xxx
+	  }
+*/
 function loadDef(defUrl){
+	defUrl = utils.toAbsoluteURL(_scriptURL,defUrl);
 	var defs = cacheDefs[defUrl];
 	if( defs ) return defs;
-	var defText = utils.httpGetAsString(utils.toAbsoluteURL(_scriptURL,defUrl));
+	var defText = utils.httpGetAsString(defUrl);
 	//defs =  cacheDefs[defUrl] = JSON.parse(defText);
 	defs =  cacheDefs[defUrl] = eval("("+defText+")");
 	var contentUrl = null , cookiesFromCfgFile = null;
@@ -104,7 +115,7 @@ function loadDef(defUrl){
 	} // for defs
 	//print("contentUrl="+contentUrl+",cookiesFromCfgFile="+cookiesFromCfgFile);
 	if( contentUrl ){
-		delete  defs.contentUrl;
+		//delete  defs.contentUrl;
 		for(var defName in defs) {
 			var def = defs[defName];
 			if( typeof(def)=="string" || typeof(def)=="function" || typeof(def)=="number" ){
@@ -125,6 +136,7 @@ function loadDef(defUrl){
 			utils.addHttpCookiesFromCfgFile(contentUrl,"configs/"+cookiesFromCfgFile);//"configs/Douyin-Cookies.txt");
 		}
 	} // if( contentUrl )
+	defs._defUrl = defUrl;  // def._parent._defUrl
 /*	
  if(_debug ){
 	 print("defUrl="+defUrl+":defs="+JSON.stringify(defs));
@@ -206,10 +218,19 @@ function load(url){
 function loadContent(def,url,cache){
 	if( !url )
 	   return null;
+	 var v;  
+	 if( !(v=cache[url]) ){
+		 cache[url] = v = def.loadUrlContent ? def.loadUrlContent(url) 
+		 				: utils.httpGetAsString(url,def.httpReqOpts||0x408);
+		 //0x488 使用代理
+		 if( !v ) {
+		    throw "装载"+url+"内容失败";
+		  }
+	 }
+	 return v;
+	 	
  //if( _debug )print("[loadContent] url = "+url);
-	return cache[url] 
-		|| ( cache[url] = utils.httpGetAsString(url,def.httpReqOpts||0x408))  //httpReqOpts :  0x488 使用代理
-		;   
+	  
 }
 
 function loadHTMLDoc(def,url,cache){
