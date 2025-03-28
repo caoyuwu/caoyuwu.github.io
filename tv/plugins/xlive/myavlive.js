@@ -98,7 +98,7 @@ https://zh.myavlive.com/
 				//var injectURL = utils.toAbsoluteURL(this._parent._defUrl,"myavlive-inject.js");
 				//webview.loadUrl(contentUrl,[injectURL],1);
 				webview.loadUrl(contentUrl,null,1);
-				var s = webview.evalOnPageFinished("typeof(window.getMenu)=='function'","getMenu()",20,0);
+				var s = webview.evalOnPageFinished("typeof(window.getMenu)=='function' && document.readyState=='complete'","getMenu()",20,1);
 		//print("s = "+s);		 
 				var a = JSON.parse(s);
 				if( a ) for(var e of a) items.push(e);
@@ -114,7 +114,7 @@ https://zh.myavlive.com/
 				//var injectURL = utils.toAbsoluteURL(this._parent._defUrl,"myavlive-inject.js");
 				//webview.loadUrl(contentUrl,[injectURL],1);
 				webview.loadUrl(contentUrl,null,1);
-				var s = webview.evalOnPageFinished("typeof(window.getMediaSource)=='function'","getMediaSource()",20,1);
+				var s = webview.evalOnPageFinished("typeof(window.getMediaSource)=='function' && document.readyState=='complete'","getMediaSource()",20,1);
 				return s;
 		 }
 		}
