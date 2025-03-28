@@ -55,7 +55,7 @@
 		https://caoliuzyw.com/index.php/vod/play/id/67447/sid/1/nid/1.html
 		*/
 		contentUrl : "~${PATH}",
-		getUrl : function(macros,content){
+		getUrlByContent : function(macros,content){
 			var doc = utils.newHTMLDocument(content);
 		    var e = doc.getBody().querySelector(">BODY  DIV.container > DIV.tablecount > DIV.listcount > DIV.listitems .btn  a");
 		    var href = e ? e.getAttribute("href") : null;

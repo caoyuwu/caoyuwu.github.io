@@ -68,7 +68,7 @@
 		 <script type="text/javascript">var player_aaaa={  }</script>
 		   "url":"https:\/\/t25.cdn2020.com\/video\/m3u8\/2024\/05\/18\/4184631e\/index.m3u8"
 		 */
-		getUrl:function(macro,content){
+		getUrlByContent:function(macro,content){
 			const prefix = '<script type="text/javascript">var player_aaaa={';
 			const suffix = "}</script>";
 			var v= extractJsonValues(content,prefix,suffix,1);

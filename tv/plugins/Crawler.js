@@ -252,10 +252,11 @@ function prepareMediaSource(url,params){
 	if( !defv )
 	   return ;
 	const def = defv.def;   
-	const content = loadContent(def,replaceMacro1(defv.contentUrl||def.contentUrl,defv.params),{});
+	const contentUrl = replaceMacro1(defv.contentUrl||def.contentUrl,defv.params);
 //if(_debug) 	print("content="+content);
 //print(def.urlMatcherRegExp)	   
     if( def.urlMatcherRegExp ){
+		const content = loadContent(def,contentUrl,{});
 		// /<video[\s\S]*>[\s\S]*src="((https|http):\/\/[^"]+)"[\s\S]*<\/video>/,
 		const ra = def.urlMatcherRegExp  instanceof Array ? def.urlMatcherRegExp : [def.urlMatcherRegExp];
 		for(var r of ra){
@@ -270,6 +271,7 @@ function prepareMediaSource(url,params){
 	} 
 //if(_debug) print("def.htmlSelector="+def.htmlSelector);	
 	if( def.htmlSelector ){
+		const content = loadContent(def,contentUrl,{});
 		const doc = utils.newHTMLDocument(content);
 		const e = doc.getBody().querySelector(def.htmlSelector);
 //if(_debug) print("e="+e);		
@@ -293,9 +295,13 @@ function prepareMediaSource(url,params){
 		}
 		return null;
 	}	  
-	if( def.getUrl ){
-		return def.getUrl(new Macro(defv.params),content);
+	if( def.getUrlByContent ){
+		const content = loadContent(def,contentUrl,{});
+		return def.getUrlByContent(new Macro(defv.params),content);
 	} 
+	if( def.getUrl ){
+		return def.getUrl(contentUrl,new Macro(defv.params));
+	}
 }
 
 function loadUrls(url,params)

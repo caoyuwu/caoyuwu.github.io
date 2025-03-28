@@ -59,7 +59,7 @@
 	 "MediaSource":{
 		 // https://cn.pornhub.com/view_video.php?viewkey=640d40f843334
 		 contentUrl:"~${PATH}",
-		 getUrl: function(macros,content){
+		 getUrlByContent: function(macros,content){
 			 //var flashvars_427215341 = {"
 			 var p1 = content.indexOf("var flashvars_");
 			 p1 = p1<0 ? p1 : content.indexOf("{",p1);
