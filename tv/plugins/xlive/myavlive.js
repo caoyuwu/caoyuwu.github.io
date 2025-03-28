@@ -16,41 +16,16 @@ https://zh.myavlive.com/
 			//htmlSelector: ">BODY DIV#body > DIV.indexpage  DIV.wrapper DIV.page-wrapper DIV.index-page DIV.model-list-wrapper DIV.model-list-container DIV.category-countryGenderModels DIV.multiple-categories-category-header a",
 			//items : "@crawler-list://xvideo/mycamtv.js#List2?[PATH=${URLDOM.attr.href}]"
 			loadItems: 	function(items,_contentUrl,contentCache,macros){
-				items.push(
-					//				女主播 情侣	男主播 跨性別
-					{title:"女主播",items:[
-						{title:"推荐",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=girls/recommended]"},
-						{title:"中文",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=girls/tagLanguageChinese]"},
-						{title:"日语",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=girls/tagLanguageJapanese]"},
-						{title:"新主播",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=girls/autoTagNew]"}, // new
-						{title:"VR直播",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=girls/autoTagVr]"}   // autoTagVr
-					   ]
-					  },
-					  {title:"情侣",items:[
-	  					{title:"推荐",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=couples/recommended]"},
-	  					{title:"中文",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=couples/tagLanguageChinese]"}, //chinese
-	  					{title:"日语",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=couples/tagLanguageJapanese]"}, //japanese
-	  					{title:"新主播",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=couples/autoTagNew]"},
-	  					{title:"VR直播",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=couples/autoTagVr]"}
-					  				   ]
-					  				  },
-					  {title:"男主播",items:[
-	  					{title:"推荐",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=men/recommended]"},
-	  					{title:"中文",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=men/tagLanguageChinese]"},
-	  					{title:"日语",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=men/tagLanguageJapanese]"},
-	  					{title:"新主播",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=men/autoTagNew]"},
-	  					{title:"VR直播",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=men/autoTagVr]"}
-					  				   ]
-					  				  },	
-					  {title:"跨性別",items:[
-		  					{title:"推荐",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=trans/recommended]"},
-		  					{title:"中文",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=trans/tagLanguageChinese]"},
-		  					{title:"日语",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=trans/tagLanguageJapanese]"},
-		  					{title:"新主播",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=trans/autoTagNew]"},
-		  					{title:"VR直播",items:"@crawler-list://xlive/myavlive.js#List2?[PATH=trans/autoTagVr]"}
-					  				   ]
-					  				  }			  			  
-					);
+				var groups1 = {girls:"女",couples:"情侣",men:"男",trans:"跨"};
+				var groups2 = {recommended:"推荐",tagLanguageChinese:"中文",tagLanguageJapanese:"日语",autoTagNew:"新",autoTagVr:"VR"};
+				for(var id1 in groups1){
+					items.push({ title:groups1[id1], items:items2=[]});
+					for(var id2 in groups2){
+						items2.push({ title:groups2[id2],
+							 items:"@crawler-list://xlive/myavlive.js#List2?[PATH="+id1+"/"+id2+"]"
+						 	});
+					}
+				}
 			}
 		},
 		List2: {
