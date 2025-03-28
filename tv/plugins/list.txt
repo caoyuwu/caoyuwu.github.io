@@ -60,6 +60,7 @@ crawler|crawler-list|crawler-urls,Crawler.js
 #[webview-js]https\://tv\.cctv\.com/live/.*,webview/video-fullscreen.js
 [webview-css]https\://tv\.cctv\.com/live/.*,webview/video-fullscreen.css
 [webview-js]https\://zh\.myavlive\.com.*,xlive/myavlive-inject.js
+[webview-css]https\://zh\.myavlive\.com.*,xlive/myavlive.css
 
 [webview-js]http\://172.20.0.20/.*,webview/video-fullscreen.js 
 [webview-css]http\://172.20.0.20/.*,webview/video-fullscreen.css

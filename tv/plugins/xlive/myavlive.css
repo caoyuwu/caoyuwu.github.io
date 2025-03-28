@@ -1,0 +1,4 @@
+.login-required-message , .message.tip-message , #portal-root
+{ 
+	display : none 
+}
