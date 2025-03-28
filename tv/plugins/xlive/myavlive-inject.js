@@ -12,6 +12,7 @@ function getMenu(){
 	*/
 	var selector = "div#body  main#app.main-layout-main  div.model-list-wrapper  div.model-list-container  div.models-list-container  div.tag-page-model-list  div.model-list-item  A";
 	var a = document.body.querySelectorAll(selector);
+console.log("[myavlive-iject.getMenu] : url="+document.location.href+" ; a.length="+a.length);	
 	var items = [];
 	for( var e of a ){
 		var href = e.href;
