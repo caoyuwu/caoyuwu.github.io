@@ -133,6 +133,7 @@ https://zh.myavlive.com/
 					//var streamName = model.streamName; //"streamName": "192861445",
 					//var username = model.username;
 					items.push({urls:[
+								"browser-"+homeUrl+"/"+model.username,
 								model.hlsPlaylist
 								//"crawler://xlive/myavlive.js?[PATH="+s+"]"
 								   // "browser-"+href
