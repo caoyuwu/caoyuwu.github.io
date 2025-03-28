@@ -1,4 +1,4 @@
-.login-required-message , .message.tip-message , #portal-root
+.login-required-message , .message.tip-message , #portal-root , .watermark
 { 
 	display : none 
 }

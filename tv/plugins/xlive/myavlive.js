@@ -17,7 +17,11 @@ https://zh.myavlive.com/
 			//items : "@crawler-list://xvideo/mycamtv.js#List2?[PATH=${URLDOM.attr.href}]"
 			loadItems: 	function(items,_contentUrl,contentCache,macros){
 				var groups1 = {girls:"女",couples:"情侣",men:"男",trans:"跨"};
-				var groups2 = {recommended:"推荐",tagLanguageChinese:"中文",tagLanguageJapanese:"日语",autoTagNew:"新",autoTagVr:"VR"};
+				var groups2 = {recommended:"推荐",tagLanguageChinese:"中文",
+					autoTagBestPrivates:"私人",
+					groupShow:"购票",
+					tagLanguageJapanese:"日语",autoTagNew:"新",autoTagVr:"VR"
+					};
 				for(var id1 in groups1){
 					items.push({ title:groups1[id1], items:items2=[]});
 					for(var id2 in groups2){
