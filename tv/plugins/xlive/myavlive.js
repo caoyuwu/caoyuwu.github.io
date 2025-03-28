@@ -93,7 +93,57 @@ https://zh.myavlive.com/
 			url : "crawler://xlive/mycamtv.js?[PATH=${URLDOM.attr.href}]"  
 			*/
 			loadItems: 	function(items,contentUrl,contentCache,macros){
+				/*
+				https://zh.mycamtv.com/api/front/models?
+				limit: 60
+				offset: 0
+				primaryTag: girls
+				filterGroupTags: %5B%5B%22recommended%22%5D%5D
+				sortBy: recommendedScore
+				userRole: guest
+				watchedIds%5B0%5D: 193676287
+				srpm: 1
+				rcmGrp: A
+				uniq: 5jifp6xbykeqrtal
+				*/
+				var uniq = "";
+				for(var i=0;i<16;i++){
+					var d = Math.random()*35;
+					uniq += i<10?""+i : String.fromCharCode(97+i-10);
+				}
+				var homeUrl = utils.getHomeURL(contentUrl);
+				var path = macros.PATH;//get("PATH");
+				var p = path.indexOf("/");
+				if( p<=1 ) return;
+				var primaryTag = path.substring(0,p);
+				var filterGroupTag = path.substring(p+1);
+				var url = homeUrl+"/api/front/models?limit=60&offset=0&primaryTag="+primaryTag
+				                       +"&filterGroupTags="+encodeURIComponent("[[\""+filterGroupTag+"\"]]")
+									   +"&sortBy=recommendedScore&userRole=guest&srpm=1&rcmGrp=A&uniq="+uniq
+									   ;
+	//print("url = "+url);								   
+				var text =  utils.httpGetAsString(url,0x408);	
+	//print("text = "+text);	
+				var models = JSON.parse(text).models;
+				for(var model of models){
+					//var hlsPlaylist = model.hlsPlaylist;
+					  //https://edge-hls.doppiocdn.com/hls/192861445/master/192861445_240p.m3u8
+					  // https://edge-hls.doppiocdn.net/hls/193425108/master/193425108_auto.m3u8?playlistType=lowLatency
+					//var viewersCount = model.viewersCount;
+					//var streamName = model.streamName; //"streamName": "192861445",
+					//var username = model.username;
+					items.push({urls:[
+								model.hlsPlaylist
+								//"crawler://xlive/myavlive.js?[PATH="+s+"]"
+								   // "browser-"+href
+								],
+								title : model.username+"("+model.viewersCount+")"
+							  }
+						);
+					//?playlistType=lowLatency
+				} // models						   
 				//print("List2.loadItems _contentUrl = "+_contentUrl);
+				/*
 				if( !webview ) webview = utils.getWebView();
 				//var injectURL = utils.toAbsoluteURL(this._parent._defUrl,"myavlive-inject.js");
 				//webview.loadUrl(contentUrl,[injectURL],1);
@@ -102,6 +152,7 @@ https://zh.myavlive.com/
 		//print("s = "+s);		 
 				var a = JSON.parse(s);
 				if( a ) for(var e of a) items.push(e);
+				*/
 			}
 			// model-name"
 		},
