@@ -16,11 +16,14 @@ https://zh.myavlive.com/
 			//htmlSelector: ">BODY DIV#body > DIV.indexpage  DIV.wrapper DIV.page-wrapper DIV.index-page DIV.model-list-wrapper DIV.model-list-container DIV.category-countryGenderModels DIV.multiple-categories-category-header a",
 			//items : "@crawler-list://xvideo/mycamtv.js#List2?[PATH=${URLDOM.attr.href}]"
 			loadItems: 	function(items,_contentUrl,contentCache,macros){
-				var groups1 = {girls:"女",couples:"情侣",men:"男",trans:"跨"};
+				var groups1 = {girls:"G",couples:"couples",men:"M",trans:"trans"};
 				var groups2 = {recommended:"推荐",tagLanguageChinese:"中文",
 					autoTagBestPrivates:"私人",
 					groupShow:"购票",
-					tagLanguageJapanese:"日语",autoTagNew:"新",autoTagVr:"VR"
+					tagLanguageJapanese:"日语",
+					autoTagNew:"新",autoTagVr:"VR",
+					tagLanguageUkrainian :"乌克兰",
+					subcultureBdsm:"bdsm"
 					};
 				for(var id1 in groups1){
 					items.push({ title:groups1[id1], items:items2=[]});
