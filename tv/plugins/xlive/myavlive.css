@@ -1,4 +1,8 @@
 .login-required-message , .message.tip-message , #portal-root , .watermark
 { 
-	display : none 
+	display : none ;
+}
+
+div.ViewCamShutterWrapper\#qW {
+	display : none ;
 }
