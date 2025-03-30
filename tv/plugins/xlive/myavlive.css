@@ -1,8 +1,6 @@
-.login-required-message , .message.tip-message , #portal-root , .watermark
+div.login-required-message , div.message.tip-message , #portal-root , .watermark ,
+div.ViewCamShutterWrapper\#qW , div.player-controls-layers 
 { 
 	display : none ;
 }
 
-div.ViewCamShutterWrapper\#qW , div.player-controls-layers {
-	display : none ;
-}
