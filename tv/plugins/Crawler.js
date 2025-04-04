@@ -226,6 +226,7 @@ function loadContent(def,url,cache){
 		 if( !v ) {
 		    throw "装载"+url+"内容失败";
 		  }
+//if(_debug) print("装载"+url+"内容 = \n"+v);		  
 	 }
 	 return v;
 	 	
@@ -421,12 +422,13 @@ function  loadMenus4HtmlSelector(items,def,contentUrl,contentCache,macros){
 		for(var i=0;i<ea.length;i++){
 			//var headE = ea[i].querySelector(">div > h3");
 			// "matcherRegExpByContent":"(.+)\\[18\\+\\](?::|：)\\s*((https|http):\\/\\/.+)"
+			//if(_debug)print("ea["+i+"] href ="+ea[i].getAttribute("href"));			
 			var title = "";//
 			var url = "";
 			var urls = null;
-			const titE = def.titSelector ? ea[i].querySelector(def.titSelector) : ea[i];
-			const urlE = def.urlSelector ? ea[i].querySelector(def.urlSelector) : ea[i];
-			const macro = new Macro(
+			var titE = def.titSelector ? ea[i].querySelector(def.titSelector) : ea[i];
+			var urlE = def.urlSelector ? ea[i].querySelector(def.urlSelector) : ea[i];
+			var macro = new Macro(
 				function(id){
 				switch( id ){
 					case "URLDOM" : return urlE;
@@ -446,7 +448,8 @@ function  loadMenus4HtmlSelector(items,def,contentUrl,contentCache,macros){
 						p =  s.lastIndexOf("/") ;    
 						return p>=0 ? s.substring(p+1) : s;
 					}
-					case "URLDOM.attr.title": return urlE.getAttribute("title");
+					case "URLDOM.attr.title": 
+						return urlE.getAttribute("title");
 					//case "url": return url;
 					//case "title": return title;
 					case "DOMCONTENT": return ea[i].getAllNodeValue().trim();
@@ -522,6 +525,7 @@ if(_debug) {
 				   		defItems = val;
 				}
 			}
+		//	if(_debug)print("["+i+"]defTitle = "+defTitle+" ; "+macro.replace(defTitle)+"; "+ea[i].getAttribute("title"));	
 			title = defTitle ? macro.replace(defTitle) // replace-Macro(defTitle,macros1,macros)
 							  : removeMutiBlanks(titE.getAllNodeValue());
 			if( defUrl===null ){

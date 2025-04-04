@@ -299,6 +299,7 @@
 	{label:"tokyo-hot.com","locked":1,items:"@crawler-list:xvideo/tokyo-hot.js"},
 	//{label:"mycamtv直播","locked":1,items:"@crawler-list:xlive/mycamtv.js"},
 	{label:"myavlive直播","locked":1,items:"@crawler-list:xlive/myavlive.js"},
+	{label:"fuq.com","locked":1,items:"@crawler-list:xvideo/fuq.js"},
 	// {label:"www.jieav.com","locked":1,items:"@crawler-list:xvideo/jieav.js"}, // 403 限制
 	//{label:"www.tasexy.com","locked":1,items:"@crawler-list:xvideo/tasexy.js"},  // 403 限制
 
