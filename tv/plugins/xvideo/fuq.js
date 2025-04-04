@@ -14,7 +14,11 @@
 		*/
 		htmlSelector: ">BODY >DIV#main DIV#content  DIV.cards-container > div.card > a.item-link",
 		
-		items : "@crawler://xvideo/fuq.js?[PATH=${URLDOM.attr.href}]",
+		//items : "@crawler://xvideo/fuq.js?[PATH=${URLDOM.attr.href}]",
+		getUrl : function(macro){
+			var href = def._parent.contentUrl+macro.get("URLDOM.attr.href");
+			return "browser-"+href;
+		},
 		title : "${URLDOM.attr.title}"
 	},
 	
