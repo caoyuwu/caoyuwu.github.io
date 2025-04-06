@@ -116,6 +116,7 @@ https://zh.myavlive.com/
 					//var streamName = model.streamName; //"streamName": "192861445",
 					//var username = model.username;
 					items.push({urls:[
+								model.hlsPlaylist.replace(".doppiocdn.com/",".doppiocdn.net/"),
 								model.hlsPlaylist,
 								"browser-"+homeUrl+"/"+model.username
 								//"crawler://xlive/myavlive.js?[PATH="+s+"]"
