@@ -41,9 +41,9 @@ didilive|didilive-list,Didi.js
 
 
 yangshipin|yangshipin-list,Yangshipin.js
-ahtv,AHTV.js
-jstv,JSTV.js
-#zjtv,ZJTV.js
+ahtv,tv/AHTV.js
+jstv,tv/JSTV.js
+#zjtv,tv/ZJTV.js
 
 
 crawler|crawler-list|crawler-urls,Crawler.js 
