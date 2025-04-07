@@ -249,21 +249,21 @@ function loadHTMLDoc(def,url,cache){
   		(2) {url:"http://..."",proxy:"*",headers:{}} 
 */
 function prepareMediaSource(url,params){
-	const defv = load(url);
+	var defv = load(url);
 	if( !defv )
 	   return ;
-	const def = defv.def;   
-	const contentUrl = replaceMacro1(defv.contentUrl||def.contentUrl,defv.params);
+	var def = defv.def;   
+	var contentUrl = replaceMacro1(defv.contentUrl||def.contentUrl,defv.params);
 //if(_debug) 	print("content="+content);
 //print(def.urlMatcherRegExp)	   
     if( def.urlMatcherRegExp ){
-		const content = loadContent(def,contentUrl,{});
+		var content = loadContent(def,contentUrl,{});
 		// /<video[\s\S]*>[\s\S]*src="((https|http):\/\/[^"]+)"[\s\S]*<\/video>/,
-		const ra = def.urlMatcherRegExp  instanceof Array ? def.urlMatcherRegExp : [def.urlMatcherRegExp];
+		var ra = def.urlMatcherRegExp  instanceof Array ? def.urlMatcherRegExp : [def.urlMatcherRegExp];
 		for(var r of ra){
 			//const r = def.urlMatcherRegExp;
 //if(_debug) print("r="+r);		
-			const v = r.exec(content);
+			var v = r.exec(content);
 			if( v && v.length>1 ){
 				return v[1];
 			}
@@ -272,12 +272,12 @@ function prepareMediaSource(url,params){
 	} 
 //if(_debug) print("def.htmlSelector="+def.htmlSelector);	
 	if( def.htmlSelector ){
-		const content = loadContent(def,contentUrl,{});
-		const doc = utils.newHTMLDocument(content);
-		const e = doc.getBody().querySelector(def.htmlSelector);
+		var content = loadContent(def,contentUrl,{});
+		var doc = utils.newHTMLDocument(content);
+		var e = doc.getBody().querySelector(def.htmlSelector);
 //if(_debug) print("e="+e);		
 		if( e ) {
-			const tagName = e.getTagName().toUpperCase();
+			var tagName = e.getTagName().toUpperCase();
 //if(_debug) print("tagName="+tagName);			
 			if( tagName=="VIDEO" ){
 				var src = e.getAttribute("src");
@@ -297,7 +297,7 @@ function prepareMediaSource(url,params){
 		return null;
 	}	  
 	if( def.getUrlByContent ){
-		const content = loadContent(def,contentUrl,{});
+		var content = loadContent(def,contentUrl,{});
 		return def.getUrlByContent(new Macro(defv.params),content);
 	} 
 	if( def.getUrl ){
@@ -311,7 +311,7 @@ function loadUrls(url,params)
 	if( !v )
 	   return ;
 //if(_debug) print(v.content);	   
-    const contentCache = {};
+    var contentCache = {};
 	return loadMenus4Def(v.defs,v.contentUrl,contentCache,v.params);   
 }	
 
