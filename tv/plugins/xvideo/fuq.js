@@ -44,6 +44,10 @@
 	 		if( !location ){
 				return 	 "browser-"+contentUrl;
 			}	
+			/*
+			https://enter.javhd.com/track/Mzg5NjAuMi4yLjIuMC4wLjAuMC4w/en/id/12150
+			
+			*/
 			return 	 "browser-"+location;
 		}
 	}
