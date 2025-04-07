@@ -41,6 +41,7 @@ didilive|didilive-list,Didi.js
 
 
 yangshipin|yangshipin-list,Yangshipin.js
+bjtv,tv/BJTV.js
 ahtv,tv/AHTV.js
 jstv,tv/JSTV.js
 #zjtv,tv/ZJTV.js

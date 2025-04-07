@@ -276,7 +276,7 @@
   // end 49
   // 卫视
 	{id:"北京卫视",num:"50",urls:[
-	           "btime.com|http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s1/index.m3u8",
+	           "btime.com|bjtv://5755n511tbk8flo40l4c71l0sdf",
 	           "migu://630287636",
 	           "[bupt]http://ivi.bupt.edu.cn/hls/btv1hd.m3u8",
 				"[bestvcdn]http://shbu.live.bestvcdn.com.cn:8080/live/program/live/bjwshd/4000000/mnf.m3u8",
@@ -459,48 +459,48 @@
   // 730-749 : 地方频道	
     {id:"BTV文艺",num:"730",urls:[
            //"http://ivi.bupt.edu.cn/hls/btv2hd.m3u8",
-           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s2/index.m3u8"
+           "bjtv://54db6gi5vfj8r8q1e6r89imd64s"
            ]},
 	{id:"BTV科教",urls:[
            //"http://ivi.bupt.edu.cn/hls/btv3.m3u8",
-           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s3/index.m3u8"
+           "bjtv://53bn9rlalq08lmb8nf8iadoph0b"
            ]},
 	{id:"BTV影视",urls:[
            //"http://ivi.bupt.edu.cn/hls/btv4.m3u8",
-           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s4/index.m3u8"
+           "bjtv://50mqo8t4n4e8gtarqr3orj9l93v"
            ]},
 	{id:"BTV财经",urls:[
            //"http://ivi.bupt.edu.cn/hls/btv5.m3u8",
-           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s5/index.m3u8"
+           "bjtv://50e335k9dq488lb7jo44olp71f5"
            ]},
 	{id:"BTV体育",urls:[
            //"http://ivi.bupt.edu.cn/hls/btv6.m3u8",
-           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s6/index.m3u8",
+           "bjtv://54hv0f3pq079d4oiil2k12dkvsc",
            "http://jxgz1.jilu8.cn/PLTV/88888910/224/3221225676/index.m3u8"
            ]},
 	{id:"BTV生活",urls:[
            //"http://ivi.bupt.edu.cn/hls/btv7.m3u8",
-           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s7/index.m3u8"
+           "bjtv://50j015rjrei9vmp3h8upblr41jf"
            ]},
+  /*           
 	{id:"BTV青年",urls:[
            //"http://ivi.bupt.edu.cn/hls/btv8.m3u8",
            "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s8/index.m3u8"
            ]},
+   */        
 	{id:"BTV新闻",urls:[
            //"http://ivi.bupt.edu.cn/hls/btv9.m3u8",
-           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s9/index.m3u8"
+           "bjtv://53gpt1ephlp86eor6ahtkg5b2hf"
            ]},
 	{id:"BTV少儿",urls:[
           // "http://ivi.bupt.edu.cn/hls/btv10.m3u8",
-           "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s10/index.m3u8"
+           "bjtv://55skfjq618b9kcq9tfjr5qllb7r"
            ]},
 	/*
 	{id:"BTV纪实",urls:[
            "http://ivi.bupt.edu.cn/hls/btv11hd.m3u8"
-           ]}, */
-    {id:"卡酷少儿",urls:[
-          "http://hsplay-360.v.btime.com/live_btime/btv_sn_20170706_s10/index.m3u8"
-           ]},
+           ]}, 
+          */ 
 	//{id:"BTV国际",url:""},
 	
   // 750-799: 港台电视 HKS
