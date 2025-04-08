@@ -45,14 +45,42 @@ function prepareMediaSource(url,params){
 	"video_stream":[{"stream_url":"https:\/\/hsplay-360.v.btime.com\/live_btime\/btv_sn_20170706_s41\/index.m3u8?time=1744011767&sign=70503948e16602669ac7368f866031b9","stream_rate":800,"stream_vbt":"标清","stream_type":5,"duration":""}],"video_streams":[[{"stream_url":"https:\/\/hsplay-360.v.btime.com\/live_btime\/btv_sn_20170706_s41\/index.m3u8?time=1744011767&sign=70503948e16602669ac7368f866031b9","stream_rate":800,"stream_vbt":"标清","stream_type":5,"duration":""}]],"ts":1744011767,"gid":"5755n511tbk8flo40l4c71l0sdf","utoken":"","video_source_type":151,"duration":"0"}}
 	{"errno":-2,"msg":"缺少必要参数","data":["sign"]}
 	*/
-	//print(text);
+	if(_debug) print(text);
 	var retVal = JSON.parse(text);
 		if( !retVal ) return null;
 	if( retVal.errno!=0 ){
 		throw retVal.errno+":"+retVal.msg;
-	}	           
-	return retVal.data.video_stream[0].stream_url;
+	}	         
+	var encode = parseInt(retVal.data.encode || "0");
+	/*
+	  通过 encode 来判断是否需要解密 1 为需要解密，0 为不需要解密
+	*/
+	//if(_debug) print("encode="+encode);
+	var url = retVal.data.video_stream[0].stream_url;
+	if( encode==1 ){
+		/*
+		 参考 page.js 中 renderPlayer(options)
+		*/
+		url = getStreamUrl(url);
+	}
+	return url;
 }
+
+/*
+function base64Decode(str) {
+	
+	var rv = atob(str);
+	rv = escape(rv);
+	rv = decodeURIComponent(rv);
+	return rv;
+}; */
+/*
+拷贝自: https://s2.ssl.qhres2.com/!dd49acd6/feb/page.js 中 getStreamUrl
+*/
+function getStreamUrl(str) {
+	//return base64Decode(base64Decode(str.split('').reverse().join('')));
+	return utils.base64Decode(utils.base64Decode(str.split('').reverse().join('')));
+};
 /*
  拷贝自: https://s2.ssl.qhres2.com/!dd49acd6/feb/page.js 中
 */
