@@ -11,7 +11,7 @@
 		 > DIV.info-user > A.user-info.has-current-watching
 		*/
 		htmlSelector: ">BODY  >DIV#app > DIV.cate-main > DIV.main > DIV.list DIV.live-card-main DIV.live-card DIV.info-user  A.user-info",
-		url : "@crawler://live/kuaishou.js?[PATH=${URLDOM.attr.href}]",
+		url : "crawler://live/kuaishou.js?[PATH=${URLDOM.attr.href}]",
 		title : "${URLDOM.attr.title}"
 	},
 	
