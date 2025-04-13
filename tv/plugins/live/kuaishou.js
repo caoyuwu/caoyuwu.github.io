@@ -2,7 +2,7 @@
 	contentUrl : "https://live.kuaishou.com",
 	
 	List: {
-		contentUrl : "~${PATH}",  // /YL/1000005
+		contentUrl : "~/cate${PATH}",  // /YL/1000005
 		/*
 		DIV#app > DIV.cate-main > DIV.main > DIV.list > DIV.load-more
 		 > DIV.category-row > DIV.category-row-info 
@@ -11,7 +11,8 @@
 		 > DIV.info-user > A.user-info.has-current-watching
 		*/
 		htmlSelector: ">BODY  >DIV#app > DIV.cate-main > DIV.main > DIV.list DIV.live-card-main DIV.live-card DIV.info-user  A.user-info",
-		url : "@crawler://live/kuaishou.js?[PATH=${URLDOM.attr.href}]"
+		url : "@crawler://live/kuaishou.js?[PATH=${URLDOM.attr.href}]",
+		title : "${URLDOM.attr.title}"
 	},
 	
 	MediaSource:{
