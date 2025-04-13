@@ -26,14 +26,15 @@ var webview;
 //const DefRegExpIds = ["filterExp","matcherRegExpByContent/g","urlMatcherRegExp","urlLineMatcherRegExp","regExpForUrl"];
 //"bodyFilterExp",
 function Macro(){
-	this.macros = Array.prototype.slice.call(arguments,0);	
+	if( arguments.length>0 )
+		this.macros = Array.prototype.slice.call(arguments,0);	
 };
 Macro.prototype.get = function(id){
 	/*
  if( _debug  ){
 	 print("this.macros="+this.macros.length+", id="+id);
  }	*/
-	for(var macro of this.macros){
+	if(this.macros) for(var macro of this.macros){
 				if( !macro )
 				  	continue;
 	/*			  	
@@ -53,7 +54,7 @@ Macro.prototype.get = function(id){
 				 if( v!==undefined )
 				    return v;
 
-	}	
+	} // for this.macros	
 }
 
 Macro.prototype.replace = function(s){
@@ -253,7 +254,7 @@ function prepareMediaSource(url,params){
 	if( !defv )
 	   return ;
 	var def = defv.def;   
-	var contentUrl = replaceMacro1(defv.contentUrl||def.contentUrl,defv.params);
+	var contentUrl = replaceMacro(defv.contentUrl||def.contentUrl,defv.params);
 //if(_debug) 	print("content="+content);
 //print(def.urlMatcherRegExp)	   
     if( def.urlMatcherRegExp ){
@@ -302,6 +303,9 @@ function prepareMediaSource(url,params){
 	} 
 	if( def.getUrl ){
 		return def.getUrl(contentUrl,new Macro(defv.params));
+	}
+	if( def.url ){
+		return replaceMacro(def.url,defv.params,{CONTENTURL:contentUrl});
 	}
 }
 
@@ -359,7 +363,7 @@ function loadMenus4Def(defs,contentUrl,contentCache,macros){
 	   必须最后处理 getItems, 因为 htmlSelector 情况下也有 
 	*/ 
 	if( def.loadItems ){
-        	const _contentUrl = replaceMacro1(contentUrl||def.contentUrl,macros);
+        	const _contentUrl = replaceMacro(contentUrl||def.contentUrl,macros);
       //  print("def._parent = "+def._parent);	
         	def.loadItems(items,_contentUrl,contentCache,macros);
         	continue;
@@ -401,7 +405,7 @@ function _getBodys4HtmlBodySelector(def,doc,macros){
 
 function  loadMenus4HtmlSelector(items,def,contentUrl,contentCache,macros){
 //if(_debug) print("  [loadMenus4HtmlSelector]def._name="+def._name+",contentUrl="+def.contentUrl);
-        const _contentUrl = replaceMacro1(contentUrl||def.contentUrl,macros);
+        const _contentUrl = replaceMacro(contentUrl||def.contentUrl,macros);
 //if(_debug) print("  ;_contentUrl="+_contentUrl);        			
 		const doc = loadHTMLDoc(def,_contentUrl,contentCache);
 		//var def = defs[i];
@@ -574,7 +578,7 @@ if(_debug) {
 
 function  loadMenus4LinesByHtmlSelector(items,def,contentUrl,contentCache,macros){
 //if(_debug) print("  [loadMenus4HtmlSelector]def._name="+def._name+",contentUrl="+def.contentUrl);
- 		const doc = loadHTMLDoc(def,replaceMacro1(contentUrl||def.contentUrl,macros),contentCache);
+ 		const doc = loadHTMLDoc(def,replaceMacro(contentUrl||def.contentUrl,macros),contentCache);
 		//var def = defs[i];
 	//print("defName="+defName+","+def.selector);
 	   	const bodys = _getBodys4HtmlBodySelector(def,doc,macros);
@@ -641,11 +645,21 @@ function  loadMenus4LinesByHtmlSelector(items,def,contentUrl,contentCache,macros
 	//return items;	 
 }
 
+/*
 function replaceMacro1(s,macro){
 	if( !macro || !s || s.indexOf("${")<0 ){
 		return s;
 	}
 	return new Macro(macro).replace(s);
+} */
+
+function replaceMacro(s){
+	if( arguments.length<=1 || !s || s.indexOf("${")<0 ){
+			return s;
+	}
+	var m = new Macro();
+	m.macros = Array.prototype.slice.call(arguments,1);
+	return m.replace(s);
 }
 
 function  parseUrlParams(url){

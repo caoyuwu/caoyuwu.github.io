@@ -1494,7 +1494,6 @@
       		 {label:"2",items:["[9100-9199]"]},
       		 { label:"抖音直播",items:[
 				{label:"收藏",items: [//"tag:抖音直播收藏"
-			       {label:"潮白老王",url:"douyinlive:764108230882",tag:"抖音直播收藏"},
 				   {label:"央视网快看",url:"douyinlive:127453393722",tag:"抖音直播收藏"},
 				   {label:"CCTV13",url:"douyinlive:282773369501",tag:"抖音直播收藏"},
 				    {label:"央视频",url:"douyinlive:50828500437",tag:"抖音直播收藏"},
@@ -1515,6 +1514,15 @@
       		    {label:"-教育",items:"@douyinlive-list:3_10001_2_2800",countSubMenuPages:5},
       		    {label:"-人文艺术",items:"@douyinlive-list:3_10001_2_2756",countSubMenuPages:5}
       		  ]},
+      		 { label:"抖音直播",items:[ 
+      		    {label:"娱乐-明星",items:""@crawler-list://live/kuaishou.js?[PATH=/YL/1000001]"},
+      		    {label:"娱乐-舞蹈",items:""@crawler-list://live/kuaishou.js?[PATH=/YL/1000002]"},
+      		    {label:"娱乐-音乐",items:""@crawler-list://live/kuaishou.js?[PATH=/YL/1000003]"},
+      		    {label:"娱乐-才艺",items:""@crawler-list://live/kuaishou.js?[PATH=/YL/1000004]"},
+      		     {label:"娱乐-脱口秀",items:""@crawler-list://live/kuaishou.js?[PATH=/YL/1000005]"},
+      		     {label:"娱乐-颜值",items:""@crawler-list://live/kuaishou.js?[PATH=/YL/1000006]"},
+      		     {label:"娱乐-情感",items:""@crawler-list://live/kuaishou.js?[PATH=/YL/1000007]"}
+      		   ]},
       		 { label:"哔哩哔哩",items:[
 	      		 {label:"B影音馆01",items:"@blive-list:10/33/1-3"},
 	      		 {label:"B影音馆04",items:"@blive-list:10/33/4-6"},
