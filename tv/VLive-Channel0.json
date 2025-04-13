@@ -1514,7 +1514,7 @@
       		    {label:"-教育",items:"@douyinlive-list:3_10001_2_2800",countSubMenuPages:5},
       		    {label:"-人文艺术",items:"@douyinlive-list:3_10001_2_2756",countSubMenuPages:5}
       		  ]},
-      		 { label:"抖音直播",items:[ 
+      		 { label:"快手直播",items:[ 
       		    {label:"娱乐-明星",items:"@crawler-list://live/kuaishou.js?[PATH=/YL/1000001]"},
       		    {label:"娱乐-舞蹈",items:"@crawler-list://live/kuaishou.js?[PATH=/YL/1000002]"},
       		    {label:"娱乐-音乐",items:"@crawler-list://live/kuaishou.js?[PATH=/YL/1000003]"},

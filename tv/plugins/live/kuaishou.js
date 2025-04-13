@@ -2,7 +2,7 @@
 	contentUrl : "https://live.kuaishou.com",
 	
 	List: {
-		contentUrl : "~${PATH}"  // /YL/1000005
+		contentUrl : "~${PATH}",  // /YL/1000005
 		/*
 		DIV#app > DIV.cate-main > DIV.main > DIV.list > DIV.load-more
 		 > DIV.category-row > DIV.category-row-info 
