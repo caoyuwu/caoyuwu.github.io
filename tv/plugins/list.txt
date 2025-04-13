@@ -7,11 +7,11 @@ youku,Youku.js
 
 youtube|youtube-list,Youtube.js
 
-blive|blive-list,Bilibili.js
+blive|blive-list,live/Bilibili.js
 
-huyalive|huyalive-list,Huya.js
+huyalive|huyalive-list,live/Huya.js
 
-yylive|yylive-list,YYLive.js
+yylive|yylive-list,live/YYLive.js
 
 migu|migu3|migu123tv,Migu.js
 
@@ -31,9 +31,9 @@ qqvideo,QQVideo.js
 
 iqiyi,IQiyi.js
 
-douyulive|douyulive-list,Douyu.js
+douyulive|douyulive-list,live/Douyu.js
 
-douyinlive|douyinvideo|douyinlive-list,Douyin.js
+douyinlive|douyinvideo|douyinlive-list,live/Douyin.js
 
 didilive|didilive-list,Didi.js
 
