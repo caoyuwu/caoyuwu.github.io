@@ -37,12 +37,13 @@
        "proxy":"group","name":"default",
        "subbounds":[
          {
-	      "name":"socks",
-	      "proxy":"${INBOUND_PROXY?socks}",
+	      "name":"wh-socks",
+	      "proxy":"${INBOUND_PROXY?wh-socks}",
 	      "host":"${OUTBOUND_HOST}",
-	      "port":${OUTBOUND_PORT},
-	      "package":"${OUTBOUND_PACKAGE?wsheader}", //"wsheader",
-	      "security":"${OUTBOUND_SECURITY?default}"
+	      "port":${OUTBOUND_PORT?80},
+	      "package":"${OUTBOUND_PACKAGE?}", //"wsheader",
+	      "security":"${OUTBOUND_SECURITY?}"
+	      // .ssl
   		 },
   		 {
   		    "name":"direct",
