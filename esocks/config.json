@@ -26,6 +26,16 @@
      "security":"${INBOUND_SECURITY?default}"
   }
   */
+   /*
+  "inbound":{
+     "natTraverse":${INBOUND_NATTRAVERSE?true},  
+     "proxy":"${INBOUND_PROXY?esocks}",
+     "host":"${INBOUND_HOST?router.caoyuwu.top}",
+     "port":${INBOUND_PORT?2084},
+     "package":"${INBOUND_PACKAGE?}",
+     "security":"default"
+  }
+  */
   ]
 
 
