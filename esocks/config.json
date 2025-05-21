@@ -6,11 +6,11 @@
    
   "inbounds":[
   {
-     "proxy":"${INBOUND_PROXY?whsocks}",
+     "proxy":"${INBOUND_PROXY?wh-socks}",
      "host":"${INBOUND_HOST?0.0.0.0}",
      "port":${INBOUND_PORT?80},
      "package":"${INBOUND_PACKAGE?}",
-     // 客户端  "proxy":"wh-socks": wh-socks , x-X-Target-Host 使用明文  
+     // 客户端  "proxy":"wh-socks":  X-Target-Host 使用明文  ;whsocks : X-Target-Host 加密
      //  "wspath":"/esocks/ws",
      "user":"${INBOUND_USER?}",
      "security":"${INBOUND_SECURITY?}"
