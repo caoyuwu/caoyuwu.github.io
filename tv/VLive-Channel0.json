@@ -9,6 +9,7 @@
   channels :[
    //
   {id:"CCTV-01",num:"01",urls:[
+      "http://localhost:8803/cctv-httpservice/ldncctvwbcdbd.a.bdydns.com/ldncctvwbcd/cdrmldcctv1_1/index.m3u8?b=200-2100",
       "browser-https://tv.cctv.com/live/cctv1/m/",
       "ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226016/index.m3u8", 
        "migu://608807420",
@@ -19,6 +20,7 @@
 		"[gansuyunshi]http://live.gansuyunshi.com:9090/live/CCTV1-HD_2000.m3u8"
   								]},
   {id:"CCTV-02",num:"02",urls:[
+       "http://localhost:8803/cctv-httpservice/ldocctvwbcdbd.a.bdydns.com/ldocctvwbcd/cdrmldcctv2_1/index.m3u8?b=200-2100",
   		"browser-https://tv.cctv.com/live/cctv2/m/",
   						"ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226540/index.m3u8",
   						"migu://672926537",
@@ -29,6 +31,7 @@
                                "[?高清]http://ivi.bupt.edu.cn/hls/cctv2hd.m3u8"
                                ]},
   {id:"CCTV-03",num:"03",urls:[ 
+  "http://localhost:8803/cctv-httpservice/ldocctvwbcdbd.a.bdydns.com/ldocctvwbcd/cdrmldcctv3_1/index.m3u8?b=200-1200",
   	//"browser-https://tv.cctv.com/live/cctv3/m/",
          		"ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226021/index.m3u8",
          		"migu://624878271",
@@ -42,6 +45,7 @@
                            "111.63.117.13|http://111.63.117.13:6060/030000001000/CCTV-3/CCTV-3.m3u8"
                            ]},
   {id:"CCTV-04",num:"04",urls:[
+   "http://localhost:8803/cctv-httpservice/ldocctvwbcdali.v.myalicdn.com/ldocctvwbcd/cdrmldcctv4_1/index.m3u8?b=200-2100",
   "browser-https://tv.cctv.com/live/cctv4/m/",
                        "cctv.cn-4K,http://liveop.cctv.cn/hls/4KHD/playlist.m3u8",	
                         "ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226428/index.m3u8", 
@@ -52,6 +56,7 @@
                              //  "[CNTV]cntv://cctv4",
                               "[标清]http://ivi.bupt.edu.cn/hls/cctv4.m3u8"]}, 
   {id:"CCTV-05",num:"05",urls:[ 
+  "http://localhost:8803/cctv-httpservice/ldcctvwbcdbd.a.bdydns.com/ldcctvwbcd/cdrmldcctv5_1/index.m3u8?b=200-2100",
     "browser-https://tv.cctv.com/live/cctv5/m/",
                              "ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226019/index.m3u8",
                              "migu://641886683",
@@ -59,6 +64,7 @@
                                "http://ivi.bupt.edu.cn/hls/cctv5hd.m3u8"
                                ]}, 
   {id:"CCTV-06",num:"06",urls:[
+   "http://localhost:8803/cctv-httpservice/ldocctvwbcdks.v.kcdnvip.com/ldocctvwbcd/cdrmldcctv6_1/index.m3u8?b=200-1200",
    // "browser-https://tv.cctv.com/live/cctv6/m/",
                "ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226010/index.m3u8",
                "migu://624878396",
@@ -70,6 +76,7 @@
    								"[标清]http://ivi.bupt.edu.cn/hls/cctv6.m3u8"
    								]}, 
   {id:"CCTV-07",num:"07",urls:[
+  "http://localhost:8803/cctv-httpservice/ldocctvwbcdbd.a.bdydns.com/ldocctvwbcd/cdrmldcctv7_1/index.m3u8?b=200-2100",
      "browser-https://tv.cctv.com/live/cctv7/m/",
   			"ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221225733/index.m3u8",
   			"migu://673168121",
@@ -79,6 +86,7 @@
   								"[标清]http://ivi.bupt.edu.cn/hls/cctv7.m3u8"
   								]}, 
   {id:"CCTV-08",num:"08",urls:[
+   "http://localhost:8803/cctv-httpservice/ldocctvwbcdbd.a.bdydns.com/ldocctvwbcd/cdrmldcctv8_1/index.m3u8?b=200-1200",
             "ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226008/index.m3u8",   
                "migu://624878356",
 					"[高清]http://ivi.bupt.edu.cn/hls/cctv8hd.m3u8",
@@ -89,6 +97,7 @@
                     "[标清]http://ivi.bupt.edu.cn/hls/cctv8.m3u8"
                                 ]}, 
   {id:"CCTV-09",num:"09",urls:[
+  "http://localhost:8803/cctv-httpservice/ldocctvwbcdbyte.volcfcdn.com/ldocctvwbcd/cdrmldcctv9_1/index.m3u8?b=200-2100",
 	 "ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221225734/index.m3u8", 
 	  "migu://673168140",
 	  "myalicdn|http://cctvalih5ca.v.myalicdn.com/live/cctvjilu_2/index.m3u8",
@@ -98,6 +107,7 @@
 		//"[CNTV]cntv://cctv9",	
 							]}, 
   {id:"CCTV-10",num:"10",urls:[
+  "http://localhost:8803/cctv-httpservice/ldocctvwbcdtxy.liveplay.myqcloud.com/ldocctvwbcd/cdrmldcctv10_1/index.m3u8?b=200-2100",
   "browser-https://tv.cctv.com/live/cctv10/m/",
      "ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221225730/index.m3u8",    
          "migu://624878405",  
@@ -107,6 +117,7 @@
 	    "[标清]http://ivi.bupt.edu.cn/hls/cctv10.m3u8"
 	    ]}, 
   {id:"CCTV-11",num:"11",urls:[
+   "http://localhost:8803/cctv-httpservice/ldocctvwbcdcnc.v.wscdns.com/ldocctvwbcd/cdrmldcctv11_1/index.m3u8?b=200-2100",
   "browser-https://tv.cctv.com/live/cctv11/m/",
   "ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221225597/index.m3u8",
   "dbiptv.sn.chinamobile.com|http://dbiptv.sn.chinamobile.com/PLTV/88888888/224/3221226240/1.m3u8", 
@@ -116,6 +127,7 @@
   							"[CNTV]cntv://cctv11",
   							"[标清]http://ivi.bupt.edu.cn/hls/cctv11.m3u8"]}, 
   {id:"CCTV-12",num:"12",urls:[
+  "http://localhost:8803/cctv-httpservice/ldocctvwbcdbd.a.bdydns.com/ldocctvwbcd/cdrmldcctv12_1/index.m3u8?b=200-2100",
   "browser-https://tv.cctv.com/live/cctv12/m/",
   	"ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221225731/index.m3u8",	
   		"migu://673168185",
@@ -125,6 +137,7 @@
   							"[标清]http://ivi.bupt.edu.cn/hls/cctv12.m3u8"
   							]}, 
   {id:"CCTV-13",num:"13",urls:[
+   "http://localhost:8803/cctv-httpservice/ldncctvwbcdali.v.myalicdn.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100",
     "browser-https://tv.cctv.com/live/cctv13/m/",
                    "ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226537/index.m3u8", 
                     "migu://672922360",
@@ -138,6 +151,7 @@
                    "hn0746.com|http://live.hn0746.com/xw/sd/live.m3u8"
                  ]},  
   {id:"CCTV-14",num:"14",urls:[
+  "http://localhost:8803/cctv-httpservice/ldocctvwbcdks.v.kcdnvip.com/ldocctvwbcd/cdrmldcctv14_1/index.m3u8?b=200-2100",
           "ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221225732/index.m3u8", 
            "migu://624878440",
   					"[标清]http://ivi.bupt.edu.cn/hls/cctv14.m3u8",
@@ -145,6 +159,7 @@
   								"[CNTV]cntv://cctv14"
   								]},  
   {id:"CCTV-15",num:"15",urls:[
+  "http://localhost:8803/cctv-httpservice/ldocctvwbcdtxy.liveplay.myqcloud.com/ldocctvwbcd/cdrmldcctv15_1/index.m3u8?b=200-2100",
      "browser-https://tv.cctv.com/live/cctv15/m/",
   				"ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221225601/index.m3u8$",
   				"dbiptv.sn.chinamobile.com|http://dbiptv.sn.chinamobile.com/PLTV/88888888/224/3221225785/1.m3u8",
@@ -158,12 +173,14 @@
                "tv.cctv.com|http://cctvtxyw.liveplay.myqcloud.com/live/cctv15_1_md.m3u8" 
   				]}, 
   {id:"CCTV-16", num:"16",urls:[
+   "http://localhost:8803/cctv-httpservice/ldcctvwbcdbd.a.bdydns.com/ldcctvwbcd/cdrmldcctv16_1/index.m3u8?b=200-2100",
      "browser-https://tv.cctv.com/live/cctv16/m/",
 	  "ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226100/index.m3u8",
         "olympicchannelchina.cn,https://live.olympicchannelchina.cn/aoyun/cctv16_1ud.m3u8",
         "myalicdn|https://cctvalih5ca.v.myalicdn.com/live/cctv16_2/index.m3u8"
   									]},	
   {id:"CCTV-17", num:"17",urls:[
+   "http://localhost:8803/cctv-httpservice/ldocctvwbcdks.v.kcdnvip.com/ldocctvwbcd/cdrmldcctv17_1/index.m3u8?b=200-2100",
        "browser-https://tv.cctv.com/live/cctv17/m/",
     //    "migu://673168256",
         "ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221225765/index.m3u8",
@@ -171,6 +188,7 @@
   									]},
 	  																					
   {id:"CCTV5+",num:"21", urls:[
+   "http://localhost:8803/cctv-httpservice/ldcctvwbcdbd.a.bdydns.com/ldcctvwbcd/cdrmldcctv5plus_1/index.m3u8?b=200-2100",
      "migu://641886773",
      "ottrrs.hl.chinamobile.com|http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221225603/index.m3u8"
   									]},
