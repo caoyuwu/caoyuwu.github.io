@@ -1518,7 +1518,8 @@
 				   {label:"2024",url:"douyinlive:524048578993",tag:"抖音直播收藏"},
 				   {label:"CCTV4",url:"douyinlive:166806983360",tag:"抖音直播收藏"},
 				   {label:"白雪~中国象棋",url:"douyinlive:980822437011",tag:"抖音直播收藏"},
-				   {label:"白雪日常生活",url:"douyinlive:479300110901",tag:"抖音直播收藏"}
+				   {label:"白雪日常生活",url:"douyinlive:479300110901",tag:"抖音直播收藏"},
+				   {label:"小芳中国象棋",url:"douyinlive:4856303938",tag:"抖音直播收藏"}
 				   ]},   
       		    {label:"娱乐天地",items:"@douyinlive-list:3_10000",countSubMenuPages:5},
       		    {label:"-运动",items:"@douyinlive-list:3_10000_2_2791",countSubMenuPages:5},
