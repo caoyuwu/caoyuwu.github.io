@@ -1597,7 +1597,7 @@
            		  "[750-799]",
            		  "[9700-9750]"
            		  ]},
-  
+   {"label":"router.lan","items":"@webdirlist:http://router.lan/tv-channels/"}  ,
     {label:"其他",
         items:[
              {label:"router.lan",items:"@webdirlist:http://router.lan/tv-channels/"},
