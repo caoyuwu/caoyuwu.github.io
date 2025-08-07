@@ -1361,7 +1361,7 @@
    "oceans.mp4|http://o.snsoft.com.cn/demo/video/oceans.mp4",
    //{id:"oceans.mp4",url:"/sdcard/temp/oceans.mp4"},
    "360x240_1.mp4|http://o.snsoft.com.cn/demo/video/SampleVideo_360x240_1.mp4",
-   {id:"局域网oceans.mp4",url:"http://192.168.3.17:8000/snsoft/video/oceans.mp4"},
+   {id:"24节气立秋.mp4",url:"http://172.20.0.20/media/24节气立秋.mp4"},
     
     "CCTV1,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8",
    // "CCTV1代理,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8??[proxy=*]",
