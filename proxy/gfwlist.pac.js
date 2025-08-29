@@ -94,6 +94,8 @@ var hostGrps = function(){
 		"www.arukas.io",
 		*/
 		"reddit.com",
+		"redd.it",
+		
 		"ask.com", // 搜索引擎
 		"duckduckgo.com", // 搜索引擎
 		"yahoo.com",
