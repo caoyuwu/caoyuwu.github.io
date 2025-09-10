@@ -1,6 +1,8 @@
 /*
   https://caoyuwu.eu.org/vlive/didi/Settings.json
   http://localhost/caoyuwu.github.io/vlive/List.html?vlive=DiDi
+  http://router.lan/vlive/didi/Settings.json
+  scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/vlive/didi/Settings.json router://www/vlive/didi/
 */
 [
 {
@@ -12,7 +14,7 @@
   // token :flowToken
  // token:"cc5c96032dcef05344eda7dce8748c90",
   // authToken : jwtToken
-  authToken : "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI0NjY3MDMzMCIsInVzZXJuYW1lIjoiMTM4MDEzNzc0ODkiLCJyb2xlIjowLCJsb2IiOjEsImlhdCI6MTc1NDkxNjU0NSwiZXhwIjoxNzU3NTA4NTQ1fQ.3Wr3YXug8Q-m8R_0a38B-k09Txwq495Pv42HLHAsIOHMsqRPcdMIjhd1Xz4WIW9qxW76Mg3Anrb92WoozXO37w",
+  authToken : "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI0NjY3MDMzMCIsInVzZXJuYW1lIjoiMTM4MDEzNzc0ODkiLCJyb2xlIjowLCJsb2IiOjEsImlhdCI6MTc1NzUxNDk1MCwiZXhwIjoxNzYwMTA2OTUwfQ.OTHHKfNPvjtDHvW4fO4VS3zdEMf7nifvCyug15cwN9Qu0nEYa__t9dqm1Ltuj2cwjrQXv0lCWRw9_ky4HTNQVQ",
   
   liveButter2:"4L0HHMyx728WLb9kOmYL2uzpIuwgqj6EeRwlJDDIcxNxQhO00KTdm9Kq1w/x/0JArMLY3dptRBvwYHs1QGItVC5TYterbEneffODKLkMCtfk/vmwVi7KwK/IsI2BaTtfV+NnuM86vQXCBnRedl0lYUKBQvKDf6FL4uMgjrShyN4SO2NcezDy44BmpaJWrfPiHD3byr7S7HfozyX7V5RNgw==",
   
