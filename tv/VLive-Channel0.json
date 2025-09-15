@@ -1601,8 +1601,8 @@
    {"label":"router.lan","items":"@webdirlist:http://router.lan/tv-channels/"}  ,
     {label:"其他",
         items:[
-             {label:"router.lan",items:"@webdirlist:http://router.lan/tv-channels/"},
-              {label:"192.168.1.8",items:"@webdirlist:http://192.168.1.8/mydoc-html/tv-channels/"},
+            // {label:"router.lan",items:"@webdirlist:http://router.lan/tv-channels/"},
+            //  {label:"192.168.1.8",items:"@webdirlist:http://192.168.1.8/mydoc-html/tv-channels/"},
              {label:"临时",items:["[99400-99599]"]}, 
              {label:"境外-",locked:1,items:["[99600-99799]"]}, 
         	 {label:"测试",items:["[99800-99899]"]},

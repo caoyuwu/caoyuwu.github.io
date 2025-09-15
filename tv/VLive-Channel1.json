@@ -274,7 +274,7 @@
    {label:"待废弃直播-74000",locked:1,items:["[74000-74999]"]},
   
   // {label:"电视剧-78000",items:["[78000-78099]"]},
-   {label:"192.168.1.8",locked:1,items:"@webdirlist:http://192.168.1.8/mydoc-html/x-channels/"},
+  // {label:"192.168.1.8",locked:1,items:"@webdirlist:http://192.168.1.8/mydoc-html/x-channels/"},
    {label:"router.lan",locked:1,items:"@webdirlist:http://router.lan/x-channels/"},
    {"label":"adultiptv.net",locked:1,"items":"@m3uloader:http://adultiptv.net/chs.m3u"},
  
