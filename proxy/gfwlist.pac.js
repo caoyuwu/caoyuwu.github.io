@@ -1,5 +1,7 @@
 /*
-   docs/开发环境/GfwHost.txt
+   https://github.com/gfwlist/gfwlist
+   https://github.com/petronny/gfwlist2pac/blob/master/gfwlist.pac
+   /opt/snsoftn10/snadk-srcx/python-projects/python-samples/tools/gfwlist2pac.py
    https://caoyuwu.eu.org/proxy/gfwlist.pac.js
    http://localhost/doc/pac/gfwpac.pac.js
    chrome://net-internals/#proxy : 重置代理

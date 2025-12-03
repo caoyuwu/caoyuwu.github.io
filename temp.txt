@@ -1,3 +1,6 @@
 scp -O -r /opt/Third-src/GitHUB/caoyuwu.github.io/tv/*  router:/www/tv/
 
 scp -O -r /opt/Third-src/GitHUB/caoyuwu.github.io/vlive/*  router:/www/vlive/
+
+
+scp -O -r /opt/Third-src/GitHUB/caoyuwu.github.io/tv/VLive-Channel1.json  router:/www/tv/
