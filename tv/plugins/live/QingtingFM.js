@@ -144,9 +144,8 @@ https://api-v3.tingtingfm.com//recommend/index_v3_6?
 				//		if(_debug)	print("json="+json);
 				var m = JSON.parse(json);		
 				var pull_url = m.data.pull_url;
-				if( !pull_url ) return null;
 		//https://pull2push-2.tingtingfm.com/ttfmrelease/fenghuiluzhuan_720p.m3u8?auth_key=1772973186-gxv4kA7S-0-3e006b125b9e52c6efa5c93056ce4212		
-				var urlInfo = pull_url.hls || pull_url.flv || pull_url.rtmp;
+				var urlInfo = pull_url ? pull_url.hls || pull_url.flv || pull_url.rtmp : null;
 				if( urlInfo  ){
 					return urlInfo.url+"?auth_key="+urlInfo.ak;
 				}
