@@ -1,6 +1,7 @@
 /*
  ln -s /Third-src/GitHUB/caoyuwu.github.io/tv/VLive-Channel0.json /link/VLive-Channel0.json 
  http://caoyuwu.eu.org/tv/VLive-Channel0.json
+ scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/VLive-Channel0.json router:/www/tv/
  测试: VLiveChannel
 */
 {
@@ -1487,8 +1488,10 @@
         ]
      },
    // {label:"数字频道",items:["[35-49]","[850-899]"]},
-    {label:"电影/电视剧",
-       items:[{label:"1", items:["CHC高清电影","CHC动作电影",
+    {label:"网络直播",
+       items:[
+		    {label:"QingtingFM直播",items:"@crawler-list:live/QingtingFM.js"},
+		    {label:"1", items:["CHC高清电影","CHC动作电影",
     				"台湾星卫电影","TVB电影","龙华电影"
    				 ,"东森电影",
      				"[9000-9099]"

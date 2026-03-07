@@ -1,3 +1,6 @@
+/*
+{label:"1pondo.tv","locked":1,items:"@crawler-list:xvideo/1pondo.js"},
+*/
 {
 	contentUrl : "https://www.1pondo.tv",
 	

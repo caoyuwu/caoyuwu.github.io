@@ -73,7 +73,7 @@ Macro.prototype.replace = function(s){
 /*
 @param defUrl http://caoyuwu.github.io/tv/plugins/video/test.js?[PATH={URLDOM.attr.href}]
 @return {
-	  List:xxx, 
+	  List:{xxx..{}, 
 	  List-x:xxx,
 	  MediaSource:xxx
 	  }
