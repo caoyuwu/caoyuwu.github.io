@@ -516,6 +516,9 @@
           // "http://ivi.bupt.edu.cn/hls/btv10.m3u8",
            "bjtv://55skfjq618b9kcq9tfjr5qllb7r"
            ]},
+   {id:"BTV-北京1039",urls:[
+              "bjtv://54713cl64re8u893jua5114uonc"
+              ]},		   
 	/*
 	{id:"BTV纪实",urls:[
            "http://ivi.bupt.edu.cn/hls/btv11hd.m3u8"

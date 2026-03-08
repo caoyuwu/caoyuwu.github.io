@@ -112,6 +112,9 @@ https://api-v3.tingtingfm.com//recommend/index_v3_6?
 		 https://mobile.tingtingfm.com/v3/video_chatroom/4jaEKEPd9A?type=1
 		   	 
 		*/
+		/*
+		crawler:live/QingtingFM.js;live:4ZdK8Lpo0r
+		*/
 		getUrl : function(contentId,macros){
 			print("contentId="+contentId+" ;"+macros);
 			if( !this._parent.client ){
