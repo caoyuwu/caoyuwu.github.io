@@ -16,6 +16,7 @@ publicParam : {  //长链接的公共参数
 			"guid":"f08a1b0a-aaf2-41f3-931c-49f4819fe5ae","protocol":1,
 			"chat_type":1,"user_id":"6771868",
 			"token":"ef17bf6bc937adadfb8148a226731af3"}		
+			
 */
 {
 	contentUrl :"https://www.btime.com",
@@ -55,7 +56,7 @@ publicParam : {  //长链接的公共参数
 						if(modules3.data.news) for(var news of modules3.data.news ){
 							var gid = news.gid;
 							var title = news.data.title;
-							items.push({title:title,url:"bjtv://"+gid});
+							items.push({title:title,url:"bjtv://"+gid,msgSocketArgs:[gid]});
 						}
 					}
 				}

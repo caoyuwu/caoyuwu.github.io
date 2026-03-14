@@ -1442,9 +1442,12 @@
                 ]},                      
     {label:"地方频道",items:[
         {label:"北京",items:["北京卫视","[730-749]"]},
-		{label:"北京时间-直播",items:"@crawler-list:live/BTime.js?[PATH=live]"},
-		{label:"北京时间-电视",items:"@crawler-list:live/BTime.js?[PATH=btv]"},
-		{label:"北京时间-电视栏目",items:"@crawler-list:live/BTime.js?[PATH=btvprogram]"},
+	//	{label:"北京时间-直播",items:"@crawler-list:live/BTime.js?[PATH=live]"},
+	//	{label:"北京时间-电视",items:"@crawler-list:live/BTime.js?[PATH=btv]"},
+	//	{label:"北京时间-电视栏目",items:"@crawler-list:live/BTime.js?[PATH=btvprogram]"},
+		{label:"北京时间-直播",items:"@bjtv-list://live"},
+		{label:"北京时间-电视",items:"@bjtv-list://btv"},
+		{label:"北京时间-电视栏目",items:"@bjtv-list://btvprogram"},
         {label:"台湾",items:[
           "台视", //台湾电视事业股份有限公司
           "中视", //中国电视事业股份有限公司
