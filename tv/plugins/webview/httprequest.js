@@ -1,5 +1,13 @@
 /*
 http://router.lan/tv/plugins/webview/httprequest.js
+
+var head = document.getElementsByTagName("head")[0];
+      var s = document.createElement("script");s.type = "text/javascript";
+      s.async = false;
+	  //s.src="http://router.lan/tv/plugins/webview/douyin/Douyin-inject.js";
+	  s.src="https://caoyuwu.eu.org/tv/plugins/webview/httprequest.js";
+       head.appendChild(s);
+	   
 */
 function httpGetAsString(url,headers, opts){
 	var conn =  new XMLHttpRequest();

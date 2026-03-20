@@ -5,13 +5,15 @@
   
   var head = document.getElementsByTagName("head")[0];
       var s = document.createElement("script");s.type = "text/javascript";
-      s.async = false;s.src="http://router.lan/tv/plugins/webview/douyin/Douyin-inject.js";
+      s.async = false;
+	  //s.src="http://router.lan/tv/plugins/webview/douyin/Douyin-inject.js";
+	  s.src="https://caoyuwu.eu.org/tv/plugins/webview/douyin/Douyin-inject.js";
        head.appendChild(s);
    
 */
 const PageCount = 15;
 /*
-  
+getLiveRoomDetail("4_101",0)
 */
 function getLiveRoomDetail(path,page){
 	var p = path.indexOf("/");
@@ -37,7 +39,7 @@ function getLiveRoomDetail(path,page){
 			"browser_name":navigator.appCodeName,//"Chrome",
 			"browser_version":navigator.appVersion,//"114.0.0.0",
 			"count":PageCount,
-			"offset":page*PageCount,
+			"offset":(page||0)*PageCount,
 			// partition=2707&partition_type=2&
 			"partition":partition,
 			"partition_type":partition_type,
@@ -50,7 +52,7 @@ function getLiveRoomDetail(path,page){
 		join = "&";
 	}	
 	console.log("url=%s",url);
-	
+	window.url = url;
 	
 	
 }
