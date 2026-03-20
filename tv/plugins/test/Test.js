@@ -1,5 +1,6 @@
 /*
 http://caoyuwu.eu.org/tv/plugins/Test.js
+scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/test/Test.js  router:/www/tv/plugins/test/
 testvideo://1
 test-menu-list://1
 ??[proxy=*]
@@ -45,6 +46,7 @@ function prepareMediaSource(url,params){
   return [
 	  {title, url}
   ]
+  {label:"测试目录(Test.js)",items:"@test-menu-list:list/001/002"},
 */
 var webview;
 function loadMenus(url,params){
@@ -56,12 +58,12 @@ function loadMenus(url,params){
     print("webview = "+webview);
     injectURL = utils.toAbsoluteURL(_scriptURL,"../webview/httprequest.js");
     print("TestMenuList : injectURL="+injectURL);
-    webview.loadUrl("http://172.20.0.20/demo-web/test/adr/TestAdrWeb.html",[injectURL],1);
+    webview.loadUrl("http://192.168.1.21/demo-web/test/adr/TestAdrWeb.html",[injectURL],1);
     //webview.injectJavascritByURL("../webview/httprequest.js");
     //evalOnPageFinished(String consJS,String js,int timeout,int opts){
     var s = webview.evalOnPageFinished("typeof(window.httpGetAsString)=='function'",
     	//"httpGetAsString('/index.html',null,0)",
-    	"httpGetAsString('http://172.20.0.20/demo-web/test/adr/TestAdrMenu1.json',null,0)",
+    	"httpGetAsString('http://192.168.1.21/demo-web/test/adr/TestAdrMenu1.json',null,0)",
     	5,1);
     print("webview 返回="+s);
     return JSON.parse(s);

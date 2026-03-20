@@ -1516,9 +1516,17 @@
 				   {label:"白雪日常生活",url:"douyinlive:479300110901",tag:"抖音直播收藏"},
 				   {label:"小芳中国象棋",url:"douyinlive:4856303938",tag:"抖音直播收藏"}
 				   ]},   
+				   {label:"聊天",items:"@douyinlive-list:4_101",countSubMenuPages:5},
+   		    {label:"音乐",items:"@douyinlive-list:4_102",countSubMenuPages:5},
+			{label:"游戏",items:"@douyinlive-list:4_103",countSubMenuPages:5},
+			{label:"二次元",items:"@douyinlive-list:4_104",countSubMenuPages:5},
+			{label:"舞蹈",items:"@douyinlive-list:4_105",countSubMenuPages:5},
+			{label:"文化",items:"@douyinlive-list:4_106",countSubMenuPages:5},
+			{label:"生活",items:"@douyinlive-list:4_107",countSubMenuPages:5},
+			{label:"运动",items:"@douyinlive-list:4_108",countSubMenuPages:5}
+				  /* 
       		    {label:"娱乐天地",items:"@douyinlive-list:3_10000",countSubMenuPages:5},
       		    {label:"-运动",items:"@douyinlive-list:3_10000_2_2791",countSubMenuPages:5},
-      		    {label:"-音乐",items:"@douyinlive-list:3_10000_2_2707",countSubMenuPages:5},
       		    {label:"-语音互动",items:"@douyinlive-list:3_10000_2_2842",countSubMenuPages:5},
       		    {label:"-情感",items:"@douyinlive-list:3_10000_2_2836",countSubMenuPages:5},
       		     {label:"-舞蹈",items:"@douyinlive-list:3_10000_2_2726",countSubMenuPages:5},
@@ -1529,6 +1537,7 @@
       		    {label:"科技文化",items:"@douyinlive-list:3_10001",countSubMenuPages:5},
       		    {label:"-教育",items:"@douyinlive-list:3_10001_2_2800",countSubMenuPages:5},
       		    {label:"-人文艺术",items:"@douyinlive-list:3_10001_2_2756",countSubMenuPages:5}
+				*/
       		  ]},
       		 { label:"快手直播",items:[ 
       		    {label:"娱乐-明星",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/YL/1000001]"},

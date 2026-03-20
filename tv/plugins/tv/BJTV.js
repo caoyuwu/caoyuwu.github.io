@@ -194,11 +194,19 @@ function onWebSocketMessage(id,s){
 function _onMessage(m){
 	if( !m ) return;
 	//print("onWebSocketMessage m="+m);
-		if( m.chat_type==1 && m.content && m.sender && m.sender.nick_name ){
+	/*
+	m.type==1 : 聊天；6:来了； 5: 点亮
+	*/
+		if( m.chat_type==1 && m.content && m.sender && m.sender.nick_name 
+			&& m.type==1
+			//&& m.content!="来了"
+			
+		){
 			utils.onMessage(m.sender.nick_name,m.content);
-		} else if( m.chat_type==1 && m.msg && m.nick_name ){
+		} /*
+		else if( m.chat_type==1 && m.msg && m.nick_name ){
 			utils.onMessage(m.nick_name,m.msg);
-		}
+		} */
 }
 function onWebSocketBinMessage(id,a){
 	//var dec = new TextDecoder("utf-8");  //a [object ArrayBuffer]; true

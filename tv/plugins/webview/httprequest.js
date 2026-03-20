@@ -1,3 +1,6 @@
+/*
+http://router.lan/tv/plugins/webview/httprequest.js
+*/
 function httpGetAsString(url,headers, opts){
 	var conn =  new XMLHttpRequest();
 	if( headers ) for(var name in headers){

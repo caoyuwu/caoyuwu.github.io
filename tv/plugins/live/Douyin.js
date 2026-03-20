@@ -1,4 +1,5 @@
 /*
+  scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/live/Douyin.js router:/www/tv/plugins/live/
   https://live.douyin.com/208823316033    // CCTV-6
     => douyinlive://208823316033
     douyinlive:746495143885 // 嘉佳
@@ -130,16 +131,28 @@ function prepareVideoMediaSource(vid){
 /*
   douyinlive-list://3_10000_2_2707
   
-  https://live.douyin.com/webcast/web/partition/detail/room/?
-   aid=6383&app_name=douyin_web&live_id=1&device_platform=web
-   &language=zh&cookie_enabled=true&screen_width=1280&screen_height=800
-   &browser_language=zh&browser_platform=MacIntel&browser_name=Chrome
-   &browser_version=114.0.0.0&count=15&offset=15&partition=10000
-   &partition_type=3&req_from=2
-   &msToken=-5EUeZFmeM7D1lveXCmO7nYAAegea_gGo14g98jQOGffdCbDIaKjWH-gMpQlLs09sRLAkAfJNuwXHY6lIbdxxgXC7Z0UuFpbvQg1TP5SuTQckibqOxtJRgT2jpRg9z2oyjA=
-   &X-Bogus=DFSzsdVYAf2ANVaJtjUg9oA9e07X
-   &_signature=_02B4Z6wo000011xf4CgAAIDBtPexuRUnKdNcW-SAALOvnVxKEh7EQKH3hEKhdq-xZxKnPXW89cAqiOkaNRcEH9KLGuKIEqA5Qg67WkTy3edyXKhHFpdHCPVKg8ihWtbqUTVhH0zVotlqXLp2bf
+  https://live.douyin.com/webcast/web/partition/detail/room/v2/?
+   aid=6383
+   &app_name=douyin_web
+   &live_id=1
+   &device_platform=web
+   &language=zh
+   &cookie_enabled=true
+   &screen_width=1440
+   &screen_height=900
+   &browser_language=zh
+   &browser_platform=MacIntel
+   &browser_name=Chrome
+   &browser_version=145.0.0.0
+   &count=15&offset=15
+   &partition=102
+   &partition_type=4
+   &req_from=2
+   &msToken=-czmNJSFxtPJijmw2AWpMfFkr8d8053ZCgRWaKcnwlGYg5TC84druHA7kpP5M34HAbOkAu8rwsUK-T8DvTXYOLjTacNNgckOr0YeZRMvthkU0oINEnbc3J7U9UJJ2udkLc1mGtc9NfH5wI4IMdJG5j15xx4Mai8SRE3xUt5_WIoiIxtnKttawQI%3D&a_bogus=E74jkF6EOxRbcdFbYKb595PU36xANsuyDNTQbJFueNKMPwFbpYPQTcCMGxqPQWLVNWBhkC17GnMlYExc8dXs11npFmpDSzU6wU5Vn8sL%2FqwVaz4mDNf8CgDFKwsGl5vwa%2F9VEADRAsB76xVAIq5OlQBG95To-mmpWHZWdZz9eEWhfA8kio3hOChkELrr0b97
+   msToken:
+   https://blog.csdn.net/weixin_29323049/article/details/158596025
   
+  items:"@douyinlive-list:3_10000"  // partition_type_partition
   
 */
 function loadMenus(url,params){
@@ -156,7 +169,7 @@ function loadMenus(url,params){
 	var partition_type = pathA[pathA.length-2];
 	var headers = {
 		"Accept": "lication/json, text/plain, */*",
-		"Referer": "https://live.douyin.com/category/"+path
+		"Referer": "https://live.douyin.com/categorynew/"+path
 	};
 	var PageCount = 50;
 	var queryParams = {
@@ -179,9 +192,9 @@ function loadMenus(url,params){
 		"partition_type":partition_type,
 		"req_from":2
 	};
-	var url = utils.appendUrlParameters("https://live.douyin.com/webcast/web/partition/detail/room", queryParams);
+	var url = utils.appendUrlParameters("https://live.douyin.com/webcast/web/partition/detail/room/v2", queryParams);
 	var text =  utils.httpGetAsString(url,headers,0x400);
-//print(text);
+print("text="+text);
 	var retVal = JSON.parse(text);
 	var vCh = [];
 	if( (data=retVal.data) && (data=data.data)) {
