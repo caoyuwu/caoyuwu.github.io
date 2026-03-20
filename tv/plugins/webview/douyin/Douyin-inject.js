@@ -11,11 +11,11 @@
        head.appendChild(s);
    
 */
-const PageCount = 15;
+//const PageCount = 15;
 /*
 getLiveRoomDetail("4_101",0)
 */
-function getLiveRoomDetail(path,page){
+function getLiveRoomDetail(path,offset,count){
 	var p = path.indexOf("/");
 		if( p>0 ){
 			page = parseInt(path.substring(p+1));
@@ -38,8 +38,8 @@ function getLiveRoomDetail(path,page){
 			"browser_platform":"Win32",//navigator.platform,// "Win32",
 			"browser_name":"Chrome",//navigator.appCodeName,//"Chrome",
 			"browser_version":"120.0.0.0",// navigator.appVersion,//"114.0.0.0",
-			"count":PageCount,
-			"offset":(page||0)*PageCount,
+			"count":count||15,//PageCount,
+			"offset": offset||0,//(page||0)*PageCount,
 			// partition=2707&partition_type=2&
 			"partition":partition,
 			"partition_type":partition_type,

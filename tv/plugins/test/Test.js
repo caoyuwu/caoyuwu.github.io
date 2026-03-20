@@ -64,7 +64,8 @@ function loadMenus(url,params){
     var s = webview.evalOnPageFinished("typeof(window.httpGetAsString)=='function'",
     	//"httpGetAsString('/index.html',null,0)",
     	"httpGetAsString('http://192.168.1.21/demo-web/test/adr/TestAdrMenu1.json',null,0)",
-    	5,1);
+    	10,
+		1);
     print("webview 返回="+s);
     return JSON.parse(s);
     /*

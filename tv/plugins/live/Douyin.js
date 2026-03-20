@@ -155,7 +155,26 @@ function prepareVideoMediaSource(vid){
   items:"@douyinlive-list:3_10000"  // partition_type_partition
   
 */
+var webview;
 function loadMenus(url,params){
+	var path = utils.getUrlHostAndPath(url);
+	var page = params ? params._pgIdx || 0 : 0;
+	  if( !webview ) webview = utils.getWebView();
+	   print("webview = "+webview);
+	   //webview.setUserAgent("win");
+	   webview.loadUrl("https://live.douyin.com/categorynew/",
+		    ["https://caoyuwu.eu.org/tv/plugins/webview/httprequest.js",
+			  "https://caoyuwu.eu.org/tv/plugins/webview/douyin/Douyin-inject.js"],
+			"win",1);
+			var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getLiveRoomDetail",
+			    	//"httpGetAsString('/index.html',null,0)",
+			    	"getLiveRoomDetail('"+path+"',"+page+")",
+			    	10,
+					1);		
+		print("text="+text);
+		    return parseMenus(text); 	
+}
+function loadMenus_v1(url,params){
 	initCookies();
 	var path = utils.getUrlHostAndPath(url);
 	var page = params ? params._pgIdx || 0 : 0;
@@ -195,6 +214,10 @@ function loadMenus(url,params){
 	var url = utils.appendUrlParameters("https://live.douyin.com/webcast/web/partition/detail/room/v2", queryParams);
 	var text =  utils.httpGetAsString(url,headers,0x400);
 print("text="+text);
+    return parseMenus(text);
+}
+
+function parseMenus(text,page){
 	var retVal = JSON.parse(text);
 	var vCh = [];
 	if( (data=retVal.data) && (data=data.data)) {

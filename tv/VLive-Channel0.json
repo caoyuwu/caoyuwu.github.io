@@ -1516,7 +1516,7 @@
 				   {label:"白雪日常生活",url:"douyinlive:479300110901",tag:"抖音直播收藏"},
 				   {label:"小芳中国象棋",url:"douyinlive:4856303938",tag:"抖音直播收藏"}
 				   ]},   
-				   {label:"聊天",items:"@douyinlive-list:4_101",countSubMenuPages:5},
+		    {label:"聊天",items:"@douyinlive-list:4_101",countSubMenuPages:5},
    		    {label:"音乐",items:"@douyinlive-list:4_102",countSubMenuPages:5},
 			{label:"游戏",items:"@douyinlive-list:4_103",countSubMenuPages:5},
 			{label:"二次元",items:"@douyinlive-list:4_104",countSubMenuPages:5},
