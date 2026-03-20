@@ -35,9 +35,9 @@ function getLiveRoomDetail(path,page){
 			"screen_width": window.screen && window.screen.width,
 	        "screen_height": window.screen && window.screen.height,
 			"browser_language":navigator.language,//"zh",
-			"browser_platform":navigator.platform,// "Win32",
-			"browser_name":navigator.appCodeName,//"Chrome",
-			"browser_version":navigator.appVersion,//"114.0.0.0",
+			"browser_platform":"Win32",//navigator.platform,// "Win32",
+			"browser_name":"Chrome",//navigator.appCodeName,//"Chrome",
+			"browser_version":"120.0.0.0",// navigator.appVersion,//"114.0.0.0",
 			"count":PageCount,
 			"offset":(page||0)*PageCount,
 			// partition=2707&partition_type=2&
@@ -52,7 +52,8 @@ function getLiveRoomDetail(path,page){
 		join = "&";
 	}	
 	console.log("url=%s",url);
-	window.url = url;
+	return httpGetAsString(url);
+	//window.url = url;
 	
 	
 }
