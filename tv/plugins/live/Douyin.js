@@ -40,12 +40,12 @@ function prepareMediaSource(url,params){
 	var p = url.indexOf(":");
 	var mid = utils.getUrlHostAndPath(url);
 	switch( url.substring(0,p) ){
-		case "douyinlive": return prepareLiveMediaSource(mid);
+		case "douyinlive": return prepareLiveMediaSource(mid,false);
 		case "douyinvideo":  return prepareVideoMediaSource(mid);
 	}
 }
 	
-function prepareLiveMediaSource(rid){	
+function prepareLiveMediaSource(rid,forUrls){	
 	initCookies();
 	//var rid = utils.getUrlHostAndPath(url);
 	var headers = {
@@ -72,8 +72,11 @@ function prepareLiveMediaSource(rid){
 	{
 		text = utils.stringReplaceAll(text,'\\"','"');
 	}
-	var urls = JSON.parse(text);
-	return  urls.FULL_HD1 || urls.HD1 || urls.SD1 || urls.SD2 ;
+	var urlsm = JSON.parse(text);
+	if( forUrls ){
+		return toUrls(rid,urlsm,0);
+	}
+	return  urlsm.FULL_HD1 || urlsm.HD1 || urlsm.SD1 || urlsm.SD2 ;
 	//print(text);
     /*
 	var jsPrefix = '<script id="RENDER_DATA" type="application/json">';
@@ -127,6 +130,10 @@ function prepareVideoMediaSource(vid){
 	//video.playAddr[0].srcl
 }
 
+function loadUrls(url,params){
+	var mid = utils.getUrlHostAndPath(url);
+	return prepareLiveMediaSource(mid,true);
+}
 
 /*
   douyinlive-list://3_10000_2_2707
@@ -155,6 +162,7 @@ function prepareVideoMediaSource(vid){
   items:"@douyinlive-list:3_10000"  // partition_type_partition
   
 */
+const PageCount = 20;
 var webview;
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
@@ -163,16 +171,17 @@ function loadMenus(url,params){
 	   print("webview = "+webview);
 	   //webview.setUserAgent("win");
 	   webview.loadUrl("https://live.douyin.com/categorynew/",
+		  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
 		    ["https://caoyuwu.eu.org/tv/plugins/webview/httprequest.js",
 			  "https://caoyuwu.eu.org/tv/plugins/webview/douyin/Douyin-inject.js"],
 			"win",1);
 			var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getLiveRoomDetail",
 			    	//"httpGetAsString('/index.html',null,0)",
-			    	"getLiveRoomDetail('"+path+"',"+page+")",
+			    	"getLiveRoomDetail('"+path+"',"+(page*PageCount)+","+PageCount+")",
 			    	10,
 					1);		
 		print("text="+text);
-		    return parseMenus(text); 	
+		    return parseMenus(text,page); 	
 }
 function loadMenus_v1(url,params){
 	initCookies();
@@ -190,7 +199,6 @@ function loadMenus_v1(url,params){
 		"Accept": "lication/json, text/plain, */*",
 		"Referer": "https://live.douyin.com/categorynew/"+path
 	};
-	var PageCount = 50;
 	var queryParams = {
 		"aid":6383,
 		"app_name":"douyin_web",
@@ -213,7 +221,7 @@ function loadMenus_v1(url,params){
 	};
 	var url = utils.appendUrlParameters("https://live.douyin.com/webcast/web/partition/detail/room/v2", queryParams);
 	var text =  utils.httpGetAsString(url,headers,0x400);
-print("text="+text);
+//print("text="+text);
     return parseMenus(text);
 }
 
@@ -226,8 +234,11 @@ function parseMenus(text,page){
 		           continue;
 		        var rid = data[j].web_rid;
 		        var roomId = room.id_str;
+				var urlsm = room.stream_url ? room.stream_url.flv_pull_url : null;
+				//var urls = toUrls(rid,urlsm,1);
 		        vCh.push({title:toStr3(page*PageCount+j+1)+":"+room.title+"/"+room.owner.nickname+"/"+room.room_view_stats.display_short_anchor,
-		        	url:"douyinlive://"+rid,
+		        	urls: toUrls(rid,urlsm,1),
+					//url:"douyinlive://"+rid,
 		        	//url:data[j].streamSrc,
 		        	msgSocketArgs:[rid,roomId]});
 		        // streamSrc
@@ -235,6 +246,26 @@ function parseMenus(text,page){
 		    }
 	}
 	return vCh;
+}
+
+/*
+opts#1 : douyinlive:xxxx 优先于网页
+*/
+function toUrls(rid,urlsm,opts){
+	//if( urlsm.FULL_HD1 ) urls.push("FULL_HD1|"+urlsm.FULL_HD1);
+	var urls = [];
+	if(urls) for(var name in urlsm) {
+		//{urls.push(name+"|"+urlsm[name])};
+		urls.push({title:name,url:urlsm[name]});
+	}
+	if( urls.length==0 && (opts&1) ){
+		urls.push("douyinlive://"+rid);
+	}
+	urls.push({title:"网页-",url:"win-browser-https://live.douyin.com/"+rid});	
+	if( urls.length==0 && !(opts&1) ){
+			urls.push("douyinlive://"+rid);
+	}
+	return urls;
 }
 
 function toStr3(x){

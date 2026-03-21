@@ -54,6 +54,45 @@ function getLiveRoomDetail(path,offset,count){
 	console.log("url=%s",url);
 	return httpGetAsString(url);
 	//window.url = url;
-	
-	
 }
+
+function getLiveRoomFeed(){
+	var url = "https://live.douyin.com/webcast/feed/";
+	var queryParams = {
+		aid : 6383 ,
+		app_name : "douyin_web" ,
+		live_id : 1 ,
+		device_platform : "web" ,
+		language : navigator.language,//"zh" ,
+		enter_from : "page_refresh" ,
+		cookie_enabled : navigator.cookieEnabled ,
+		screen_width : window.screen && window.screen.width ,
+		screen_height : window.screen && window.screen.height ,
+		browser_language : navigator.language ,
+		browser_platform : "Win32",//MacIntel" ,
+		browser_name : "Chrome" ,
+		browser_version : "120.0.0.0",// navigator.appVersion,"146.0.0.0" ,
+		channel : "channel_pc_web" ,
+		request_tag_from : "web" ,
+		need_map : 1 ,
+		liveid : 1 ,
+		is_draw : 1 ,
+		inner_from_drawer : 0 ,
+		custom_count : 50 ,
+		action : "load_more" ,
+		action_type : "loadmore" ,
+		enter_source : "web_homepage_hot_web_live_card" ,
+		source_key : "web_homepage_hot_web_live_card" ,
+		is_ssr : true ,
+	};
+	var join = "?";
+		for(var name in queryParams){
+			url += join+name+"="+window.encodeURIComponent(queryParams[name]);
+			join = "&";
+		}	
+		console.log("url=%s",url);
+	return httpGetAsString(url);
+}
+
+
+
