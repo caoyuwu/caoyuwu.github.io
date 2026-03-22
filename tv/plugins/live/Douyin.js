@@ -96,6 +96,9 @@ function prepareLiveMediaSource(rid,forUrls){
 	*/
 }
 
+/*
+ 
+*/
 function prepareVideoMediaSource(vid){	
 	var headers = {
 		"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
@@ -105,16 +108,16 @@ function prepareVideoMediaSource(vid){
 		
 	};
 	var html = utils.httpGetAsString("https://www.douyin.com/video/"+vid,headers);
-//print(html);
+print(html);
 	var jsPrefix = '<script id="RENDER_DATA" type="application/json">';
 	var p1 = html.indexOf(jsPrefix);
 	var p2 = p1<0 ? -1 : html.indexOf("</script>",p1+jsPrefix.length);
+	print("p1="+p1+",p2="+p2);
 	if( p2<0 ){
 		return null;
 	}
-//	print("p1="+p1+",p2="+p2);
 	var text = decodeURIComponent(html.substring(p1+jsPrefix.length,p2));
-//print(text);
+print(text);
 	var retVal = JSON.parse(text);
 	//v["74931a6b75e09238f154ab1577c994c9"].aweme.detail.video.playAddr[0].src
 	for( k in retVal){
@@ -167,7 +170,8 @@ var webview;
 function loadMenus(url,params){
 	if( !webview ) webview = utils.getWebView();
 	var path = utils.getUrlHostAndPath(url);
-	if( path=="*" ){
+	if( path=="*" || path=="follow" ){
+		var forFollow = path=="follow";
 		webview.loadUrl("https://live.douyin.com/categorynew/",
 				  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
 				    ["https://caoyuwu.eu.org/tv/plugins/webview/httprequest.js",
@@ -175,11 +179,11 @@ function loadMenus(url,params){
 					"win",1);
 		var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getLiveRoomFeed",
 						    	//"httpGetAsString('/index.html',null,0)",
-						    	"getLiveRoomFeed()",
+						    	"getLiveRoomFeed("+forFollow+")",
 						    	10,
 								1);		
-		//print("text="+text);		
-		return parseMenus4Feed(text);	
+	//print("text="+text);		
+		return forFollow ? parseMenus(text,-1)  : parseMenus4Feed(text);	
 	}
 	var page = params ? params._pgIdx || 0 : 0;
 //	   print("webview = "+webview);
@@ -197,47 +201,8 @@ function loadMenus(url,params){
 		//print("text="+text);
 		    return parseMenus(text,page); 	
 }
-function loadMenus_v1(url,params){
-	initCookies();
-	var path = utils.getUrlHostAndPath(url);
-	var page = params ? params._pgIdx || 0 : 0;
-	var p = path.indexOf("/");
-	if( p>0 ){
-		page = parseInt(path.substring(p+1));
-		path =  path.substring(0,p);
-	}
-	var pathA = path.split("_");
-	var partition = pathA[pathA.length-1];
-	var partition_type = pathA[pathA.length-2];
-	var headers = {
-		"Accept": "lication/json, text/plain, */*",
-		"Referer": "https://live.douyin.com/categorynew/"+path
-	};
-	var queryParams = {
-		"aid":6383,
-		"app_name":"douyin_web",
-		"live_id":1,
-		"device_platform":"web",
-		"language":"zh",
-		"cookie_enabled":"true",
-		"screen_width":"1536",
-		"screen_height":"864",
-		"browser_language":"zh",
-		"browser_platform":"Win32",
-		"browser_name":"Chrome",
-		"browser_version":"114.0.0.0",
-		"count":PageCount,
-		"offset":page*PageCount,
-		// partition=2707&partition_type=2&
-		"partition":partition,
-		"partition_type":partition_type,
-		"req_from":2
-	};
-	var url = utils.appendUrlParameters("https://live.douyin.com/webcast/web/partition/detail/room/v2", queryParams);
-	var text =  utils.httpGetAsString(url,headers,0x400);
-//print("text="+text);
-    return parseMenus(text);
-}
+
+
 
 function parseMenus(text,page){
 	var retVal = JSON.parse(text);
@@ -250,7 +215,8 @@ function parseMenus(text,page){
 		        var roomId = room.id_str;
 				var urlsm = room.stream_url ? room.stream_url.hls_pull_url_map || room.stream_url.flv_pull_url : null;
 				//var urls = toUrls(rid,urlsm,1);
-		        vCh.push({title:toStr3(page*PageCount+j+1)+":"+room.title+"/"+room.owner.nickname+"/"+room.room_view_stats.display_short_anchor,
+		        vCh.push({title : (page>=0 ? toStr3(page*PageCount+j+1)+":" : "")
+					       +room.title+"/"+room.owner.nickname+"/"+room.room_view_stats.display_short_anchor,
 		        	urls: toUrls(rid,urlsm,1),
 					//url:"douyinlive://"+rid,
 		        	//url:data[j].streamSrc,

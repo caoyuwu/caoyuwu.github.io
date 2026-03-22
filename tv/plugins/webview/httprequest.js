@@ -1,6 +1,6 @@
 /*
 http://router.lan/tv/plugins/webview/httprequest.js
-
+scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/webview/httprequest.js router:/www/tv/plugins/webview/
 var head = document.getElementsByTagName("head")[0];
       var s = document.createElement("script");s.type = "text/javascript";
       s.async = false;
@@ -10,13 +10,17 @@ var head = document.getElementsByTagName("head")[0];
 */
 function httpGetAsString(url,headers, opts){
 	var conn =  new XMLHttpRequest();
+	conn.open("GET", url, false);
 	if( headers ) for(var name in headers){
 		conn.setRequestHeader(name, headers[name]);
 	}
 	//this.conn.setRequestHeader("Content-Type", this.contentType);
-	conn.open("GET", url, false);
 	conn.send();
-	var s = conn.response;
+	_checkHttpResponse(conn);
+	return conn.response;
+}
+
+function _checkHttpResponse(conn){
 	if (conn.status>=300 || conn<200) {
 		if( conn.status==0 ) {
 							// 2021-01-10 : 跨域请求 返回 0
@@ -38,7 +42,23 @@ function httpGetAsString(url,headers, opts){
 		if( ex==null ) ex = new Error("调用失败Status="+conn.status+" : " + s);
 		throw ex;
 	}
-	return s;
+}
+
+function httpPostFormAsString(url,headers, formParams, opts){
+	var conn =  new XMLHttpRequest();
+	conn.open("POST", url, false);
+	conn.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=utf-8');
+	if( headers ) for(var name in headers){
+		conn.setRequestHeader(name, headers[name]);
+	}
+	//this.conn.setRequestHeader("Content-Type", this.contentType);
+	var formData = new URLSearchParams();
+	if( formParams ) for(var name in formParams){
+		formData.append(name,formParams[name]);
+	}
+	conn.send(formData);
+	_checkHttpResponse(conn);
+	return conn.response;
 }
 
 function appendUrlParams(url,queryParams){
