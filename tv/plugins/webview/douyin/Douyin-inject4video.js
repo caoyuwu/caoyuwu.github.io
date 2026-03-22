@@ -1,5 +1,5 @@
 /*
-
+scp -O  /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/webview/douyin/Douyin-inject4video.js router:/www/tv/plugins/webview/douyin/
 var head = document.getElementsByTagName("head")[0];
       var s = document.createElement("script");s.type = "text/javascript";
       s.async = false;
