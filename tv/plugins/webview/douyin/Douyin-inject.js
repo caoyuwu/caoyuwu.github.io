@@ -81,7 +81,7 @@ function getLiveRoomFeed(follow){
 		source_key : "web_homepage_hot_web_live_card" ,
 		is_ssr : true ,
 	};
-	var url = appendUrlParams("https://live.douyin.com/webcast/feed/"+(follow?"follow/":""),queryParams);
+	var url = appendUrlParams(follow?"https://live.douyin.com/webcast/web/feed/follow/":"https://live.douyin.com/webcast/feed/",queryParams);
 	console.log("url=%s",url);
 	return httpGetAsString(url);
 }
