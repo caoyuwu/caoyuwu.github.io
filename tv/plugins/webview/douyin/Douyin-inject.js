@@ -51,7 +51,12 @@ function getLiveRoomDetail(path,offset,count){
 	return httpGetAsString(url);
 	//window.url = url;
 }
-
+/*
+follow==true: 关注的直播
+   https://www.douyin.com/webcast/web/feed/follow/
+否则： 
+  https://live.douyin.com/webcast/feed/  
+*/
 function getLiveRoomFeed(follow){
 	//var url = ;
 	var queryParams = {
@@ -84,18 +89,6 @@ function getLiveRoomFeed(follow){
 	var url = appendUrlParams(follow?"https://live.douyin.com/webcast/web/feed/follow/":"https://live.douyin.com/webcast/feed/",queryParams);
 	console.log("url=%s",url);
 	return httpGetAsString(url);
-}
-
-/*
-关注的直播
-  https://www.douyin.com/webcast/web/feed/follow/
-*/
-
-function getFollowLiveRoomFeed(){
-	var url = "https://live.douyin.com/webcast/web/feed/follow/";
-	var queryParams = {
-		
-	};
 }
 
 
