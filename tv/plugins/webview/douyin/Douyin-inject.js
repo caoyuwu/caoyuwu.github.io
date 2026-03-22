@@ -1,6 +1,7 @@
 /*
   scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/webview/douyin/Douyin-inject.js router:/www/tv/plugins/webview/douyin/
   
+  https://live.douyin.com/categorynew/
   http://router.lan/tv/plugins/webview/douyin/Douyin-inject.js
   
   var head = document.getElementsByTagName("head")[0];
@@ -45,19 +46,14 @@ function getLiveRoomDetail(path,offset,count){
 			"partition_type":partition_type,
 			"req_from":2
 		};
-	var url = "https://live.douyin.com/webcast/web/partition/detail/room/v2";
-	var join = "?";
-	for(var name in queryParams){
-		url += join+name+"="+window.encodeURIComponent(queryParams[name]);
-		join = "&";
-	}	
+	var url = appendUrlParams("https://live.douyin.com/webcast/web/partition/detail/room/v2",queryParams);
 	console.log("url=%s",url);
 	return httpGetAsString(url);
 	//window.url = url;
 }
 
-function getLiveRoomFeed(){
-	var url = "https://live.douyin.com/webcast/feed/";
+function getLiveRoomFeed(follow){
+	//var url = ;
 	var queryParams = {
 		aid : 6383 ,
 		app_name : "douyin_web" ,
@@ -85,14 +81,21 @@ function getLiveRoomFeed(){
 		source_key : "web_homepage_hot_web_live_card" ,
 		is_ssr : true ,
 	};
-	var join = "?";
-		for(var name in queryParams){
-			url += join+name+"="+window.encodeURIComponent(queryParams[name]);
-			join = "&";
-		}	
-		console.log("url=%s",url);
+	var url = appendUrlParams("https://live.douyin.com/webcast/feed/"+(follow?"follow/":""),queryParams);
+	console.log("url=%s",url);
 	return httpGetAsString(url);
 }
 
+/*
+关注的直播
+  https://www.douyin.com/webcast/web/feed/follow/
+*/
+
+function getFollowLiveRoomFeed(){
+	var url = "https://live.douyin.com/webcast/web/feed/follow/";
+	var queryParams = {
+		
+	};
+}
 
 

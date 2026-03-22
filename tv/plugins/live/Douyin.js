@@ -165,10 +165,24 @@ function loadUrls(url,params){
 const PageCount = 20;
 var webview;
 function loadMenus(url,params){
+	if( !webview ) webview = utils.getWebView();
 	var path = utils.getUrlHostAndPath(url);
+	if( path=="*" ){
+		webview.loadUrl("https://live.douyin.com/categorynew/",
+				  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
+				    ["https://caoyuwu.eu.org/tv/plugins/webview/httprequest.js",
+					  "https://caoyuwu.eu.org/tv/plugins/webview/douyin/Douyin-inject.js"],
+					"win",1);
+		var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getLiveRoomFeed",
+						    	//"httpGetAsString('/index.html',null,0)",
+						    	"getLiveRoomFeed()",
+						    	10,
+								1);		
+		//print("text="+text);		
+		return parseMenus4Feed(text);	
+	}
 	var page = params ? params._pgIdx || 0 : 0;
-	  if( !webview ) webview = utils.getWebView();
-	   print("webview = "+webview);
+//	   print("webview = "+webview);
 	   //webview.setUserAgent("win");
 	   webview.loadUrl("https://live.douyin.com/categorynew/",
 		  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
@@ -180,7 +194,7 @@ function loadMenus(url,params){
 			    	"getLiveRoomDetail('"+path+"',"+(page*PageCount)+","+PageCount+")",
 			    	10,
 					1);		
-		print("text="+text);
+		//print("text="+text);
 		    return parseMenus(text,page); 	
 }
 function loadMenus_v1(url,params){
@@ -234,7 +248,7 @@ function parseMenus(text,page){
 		           continue;
 		        var rid = data[j].web_rid;
 		        var roomId = room.id_str;
-				var urlsm = room.stream_url ? room.stream_url.flv_pull_url : null;
+				var urlsm = room.stream_url ? room.stream_url.hls_pull_url_map || room.stream_url.flv_pull_url : null;
 				//var urls = toUrls(rid,urlsm,1);
 		        vCh.push({title:toStr3(page*PageCount+j+1)+":"+room.title+"/"+room.owner.nickname+"/"+room.room_view_stats.display_short_anchor,
 		        	urls: toUrls(rid,urlsm,1),
@@ -246,6 +260,23 @@ function parseMenus(text,page){
 		    }
 	}
 	return vCh;
+}
+
+function parseMenus4Feed(text) {
+	var retVal = JSON.parse(text);
+		var vCh = [];
+	if( retVal.data) for(var data1 of  retVal.data){
+		var room = data1.data;
+		var roomId = room.id_str;
+	//	var owner = room.owner;
+		var rid = data1.web_rid;  // room.owner.web_rid
+		var title = room.title+"/"+room.owner.nickname+"/"+room.room_view_stats.display_short_anchor;
+		var urlsm = room.stream_url ? room.stream_url.hls_pull_url_map || room.stream_url.flv_pull_url : null;
+		vCh.push({title:title,urls:toUrls(rid,urlsm,1),msgSocketArgs:[rid,roomId]});
+		// data[?] -> data -> room_view_stats -> display_short_anchor  
+		// data[19] -> data -> stream_url -> hls_pull_url_map  =
+	}	
+	return vCh;	
 }
 
 /*

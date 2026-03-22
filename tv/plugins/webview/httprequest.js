@@ -41,4 +41,15 @@ function httpGetAsString(url,headers, opts){
 	return s;
 }
 
+function appendUrlParams(url,queryParams){
+	if( queryParams ) {
+		var join = url.indexOf("?")>=0 ? "&" : "?";
+		for(var name in queryParams){
+			url += join+name+"="+window.encodeURIComponent(queryParams[name]);
+			join = "&";
+		}	
+	}	
+	return url;	
+}
+
 //console.log("httpGetAsString=%s",httpGetAsString);
