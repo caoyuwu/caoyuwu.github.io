@@ -185,7 +185,7 @@ function onWebSocketEvent(id,type,msg,code){
 			onWebSocketOpen(id);
 			break;
 		case "onclose":
-			utils.onMessage(null,id+"-消息关闭");
+			utils.onMessage(null,id+"-弹幕关闭");
 			if( _msgWebSocket && _msgWebSocket.getId()==id ){
 				_msgWebSocket = null;
 			}

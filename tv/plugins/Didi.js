@@ -1,5 +1,6 @@
 /*
   https://caoyuwu.eu.org/tv/plugins/Didi.js
+  scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/Didi.js router:/www/tv/plugins/
   参考：
    DidiLiveService
   app下载:
@@ -190,7 +191,7 @@ function onWebSocketEvent(id,type,msg,code){
 			onWebSocketOpen(id);
 			break;
 		case "onclose":
-			utils.onMessage(null,id+"-消息关闭");
+			utils.onMessage(null,id+"-弹幕关闭");
 			if( _msgWebSocket && _msgWebSocket.getId()==id ){
 				_msgWebSocket = null;
 			}
@@ -210,7 +211,7 @@ function onWebSocketEvent(id,type,msg,code){
   WsLoginServerRequest
 */
 function onWebSocketOpen(id){
-	utils.onMessage(null,id+"-消息打开");
+	utils.onMessage(null,id+"-弹幕打开");
 	var p = id.indexOf("/");
 	if( p<=0 )
 		return;
@@ -329,7 +330,7 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
 		_msgWebSocket = null;
 		//clearInterval(_msgSocketInv);
 		//_msgSocketInv = 0;
-		//utils.onMessage(null,userId+"-消息关闭");
+		//utils.onMessage(null,userId+"-弹幕关闭");
 		//utils.onMessage("_cmd","closed");
 		//utils.onMessage("_cmd","clear");
 	}
