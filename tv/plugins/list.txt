@@ -34,7 +34,7 @@ iqiyi,IQiyi.js
 
 douyulive|douyulive-list,live/Douyu.js
 
-douyinlive|douyinvideo|douyinlive-list|douyinlive-urls,live/Douyin.js
+douyinlive|douyinvideo|douyinlive-list|douyinlive-urls|douyinvideo-list|douyinvideo-urls,live/Douyin.js
 
 didilive|didilive-list,Didi.js
 

@@ -165,13 +165,30 @@ function loadUrls(url,params){
   items:"@douyinlive-list:3_10000"  // partition_type_partition
   
 */
-//const PluginHost = "caoyuwu.eu.org";
-const PluginHost = "router.lan";
+const PluginHost = "caoyuwu.eu.org";
+//const PluginHost = "router.lan";
 const PageCount = 20;
+const VideoPageCount = 20;
 var webview;
 function loadMenus(url,params){
 	if( !webview ) webview = utils.getWebView();
 	var path = utils.getUrlHostAndPath(url);
+//print("[loadMenus] url="+url+",");
+	var p = url.indexOf(":");
+	if( url.substring(0,p)=="douyinvideo-list" ){
+		   webview.loadUrl("https://www.douyin.com/aisearch",
+						  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
+						    ["https:///"+PluginHost+"/tv/plugins/webview/httprequest.js",
+							  "https:///"+PluginHost+"/tv/plugins/webview/douyin/Douyin-inject4video.js"],
+							"win",1);
+			var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getVideoFeed",
+								    	//"httpGetAsString('/index.html',null,0)",
+								    	"getVideoFeed("+VideoPageCount+")",
+								    	10,
+										1);	
+		 //  print("text="+text);								
+			return parseVideoMenus4Feed(text);							
+	 }
 	if( path=="*" || path=="follow" ){
 		var forFollow = path=="follow";
 		webview.loadUrl("https://live.douyin.com/categorynew/",
@@ -245,6 +262,38 @@ function parseMenus4Feed(text) {
 		// data[19] -> data -> stream_url -> hls_pull_url_map  =
 	}	
 	return vCh;	
+}
+
+function parseVideoMenus4Feed(text) {
+	var retVal = JSON.parse(text);
+	var vCh = [];
+	/*
+	aweme_list[5] -> author -> nickname  = "知危"
+	*/
+	if( retVal.aweme_list )  for(var item of retVal.aweme_list ){
+		var video;
+		if( !(video=item.video) ) conntiue;
+		var nickname = item.author ? item.author.nickname : null;
+		var title = item.preview_title;
+		/*
+		aweme_list[7] -> video -> play_addr_265 -> url_list 
+		video -> play_addr_h264
+		*/
+		var play_addr = video.play_addr_265 
+					  || video.play_addr_h264 ;
+		if( !play_addr && video.bit_rate ) for( var bitr of video.bit_rate ){
+			if( bitr.play_addr ) {
+				play_addr = bitr.play_addr; break;
+			}
+		}		
+		if( !play_addr || !play_addr.url_list ) return;
+		vCh.push({
+			urls : play_addr.url_list,
+			title : title+"/"+nickname,
+			header : { Referer: "https://www.douyin.com/jingxuan"}
+		});
+	}
+	return vCh;			
 }
 
 /*
