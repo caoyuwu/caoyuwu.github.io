@@ -50,30 +50,50 @@ function prepareMediaSource(url,params){
 */
 var webview;
 function loadMenus(url,params){
-	var path = utils.getUrlHostAndPath(url);
-  print("TestMenuList: url = "+url);
-  print("TestMenuList: params = "+params);//JSON.stringify(params));
-    
-    if( !webview ) webview = utils.getWebView();
-    print("webview = "+webview);
-    injectURL = utils.toAbsoluteURL(_scriptURL,"../webview/httprequest.js");
-    print("TestMenuList : injectURL="+injectURL);
-    webview.loadUrl("http://192.168.1.21/demo-web/test/adr/TestAdrWeb.html",[injectURL],1);
-    //webview.injectJavascritByURL("../webview/httprequest.js");
-    //evalOnPageFinished(String consJS,String js,int timeout,int opts){
-    var s = webview.evalOnPageFinished("typeof(window.httpGetAsString)=='function'",
-    	//"httpGetAsString('/index.html',null,0)",
-    	"httpGetAsString('http://192.168.1.21/demo-web/test/adr/TestAdrMenu1.json',null,0)",
-    	10,
-		1);
-    print("webview 返回="+s);
-    return JSON.parse(s);
+	return loadMenus1(url,params);
     /*
 	return [
 	  "CCTV-1,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8",
 	  {title:"CCTV-2",url:"http://cctvalih5ca.v.myalicdn.com/live/cctv2_2/index.m3u8"}
 	];
 	*/
+}
+
+function loadMenus1(url,params){
+	return 	[
+		  "Test-CCTV-1,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8",
+		  {"title":"Test-CCTV-2","url":"http://cctvalih5ca.v.myalicdn.com/live/cctv2_2/index.m3u8"},
+		  "Test-Urls,test-media-urls:cctv1"
+	];
+}
+function loadMenus2(url,params){
+	var path = utils.getUrlHostAndPath(url);
+	  print("TestMenuList: url = "+url);
+	  print("TestMenuList: params = "+params);//JSON.stringify(params));
+	    
+	  
+	    if( !webview ) webview = utils.getWebView();
+	    print("webview = "+webview);
+	    injectURL = utils.toAbsoluteURL(_scriptURL,"../webview/httprequest.js");
+	    print("TestMenuList : injectURL="+injectURL);
+	    webview.loadUrl("http://192.168.1.21/demo-web/test/adr/TestAdrWeb.html",[injectURL],1);
+	    //webview.injectJavascritByURL("../webview/httprequest.js");
+	    //evalOnPageFinished(String consJS,String js,int timeout,int opts){
+	    var s = webview.evalOnPageFinished("typeof(window.httpGetAsString)=='function'",
+	    	//"httpGetAsString('/index.html',null,0)",
+	    	"httpGetAsString('http://192.168.1.21/demo-web/test/adr/TestAdrMenu1.json',null,0)",
+	    	10,
+			1);
+	    print("webview 返回="+s);
+	    return JSON.parse(s);
+}
+
+function loadUrls(url,params){
+	var path = utils.getUrlHostAndPath(url);
+	return [
+		"地址1,http://localhost/"+path+"-1",
+		{title:"地址2",url:"http://localhost/"+path+"-2"}	
+	];
 }
 /*
 http://192.168.1.14:8803/test-httpservice/
