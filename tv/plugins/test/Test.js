@@ -17,12 +17,13 @@ test-menu-list://1
   
 */
 function prepareMediaSource(url,params){
-	print("prepareMediaSource : url="+url+"; params="+params);
 	var path = utils.getUrlHostAndPath(url);
+	print("Test.js : prepareMediaSource: url="+url+"; path="+path+" ;params="+params);
 	/*
 	  testvideo://http-caoyuwu.eu.org/video/oceans.mp4
 	  testvideo://http-172.20.0.20/media/oceans.mp4
 	  testvideo://http-192.168.1.12/media/oceans.mp4
+	  jsurl:test/Test.js!http-router.lan/video/oceans.mp4
 	*/
 	if( path.startsWith("http-")){
 		return "http://"+path.substring(5);
@@ -47,6 +48,7 @@ function prepareMediaSource(url,params){
 	  {title, url}
   ]
   {label:"测试目录(Test.js)",items:"@test-menu-list:list/001/002"},
+  jsmenu:test/Test.js!
 */
 var webview;
 function loadMenus(url,params){
@@ -59,11 +61,17 @@ function loadMenus(url,params){
 	*/
 }
 
+/*
+  
+*/
 function loadMenus1(url,params){
+	var path = utils.getUrlHostAndPath(url);
+	print("Test.js : loadMenus1: url="+url+"; path="+path+" ;params="+params);
 	return 	[
 		  "Test-CCTV-1,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8",
 		  {"title":"Test-CCTV-2","url":"http://cctvalih5ca.v.myalicdn.com/live/cctv2_2/index.m3u8"},
-		  "Test-Urls,test-media-urls:cctv1"
+		  "Test-Urls,test-media-urls:cctv1",
+		  {"title":"JsUrls",urls:"jsurls:test/Test.js!jsurls"}
 	];
 }
 function loadMenus2(url,params){
@@ -90,6 +98,13 @@ function loadMenus2(url,params){
 
 function loadUrls(url,params){
 	var path = utils.getUrlHostAndPath(url);
+	print("Test.js : loadUrls: url="+url+"; path="+path+" ;params="+params);
+	if( path=="jsurls" ){
+		return [
+			{title:"JSURL获取地址",url:"jsurl:test/Test.js!http-router.lan/video/oceans.mp4"}	
+			,"地址1,http://localhost/"+path+"-1"
+			];
+	}
 	return [
 		"地址1,http://localhost/"+path+"-1",
 		{title:"地址2",url:"http://localhost/"+path+"-2"}	

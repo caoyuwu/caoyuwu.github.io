@@ -221,8 +221,9 @@ function loadMenus(url,params){
 		    return parseMenus(text,page); 	
 }
 
-
-
+/*
+  分类的直播
+*/
 function parseMenus(text,page){
 	var retVal = JSON.parse(text);
 	var vCh = [];
@@ -235,7 +236,7 @@ function parseMenus(text,page){
 				var urlsm = room.stream_url ? room.stream_url.hls_pull_url_map || room.stream_url.flv_pull_url : null;
 				//var urls = toUrls(rid,urlsm,1);
 		        vCh.push({title : (page>=0 ? toStr3(page*PageCount+j+1)+":" : "")
-					       +room.title+"/"+room.owner.nickname+"/"+room.room_view_stats.display_short_anchor,
+					       +room.owner.nickname+"/"+room.title+"("+room.room_view_stats.display_short_anchor+")",
 		        	urls: toUrls(rid,urlsm,1),
 					//url:"douyinlive://"+rid,
 		        	//url:data[j].streamSrc,
@@ -247,6 +248,9 @@ function parseMenus(text,page){
 	return vCh;
 }
 
+/*
+  未分类（全部—） 直播
+*/
 function parseMenus4Feed(text) {
 	var retVal = JSON.parse(text);
 		var vCh = [];
@@ -255,7 +259,7 @@ function parseMenus4Feed(text) {
 		var roomId = room.id_str;
 	//	var owner = room.owner;
 		var rid = data1.web_rid;  // room.owner.web_rid
-		var title = room.title+"/"+room.owner.nickname+"/"+room.room_view_stats.display_short_anchor;
+		var title = room.owner.nickname+"/"+room.title+"("+room.room_view_stats.display_short_anchor+")";
 		var urlsm = room.stream_url ? room.stream_url.hls_pull_url_map || room.stream_url.flv_pull_url : null;
 		vCh.push({title:title,urls:toUrls(rid,urlsm,1),msgSocketArgs:[rid,roomId]});
 		// data[?] -> data -> room_view_stats -> display_short_anchor  
@@ -264,6 +268,9 @@ function parseMenus4Feed(text) {
 	return vCh;	
 }
 
+/*
+  视频
+*/
 function parseVideoMenus4Feed(text) {
 	var retVal = JSON.parse(text);
 	var vCh = [];
