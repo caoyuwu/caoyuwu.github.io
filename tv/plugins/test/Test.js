@@ -26,7 +26,11 @@ function prepareMediaSource(url,params){
 	  jsurl:test/Test.js!http-router.lan/video/oceans.mp4
 	*/
 	if( path.startsWith("http-")){
-		return "http://"+path.substring(5);
+		return {
+			  url: "http://"+path.substring(5)
+			  ,headers :{Referer:"http:/router.lan"}
+			  ,"header.Referer2":"localhost"
+			}
 	}
 	if( path.startsWith("https-")){
 		return "http://"+path.substring(6);
