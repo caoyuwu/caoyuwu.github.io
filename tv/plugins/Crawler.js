@@ -1,9 +1,13 @@
 /*
  http://caoyuwu.eu.org/tv/plugins/Crawler.js
+ scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/Crawler.js  router:/www/tv/plugins/
  crawler-list://xvideo/jieav.json;https://www.jieav.com
  crawler-list://xvideo/jieav.json#List2;https://www.jieav.com/1/index.html
  
  crawler-list:tv/ainm.json;http://ainm.cc/c/m/
+ 
+ httpReqOpts : 0x488, this._parent.httpReqOpts
+ 
 */
 const cacheDefs = {};
 const RegMacroID = /\$\{(\w|\.|\-)+\}/g;
@@ -221,8 +225,10 @@ function loadContent(def,url,cache){
 	   return null;
 	 var v;  
 	 if( !(v=cache[url]) ){
+		//print("!!!def.httpReqOpts = "+def.httpReqOpts+" ; parennt"+(def._parent?def._parent.httpReqOpts));
+		var httpOpst = def.httpReqOpts || (def._parent?def._parent.httpReqOpts:0) || 0x408;
 		 cache[url] = v = def.loadUrlContent ? def.loadUrlContent(url) 
-		 				: utils.httpGetAsString(url,def.httpReqOpts||0x408);
+		 				: utils.httpGetAsString(url,httpOpst);
 		 //0x488 使用代理
 		 if( !v ) {
 		    throw "装载"+url+"内容失败";
@@ -500,7 +506,7 @@ if(_debug) {
 				continue;
 			}
 
-            var defTitle = def.title, defUrl = def.url, defItems = def.items;  
+            var defTitle = def.title, defUrl = def.url,defUrls = def.urls, defItems = def.items;  
 			//var params4Items = null;
 			if( def.getValue ){
 				var val = def.getValue(macro);// getMatchedCondVal(def.condVals,macros1,macros);
@@ -510,6 +516,8 @@ if(_debug) {
 				   	defTitle = val.title;
 				if( val.url!==undefined) 
 				   	defUrl = val.url;
+				if( val.urls!==undefined) 
+					defUrls = val.urls;
 				if( val.items!==undefined) 
 				   	defItems = val.items;
 			} else {
@@ -518,6 +526,11 @@ if(_debug) {
 				  if( val!==undefined) 
 				   	defUrl = val;
 				 }
+				 if( def.getUrls ){
+	 				  var val = def.getUrls(macro);
+	 				  if( val!==undefined) 
+	 				   	defUrls = val;
+				 } 
 				 if( def.getTitle ){
 					   var val = def.getTitle(macro);
 				       if( val!==undefined) 
@@ -536,6 +549,9 @@ if(_debug) {
 				url =  null;			   
 			} else if( defUrl  ){				  
 		   	   url = macro.replace(defUrl);//replace-Macro(defUrl,macros1,macros);
+			} else if( defUrls ){
+				urls = 	defUrls;
+				if( typeof(urls)=="string" ) urls = macro.replace(urls);
 		    } else if( !defItems ){
 			   url = urlE.getAttribute("href"); // href	   
 			} else {

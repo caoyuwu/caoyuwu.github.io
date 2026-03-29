@@ -1,5 +1,11 @@
+/*
+ scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/xvideo/pornhub.js router:/www/tv/plugins/xvideo/
+
+ */
 {
 	contentUrl : "https://cn.pornhub.com",
+	
+	httpReqOpts : 0x488,  // this._parent.httpReqOpts
 	
 	List:{
 		contentUrl : "~/categories",
@@ -51,10 +57,39 @@
 			if( href && tit ){
 				return {
 					title : tit,
-					url   : "crawler://xvideo/pornhub.js?[PATH="+href+"]"
+					//url   : "crawler://xvideo/pornhub.js?[PATH="+href+"]"
+					urls   : "crawler-urls://xvideo/pornhub.js?[PATH="+href+"]"
 				};
 			}
 		}
+	},
+	"Urls": {
+		// // https://cn.pornhub.com/view_video.php?viewkey=640d40f843334
+		contentUrl:"~${PATH}",
+		loadItems : function(items,contentUrl){
+		//	print("[pornhub:]loadUrls : contentUrl = "+contentUrl);	
+			var content = utils.httpGetAsString(contentUrl,this._parent.httpReqOpts);
+			var p1 = content.indexOf("var flashvars_");
+			 p1 = p1<0 ? p1 : content.indexOf("{",p1);
+			if( p1<0 ) return ;
+			var p2 = content.indexOf("};",p1);
+			 if( p2<0 ) return null;
+			// var json = content.substring(p1,p2+1);
+			 var data = JSON.parse(content.substring(p1,p2+1));
+			 var mediaDefinitions = data.mediaDefinitions;
+			 for(var s=0;s<2;s++){
+			      for(var i of mediaDefinitions ){
+				     if( (s==0) == i.defaultQuality ) {
+				         items.push({  title : i.format+"- "+i.quality,
+										url : i.videoUrl,
+										"header.Referer":"https://cn.pornhub.com/"
+									});
+						// print(i.format+":"+i.videoUrl);
+					 }
+			     } // for mediaDefinitions
+			 } // for s
+		} //loadItems
+		
 	},
 	 "MediaSource":{
 		 // https://cn.pornhub.com/view_video.php?viewkey=640d40f843334
@@ -71,7 +106,10 @@
 			 var mediaDefinitions = data.mediaDefinitions;
 			 for(var i of mediaDefinitions ){
 				 if( i.defaultQuality )
-				     return i.videoUrl;
+				     return {  title : i.format+"- "+i.quality,
+						       url : i.videoUrl,
+						       "header.Referer":"https://cn.pornhub.com/"
+							};
 			 }
 			 return mediaDefinitions[0].videoUrl;
 		 }
