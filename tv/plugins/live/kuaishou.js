@@ -1,3 +1,6 @@
+/*
+scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/live/kuaishou.js router:/www/tv/plugins/live/
+*/
 {
 	contentUrl : "https://live.kuaishou.com",
 	
@@ -20,26 +23,30 @@
 			    var html = utils.httpGetAsString(contentUrl,0x408);
 			    var json =  utils.extractJSCodeBodyByPrefixVar(html,"window.__INITIAL_STATE__");
 			    if( json==null ) return ;
-			    //print( json );
+			   print( json );
 			    // nonGameBoards.data.list.playUrls
 			    var m = JSON.parse(json);
 			    var list;
 			    if( !m.nonGameBoards || !m.nonGameBoards.data || !(list=m.nonGameBoards.data.list) )
 			    	return;
 			    for(var i of list){
-				    var url = null;
-				    if( i.playUrls && i.playUrls[0].adaptationSet && i.playUrls[0].adaptationSet.representation ){
-						url = i.playUrls[0].adaptationSet.representation[0].url;
-					}
+					if( !i.playUrls ) continue;
 					var id = i.author.id;
 					var urls = [];
-					if( url ) urls.push(url);
+					for(playUrl of i.playUrls){
+						if( !playUrl.adaptationSet ) continue;
+					    var url = null;
+					    for( representation of playUrl.adaptationSet.representation ){
+							urls.push( {title: representation.shortName,  url:representation.url} );
+						}
+				//		 urls.push(url);
+					}
 					urls.push("crawler://live/kuaishou.js?[ID="+id+"]");
 					items.push({
 						title: i.caption+"("+i.author.name+")",
 						urls : urls
 					})	
-				}
+				} // for list
 			    
 		}
 	},

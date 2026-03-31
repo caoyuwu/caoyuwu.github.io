@@ -8,7 +8,7 @@ youku,Youku.js
 
 youtube|youtube-list,Youtube.js
 
-blive|blive-list,live/Bilibili.js
+blive|blive-list|blive-urls,live/Bilibili.js
 
 huyalive|huyalive-list,live/Huya.js
 
