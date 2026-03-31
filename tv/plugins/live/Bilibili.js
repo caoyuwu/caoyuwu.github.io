@@ -120,6 +120,34 @@ function signQueryParamsStr(params,w_webid){
 }
 var webview;
 const PluginHost = "caoyuwu.eu.org";
+//"access_id":"
+function getAccessIdFromWebView(parent_area_id,area_id){
+	if( !webview ) webview = utils.getWebView();
+		//var w_webid = "";
+		
+		webview.loadUrl("https://live.bilibili.com/p/eden/area-tags?parentAreaId="+parent_area_id+"&areaId="+area_id,
+								  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
+								    [ //"https:///"+PluginHost+"/tv/plugins/webview/httprequest.js",
+									 // "https:///"+PluginHost+"/tv/plugins/webview/bilibili/Bilibil-inject.js"
+									  ]
+									  ,"win"  //userAgent
+									  ,1  // Visible
+									 );
+		return webview.evalOnPageFinished("!!window._render_data_",
+										    	//"httpGetAsString('/index.html',null,0)",
+										    	"_render_data_.access_id",
+										    	10,
+												1);	
+}
+function getAccessId(parent_area_id,area_id){
+	var url = "https://live.bilibili.com/p/eden/area-tags?parentAreaId="+parent_area_id+"&areaId="+area_id;
+	var html = utils.httpGetAsString(url,0x408);
+	var p1 = html.indexOf("\"access_id\":\"");
+	var p2 = p1<0 ? -1 : html.indexOf("\"",p1+13);
+	//print("getAccessId : p1="+p1+",p2="+p2);  // "access_id":"
+	return p2>0 ? html.substring(p1+13,p2) : "";
+}
+
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
 	  	var a = path.split("/");
@@ -127,22 +155,9 @@ function loadMenus(url,params){
 	  		throw "无效参数"+url;
 	    var parent_area_id = a[0], area_id = a[1];
 		
-	if( !webview ) webview = utils.getWebView();
-	//var w_webid = "";
+		//var w_webid = getAccessIdFromWebView(parent_area_id,area_id);
+		var w_webid = getAccessId(parent_area_id,area_id);
 	
-	webview.loadUrl("https://live.bilibili.com/p/eden/area-tags?parentAreaId="+parent_area_id+"&areaId="+area_id,
-							  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
-							    [ //"https:///"+PluginHost+"/tv/plugins/webview/httprequest.js",
-								 // "https:///"+PluginHost+"/tv/plugins/webview/bilibili/Bilibil-inject.js"
-								  ]
-								  ,"win"  //userAgent
-								  ,1  // Visible
-								 );
-	var w_webid = webview.evalOnPageFinished("!!window._render_data_",
-									    	//"httpGetAsString('/index.html',null,0)",
-									    	"_render_data_.access_id",
-									    	10,
-											1);	
 	print("w_webid="+w_webid);										
 	/*
 	if( _debug ){
