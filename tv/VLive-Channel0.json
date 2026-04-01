@@ -1541,7 +1541,8 @@
       		     {label:"娱乐-颜值",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/YL/1000006]"},
       		     {label:"娱乐-情感",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/YL/1000007]"}
       		   ]},
-      		 { label:"哔哩哔哩",items:[
+      		 { label:"哔哩哔哩",items :"@blive-list:*"
+			    /* items:[
 				 {label:"娱乐-脱口秀",items:"@blive-list:1/868/1-3"},
 	      		 {label:"B影音馆01",items:"@blive-list:10/33/1-3"},
 	      		 {label:"B影音馆04",items:"@blive-list:10/33/4-6"},
@@ -1553,7 +1554,8 @@
 	      		 {label:"B影音馆22",items:"@blive-list:10/33/22-24"},
 	      		 {label:"B视频聊天01",items:"@blive-list:1/145/1-3"},
 	      		 {label:"B视频聊天04",items:"@blive-list:1/145/4-6"}
-	      	   ]},
+	      	   ] */
+		       },
 	         { label:"YY直播",items:[
 	             {label:"手机直播",items:"@yylive-list:others/mobilelive"},
 	             {label:"热门",items:"@yylive-list:"},

@@ -150,6 +150,9 @@ function getAccessId(parent_area_id,area_id){
 
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
+	if( path=="" || path=="*" ){
+		return loadMenus1();
+	}
 	  	var a = path.split("/");
 	  	if( a.length!=3 )
 	  		throw "无效参数"+url;
@@ -227,4 +230,33 @@ function loadMenus(url,params){
             }
         }
         return vCh;	
+}
+
+function loadMenus1(){
+	queryParams = {parent_id:0,platform:"web"};
+	var url = utils.appendUrlParameters("https://api.live.bilibili.com/room/v1/area/getList?", queryParams);
+	          //HttpClient httpClient = new HttpClient(url,headers,0);
+	          // httpClient.request().getContentAsString();
+	 //     print("url = "+url);
+	   var text = utils.httpGetAsString(url,0x408);
+//		print("text = "+text);	
+	   var retVals = JSON.parse(text);
+	   var items1 = [];
+		for( var data of retVals.data){
+			var items2 = [];
+			for( var i of  data.list ){
+				//blive-list:1/868/1-3
+				var items3 = [];
+				const nPages = 3;
+				for(var page=1;page<nPages*5;page+=nPages){
+					var pgDesc = page+"-"+(page+nPages-1);
+					items3.push({title:pgDesc,items:"@blive-list:"+i.parent_id+"/"+i.id+"/"+pgDesc});
+				} // pages
+			    items2.push({title:i.name,items : items3});
+			} // for data.list
+			//print(data.name+": "+items2.length);
+			items1.push({title : data.name,items : items2});
+		}// for data	
+		//print("items1="+JSON.stringify(items1));
+		return items1; 
 }
