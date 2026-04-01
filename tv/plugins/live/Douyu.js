@@ -1,4 +1,5 @@
 /*
+   scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/live/Douyu.js router:/www/tv/plugins/live/
  *  https://m.douyu.com/9220456 => douyulive://9220456
  *  https://m.douyu.com/2507125?type=HW
  *  ub98484234(rid,"00000003333",tt)
@@ -115,6 +116,9 @@ function prepareMediaSource(url,params){
 
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
+	if( path=="" || path=="*") {
+				return loadMenus1();
+		}
 	var headers = {
 	  "User-Agent": "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30",
 	};	
@@ -158,6 +162,37 @@ function loadMenus(url,params){
 //print("text="+text);
 	
 }
+
+function loadMenus1(){
+	  return [
+		      {label : "一起看", items:[
+		             {label:"一起看01",items:"@douyulive-list:yqk/1-5"},
+		             {label:"一起看06",items:"@douyulive-list:yqk/6-10"},
+		             {label:"一起看11",items:"@douyulive-list:yqk/11-15"},
+		             {label:"一起看16",items:"@douyulive-list:yqk/16-20"},
+		             {label:"一起看21",items:"@douyulive-list:yqk/21-25"},
+		             {label:"一起看26",items:"@douyulive-list:yqk/26-30"}
+					]},
+			{label : "颜值",	 items:[
+		             {label:"颜值01",items:"@douyulive-list:yz/1-5"},
+		             {label:"颜值06",items:"@douyulive-list:yz/6-10"},
+		             {label:"颜值11",items:"@douyulive-list:yz/11-15"},
+		             {label:"颜值16",items:"@douyulive-list:yz/16-20"}
+				]},
+		    {label : "户外",	 items:[
+			         {label:"户外01",items:"@douyulive-list:HW/1-5"},
+		             {label:"户外06",items:"@douyulive-list:HW/6-10"},
+		             {label:"户外11",items:"@douyulive-list:HW/11-15"},
+		             {label:"户外16",items:"@douyulive-list:HW/16-20"}
+			   ]},	
+			{label : "二次元",	 items:[   	 
+		             {label:"二次元01",items:"@douyulive-list:ecy/1-5"},
+		             {label:"二次元06",items:"@douyulive-list:ecy/6-10"},
+		             {label:"二次元11",items:"@douyulive-list:ecy/11-15"},
+		             {label:"二次元16",items:"@douyulive-list:ecy/16-20"}
+			]}		 
+		            ];
+}	
 /*
 https://www.sanshuifeibing.com/posts/8146e2c4.html
 */

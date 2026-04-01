@@ -1,4 +1,5 @@
 /*
+scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/live/YYLive.js router:/www/tv/plugins/live/
 https://www.yy.com/95017956/95017956 => yylive://95017956
 yylive://95017956
 ? https://www.yy.com/others/zonghe
@@ -110,6 +111,9 @@ function  geLiveURL( sid, cid) {
 */
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
+	if( path=="" || path=="*") {
+		return loadMenus1();
+	}
 	var headers = {
 	   "User-Agent": "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 	};
@@ -142,8 +146,22 @@ function loadMenus(url,params){
 	}
 	return v;
 }
+
 function extractQuotedStr(s,prefix,suffix){
   var p1 = s.indexOf(prefix);
   var p2 = p1>=0 ? s.indexOf(suffix,p1+prefix.length) : null;
   return p2>0 ? s.substring(p1+prefix.length,p2) : null;
+}
+
+
+function loadMenus1(){
+	return [
+     {label:"手机直播",items:"@yylive-list:others/mobilelive"},
+     {label:"热门",items:"@yylive-list:"},
+     {label:"颜值",items:"@yylive-list:pretty"},
+     {label:"音乐",items:"@yylive-list:singing"},
+     {label:"脱口秀",items:"@yylive-list:show"},
+     {label:"现场",items:"@yylive-list:star"},
+     {label:"综合",items:"@yylive-list:others"}
+	];
 }

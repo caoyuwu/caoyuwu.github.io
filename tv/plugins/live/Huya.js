@@ -1,5 +1,6 @@
 
 /*
+ scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/live/Huya.js router:/www/tv/plugins/live/
   https://www.huya.com/XXXXX => huyalive://XXXXX
   huyalive://11352916
  */
@@ -155,6 +156,9 @@ function  extractStreamInfoFromMHNFInit(hnfInit){
 */
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
+	if( path=="" || path=="*") {
+			return loadMenus1();
+	}
 	var headers = {
 	   "User-Agent": "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 	};
@@ -179,4 +183,13 @@ function extractQuotedStr(s,prefix,suffix){
   var p1 = s.indexOf(prefix);
   var p2 = p1>=0 ? s.indexOf(suffix,p1+prefix.length) : null;
   return p2>0 ? s.substring(p1+prefix.length,p2) : null;
+}
+
+function loadMenus1(){
+	return [
+     	{label:"一起看",items:"@huyalive-list:g/2135"},
+     	{label:"颜值",items:"@huyalive-list:g/2168"},
+     	{label:"星秀",items:"@huyalive-list:g/1663"}
+         //{label:"",items:"@huyalive-list:"},
+	  ];
 }

@@ -36,6 +36,8 @@ douyulive|douyulive-list,live/Douyu.js
 
 douyinlive|douyinvideo|douyinlive-list|douyinlive-urls|douyinvideo-list|douyinvideo-urls,live/Douyin.js
 
+kuaishoulive|kuaishoulive-list,live/Kuaishou.js
+
 didilive|didilive-list,Didi.js
 
 4gtv|4gtv-list,4GTV.js

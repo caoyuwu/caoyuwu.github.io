@@ -1,5 +1,7 @@
 /*
-scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/live/kuaishou.js router:/www/tv/plugins/live/
+废弃， 使用 live/Kuaishou.js
+scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/live/crawler/kuaishou.js router:/www/tv/plugins/live/crawler/
+
 */
 {
 	contentUrl : "https://live.kuaishou.com",

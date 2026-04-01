@@ -171,8 +171,11 @@ const PageCount = 20;
 const VideoPageCount = 20;
 var webview;
 function loadMenus(url,params){
-	if( !webview ) webview = utils.getWebView();
 	var path = utils.getUrlHostAndPath(url);
+	if( path=="" || path=="*") {
+		return loadMenus1();
+	}
+	if( !webview ) webview = utils.getWebView();
 //print("[loadMenus] url="+url+",");
 	var p = url.indexOf(":");
 	if( url.substring(0,p)=="douyinvideo-list" ){
@@ -321,6 +324,32 @@ function toUrls(rid,urlsm,opts){
 			urls.push("douyinlive://"+rid);
 	}
 	return urls;
+}
+
+function loadMenus1(){
+	return 	[
+					{label:"收藏",items: [//"tag:抖音直播收藏"
+					   {label:"央视网快看",url:"douyinlive:127453393722",tag:"抖音直播收藏"},
+					   {label:"CCTV13",url:"douyinlive:282773369501",tag:"抖音直播收藏"},
+					    {label:"央视频",url:"douyinlive:50828500437",tag:"抖音直播收藏"},
+					   {label:"2024",url:"douyinlive:524048578993",tag:"抖音直播收藏"},
+					   {label:"CCTV4",url:"douyinlive:166806983360",tag:"抖音直播收藏"},
+					   {label:"白雪~中国象棋",url:"douyinlive:980822437011",tag:"抖音直播收藏"},
+					   {label:"白雪日常生活",url:"douyinlive:479300110901",tag:"抖音直播收藏"},
+					   {label:"小芳中国象棋",url:"douyinlive:4856303938",tag:"抖音直播收藏"}
+					   ]},   
+			    {label:"我的关注",items:"@douyinlive-list:follow"},		   
+				 {label:"首页",items:"@douyinlive-list:*"},	   
+			    {label:"聊天",items:"@douyinlive-list:4_101",countSubMenuPages:5},
+	   		    {label:"音乐",items:"@douyinlive-list:4_102",countSubMenuPages:5},
+				{label:"游戏",items:"@douyinlive-list:4_103",countSubMenuPages:5},
+				{label:"二次元",items:"@douyinlive-list:4_104",countSubMenuPages:5},
+				{label:"舞蹈",items:"@douyinlive-list:4_105",countSubMenuPages:5},
+				{label:"文化",items:"@douyinlive-list:4_106",countSubMenuPages:5},
+				{label:"生活",items:"@douyinlive-list:4_107",countSubMenuPages:5},
+				{label:"运动",items:"@douyinlive-list:4_108",countSubMenuPages:5},
+				{label:"视频",items:"@douyinvideo-list:*"}	   
+	      		  ];
 }
 
 function toStr3(x){

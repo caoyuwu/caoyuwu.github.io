@@ -1505,96 +1505,17 @@
      				] 
               },
       		 {label:"2",items:["[9100-9199]"]},
-      		 { label:"抖音直播",items:[
-				{label:"收藏",items: [//"tag:抖音直播收藏"
-				   {label:"央视网快看",url:"douyinlive:127453393722",tag:"抖音直播收藏"},
-				   {label:"CCTV13",url:"douyinlive:282773369501",tag:"抖音直播收藏"},
-				    {label:"央视频",url:"douyinlive:50828500437",tag:"抖音直播收藏"},
-				   {label:"2024",url:"douyinlive:524048578993",tag:"抖音直播收藏"},
-				   {label:"CCTV4",url:"douyinlive:166806983360",tag:"抖音直播收藏"},
-				   {label:"白雪~中国象棋",url:"douyinlive:980822437011",tag:"抖音直播收藏"},
-				   {label:"白雪日常生活",url:"douyinlive:479300110901",tag:"抖音直播收藏"},
-				   {label:"小芳中国象棋",url:"douyinlive:4856303938",tag:"抖音直播收藏"}
-				   ]},   
-		    {label:"我的关注",items:"@douyinlive-list:follow"},		   
-			 {label:"全部",items:"@douyinlive-list:*"},	   
-		    {label:"聊天",items:"@douyinlive-list:4_101",countSubMenuPages:5},
-   		    {label:"音乐",items:"@douyinlive-list:4_102",countSubMenuPages:5},
-			{label:"游戏",items:"@douyinlive-list:4_103",countSubMenuPages:5},
-			{label:"二次元",items:"@douyinlive-list:4_104",countSubMenuPages:5},
-			{label:"舞蹈",items:"@douyinlive-list:4_105",countSubMenuPages:5},
-			{label:"文化",items:"@douyinlive-list:4_106",countSubMenuPages:5},
-			{label:"生活",items:"@douyinlive-list:4_107",countSubMenuPages:5},
-			{label:"运动",items:"@douyinlive-list:4_108",countSubMenuPages:5},
-			{label:"视频",items:"@douyinvideo-list:*"}	   
-      		  ]},
-      		 { label:"快手直播",items:[ 
-				{label:"天天象棋",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/QP/22185]"},
-				{label:"象棋",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/QP/10]"},
-				{label:"边锋掼蛋",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/QP/22727]"},
-				{label:"斗地主",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/SYXX/6"},
-      		    {label:"娱乐-明星",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/YL/1000001]"},
-      		    {label:"娱乐-舞蹈",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/YL/1000002]"},
-      		    {label:"娱乐-音乐",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/YL/1000003]"},
-      		    {label:"娱乐-才艺",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/YL/1000004]"},
-      		     {label:"娱乐-脱口秀",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/YL/1000005]"},
-      		     {label:"娱乐-颜值",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/YL/1000006]"},
-      		     {label:"娱乐-情感",items:"@crawler-list://live/kuaishou.js?[PATH=/cate/YL/1000007]"}
-      		   ]},
-      		 { label:"哔哩哔哩",items :"@blive-list:*"
-			    /* items:[
-				 {label:"娱乐-脱口秀",items:"@blive-list:1/868/1-3"},
-	      		 {label:"B影音馆01",items:"@blive-list:10/33/1-3"},
-	      		 {label:"B影音馆04",items:"@blive-list:10/33/4-6"},
-	      		 {label:"B影音馆07",items:"@blive-list:10/33/7-9"},
-	      		 {label:"B影音馆10",items:"@blive-list:10/33/10-12"},
-	      		 {label:"B影音馆13",items:"@blive-list:10/33/13-15"},
-	      		 {label:"B影音馆16",items:"@blive-list:10/33/16-18"},
-	      		 {label:"B影音馆19",items:"@blive-list:10/33/19-21"},
-	      		 {label:"B影音馆22",items:"@blive-list:10/33/22-24"},
-	      		 {label:"B视频聊天01",items:"@blive-list:1/145/1-3"},
-	      		 {label:"B视频聊天04",items:"@blive-list:1/145/4-6"}
-	      	   ] */
-		       },
-	         { label:"YY直播",items:[
-	             {label:"手机直播",items:"@yylive-list:others/mobilelive"},
-	             {label:"热门",items:"@yylive-list:"},
-	             {label:"颜值",items:"@yylive-list:pretty"},
-	             {label:"音乐",items:"@yylive-list:singing"},
-	             {label:"脱口秀",items:"@yylive-list:show"},
-	              {label:"现场",items:"@yylive-list:star"},
-	               {label:"综合",items:"@yylive-list:others"}
-	            ]}, 
-	         { label:"虎牙直播",items:[
-	         	{label:"一起看",items:"@huyalive-list:g/2135"},
-	         	{label:"颜值",items:"@huyalive-list:g/2168"},
-	         	{label:"星秀",items:"@huyalive-list:g/1663"}
-	             //{label:"",items:"@huyalive-list:"},
-	            ]},      		 
-	         { label:"斗鱼直播",items:[
-	             {label:"一起看01",items:"@douyulive-list:yqk/1-5"},
-	             {label:"一起看06",items:"@douyulive-list:yqk/6-10"},
-	             {label:"一起看11",items:"@douyulive-list:yqk/11-15"},
-	             {label:"一起看16",items:"@douyulive-list:yqk/16-20"},
-	             {label:"一起看21",items:"@douyulive-list:yqk/21-25"},
-	             {label:"一起看26",items:"@douyulive-list:yqk/26-30"},
-	             {label:"颜值01",items:"@douyulive-list:yz/1-5"},
-	             {label:"颜值06",items:"@douyulive-list:yz/6-10"},
-	             {label:"颜值11",items:"@douyulive-list:yz/11-15"},
-	             {label:"颜值16",items:"@douyulive-list:yz/16-20"},
-	             {label:"户外01",items:"@douyulive-list:HW/1-5"},
-	             {label:"户外06",items:"@douyulive-list:HW/6-10"},
-	             {label:"户外11",items:"@douyulive-list:HW/11-15"},
-	             {label:"户外16",items:"@douyulive-list:HW/16-20"},
-	             {label:"二次元01",items:"@douyulive-list:ecy/1-5"},
-	             {label:"二次元06",items:"@douyulive-list:ecy/6-10"},
-	             {label:"二次元11",items:"@douyulive-list:ecy/11-15"},
-	             {label:"二次元16",items:"@douyulive-list:ecy/16-20"}
-	            ]},
-    {label:"电视剧",items:"[9200-9299]"},
-   {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"},
-   {label:"临时频道2",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels2.txt"},
-   {label:"临时频道3",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels3.txt"}
+      		 { label:"抖音直播",items:"@douyinlive-list:*"},
+      		 { label:"快手直播",items:"@kuaishoulive-list:*"},
+      		 { label:"哔哩哔哩",items :"@blive-list:*"},
+	         { label:"YY直播",items:"@yylive-list:*"}, 
+	         { label:"虎牙直播",items:"@huyalive-list:*"},      		 
+	         { label:"斗鱼直播",items:"@douyulive-list:*"},
+			 
+    {label:"电视剧",items:"[9200-9299]"}
+ //  {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"},
+  // {label:"临时频道2",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels2.txt"},
+  // {label:"临时频道3",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels3.txt"}
           ]      
      }, 
                               
