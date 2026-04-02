@@ -192,7 +192,7 @@ function loadMenus(url,params){
 		 //  print("text="+text);								
 			return parseVideoMenus4Feed(text);							
 	 }
-	if( path=="*" || path=="follow" ){
+	if( path=="~" || path=="follow" ){
 		var forFollow = path=="follow";
 		webview.loadUrl("https://live.douyin.com/categorynew/",
 				  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
@@ -339,7 +339,7 @@ function loadMenus1(){
 					   {label:"小芳中国象棋",url:"douyinlive:4856303938",tag:"抖音直播收藏"}
 					   ]},   
 			    {label:"我的关注",items:"@douyinlive-list:follow"},		   
-				 {label:"首页",items:"@douyinlive-list:*"},	   
+				 {label:"首页",items:"@douyinlive-list:~"},	   
 			    {label:"聊天",items:"@douyinlive-list:4_101",countSubMenuPages:5},
 	   		    {label:"音乐",items:"@douyinlive-list:4_102",countSubMenuPages:5},
 				{label:"游戏",items:"@douyinlive-list:4_103",countSubMenuPages:5},

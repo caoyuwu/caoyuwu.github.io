@@ -111,7 +111,7 @@ function  geLiveURL( sid, cid) {
 */
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
-	if( path=="" || path=="*") {
+	if(  path=="*") {
 		return loadMenus1();
 	}
 	var headers = {
