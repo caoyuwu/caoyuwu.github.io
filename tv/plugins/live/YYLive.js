@@ -114,6 +114,8 @@ function loadMenus(url,params){
 	if(  path=="*") {
 		return loadMenus1();
 	}
+	return getCategory2List(path);
+	/*
 	var headers = {
 	   "User-Agent": "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
 	};
@@ -142,9 +144,10 @@ function loadMenus(url,params){
 	       +"("+extractQuotedStr(liText,'<h3 class="play-user">','</h3>')+")";
 	     //title = title.replaceAll(",","-");  
 //print(title+","+"yylive:"+id);	       
-	    v.push({title:title,url:"yylive:"+id});   
+	    v.push({title:title,url:"yylive:"+id});    // li a.data-sid
 	}
 	return v;
+	*/
 }
 
 function extractQuotedStr(s,prefix,suffix){
@@ -155,6 +158,7 @@ function extractQuotedStr(s,prefix,suffix){
 
 
 function loadMenus1(){
+	/*
 	return [
      {label:"手机直播",items:"@yylive-list:others/mobilelive"},
      {label:"热门",items:"@yylive-list:"},
@@ -164,4 +168,56 @@ function loadMenus1(){
      {label:"现场",items:"@yylive-list:star"},
      {label:"综合",items:"@yylive-list:others"}
 	];
+	*/
+	return getCategory1List();
+}
+
+function getCategory1List(){
+	var headers = {
+		   "User-Agent": "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
+		};
+	var html = utils.httpGetAsString("https://wap.yy.com",headers);
+	var doc = utils.newHTMLDocument(html);	
+		var ea = doc.getBody().querySelectorAll(">body div.w-nav  ul li a");
+	 //print("ea.length = "+ea.length);
+	var items = [];
+		for(e of ea){
+			var href = e.getAttribute("href");
+			if( href.charAt(0)=="/" ) href = href.substring(1);
+			//if( href=="") continue;
+			var tit = e.getAllNodeValue().trim();
+			if( href=="" ){
+				items.push({title: tit, 
+					items : getCategory2ListFromdoc(doc),
+					itemsloader : "yylive-list:"+href}
+				);
+			} else {
+				items.push({title: tit, items:"@yylive-list:"+href});
+			}
+		}
+	return items;	
+}
+
+function getCategory2List(path){
+	var headers = {
+		   "User-Agent": "Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"
+		};
+	var html = utils.httpGetAsString("https://wap.yy.com/"+path,headers);
+	return getCategory2ListFromdoc(utils.newHTMLDocument(html));	
+}
+
+function getCategory2ListFromdoc(doc){	 
+			var lia = doc.getBody().querySelectorAll(">body div.main-box  div.recommend div.share-recommend  ul li");
+		 //print("ea.length = "+ea.length);
+	var items = [];
+			for(li of lia){
+				var titDom = li.querySelector("h3.play-title");
+				var a = li.querySelector("a");
+				if( !a || !titDom ) continue;
+				var tit = titDom.getAllNodeValue().trim();
+				var id =  a.getAttribute("data-sid");
+				//li a.data-sid
+				items.push({title: tit, url:"yylive:"+id});
+			}
+	return items;	
 }
