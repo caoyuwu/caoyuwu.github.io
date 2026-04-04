@@ -47,7 +47,7 @@ function loadMenus(url,params){
 			//print("feed==:"+i.author.nickname);
 			continue;
 		}
-		var tit = i.feed.live_cate+"-"+i.author.nickname+i.feed.title;
+		var tit = i.feed.live_cate+"-"+i.author.nickname+"-"+i.feed.title;
 		var url = i.feed.pull_url;
 		items.push({title:tit, url:url});
 	}
