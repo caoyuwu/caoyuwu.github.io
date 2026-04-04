@@ -1505,13 +1505,13 @@
      				] 
               },
       		 {label:"2",items:["[9100-9199]"]},
-      		 { label:"抖音直播",items:"@douyinlive-list:*"},
+      		 { label:"抖音直播",items:"@douyin-list:*"},
 			 { label:"哔哩哔哩",items :"@blive-list:*"},
      		 { label:"快手直播",items:"@kuaishoulive-list:*"},
  	         { label:"YY直播",items:"@yylive-list:*"}, 
 	         { label:"虎牙直播",items:"@huyalive-list:*"},      		 
 	         { label:"斗鱼直播",items:"@douyulive-list:*"},
-			 
+			 { label:"花椒直播",items:"@jsmenu:live/Huajiao.js!*"},
     {label:"电视剧",items:"[9200-9299]"}
  //  {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"},
   // {label:"临时频道2",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels2.txt"},

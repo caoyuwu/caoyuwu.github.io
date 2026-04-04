@@ -37,11 +37,15 @@ function initCookies(){
 function prepareMediaSource(url,params){
 	initCookies();
 	//<script id="RENDER_DATA" type="application/json">
-	var p = url.indexOf(":");
+	//var p = url.indexOf(":");
 	var mid = utils.getUrlHostAndPath(url);
-	switch( url.substring(0,p) ){
-		case "douyinlive": return prepareLiveMediaSource(mid,false);
-		case "douyinvideo":  return prepareVideoMediaSource(mid);
+	var p = mid.indexOf("/");
+	if( p<0 ) return;
+	var type = mid.substring(0,p);
+	  mid = mid.substring(p+1);
+	switch( type ){
+		case "live": return prepareLiveMediaSource(mid,false);
+		case "video":  return prepareVideoMediaSource(mid);
 	}
 }
 	
@@ -77,23 +81,7 @@ function prepareLiveMediaSource(rid,forUrls){
 		return toUrls(rid,urlsm,0);
 	}
 	return  urlsm.FULL_HD1 || urlsm.HD1 || urlsm.SD1 || urlsm.SD2 ;
-	//print(text);
-    /*
-	var jsPrefix = '<script id="RENDER_DATA" type="application/json">';
-	var p1 = html.indexOf(jsPrefix);
-	var p2 = p1<0 ? -1 : html.indexOf("</script>",p1+jsPrefix.length);
-	if( p2<0 ){
-		return null;
-	}
-//	print("p1="+p1+",p2="+p2);
-	var text = decodeURIComponent(html.substring(p1+jsPrefix.length,p2));
-//print(text);
-	var retVal = JSON.parse(text);
-	var room = retVal.app.initialState.roomStore.roomInfo.room;
-	var urls = room && room.stream_url ? room.stream_url.flv_pull_url : null;
-	return urls ? urls.FULL_HD1 || urls.HD1 || urls.SD1 || urls.SD2 
-			: null
-	*/
+	
 }
 
 /*
@@ -135,7 +123,13 @@ print(html);
 
 function loadUrls(url,params){
 	var mid = utils.getUrlHostAndPath(url);
-	return prepareLiveMediaSource(mid,true);
+	var p = mid.indexOf("/");
+		if( p<0 ) return;
+		var type = mid.substring(0,p);
+		  mid = mid.substring(p+1);
+	switch( type ) {
+	   case "live":	return prepareLiveMediaSource(mid,true);
+	}
 }
 
 /*
@@ -162,7 +156,7 @@ function loadUrls(url,params){
    msToken:
    https://blog.csdn.net/weixin_29323049/article/details/158596025
   
-  items:"@douyinlive-list:3_10000"  // partition_type_partition
+  items:"@douyin-list:3_10000"  // partition_type_partition
   
 */
 const PluginHost = "caoyuwu.eu.org";
@@ -172,13 +166,16 @@ const VideoPageCount = 20;
 var webview;
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
-	if( path=="" || path=="*") {
+	if( path=="" || path=="*" ) {
 		return loadMenus1();
 	}
-	if( !webview ) webview = utils.getWebView();
-//print("[loadMenus] url="+url+",");
-	var p = url.indexOf(":");
-	if( url.substring(0,p)=="douyinvideo-list" ){
+	var p = path.indexOf("/");
+		if( p<0 ) return;
+		var type = path.substring(0,p);
+		  path = path.substring(p+1);
+	
+	if( type=="video" ){
+		  // 视频：
 		   webview.loadUrl("https://www.douyin.com/aisearch",
 						  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
 						    ["https:///"+PluginHost+"/tv/plugins/webview/httprequest.js",
@@ -191,7 +188,10 @@ function loadMenus(url,params){
 										1);	
 		 //  print("text="+text);								
 			return parseVideoMenus4Feed(text);							
-	 }
+	 } // for 
+	 // 直播：douyinvideo-list
+	if( !webview ) webview = utils.getWebView();
+//print("[loadMenus] url="+url+",");
 	if( path=="~" || path=="follow" ){
 		var forFollow = path=="follow";
 		webview.loadUrl("https://live.douyin.com/categorynew/",
@@ -317,34 +317,34 @@ function toUrls(rid,urlsm,opts){
 		urls.push({title:name,url:urlsm[name]});
 	}
 	if( urls.length==0 && (opts&1) ){
-		urls.push("douyinlive://"+rid);
+		urls.push("douyin:live/"+rid);
 	}
 	urls.push({title:"网页-",url:"win-browser-https://live.douyin.com/"+rid});	
 	if( urls.length==0 && !(opts&1) ){
-			urls.push("douyinlive://"+rid);
+			urls.push("douyin:live/"+rid);
 	}
 	return urls;
 }
 
 function loadMenus1(){
 	return 	[
-			    {label:"我的关注",items:"@douyinlive-list:follow"},		   
-				 {label:"首页",items:"@douyinlive-list:~"},	   
-			    {label:"聊天",items:"@douyinlive-list:4_101",countSubMenuPages:5},
-	   		    {label:"音乐",items:"@douyinlive-list:4_102",countSubMenuPages:5},
-				{label:"游戏",items:"@douyinlive-list:4_103",countSubMenuPages:5},
-				{label:"二次元",items:"@douyinlive-list:4_104",countSubMenuPages:5},
-				{label:"舞蹈",items:"@douyinlive-list:4_105",countSubMenuPages:5},
-				{label:"文化",items:"@douyinlive-list:4_106",countSubMenuPages:5},
-				{label:"生活",items:"@douyinlive-list:4_107",countSubMenuPages:5},
-				{label:"运动",items:"@douyinlive-list:4_108",countSubMenuPages:5},
-				{label:"视频",items:"@douyinvideo-list:*"},
+			    {label:"我的关注",items:"@douyin-list:live/follow"},		   
+				 {label:"首页",items:"@douyin-list:live/~"},	   
+			    {label:"聊天",items:"@douyin-list:live/4_101",countSubMenuPages:5},
+	   		    {label:"音乐",items:"@douyin-list:live/4_102",countSubMenuPages:5},
+				{label:"游戏",items:"@douyin-list:live/4_103",countSubMenuPages:5},
+				{label:"二次元",items:"@douyin-list:live/4_104",countSubMenuPages:5},
+				{label:"舞蹈",items:"@douyin-list:live/4_105",countSubMenuPages:5},
+				{label:"文化",items:"@douyin-list:live/4_106",countSubMenuPages:5},
+				{label:"生活",items:"@douyin-list:live/4_107",countSubMenuPages:5},
+				{label:"运动",items:"@douyin-list:live/4_108",countSubMenuPages:5},
+				{label:"视频",items:"@douyin-list:video/*"},
 				{label:"收藏",items: [//"tag:抖音直播收藏"
-					   {label:"央视网快看",url:"douyinlive:127453393722",tag:"抖音直播收藏"},
-					   {label:"CCTV13",url:"douyinlive:282773369501",tag:"抖音直播收藏"},
-					    {label:"央视频",url:"douyinlive:50828500437",tag:"抖音直播收藏"},
-					   {label:"2024",url:"douyinlive:524048578993",tag:"抖音直播收藏"},
-					   {label:"CCTV4",url:"douyinlive:166806983360",tag:"抖音直播收藏"}
+					   {label:"央视网快看",url:"douyin:live/127453393722",tag:"抖音直播收藏"},
+					   {label:"CCTV13",url:"douyin:live/282773369501",tag:"抖音直播收藏"},
+					    {label:"央视频",url:"douyin:live/50828500437",tag:"抖音直播收藏"},
+					   {label:"2024",url:"douyin:live/524048578993",tag:"抖音直播收藏"},
+					   {label:"CCTV4",url:"douyin:live/166806983360",tag:"抖音直播收藏"}
 	      		  ]}
 		];
 }
