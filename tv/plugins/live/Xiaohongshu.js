@@ -48,6 +48,13 @@ function loadMenus(url,params){
 									"https://"+PluginHost+"/tv/plugins/webview/xiaohongshu/Xiaohongshu-inject.js",
 								 ],
 								"win",1);
+		var text = webview.evalOnPageFinished("!!window.__injectResult",
+										    	//"httpGetAsString('/index.html',null,0)",
+										    	"window.__injectResult",
+										    	15,
+												1);		
+		print("text = "+text);																
+	 /*							
     var matchs = {
 		path: "/api/sns/red/live/web/feed/v1/squarefeed"
 	}	;							
@@ -58,7 +65,8 @@ function loadMenus(url,params){
 	}
 	//var json = utils.httpGetAsString(retVals.url,retVals.headers,0);
 	var json = utils.httpGetAsString(retVals.url,retVals.headers,0x400);	
-	print("json = "+json);				
+	print("json = "+json);			
+	*/	
 	//listenHttpGetRequest(java.util.Map<String,String> matchs,int timeout,int opts)
 }
 
