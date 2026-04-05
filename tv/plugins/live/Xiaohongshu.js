@@ -44,20 +44,24 @@ function loadMenus(url,params){
 	//https://www.xiaohongshu.com/livelist?channel_id=3&channel_type=web_live_list
 	webview.loadUrl("https://www.xiaohongshu.com/livelist?channel_id="+category+"&channel_type=web_live_list",
 							    [
-									"https://"+PluginHost+"/tv/plugins/webview/httprequest.js",
-									"https://"+PluginHost+"/tv/plugins/webview/xiaohongshu/Xiaohongshu-inject.js",
+									"https://"+PluginHost+"/tv/plugins/webview/httprequest.js"
+									//,"https://"+PluginHost+"/tv/plugins/webview/xiaohongshu/Xiaohongshu-inject.js",
 								 ],
 								"win",1);
+		/*						
 		var text = webview.evalOnPageFinished("!!window.__injectResult",
 										    	//"httpGetAsString('/index.html',null,0)",
 										    	"window.__injectResult",
-										    	15,
+										    	60,
 												1);		
+		*/
+		var matchs = {
+				path: "/api/sns/red/live/web/feed/v1/squarefeed"
+			}	;	
+		text = webview.listenHttpGetRequest(matchs,20,3);										
 		print("text = "+text);																
 	 /*							
-    var matchs = {
-		path: "/api/sns/red/live/web/feed/v1/squarefeed"
-	}	;							
+    
 	var retVals = webview.listenHttpGetRequest(matchs,15,1);	
 	print("retVals = "+JSON.stringify(retVals));	
 	for(var name in retVals.headers ){

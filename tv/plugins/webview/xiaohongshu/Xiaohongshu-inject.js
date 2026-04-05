@@ -28,12 +28,16 @@ window.XMLHttpRequest_open = XMLHttpRequest.prototype.open;
 console.log("window.XMLHttpRequest_open = %s",window.XMLHttpRequest_open);
 XMLHttpRequest.prototype.open = function(method,url,asynchronous){
        // console.trace("XMLHttpRequest.open(%s %s)",method,url);
-	   console.log("[Xisohongshu-inject.js]XMLHttpRequest.open(%s %s %s)",method,url,asynchronous);
+	   if( url.indexOf("feed/v1/squarefeed")>0 ){
+	      console.log("[Xisohongshu-inject.js]XMLHttpRequest.open(%s %s %s)",method,url,asynchronous);
+	   }
         window.XMLHttpRequest_open.apply(this,arguments);
 }
 
+/*
 window._fetch = window.fetch;
 window.fetch = function(url){
 	console.log("[Xisohongshu-inject.js]fetch(%s)",url);
 	window._fetch.apply(this,arguments);
 };
+*/
