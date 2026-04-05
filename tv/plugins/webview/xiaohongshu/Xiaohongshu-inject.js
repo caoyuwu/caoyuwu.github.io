@@ -27,6 +27,6 @@ function getLiveRoomList(category){
 window.XMLHttpRequest_open = XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open = function(method,url,asynchronous){
        // console.trace("XMLHttpRequest.open(%s %s)",method,url);
-	   console.log("XMLHttpRequest.open(%s %s)",method,url);
+	   console.log("[Xisohongshu-inject.js]XMLHttpRequest.open(%s %s %s)",method,url,asynchronous);
         window.XMLHttpRequest_open.apply(this,arguments);
 }

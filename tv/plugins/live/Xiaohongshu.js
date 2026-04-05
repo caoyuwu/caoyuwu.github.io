@@ -2,6 +2,8 @@
   scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/live/Xiaohongshu.js router:/www/tv/plugins/live/
 */
 
+const PluginHost = "caoyuwu.eu.org";
+//const PluginHost = "router.lan";
 
 var webview;
 function loadMenus(url,params){
@@ -41,7 +43,9 @@ function loadMenus(url,params){
 	*/
 	//https://www.xiaohongshu.com/livelist?channel_id=3&channel_type=web_live_list
 	webview.loadUrl("https://www.xiaohongshu.com/livelist?channel_id="+category+"&channel_type=web_live_list",
-							    [//"https:///"+PluginHost+"/tv/plugins/webview/httprequest.js",
+							    [
+									"https://"+PluginHost+"/tv/plugins/webview/httprequest.js",
+									"https://"+PluginHost+"/tv/plugins/webview/xiaohongshu/Xiaohongshu-inject.js",
 								 ],
 								"win",1);
     var matchs = {

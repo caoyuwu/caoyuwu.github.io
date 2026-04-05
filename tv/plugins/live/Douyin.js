@@ -178,8 +178,8 @@ function loadMenus(url,params){
 		  // 视频：
 		   webview.loadUrl("https://www.douyin.com/aisearch",
 						  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
-						    ["https:///"+PluginHost+"/tv/plugins/webview/httprequest.js",
-							  "https:///"+PluginHost+"/tv/plugins/webview/douyin/Douyin-inject4video.js"],
+						    ["https://"+PluginHost+"/tv/plugins/webview/httprequest.js",
+							  "https://"+PluginHost+"/tv/plugins/webview/douyin/Douyin-inject4video.js"],
 							"win",1);
 			var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getVideoFeed",
 								    	//"httpGetAsString('/index.html',null,0)",
@@ -195,8 +195,8 @@ function loadMenus(url,params){
 		var forFollow = path=="follow";
 		webview.loadUrl("https://live.douyin.com/categorynew/",
 				  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
-				    ["https:///"+PluginHost+"/tv/plugins/webview/httprequest.js",
-					  "https:///"+PluginHost+"/tv/plugins/webview/douyin/Douyin-inject.js"],
+				    ["https://"+PluginHost+"/tv/plugins/webview/httprequest.js",
+					  "https://"+PluginHost+"/tv/plugins/webview/douyin/Douyin-inject.js"],
 					"win",1);
 		var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getLiveRoomFeed",
 						    	//"httpGetAsString('/index.html',null,0)",
@@ -212,7 +212,7 @@ function loadMenus(url,params){
 	   webview.loadUrl("https://live.douyin.com/categorynew/",
 		  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
 		    ["https://"+PluginHost+"/tv/plugins/webview/httprequest.js",
-			  "https:///"+PluginHost+"/tv/plugins/webview/douyin/Douyin-inject.js"],
+			  "https://"+PluginHost+"/tv/plugins/webview/douyin/Douyin-inject.js"],
 			"win",1);
 			var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getLiveRoomDetail",
 			    	//"httpGetAsString('/index.html',null,0)",
