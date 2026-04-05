@@ -56,6 +56,13 @@ function prepareMediaSource(url,params){
 */
 var webview;
 function loadMenus(url,params){
+	var path = utils.getUrlHostAndPath(url);
+	if( path=="html-inject1") {
+		return loadMenusByHtmlInject1(url,params);
+	}
+	if( path=="html-inject2" ){
+		return loadMenusByHtmlInject2(url,params);
+	}
 	return loadMenus1(url,params);
     /*
 	return [
@@ -75,29 +82,44 @@ function loadMenus1(url,params){
 		  "Test-CCTV-1,http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8",
 		  {"title":"Test-CCTV-2","url":"http://cctvalih5ca.v.myalicdn.com/live/cctv2_2/index.m3u8"},
 		  "Test-Urls,test-media-urls:cctv1",
-		  {"title":"JsUrls",urls:"jsurls:test/Test.js!jsurls"}
+		  {"title":"JsUrls",urls:"jsurls:test/Test.js!jsurls"},
+		  { title : "HTML注入-evalOnPageFinished",  items	: "jsmenu:test/Test.js!html-inject1" },
+		  { title : "HTML注入-listenHttpGetRequest", items	: "jsmenu:test/Test.js!html-inject2" }
 	];
 }
-function loadMenus2(url,params){
+function loadMenusByHtmlInject1(url,params){
 	var path = utils.getUrlHostAndPath(url);
 	  print("TestMenuList: url = "+url);
 	  print("TestMenuList: params = "+params);//JSON.stringify(params));
-	    
 	  
 	    if( !webview ) webview = utils.getWebView();
 	    print("webview = "+webview);
 	    injectURL = utils.toAbsoluteURL(_scriptURL,"../webview/httprequest.js");
 	    print("TestMenuList : injectURL="+injectURL);
-	    webview.loadUrl("http://192.168.1.21/demo-web/test/adr/TestAdrWeb.html",[injectURL],1);
+	    webview.loadUrl("http://cyw-mac.lan/demo-web/test/adr/TestAdrWeb.html",[injectURL],"win",1);
 	    //webview.injectJavascritByURL("../webview/httprequest.js");
 	    //evalOnPageFinished(String consJS,String js,int timeout,int opts){
 	    var s = webview.evalOnPageFinished("typeof(window.httpGetAsString)=='function'",
 	    	//"httpGetAsString('/index.html',null,0)",
-	    	"httpGetAsString('http://192.168.1.21/demo-web/test/adr/TestAdrMenu1.json',null,0)",
+	    	"httpGetAsString('http://cyw-mac.lan/demo-web/test/adr/TestAdrMenu1.json',null,0)",
 	    	10,
 			1);
 	    print("webview 返回="+s);
 	    return JSON.parse(s);
+}
+
+function loadMenusByHtmlInject2(url,params){
+	print("TestMenuList: url = "+url);
+	  print("TestMenuList: params = "+params);//JSON.stringify(params));
+	 if( !webview ) webview = utils.getWebView();
+	  print("webview = "+webview);
+	  webview.loadUrl("http://cyw-mac.lan/demo-web/test/adr/TestAdrWeb.html",[],"win",1); 
+	  var matchs = {
+	  		path: "/demo-web/test/adr/TestAdrMenu2.json"
+	  	}	;							
+	  var retVals = webview.listenHttpGetRequest(matchs,15,1);	
+	  print("retVals = "+JSON.stringify(retVals));	
+	  return [];
 }
 
 function loadUrls(url,params){

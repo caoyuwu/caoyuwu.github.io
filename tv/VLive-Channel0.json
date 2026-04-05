@@ -1512,6 +1512,7 @@
 	         { label:"虎牙直播",items:"@huyalive-list:*"},      		 
 	         { label:"斗鱼直播",items:"@douyulive-list:*"},
 			 { label:"花椒直播",items:"@jsmenu:live/Huajiao.js!*"},
+			 { label:"小红书直播",items:"@jsmenu:live/Xiaohongshu.js!*"},
     {label:"电视剧",items:"[9200-9299]"}
  //  {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"},
   // {label:"临时频道2",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels2.txt"},

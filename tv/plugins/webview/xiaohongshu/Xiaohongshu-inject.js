@@ -9,6 +9,7 @@ var head = document.getElementsByTagName("head")[0];
 	   
 getLiveRoomList(0)   
 */
+/*
 function getLiveRoomList(category){
 	var queryParams = {
 			source: 13,
@@ -20,4 +21,12 @@ function getLiveRoomList(category){
 	var url = appendUrlParams("https://live-room.xiaohongshu.com/api/sns/red/live/web/feed/v1/squarefeed",queryParams);
 	console.log("url=%s",url);
 	return httpGetAsString(url);	
+}
+*/
+
+window.XMLHttpRequest_open = XMLHttpRequest.prototype.open;
+XMLHttpRequest.prototype.open = function(method,url,asynchronous){
+       // console.trace("XMLHttpRequest.open(%s %s)",method,url);
+	   console.log("XMLHttpRequest.open(%s %s)",method,url);
+        window.XMLHttpRequest_open.apply(this,arguments);
 }

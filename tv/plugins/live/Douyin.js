@@ -170,10 +170,10 @@ function loadMenus(url,params){
 		return loadMenus1();
 	}
 	var p = path.indexOf("/");
-		if( p<0 ) return;
-		var type = path.substring(0,p);
-		  path = path.substring(p+1);
-	
+	if( p<0 ) return;
+	var type = path.substring(0,p);
+	  path = path.substring(p+1);
+	  if( !webview ) webview = utils.getWebView();
 	if( type=="video" ){
 		  // 视频：
 		   webview.loadUrl("https://www.douyin.com/aisearch",
@@ -190,7 +190,6 @@ function loadMenus(url,params){
 			return parseVideoMenus4Feed(text);							
 	 } // for 
 	 // 直播：douyinvideo-list
-	if( !webview ) webview = utils.getWebView();
 //print("[loadMenus] url="+url+",");
 	if( path=="~" || path=="follow" ){
 		var forFollow = path=="follow";

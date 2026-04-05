@@ -3,6 +3,7 @@
 */
 
 
+var webview;
 function loadMenus(url,params){
 	/*
 	https://live-room.xiaohongshu.com/api/sns/red/live/web/feed/v1/squarefeed?
@@ -18,6 +19,7 @@ function loadMenus(url,params){
 	if( category=="*" || category=="") {
 		return loadCatMenus();
 	}
+	/*
 	var queryParams = {
 		source: 13,
 		category: category,
@@ -33,6 +35,27 @@ function loadMenus(url,params){
 	}
 	var json = utils.httpGetAsString(url,headers,0x400);
 	print( json );
+	*/
+	if( !webview ) webview = utils.getWebView();
+	/*
+	*/
+	//https://www.xiaohongshu.com/livelist?channel_id=3&channel_type=web_live_list
+	webview.loadUrl("https://www.xiaohongshu.com/livelist?channel_id="+category+"&channel_type=web_live_list",
+							    [//"https:///"+PluginHost+"/tv/plugins/webview/httprequest.js",
+								 ],
+								"win",1);
+    var matchs = {
+		path: "/api/sns/red/live/web/feed/v1/squarefeed"
+	}	;							
+	var retVals = webview.listenHttpGetRequest(matchs,15,1);	
+	print("retVals = "+JSON.stringify(retVals));	
+	for(var name in retVals.headers ){
+		print("Header "+name+" = "+retVals.headers[name]);
+	}
+	//var json = utils.httpGetAsString(retVals.url,retVals.headers,0);
+	var json = utils.httpGetAsString(retVals.url,retVals.headers,0x400);	
+	print("json = "+json);				
+	//listenHttpGetRequest(java.util.Map<String,String> matchs,int timeout,int opts)
 }
 
 function loadCatMenus(){
