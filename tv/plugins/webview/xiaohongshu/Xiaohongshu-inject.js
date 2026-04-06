@@ -1,6 +1,7 @@
 
 /*
-/opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/webview/xiaohongshu/Xiaohongshu-inject.js
+scp -O  /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/webview/xiaohongshu/Xiaohongshu-inject.js router:/www/tv/plugins/webview/xiaohongshu/  
+
 var head = document.getElementsByTagName("head")[0];
       var s = document.createElement("script");s.type = "text/javascript";
       s.async = false;
@@ -23,7 +24,7 @@ function getLiveRoomList(category){
 	return httpGetAsString(url);	
 }
 */
-
+console.log("注入脚本 Xiaohongshu-inject.js。。。");
 window.XMLHttpRequest_open = XMLHttpRequest.prototype.open;
 console.log("window.XMLHttpRequest_open = %s",window.XMLHttpRequest_open);
 XMLHttpRequest.prototype.open = function(method,url,asynchronous){

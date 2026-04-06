@@ -6,6 +6,7 @@ const PluginHost = "caoyuwu.eu.org";
 //const PluginHost = "router.lan";
 
 var webview;
+var injectJS = null;
 function loadMenus(url,params){
 	/*
 	https://live-room.xiaohongshu.com/api/sns/red/live/web/feed/v1/squarefeed?
@@ -44,21 +45,28 @@ function loadMenus(url,params){
 	//https://www.xiaohongshu.com/livelist?channel_id=3&channel_type=web_live_list
 	webview.loadUrl("https://www.xiaohongshu.com/livelist?channel_id="+category+"&channel_type=web_live_list",
 							    [
-									"https://"+PluginHost+"/tv/plugins/webview/httprequest.js"
-									//,"https://"+PluginHost+"/tv/plugins/webview/xiaohongshu/Xiaohongshu-inject.js",
+								//	"https://"+PluginHost+"/tv/plugins/webview/httprequest.js"
+								//	,"https://"+PluginHost+"/tv/plugins/webview/xiaohongshu/Xiaohongshu-inject.js",
 								 ],
 								"win",1);
-		/*						
+	 if( !injectJS ){
+		var url = utils.toAbsoluteURL(_scriptURL,"../webview/xiaohongshu/Xiaohongshu-inject.js");
+		print("===url="+url);
+		injectJS = utils.httpGetAsString(url,0);
+		print("===url="+injectJS);
+	 }				
+	 //webview.evalOnPageStarted(null,"console.log('注入脚本-执行到 evalOnPageStarted')",0,0);		
+	 webview.evalOnPageStarted(null,injectJS,0,0);			
 		var text = webview.evalOnPageFinished("!!window.__injectResult",
 										    	//"httpGetAsString('/index.html',null,0)",
 										    	"window.__injectResult",
 										    	60,
 												1);		
-		*/
+		
 		var matchs = {
 				path: "/api/sns/red/live/web/feed/v1/squarefeed"
 			}	;	
-		text = webview.listenHttpGetRequest(matchs,20,3);										
+	//	text = webview.listenHttpGetRequest(matchs,20,3);										
 		print("text = "+text);																
 	 /*							
     

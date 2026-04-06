@@ -87,6 +87,10 @@ function loadMenus1(url,params){
 		  { title : "HTML注入-listenHttpGetRequest", items	: "jsmenu:test/Test.js!html-inject2" }
 	];
 }
+
+/*
+OnPageFinished 中执行脚本
+*/
 function loadMenusByHtmlInject1(url,params){
 	var path = utils.getUrlHostAndPath(url);
 	  print("TestMenuList: url = "+url);
@@ -97,6 +101,8 @@ function loadMenusByHtmlInject1(url,params){
 	    injectURL = utils.toAbsoluteURL(_scriptURL,"../webview/httprequest.js");
 	    print("TestMenuList : injectURL="+injectURL);
 	    webview.loadUrl("http://cyw-mac.lan/demo-web/test/adr/TestAdrWeb.html",[injectURL],"win",1);
+		webview.evalOnPageStarted(null,"console.log('注入脚本-执行到 evalOnPageStarted')",0,0);
+		webview.evalOnPageFinished(null,"console.log('注入脚本-执行到 evalOnPageFinished')",0,0);
 	    //webview.injectJavascritByURL("../webview/httprequest.js");
 	    //evalOnPageFinished(String consJS,String js,int timeout,int opts){
 	    var s = webview.evalOnPageFinished("typeof(window.httpGetAsString)=='function'",
