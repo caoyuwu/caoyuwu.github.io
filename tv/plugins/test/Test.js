@@ -57,12 +57,12 @@ function prepareMediaSource(url,params){
 var webview;
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
-	if( path=="html-inject1") {
-		return loadMenusByHtmlInject1(url,params);
+	switch( path ){
+		case "html-inject1" : return loadMenusByHtmlInject1(url,params);
+		case "html-inject2" : return loadMenusByHtmlInject2(url,params);
+		case "html-inject3" : return loadMenusByHtmlInject3(url,params);
 	}
-	if( path=="html-inject2" ){
-		return loadMenusByHtmlInject2(url,params);
-	}
+	
 	return loadMenus1(url,params);
     /*
 	return [
@@ -84,7 +84,8 @@ function loadMenus1(url,params){
 		  "Test-Urls,test-media-urls:cctv1",
 		  {"title":"JsUrls",urls:"jsurls:test/Test.js!jsurls"},
 		  { title : "HTML注入-evalOnPageFinished",  items	: "jsmenu:test/Test.js!html-inject1" },
-		  { title : "HTML注入-listenHttpGetRequest", items	: "jsmenu:test/Test.js!html-inject2" }
+		  { title : "HTML注入-listenHttpGetRequest", items	: "jsmenu:test/Test.js!html-inject2" },
+		  { title : "HTML注入-异步",  items	: "jsmenu:test/Test.js!html-inject3" },
 	];
 }
 
@@ -126,6 +127,34 @@ function loadMenusByHtmlInject2(url,params){
 	  var retVals = webview.listenHttpGetRequest(matchs,15,1);	
 	  print("retVals = "+JSON.stringify(retVals));	
 	  return [];
+}
+
+/*
+  异步
+*/
+function loadMenusByHtmlInject3(url,params){
+	var path = utils.getUrlHostAndPath(url);
+	  print("TestMenuList: url = "+url);
+	  print("TestMenuList: params = "+params);//JSON.stringify(params));
+	  
+	    if( !webview ) webview = utils.getWebView();
+	    print("webview = "+webview);
+	   // injectURL = utils.toAbsoluteURL(_scriptURL,"../webview/httprequest.js");
+	    //print("TestMenuList : injectURL="+injectURL);
+	    webview.loadUrl("http://cyw-mac.lan/demo-web/test/adr/TestAdrWeb.html",[],"win",1);
+		webview.evalOnPageStarted(null,"console.log('注入脚本-执行到 evalOnPageStarted')",0,0);
+		webview.evalOnPageFinished(null,"window.testAsynLoad()",0,0);
+		
+	    //webview.injectJavascritByURL("../webview/httprequest.js");
+	    //evalOnPageFinished(String consJS,String js,int timeout,int opts){
+	    var s = webview.evalOnPageFinished("!!window._AsynResult",
+	    	//"httpGetAsString('/index.html',null,0)",
+	    	"window._AsynResult",
+	    	5,
+			1);
+	    print("webview 返回="+s);
+		return s;
+	    //return JSON.parse(s);
 }
 
 function loadUrls(url,params){

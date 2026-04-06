@@ -51,23 +51,29 @@ function loadMenus(url,params){
 								"win",1);
 	 if( !injectJS ){
 		var url = utils.toAbsoluteURL(_scriptURL,"../webview/xiaohongshu/Xiaohongshu-inject.js");
-		print("===url="+url);
+		//print("===url="+url);
 		injectJS = utils.httpGetAsString(url,0);
-		print("===url="+injectJS);
+		//print("===url="+injectJS);
 	 }				
 	 //webview.evalOnPageStarted(null,"console.log('注入脚本-执行到 evalOnPageStarted')",0,0);		
 	 webview.evalOnPageStarted(null,injectJS,0,0);			
-		var text = webview.evalOnPageFinished("!!window.__injectResult",
+	
+	 var text = webview.evalOnPageFinished("!!window._CrawledResult",
 										    	//"httpGetAsString('/index.html',null,0)",
-										    	"window.__injectResult",
+										    	"window._CrawledResult",
 										    	60,
 												1);		
-		
+		/*
 		var matchs = {
 				path: "/api/sns/red/live/web/feed/v1/squarefeed"
 			}	;	
+		*/
+		if( text.startsWith("error:") ){
+			throw text.substrinng(6);
+		}	
 	//	text = webview.listenHttpGetRequest(matchs,20,3);										
-		print("text = "+text);																
+	//	print("text = "+text);	
+		return parseMeuList(text);															
 	 /*							
     
 	var retVals = webview.listenHttpGetRequest(matchs,15,1);	
@@ -80,6 +86,27 @@ function loadMenus(url,params){
 	print("json = "+json);			
 	*/	
 	//listenHttpGetRequest(java.util.Map<String,String> matchs,int timeout,int opts)
+}
+
+function parseMeuList(text){
+	var items = [];
+	var retVal = JSON.parse(text);
+	for(var feed of retVal.data.feeds){
+		var live;
+		if( feed.type!='live' || !(live=feed.live)  || !live.room_extra_info) continue;
+		var roomId =  live.t_room_info.room_id_str;
+		var userId = live.t_live_host_info.user_id;
+		var tit =   live.t_live_host_info.nickname +"-"+live.t_room_info.name;
+		var room_extra_info = JSON.parse(live.room_extra_info); 
+		var live_stream_info = JSON.parse(room_extra_info.live_stream_info);
+		//print(tit+" : "+room_extra_info.live_stream_info); 
+		var urls = [];
+		if(live_stream_info.streams) for(var s of live_stream_info.streams){
+			urls.push({title:s.quality_type_name,url:s.master_url});
+		}
+		items .push({ title: tit, urls: urls, msgSocketArgs:[roomId+"/"+userId]});
+	} // for retVal.data.feeds
+	return items;
 }
 
 function loadCatMenus(){

@@ -2,13 +2,7 @@
 /*
 scp -O  /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/webview/xiaohongshu/Xiaohongshu-inject.js router:/www/tv/plugins/webview/xiaohongshu/  
 
-var head = document.getElementsByTagName("head")[0];
-      var s = document.createElement("script");s.type = "text/javascript";
-      s.async = false;
-	  s.src="https://caoyuwu.eu.org/tv/plugins/webview/xiaohongshu/Xiaohongshu-inject.js";
-       head.appendChild(s);
-	   
-getLiveRoomList(0)   
+ 
 */
 /*
 function getLiveRoomList(category){
@@ -24,13 +18,26 @@ function getLiveRoomList(category){
 	return httpGetAsString(url);	
 }
 */
+
 console.log("注入脚本 Xiaohongshu-inject.js。。。");
+var _CrawledResult = null;
+
 window.XMLHttpRequest_open = XMLHttpRequest.prototype.open;
 console.log("window.XMLHttpRequest_open = %s",window.XMLHttpRequest_open);
 XMLHttpRequest.prototype.open = function(method,url,asynchronous){
        // console.trace("XMLHttpRequest.open(%s %s)",method,url);
-	   if( url.indexOf("feed/v1/squarefeed")>0 ){
+	   if( url.indexOf("/api/sns/red/live/web/feed/v1/squarefeed")>0 ){
 	      console.log("[Xisohongshu-inject.js]XMLHttpRequest.open(%s %s %s)",method,url,asynchronous);
+		  this.addEventListener("readystatechange",()=>{
+			  if( this.readyState==4 ){
+				   if( this.status>=200 && this.status<300 ){
+					_CrawledResult = this.responseText;
+				   } else {
+					_CrawledResult = "error:HTTP返回状态码="+this.status;
+				   }
+				   _AndroidNativeAPI.exec("notifyAllEvalJSWaitingValue",1);			   
+			  } //this.readyState
+		  })
 	   }
         window.XMLHttpRequest_open.apply(this,arguments);
 }
