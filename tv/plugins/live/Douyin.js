@@ -180,7 +180,7 @@ function loadMenus(url,params){
 						  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
 						    ["https://"+PluginHost+"/tv/plugins/webview/httprequest.js",
 							  "https://"+PluginHost+"/tv/plugins/webview/douyin/Douyin-inject4video.js"],
-							"win",1);
+							"win");
 			var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getVideoFeed",
 								    	//"httpGetAsString('/index.html',null,0)",
 								    	"getVideoFeed("+VideoPageCount+")",
@@ -197,7 +197,7 @@ function loadMenus(url,params){
 				  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
 				    ["https://"+PluginHost+"/tv/plugins/webview/httprequest.js",
 					  "https://"+PluginHost+"/tv/plugins/webview/douyin/Douyin-inject.js"],
-					"win",1);
+					"win");
 		var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getLiveRoomFeed",
 						    	//"httpGetAsString('/index.html',null,0)",
 						    	"getLiveRoomFeed("+forFollow+")",
@@ -213,7 +213,7 @@ function loadMenus(url,params){
 		  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
 		    ["https://"+PluginHost+"/tv/plugins/webview/httprequest.js",
 			  "https://"+PluginHost+"/tv/plugins/webview/douyin/Douyin-inject.js"],
-			"win",1);
+			"win");
 			var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getLiveRoomDetail",
 			    	//"httpGetAsString('/index.html',null,0)",
 			    	"getLiveRoomDetail('"+path+"',"+(page*PageCount)+","+PageCount+")",

@@ -48,7 +48,7 @@ function loadMenus(url,params){
 								//	"https://"+PluginHost+"/tv/plugins/webview/httprequest.js"
 								//	,"https://"+PluginHost+"/tv/plugins/webview/xiaohongshu/Xiaohongshu-inject.js",
 								 ],
-								"win",1);
+								"win");
 	 if( !injectJS ){
 		var url = utils.toAbsoluteURL(_scriptURL,"../webview/xiaohongshu/Xiaohongshu-inject.js");
 		//print("===url="+url);
