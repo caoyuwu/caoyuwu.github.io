@@ -17,7 +17,7 @@ function parseLiveJson(json){
 	var items = [];
 	for(var i of list) {
 		if( i.pull && i.pull.endsWith(".flv") )
-			items.push({title:i.user_nickname+"-"+i.title+(i.type>0?"(VIP-"+i.type+")":"")
+			items.push({title:i.user_nickname+"-"+i.title+"("+i.viewers+")"+(i.type>0?"(VIP-"+i.type+")":"")
 		        ,url:i.pull});
 	}
 	return items;
