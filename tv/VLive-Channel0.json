@@ -1497,14 +1497,6 @@
    // {label:"数字频道",items:["[35-49]","[850-899]"]},
     {label:"网络直播",
        items:[
-		    {label:"QingtingFM直播",items:"@crawler-list:live/QingtingFM.js"},
-		    {label:"1", items:["CHC高清电影","CHC动作电影",
-    				"台湾星卫电影","TVB电影","龙华电影"
-   				 ,"东森电影",
-     				"[9000-9099]"
-     				] 
-              },
-      		 {label:"2",items:["[9100-9199]"]},
       		 { label:"抖音直播",items:"@douyin-list:*"},
 			 { label:"哔哩哔哩",items :"@blive-list:*"},
      		 { label:"快手直播",items:"@kuaishoulive-list:*"},
@@ -1513,6 +1505,14 @@
 	         { label:"斗鱼直播",items:"@douyulive-list:*"},
 			 { label:"花椒直播",items:"@jsmenu:live/Huajiao.js!*"},
 			 { label:"小红书直播",items:"@jsmenu:live/Xiaohongshu.js!*"},
+			 {label:"QingtingFM直播",items:"@crawler-list:live/QingtingFM.js"},
+			 {label:"1", items:["CHC高清电影","CHC动作电影",
+			 		"台湾星卫电影","TVB电影","龙华电影"
+			 	 ,"东森电影",
+			 		"[9000-9099]"
+			 		] 
+			   },
+			   {label:"2",items:["[9100-9199]"]},
     {label:"电视剧",items:"[9200-9299]"}
  //  {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"},
   // {label:"临时频道2",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels2.txt"},

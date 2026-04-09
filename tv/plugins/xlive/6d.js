@@ -74,15 +74,15 @@ function loadConfigUrl(match1,match2){
 
 function loadMenus1(){
 	var items = [];
-	items.push({ title:"直播-2", items:"live/2" });
-	items.push({ title:"直播-5", items:"live/5" });
-	items.push({ title:"直播-6", items:"live/6" });
-	items.push({ title:"直播-7", items:"live/7" });
+	items.push({ title:"直播-2", items:"jsmenu:xlive/6d.js!live/2" });
+	items.push({ title:"直播-5", items:"jsmenu:xlive/6d.js!live/5" });
+	items.push({ title:"直播-6", items:"jsmenu:xlive/6d.js!live/6" });
+	items.push({ title:"直播-7", items:"jsmenu:xlive/6d.js!live/7" });
 	var url = loadConfigUrl("/api/fvideo/getvideoclass?");
 	if( url ) {
 		var retVal = JSON.parse(utils.httpGetAsString(url));
 		for(var i of retVal.data){
-			items.push({ title:"视频-"+i.name, items:"video/"+i.id });
+			items.push({ title:"视频-"+i.name, items:"jsmenu:xlive/6d.js!video/"+i.id });
 		}
 	}
 	
