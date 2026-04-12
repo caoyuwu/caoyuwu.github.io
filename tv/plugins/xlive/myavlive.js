@@ -1,6 +1,8 @@
 /*
+Stripchat 
 https://zh.myavlive.com/
 同 https://zh.mycamtv.com
+废弃, 改为使用 /tv/plugins/webview/myavlive/myavlive.js
 */
 {
 	contentUrl : "https://zh.myavlive.com",
@@ -15,9 +17,13 @@ https://zh.myavlive.com/
 			*/
 			//htmlSelector: ">BODY DIV#body > DIV.indexpage  DIV.wrapper DIV.page-wrapper DIV.index-page DIV.model-list-wrapper DIV.model-list-container DIV.category-countryGenderModels DIV.multiple-categories-category-header a",
 			//items : "@crawler-list://xvideo/mycamtv.js#List2?[PATH=${URLDOM.attr.href}]"
+			/*
+			https://zh.myavlive.com/girls/recommended
+			*/
 			loadItems: 	function(items,_contentUrl,contentCache,macros){
 				var groups1 = {girls:"G",couples:"couples",men:"M",trans:"trans"};
-				var groups2 = {recommended:"推荐",tagLanguageChinese:"中文",
+				var groups2 = {recommended:"推荐",
+					tagLanguageChinese:"中文",
 					autoTagBestPrivates:"私人",
 					groupShow:"购票",
 					tagLanguageJapanese:"日语",
@@ -104,7 +110,7 @@ https://zh.myavlive.com/
 				                       +"&filterGroupTags="+encodeURIComponent("[[\""+filterGroupTag+"\"]]")
 									   +"&sortBy=recommendedScore&userRole=guest&srpm=1&rcmGrp=A&uniq="+uniq
 									   ;
-	//print("url = "+url);								   
+	print("url = "+url);								   
 				var text =  utils.httpGetAsString(url,0x408);	
 	//print("text = "+text);	
 				var models = JSON.parse(text).models;

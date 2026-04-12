@@ -27,9 +27,11 @@ function loadMenus(url,params){
 function parseLiveJson(json){
 	var list = JSON.parse(json).data.list;
 	var items = [];
-	for(var i of list) {
-		if( i.pull && i.pull.endsWith(".flv") )
-			items.push({title:i.user_nickname+"-"+i.title+"("+i.viewers+")"+(i.type>0?"(VIP-"+i.type+")":"")
+	//var i of list
+	for(var j=0;j<list.length;j++) {
+		var i = list[j];
+		if( i.pull  ) //&& i.pull.endsWith(".flv")
+			items.push({title:(j+1)+":"+i.user_nickname+"-"+i.title+"("+i.viewers+")"+(i.type>0?"(VIP-"+i.type+")":"")
 		        ,url:i.pull});
 	}
 	return items;
@@ -78,6 +80,7 @@ function loadMenus1(){
 	items.push({ title:"直播-5", items:"jsmenu:xlive/6d.js!live/5" });
 	items.push({ title:"直播-6", items:"jsmenu:xlive/6d.js!live/6" });
 	items.push({ title:"直播-7", items:"jsmenu:xlive/6d.js!live/7" });
+	/*
 	var url = loadConfigUrl("/api/fvideo/getvideoclass?");
 	if( url ) {
 		var retVal = JSON.parse(utils.httpGetAsString(url));
@@ -85,7 +88,7 @@ function loadMenus1(){
 			items.push({ title:"视频-"+i.name, items:"jsmenu:xlive/6d.js!video/"+i.id });
 		}
 	}
-	
+	*/
 	return items;
 }
 
@@ -104,5 +107,16 @@ function loadVideoMenus(id){
 		return parseVideoJson(json);
 }
 
+/*
+http://1804b3a5c65667d2.mlvbdc.tlivesdk.com:
+qc.qpli.top
+"stream": "8819357_1775577313",
+"sourceid": "1000381220",
+http://lashfoaw064.abrillantlee.top/live/cx_360501.flv
 
+http://lanfhllcjoahohadmcld.xinzhitushu.xyz/live/cx_381220.flv
+http://lasehbehqr.sqfkkj.top/live/cx_383225.flv
+http://lasywepoinetas1.jinkangyl.com/live/cx_384187.flv
+
+*/
 

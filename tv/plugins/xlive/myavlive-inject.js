@@ -6,6 +6,8 @@ if( btn ) btn.click();
 btn = document.querySelector("button.cookies-reminder__accept-all-button");
 if( btn ) btn.click();
 // https://zh.myavlive.com/girls/recommended
+/*
+*/
 function getMenu(){
 	/*
 	div#body > div.main-layout > div.wrapper > MAIN#app.main-layout-main > div.main-layout-main-right > div.main-layout-main-content > div.page-wrapper > div.tag-page > div.index-page-content-wrapper > div.model-list-wrapper > div.model-list-container > div.models-list-container > div.tag-page-model-list > div.model-list-item > A
