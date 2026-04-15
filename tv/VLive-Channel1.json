@@ -257,7 +257,6 @@ scp -O -r /opt/Third-src/GitHUB/caoyuwu.github.io/tv/VLive-Channel1.json  router
 	  // {label:"颜-2",items:"@didilive-list:vegan/2"}
 		]
 	},	
-	{label:"6D.app",locked:1,items:"jsmenu:xlive/6d.js!*"},
  	{label:"1888网-x直播源","locked":1,"items":"@crawler-list:xvideo/yibababa18+.js"},
 	{label:"cn.pornhub.com","locked":1,items:"@crawler-list:xvideo/pornhub.js"},
 	{label:"hsck.net","locked":1,items:"@crawler-list:xvideo/hsck.js"},
@@ -272,25 +271,13 @@ scp -O -r /opt/Third-src/GitHUB/caoyuwu.github.io/tv/VLive-Channel1.json  router
 
  {"label":"YueChan@GitHUB","locked":1,"items":"@m3uloader:https://raw.githubusercontent.com/YueChan/Live/refs/heads/main/Adult.m3u"},
  
+ {label:"6D.app",locked:1,items:"jsmenu:xlive/6d.js!*"},
  
 //{label:"http://ich.vaiwan.com/qun/",locked:1,items:"@webdirlist:http://ich.vaiwan.com/qun/"},
 
-   {label:"临时频道1",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels1.txt"},
-   {label:"临时频道2",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels2.txt"},
-   {label:"临时频道3",items:"@txtloader:http://192.168.1.8/demo~tmp/channels/Channels3.txt"}
-   
-   
-   
+    {}
    ]
  }
  
  
  
- 	/*
-    {label:"Seal1226",locked:1,items:[
-		 {label:"5-",items:"@seal1226-list:5"},
-		 {label:"6-VIP",items:"@seal1226-list:6",countSubMenuPages:5},
-	     {label:"7-娱乐",items:"@seal1226-list:7"},
-	     {label:"8-体育",items:"@seal1226-list:8"}
-	]
-	},	*/
