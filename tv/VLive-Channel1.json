@@ -257,6 +257,7 @@ scp -O -r /opt/Third-src/GitHUB/caoyuwu.github.io/tv/VLive-Channel1.json  router
 	  // {label:"颜-2",items:"@didilive-list:vegan/2"}
 		]
 	},	
+	{label:"lemoncams.com",locked:1,items:"jsmenu:xlive/lemoncams.js!*"},
  	{label:"1888网-x直播源","locked":1,"items":"@crawler-list:xvideo/yibababa18+.js"},
 	{label:"cn.pornhub.com","locked":1,items:"@crawler-list:xvideo/pornhub.js"},
 	{label:"hsck.net","locked":1,items:"@crawler-list:xvideo/hsck.js"},
