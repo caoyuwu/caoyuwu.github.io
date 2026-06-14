@@ -96,7 +96,7 @@ function prepareVideoMediaSource(vid){
 		
 	};
 	var html = utils.httpGetAsString("https://www.douyin.com/video/"+vid,headers);
-print(html);
+//print(html);
 	var jsPrefix = '<script id="RENDER_DATA" type="application/json">';
 	var p1 = html.indexOf(jsPrefix);
 	var p2 = p1<0 ? -1 : html.indexOf("</script>",p1+jsPrefix.length);
@@ -105,7 +105,7 @@ print(html);
 		return null;
 	}
 	var text = decodeURIComponent(html.substring(p1+jsPrefix.length,p2));
-//print(text);
+print(text);
 	var retVal = JSON.parse(text);
 	//v["74931a6b75e09238f154ab1577c994c9"].aweme.detail.video.playAddr[0].src
 	for( k in retVal){
