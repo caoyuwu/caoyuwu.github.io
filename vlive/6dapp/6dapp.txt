@@ -1,5 +1,7 @@
 /*
+dca.azbd.dmi
 scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/vlive/6dapp/6dapp.txt router://www/vlive/6dapp/
+
 */
 https://api.jsqcpt.com/api/fvideo/getvideonvyoulist?sdktype=android&sdkver=3.1.6&device=e83480c724d7fe7662c1b8f9edd66efd&uid=8797429&token=57143c6b5d4703723246f3303c984e7e&t=1775652338&signature=bcb834391184fc192b14dbc21e10ac2730c5750163631e215f7c1fc6aae4e8bc7ec5db92d3313af9377bcf3240e037643b4265c72f659eec083b863f0de432d27ebfdaeee6d3eaa14740dfd90310c691
 
