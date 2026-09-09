@@ -16,6 +16,12 @@
 	String server1URL, // server1URL = "https://api.jsdn0.xyz/";
 		 server2URL,  // server2URL = "https://notify.hhnt.xyz/";
 	 	   websocketURL; // "wss://cywqfzo8.shdkw1o.com/ws";	 
+	txSecret 生成算法:
+	        String txTime = "6a872fa8";
+			String streamId = "s1310235770_3392ca8393";
+			String key = "dnaUxtSkoSkmKO9ARopFxyY7Xu5ZEqXW";
+			//MD5 (KEY + stream_id + txTime). 
+			System.out.println(MessageDigestUtils.md5Hex(key+streamId+txTime));	   
  */
 var DIDI_Settings = null;
 function getSettings() {
@@ -89,9 +95,10 @@ print(text);
 var bkMediaSource = {};
 function prepareMediaSource(url,params){
   var userId = utils.getUrlHostAndPath(url);
+  var roomId = "";
   var p = userId.indexOf("/");
   if( p>0 ){
-	  // roomId = userId.substring(0,p);
+	  roomId = userId.substring(0,p);
 	  userId = userId.substring(p+1);
   }
   var params = {
@@ -100,16 +107,52 @@ function prepareMediaSource(url,params){
   };
   
 	var data = httpGet("private/getPrivateLimit",params,2|4);
-	if( data.code ){
-	   throw data.code+":"+data.msg;
+	if( data.code ) {
+		if( !bkMediaSource[userId] ) throw data.code+":"+data.msg;
+		utils.showToast(data.code+":"+data.msg);
+		return bkMediaSource[userId];
+	 //  throw data.code+":"+data.msg;
 	}
 	data = data.data;
+	/*
+	// key = data.key;
+	MD5 (KEY + stream_id + txTime). 
+	stream_id = "s"+roomId+"_"+
+	//setConfigPreference
+	*/
+	
 	if( !data.stream )
 		return bkMediaSource[userId] || null; //null;//
 	//data.stream.pull_url;
-	return  bkMediaSource[userId] = data.stream.pull_url ; //bkMediaSource[userId] =
+	var url = bkMediaSource[userId] = data.stream.flv_pull_url || data.stream.pull_url ; //bkMediaSource[userId] =
+	if( !url || url.indexOf("/preview/")>0  ){
+		
+	} else {
+		// /live/s1310235770_7ab0f5c67c?
+		// m/live/s1310235770_7ab0f5c67c.
+		var p = url.indexOf("?");
+		var url0 = p>=0 ? url.substring(0,p) : url;
+	//	var stream_id = extractStreamIdFromURL(roomId,url0);
+		//print("url0 = "+url0);
+		//print("stream_id = "+stream_id);
+		//utils.
+	}
+	return url;
 }
 
+function extractStreamIdFromURL(roomId,url){
+	var s1 = "/s"+roomId+"_";
+			var p1 = url.indexOf(s1);
+			if( p1<0 ) return null;
+			var p2 = p1+s1.length;
+			for(;p2<url.length;p2++){
+				var c = url.charCodeAt(p2);
+				if( !((c>=0x30 && c<=0x39) || (c>=0x61 && c<=0x7a)) ){
+					break;
+				}
+			}
+	return url.substring(p1+1,p2);
+}
 //var AppVersion = "1.12.2";//"2.0.29";
 var AppVersion = "1.17.1";// 2025-03-10 =>1.17.1 ; 参考 WsLoginServerRequest
 

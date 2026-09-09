@@ -4,6 +4,7 @@
 #*/  
 
 /*
+  scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/cctv/CCTV-HttpService.js router:/www/tv/plugins/cctv/
   1 : h5.worker.js 来自 tv.cctv.com https://js.player.cntv.cn/creator/h5.worker?v=220805
      其中 标志 [CYW] 做了修改
    2 : h5.worker.wasm   来自  h5.worker.js 中的 wb 
@@ -13,8 +14,9 @@
 /*
 https://caoyuwu.eu.org/tv/plugins/cctv/CCTV-HttpService.js
 https://js.player.cntv.cn/creator/h5.worker?v=220805
-http://m.lan:8803/cctv-httpservice/info
-http://m.lan:8803/cctv-httpservice/ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100
+http://tv2.lan:8803/cctv-httpservice/info
+http://tv2.lan:8803/cctv-httpservice/ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100
+http://tv2:8803/cctv-httpservice/ldocctvwbcdtxy.liveplay.myqcloud.com/ldocctvwbcd/cdrmldcctv15_1/index.m3u8?b=200-2100
 http://192.168.1.14:8803/cctv-httpservice/ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100
 
 */
@@ -40,6 +42,10 @@ function httpService(params){
 	https://ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100
 	uri == /cctv-httpservice/ldncctvwbcdtxy.liveplay.myqcloud.com/ldncctvwbcd/cdrmldcctv13_1/index.m3u8?b=200-2100
 	*/
+//if(_debug )
+	{
+	print(">>>>>httpService : uri = "+uri);
+}	
 	var p = uri.indexOf("/",1);
 	var path = p>0 ? uri.substring(p+1) : "";
 	if( path=="" || path=="info" ){
