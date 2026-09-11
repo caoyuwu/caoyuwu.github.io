@@ -89,7 +89,7 @@ function getLiveRoomFeed(follow){
 		webcast_version_code : 170400 ,
 		version_code : 170400 ,
 	};
-	if( follow ){
+	if( follow ) {
 		queryParams.source_key = "web_homepage_follow_top";
 		queryParams.enter_source = "web_homepage_follow_top";
 	}
