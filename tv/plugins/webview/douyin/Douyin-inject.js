@@ -86,7 +86,13 @@ function getLiveRoomFeed(follow){
 		enter_source : "web_homepage_hot_web_live_card" ,
 		source_key : "web_homepage_hot_web_live_card" ,
 		is_ssr : true ,
+		webcast_version_code : 170400 ,
+		version_code : 170400 ,
 	};
+	if( follow ){
+		queryParams.source_key = "web_homepage_follow_top";
+		queryParams.enter_source = "web_homepage_follow_top";
+	}
 	// source_key : "web_homepage_follow_top" ,
 	// webcast_version_code : 170400 ,
 	//version_code : 170400 ,
