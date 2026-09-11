@@ -54,8 +54,9 @@ function getLiveRoomDetail(path,offset,count){
 /*
 follow==true: 关注的直播
    https://www.douyin.com/webcast/web/feed/follow/
+   ?https://live.douyin.com/webcast/feed/follow_top/
 否则： 
-  https://live.douyin.com/webcast/feed/  
+    https://live.douyin.com/webcast/feed/
 */
 function getLiveRoomFeed(follow){
 	//var url = ;
@@ -86,7 +87,12 @@ function getLiveRoomFeed(follow){
 		source_key : "web_homepage_hot_web_live_card" ,
 		is_ssr : true ,
 	};
-	var url = appendUrlParams(follow?"https://live.douyin.com/webcast/web/feed/follow/":"https://live.douyin.com/webcast/feed/",queryParams);
+	// source_key : "web_homepage_follow_top" ,
+	// webcast_version_code : 170400 ,
+	//version_code : 170400 ,
+	//	need_map : 1 ,
+	var url = appendUrlParams(follow?"https://live.douyin.com/webcast/web/feed/follow_top/"
+								 :"https://live.douyin.com/webcast/feed/",queryParams);
 	console.log("url=%s",url);
 	return httpGetAsString(url);
 }

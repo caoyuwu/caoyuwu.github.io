@@ -163,6 +163,7 @@ const PluginHost = "caoyuwu.eu.org";
 //const PluginHost = "router.lan";
 const PageCount = 20;
 const VideoPageCount = 20;
+const WaitWebViewTimeout = 30;
 var webview;
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
@@ -184,16 +185,21 @@ function loadMenus(url,params){
 			var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getVideoFeed",
 								    	//"httpGetAsString('/index.html',null,0)",
 								    	"getVideoFeed("+VideoPageCount+")",
-								    	10,
+									WaitWebViewTimeout,  // timeout
 										1);	
 		 //  print("text="+text);								
 			return parseVideoMenus4Feed(text);							
 	 } // for 
 	 // 直播：douyinvideo-list
 //print("[loadMenus] url="+url+",");
+	/*
+
+	 */
 	if( path=="~" || path=="follow" ){
 		var forFollow = path=="follow";
-		webview.loadUrl("https://live.douyin.com/categorynew/",
+		webview.loadUrl(
+					"https://live.douyin.com/",
+			      //    "https://live.douyin.com/categorynew/",
 				  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
 				    ["https://"+PluginHost+"/tv/plugins/webview/httprequest.js",
 					  "https://"+PluginHost+"/tv/plugins/webview/douyin/Douyin-inject.js"],
@@ -201,7 +207,7 @@ function loadMenus(url,params){
 		var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getLiveRoomFeed",
 						    	//"httpGetAsString('/index.html',null,0)",
 						    	"getLiveRoomFeed("+forFollow+")",
-						    	10,
+							WaitWebViewTimeout,
 								1);		
 	//print("text="+text);		
 		return forFollow ? parseMenus(text,-1)  : parseMenus4Feed(text);	
@@ -217,7 +223,7 @@ function loadMenus(url,params){
 			var text = webview.evalOnPageFinished("!!window.httpGetAsString && !!window.getLiveRoomDetail",
 			    	//"httpGetAsString('/index.html',null,0)",
 			    	"getLiveRoomDetail('"+path+"',"+(page*PageCount)+","+PageCount+")",
-			    	10,
+				WaitWebViewTimeout,
 					1);		
 		//print("text="+text);
 		    return parseMenus(text,page); 	
@@ -327,7 +333,7 @@ function toUrls(rid,urlsm,opts){
 
 function loadMenus1(){
 	return 	[
-			    {label:"我的关注",items:"@douyin-list:live/follow"},		   
+			    {label:"我的关注",items:"@douyin-list:live/follow"},
 				 {label:"首页",items:"@douyin-list:live/~"},	   
 			    {label:"聊天",items:"@douyin-list:live/4_101",countSubMenuPages:5},
 	   		    {label:"音乐",items:"@douyin-list:live/4_102",countSubMenuPages:5},
