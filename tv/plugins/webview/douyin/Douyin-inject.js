@@ -60,8 +60,6 @@ follow==true: 关注的直播
     https://live.douyin.com/webcast/feed/
 */
 function getLiveRoomFeed(follow){
-	//var url = ;
-
 	queryParams = {
 		aid : 6383 ,
 		app_name : "douyin_web" ,
@@ -85,7 +83,7 @@ function getLiveRoomFeed(follow){
 		webcast_version_code : 170400 ,
 		version_code : 170400 ,
 		need_map : 1 ,
-	}
+	};
 	// source_key : "web_homepage_follow_top" ,
 	// webcast_version_code : 170400 ,
 	//version_code : 170400 ,
