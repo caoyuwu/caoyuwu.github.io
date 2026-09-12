@@ -52,6 +52,7 @@ function getLiveRoomDetail(path,offset,count){
 	//window.url = url;
 }
 /*
+
 follow==true: 关注的直播
    https://www.douyin.com/webcast/web/feed/follow/
    ?https://live.douyin.com/webcast/feed/follow_top/
@@ -60,45 +61,41 @@ follow==true: 关注的直播
 */
 function getLiveRoomFeed(follow){
 	//var url = ;
-	var queryParams = {
+
+	queryParams = {
 		aid : 6383 ,
 		app_name : "douyin_web" ,
 		live_id : 1 ,
 		device_platform : "web" ,
 		language : navigator.language,//"zh" ,
-		enter_from : "page_refresh" ,
-		cookie_enabled : navigator.cookieEnabled ,
-		screen_width : window.screen && window.screen.width ,
-		screen_height : window.screen && window.screen.height ,
-		browser_language : navigator.language ,
-		browser_platform : "Win32",//MacIntel" ,
+		enter_from : "link_share" ,
+		cookie_enabled : navigator.cookieEnabled ,// true ,
+		screen_width : window.screen && window.screen.width,//1440 ,
+		screen_height : window.screen && window.screen.height ,//900 ,
+		browser_language : navigator.language ,//"zh" ,
+		browser_platform :"Win32",// "MacIntel" ,
 		browser_name : "Chrome" ,
-		browser_version : "120.0.0.0",// navigator.appVersion,"146.0.0.0" ,
-		channel : "channel_pc_web" ,
-		request_tag_from : "web" ,
-		need_map : 1 ,
-		liveid : 1 ,
-		is_draw : 1 ,
-		inner_from_drawer : 0 ,
-		custom_count : 50 ,
-		action : "load_more" ,
-		action_type : "loadmore" ,
-		enter_source : "web_homepage_hot_web_live_card" ,
-		source_key : "web_homepage_hot_web_live_card" ,
-		is_ssr : true ,
+		browser_version : "120.0.0.0",//"153.0.0.0" ,
+		os_name : "Android",//"Mac OS" ,
+		os_version : "11",//"10.15.7" ,
+		enter_source : "homepage_pc_followtop" ,
+		need_pinned_info : 0 ,
+		follow_session_id : 0 ,
+		source_key : "web_homepage_follow_top" ,
 		webcast_version_code : 170400 ,
 		version_code : 170400 ,
-	};
-	if( follow ) {
-		queryParams.source_key = "web_homepage_follow_top";
-		queryParams.enter_source = "web_homepage_follow_top";
+		need_map : 1 ,
 	}
 	// source_key : "web_homepage_follow_top" ,
 	// webcast_version_code : 170400 ,
 	//version_code : 170400 ,
 	//	need_map : 1 ,
-	var url = appendUrlParams(follow?"https://live.douyin.com/webcast/web/feed/follow_top/"
-								 :"https://live.douyin.com/webcast/feed/",queryParams);
+	var url = appendUrlParams(
+		              // follow?"https://live.douyin.com/webcast/web/feed/follow/"
+				     follow ? "https://live.douyin.com/webcast/feed/follow_top/"
+						        : "https://live.douyin.com/webcast/feed/",
+		               queryParams
+	                      );
 	console.log("url=%s",url);
 	return httpGetAsString(url);
 }

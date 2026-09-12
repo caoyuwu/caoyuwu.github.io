@@ -1,5 +1,6 @@
 /*
   scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/live/Douyin.js router:/www/tv/plugins/live/
+  http://router.lan/tv/plugins/live/Douyin.js
   https://live.douyin.com/208823316033    // CCTV-6
     => douyinlive://208823316033
     douyinlive:746495143885 // 嘉佳
@@ -198,8 +199,8 @@ function loadMenus(url,params){
 	if( path=="~" || path=="follow" ){
 		var forFollow = path=="follow";
 		webview.loadUrl(
-					"https://live.douyin.com/",
-			      //    "https://live.douyin.com/categorynew/",
+				  //	"https://live.douyin.com/",
+			          "https://live.douyin.com/categorynew/",
 				  // 好像 https 页面不能注入 http 脚本， 所以使用 caoyuwu.eu.org
 				    ["https://"+PluginHost+"/tv/plugins/webview/httprequest.js",
 					  "https://"+PluginHost+"/tv/plugins/webview/douyin/Douyin-inject.js"],
@@ -209,8 +210,9 @@ function loadMenus(url,params){
 						    	"getLiveRoomFeed("+forFollow+")",
 							WaitWebViewTimeout,
 								1);		
-	//print("text="+text);		
-		return forFollow ? parseMenus(text,-1)  : parseMenus4Feed(text);	
+	//print("text="+text);
+		return  parseMenus4Feed(text);  // 2026-09-11?
+		//return forFollow ? parseMenus(text,-1)  : parseMenus4Feed(text);
 	}
 	var page = params ? params._pgIdx || 0 : 0;
 //	   print("webview = "+webview);
@@ -258,12 +260,13 @@ function parseMenus(text,page){
 
 /*
   未分类（全部—） 直播
+    data[?] -> data -> stream_url -> hls_pull_url_map  =
 */
 function parseMenus4Feed(text) {
 	var retVal = JSON.parse(text);
 		var vCh = [];
 	if( retVal.data) for(var data1 of  retVal.data){
-		var room = data1.data;
+		var room = data1.data;  // data[?] -> data
 		var roomId = room.id_str;
 	//	var owner = room.owner;
 		var rid = data1.web_rid;  // room.owner.web_rid
