@@ -166,6 +166,12 @@ const PageCount = 20;
 const VideoPageCount = 20;
 const WaitWebViewTimeout = 30;
 var webview;
+/*
+   live/~
+   live/follow
+   video/xx
+   vschannel/movie
+ */
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
 	if( path=="" || path=="*" ) {
@@ -190,7 +196,10 @@ function loadMenus(url,params){
 										1);	
 		 //  print("text="+text);								
 			return parseVideoMenus4Feed(text);							
-	 } // for 
+	 } // for video
+	if( type=="vschannel" ){
+
+	} // for vschannel
 	 // 直播：douyinvideo-list
 //print("[loadMenus] url="+url+",");
 	/*
@@ -210,7 +219,7 @@ function loadMenus(url,params){
 						    	"getLiveRoomFeed("+forFollow+")",
 							WaitWebViewTimeout,
 								1);		
-	//print("text="+text);
+	//print("loadMenus(path="+path+") : text="+text);
 		return  parseMenus4Feed(text);  // 2026-09-11?
 		//return forFollow ? parseMenus(text,-1)  : parseMenus4Feed(text);
 	}

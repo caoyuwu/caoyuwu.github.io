@@ -94,7 +94,7 @@ function getLiveRoomFeed(follow){
 						        : "https://live.douyin.com/webcast/feed/",
 		               queryParams
 	                      );
-	console.log("url=%s",url);
+	console.log("url="+url);
 	return httpGetAsString(url);
 }
 
