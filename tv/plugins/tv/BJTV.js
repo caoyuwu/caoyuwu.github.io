@@ -19,14 +19,44 @@ BRTV新闻    bjtv://53gpt1ephlp86eor6ahtkg5b2hf
 
 参考:
   https://s2.ssl.qhres2.com/!dd49acd6/feb/page.js 中 getStream  
-  
+
 */
+var lastInitCookiesTime = 0;
+function initCookies(){
+	//print("lastInitCookiesTime="+lastInitCookiesTime);
+	if( lastInitCookiesTime!=0 ){
+		return;
+	}
+	utils.addHttpCookiesFromCfgFile("https://pc.api.btime.com","configs/BJTV-Cookies.txt");
+	lastInitCookiesTime = utils.currentTime();
+	/*
+    if( lastInitCookiesTime>utils.getLastUpdateConfigPreferenceTime() ){
+        return;
+    }
+
+    //utils.addHttpCookiesFromConfig("https://live.douyin.com","Douyin.Cookie.");
+    utils.addHttpCookiesFromConfig("https://douyin.com","Douyin.Cookie.");
+    lastInitCookiesTime = utils.currentTime();
+    */
+}
+
+/*
+https://pc.api.btime.com/video/play?
+  from=pc
+  &callback=jQuery3600010001411278361627_1792321912492
+  &id=573ib1kp5nk92irinpumbo9krlb
+  &type_id=151
+  &timestamp=1792321913
+  &_=1792321912493
+
+ */
 function prepareMediaSource(url,params){
-	 var id = utils.getUrlHostAndPath(url); //"" +
+	initCookies();
+	var id = utils.getUrlHostAndPath(url); //"" +
 	 var type_id = 151;
 	 var t0 = new Date().getTime();
-	 var timestamp = parseInt(t0 / 1000),
-                sign = getSign(id, 151, timestamp);
+	 var timestamp = parseInt(t0 / 1000);
+	//var     sign = getSign(id, 151, timestamp);
      var headers = {
 			Referer: "https://www.btime.com/"
 	};
@@ -36,7 +66,7 @@ function prepareMediaSource(url,params){
 		id:id,//=5755n511tbk8flo40l4c71l0sdf
 		type_id:type_id,//151
 		timestamp: timestamp,
-		sign: sign,//=e1ad6461&_=1744008710787
+	//	sign: sign,// 使用Cookie, sign 无效
 		"_":t0
 	  };
 	  var url = utils.appendUrlParameters("https://pc.api.btime.com/video/play",queryParams);

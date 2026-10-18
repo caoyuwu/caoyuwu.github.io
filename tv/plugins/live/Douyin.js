@@ -198,7 +198,8 @@ function loadMenus(url,params){
 			return parseVideoMenus4Feed(text);							
 	 } // for video
 	if( type=="vschannel" ){
-
+		// 定义在 Douyin-vschannel.js  : todo #include
+        return loadsVschannelMenus(path);
 	} // for vschannel
 	 // 直播：douyinvideo-list
 //print("[loadMenus] url="+url+",");
