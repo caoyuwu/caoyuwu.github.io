@@ -106,11 +106,16 @@ function  getHistValue(name){
 	 return loadHistValues()[name];
 }
 
+
 function  setHistValue(vals){
 	loadHistValues();
+	print("保存:"+JSON.stringify(vals));
 	var changed = false;
 	for(var name in vals ){
-		if( histValues[name]!=vals[name] ) {
+		var v1 = histValues[name], v2 = vals[name];
+		//print("histValues["+name+"]="+JSON.stringify(v1));
+		//print("vals["+name+"]="+JSON.stringify(v2));
+		if( v1!=v2 && JSON.stringify(v1)!=JSON.stringify(v2) ) {
 			histValues[name] = vals[name];
 			changed = true;
 		}
@@ -137,9 +142,12 @@ function prepareMediaSource(url,params) {
   };
 
 	var data = httpGet("private/getPrivateLimit",params,2|4);
-	if( !data.stream ) {
+	if( !data.data ||  !data.data.stream ) {
 		var url = newStreamURLByHist(userId);
-		if( url ) return url;
+		if( url ) {
+			utils.showToast("错误"+data.code+":"+data.msg+",使用历史URL="+url);
+			return url;
+		}
 	}
 	if( data.code ) {
 
@@ -164,7 +172,10 @@ function prepareMediaSource(url,params) {
 	//if( url && url.indexOf("/preview/")>0 )
 	if( !url || url.indexOf("/preview/")>0  ) {
 		var histUrl = newStreamURLByHist(userId);
-		if( histUrl ) return histUrl;
+		if( histUrl ) {
+			utils.showToast("使用历史URL="+histUrl);
+			return histUrl;
+		}
 	} else {
 		bkMediaSource[userId] = url;
 		// /live/s1310235770_7ab0f5c67c?
@@ -176,11 +187,11 @@ function prepareMediaSource(url,params) {
 		var url0 = p>=0 ? url.substring(0,p) : url;
 		var stream_id = extractStreamIdFromURL(roomId,url0);
 		//print("url0="+url0+" ; stream_id="+stream_id+"; roomId="+roomId);
-		//print("baseUrl="+baseUrl);
+		//print("baseUrl="+baseUrl+"; stream_id="+stream_id);
 		if( baseUrl && stream_id) {
 			//print("newUrl="+newStreamURL(baseUrl,stream_id));
 			var vals = {"baseUrl": baseUrl};
-			vals[userId] = {"nickname": nickname, "stream_id": stream_id};
+			vals[userId] = {"nickname": nickname, "stream_id": stream_id,"room_id":roomId};
 			setHistValue(vals);
 		}
 		//var urlParams  = utils.getUrlParameters(url);
