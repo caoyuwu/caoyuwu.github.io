@@ -85,15 +85,45 @@ function httpGet(path,params,opts){
 	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
 	text = utils.aescbcDecrypt(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
 	}
-print(text);
+//print(text);
 //utils.onMessage(null,text);
 	return JSON.parse(text);
+}
+const HistValFile = "configs/DiDiHistVals.json";
+var histValues ;
+function loadHistValues(){
+	if( histValues ) return histValues;
+	var s = utils.getConfigFileAsText(HistValFile);
+	if( s && (s=s.trim()).length>0 ) try {
+		histValues = JSON.parse(s);
+	} catch(ex){
+		//
+	}
+	if( !histValues ) histValues = {};
+	return histValues;
+}
+function  getHistValue(name){
+	 return loadHistValues()[name];
+}
+
+function  setHistValue(vals){
+	loadHistValues();
+	var changed = false;
+	for(var name in vals ){
+		if( histValues[name]!=vals[name] ) {
+			histValues[name] = vals[name];
+			changed = true;
+		}
+	}
+	if( changed ){
+		utils.writeConfigFile(HistValFile,JSON.stringify(histValues));
+	}
 }
 /*
   didilive://1536065711/68007597
 */
 var bkMediaSource = {};
-function prepareMediaSource(url,params){
+function prepareMediaSource(url,params) {
   var userId = utils.getUrlHostAndPath(url);
   var roomId = "";
   var p = userId.indexOf("/");
@@ -105,9 +135,14 @@ function prepareMediaSource(url,params){
      //"token":getSetting("token"),//utils.getConfigPreference("DID.token",JSYL_token),
      "uid":userId
   };
-  
+
 	var data = httpGet("private/getPrivateLimit",params,2|4);
+	if( !data.stream ) {
+		var url = newStreamURLByHist(userId);
+		if( url ) return url;
+	}
 	if( data.code ) {
+
 		if( !bkMediaSource[userId] ) throw data.code+":"+data.msg;
 		utils.showToast(data.code+":"+data.msg);
 		return bkMediaSource[userId];
@@ -120,19 +155,35 @@ function prepareMediaSource(url,params){
 	stream_id = "s"+roomId+"_"+
 	//setConfigPreference
 	*/
-	
-	if( !data.stream )
+
+	if( !data.stream ) {
 		return bkMediaSource[userId] || null; //null;//
+	}
 	//data.stream.pull_url;
-	var url = bkMediaSource[userId] = data.stream.flv_pull_url || data.stream.pull_url ; //bkMediaSource[userId] =
-	if( !url || url.indexOf("/preview/")>0  ){
-		
+	var url = data.stream.flv_pull_url || data.stream.pull_url ; //bkMediaSource[userId] =
+	//if( url && url.indexOf("/preview/")>0 )
+	if( !url || url.indexOf("/preview/")>0  ) {
+		var histUrl = newStreamURLByHist(userId);
+		if( histUrl ) return histUrl;
 	} else {
+		bkMediaSource[userId] = url;
 		// /live/s1310235770_7ab0f5c67c?
 		// m/live/s1310235770_7ab0f5c67c.
+		var nickname = data.anchor ? data.anchor.nickname : null;
+		var p = url.indexOf("/live/");
+		var baseUrl = p>0 ? url.substring(0,p+6) : null;
 		var p = url.indexOf("?");
 		var url0 = p>=0 ? url.substring(0,p) : url;
-	//	var stream_id = extractStreamIdFromURL(roomId,url0);
+		var stream_id = extractStreamIdFromURL(roomId,url0);
+		//print("url0="+url0+" ; stream_id="+stream_id+"; roomId="+roomId);
+		//print("baseUrl="+baseUrl);
+		if( baseUrl && stream_id) {
+			//print("newUrl="+newStreamURL(baseUrl,stream_id));
+			var vals = {"baseUrl": baseUrl};
+			vals[userId] = {"nickname": nickname, "stream_id": stream_id};
+			setHistValue(vals);
+		}
+		//var urlParams  = utils.getUrlParameters(url);
 		//print("url0 = "+url0);
 		//print("stream_id = "+stream_id);
 		//utils.
@@ -152,6 +203,23 @@ function extractStreamIdFromURL(roomId,url){
 				}
 			}
 	return url.substring(p1+1,p2);
+}
+
+function newStreamURLByHist(userId){
+	var vals = getHistValue(userId);
+	if( !vals ) return null;
+	var streamId = vals.stream_id;
+	var baseUrl = getHistValue("baseUrl");
+	return newStreamURL(baseUrl,streamId);
+}
+
+function newStreamURL(baseUrl,streamId){
+	var txTime = utils.currentTimeSeconds() .toString(16);
+	var key = "dnaUxtSkoSkmKO9ARopFxyY7Xu5ZEqXW";
+	var txSecret = utils.md5LowerCaseHex(key+streamId+txTime);
+	//MD5 (KEY + stream_id + txTime).
+	//System.out.println(MessageDigestUtils.md5Hex(key+streamId+txTime));
+	return baseUrl+streamId+".flv?txSecret="+txSecret+"&txTime="+txTime;
 }
 //var AppVersion = "1.12.2";//"2.0.29";
 var AppVersion = "1.17.1";// 2025-03-10 =>1.17.1 ; 参考 WsLoginServerRequest
