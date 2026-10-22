@@ -161,7 +161,7 @@ function prepareMediaSource(url,params) {
 		}
 	}
 	if( data.code ) {
-
+		// 废弃:
 		if( !bkMediaSource[userId] ) throw data.code+":"+data.msg;
 		utils.showToast(data.code+":"+data.msg);
 		return bkMediaSource[userId];
@@ -182,11 +182,12 @@ function prepareMediaSource(url,params) {
 	var url = data.stream.flv_pull_url || data.stream.pull_url ; //bkMediaSource[userId] =
 	//if( url && url.indexOf("/preview/")>0 )
 	if( !url || url.indexOf("/preview/")>0  ) {
+		/*
 		var histUrl = newStreamURLByHist(userId);
 		if( histUrl ) {
 			utils.showToast("使用历史URL="+histUrl);
 			return histUrl;
-		}
+		} */
 	} else {
 		bkMediaSource[userId] = url;
 		// /live/s1310235770_7ab0f5c67c?
