@@ -30,9 +30,9 @@ function getSettings() {
 		 * http://caoyuwu.eu.org/vlive/didi/Settings.json
 		 */
 		var url = utils.toAbsoluteURL(_scriptURL,"../../vlive/didi/Settings.json");
-		
+//print("_scriptURL="+_scriptURL+"; url="+url);
 		var text = utils.httpGetAsString(url,{});
-	//print("text="+text);	
+//print("text="+text);
 		var data = eval(text);
 		var s = DIDI_Settings = data[0];
 		/*
