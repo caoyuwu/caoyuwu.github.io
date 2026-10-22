@@ -85,7 +85,7 @@ function httpGet(path,params,opts){
 	var authTokenMD5 = utils.md5LowerCaseHex(authToken);
 	text = utils.aescbcDecrypt(authTokenMD5.substring(16),authTokenMD5.substring(0,16),text);
 	}
-//print(text);
+if(_debug) print(text);
 //utils.onMessage(null,text);
 	return JSON.parse(text);
 }
@@ -126,15 +126,26 @@ function  setHistValue(vals){
 }
 /*
   didilive://1536065711/68007597
+
 */
 var bkMediaSource = {};
 function prepareMediaSource(url,params) {
   var userId = utils.getUrlHostAndPath(url);
+  var onlyHist = userId.startsWith("hist-");
+  if( onlyHist ){
+	  userId = userId.substring(5);
+  }
   var roomId = "";
   var p = userId.indexOf("/");
   if( p>0 ){
 	  roomId = userId.substring(0,p);
 	  userId = userId.substring(p+1);
+  }
+  if( onlyHist ){
+	  var url = newStreamURLByHist(userId);
+	  if( url ) {
+		  return url;
+	  }
   }
   var params = {
      //"token":getSetting("token"),//utils.getConfigPreference("DID.token",JSYL_token),
@@ -180,10 +191,25 @@ function prepareMediaSource(url,params) {
 		bkMediaSource[userId] = url;
 		// /live/s1310235770_7ab0f5c67c?
 		// m/live/s1310235770_7ab0f5c67c.
+		var anchor = data.anchor;
+		var nickname = anchor ? anchor.nickname : null;
+		var city = anchor ? anchor.city : null;
+		var province = anchor ? anchor.province : null;
+		// city province
+		var p = url.indexOf("/live/");
+		var baseUrl = p>0 ? url.substring(0,p+6) : null;
+		var p = url.lastIndexOf("?");
+		var url0 = p>=0 ? url.substring(0,p) : url;
+		var vals = {"baseUrl": baseUrl};
+		vals[userId] = {"nickname": nickname, "url": url0,"room_id":roomId,"modifydate":date2Str()};
+		if( city )  vals[userId].city = city;
+		if( province )  vals[userId].province = province;
+		setHistValue(vals);
+		/*
 		var nickname = data.anchor ? data.anchor.nickname : null;
 		var p = url.indexOf("/live/");
 		var baseUrl = p>0 ? url.substring(0,p+6) : null;
-		var p = url.indexOf("?");
+		var p = url.lastIndexOf("?");
 		var url0 = p>=0 ? url.substring(0,p) : url;
 		var stream_id = extractStreamIdFromURL(roomId,url0);
 		//print("url0="+url0+" ; stream_id="+stream_id+"; roomId="+roomId);
@@ -194,6 +220,8 @@ function prepareMediaSource(url,params) {
 			vals[userId] = {"nickname": nickname, "stream_id": stream_id,"room_id":roomId};
 			setHistValue(vals);
 		}
+
+		 */
 		//var urlParams  = utils.getUrlParameters(url);
 		//print("url0 = "+url0);
 		//print("stream_id = "+stream_id);
@@ -219,15 +247,28 @@ function extractStreamIdFromURL(roomId,url){
 function newStreamURLByHist(userId){
 	var vals = getHistValue(userId);
 	if( !vals ) return null;
-	var streamId = vals.stream_id;
-	var baseUrl = getHistValue("baseUrl");
-	return newStreamURL(baseUrl,streamId);
+	//var streamId = vals.stream_id;
+	var roomId = vals.room_id;
+	//var baseUrl = getHistValue("url");
+	return newStreamURL(vals.room_id,vals.url);
+	//return newStreamURL(baseUrl,streamId);
 }
 
-function newStreamURL(baseUrl,streamId){
+const TxSecretKey = "dnaUxtSkoSkmKO9ARopFxyY7Xu5ZEqXW";
+function newStreamURL(roomId,baseUrl){
+	var streamId = extractStreamIdFromURL(roomId,baseUrl);
+	if( !streamId ) return null;
 	var txTime = utils.currentTimeSeconds() .toString(16);
-	var key = "dnaUxtSkoSkmKO9ARopFxyY7Xu5ZEqXW";
-	var txSecret = utils.md5LowerCaseHex(key+streamId+txTime);
+	var txSecret = utils.md5LowerCaseHex(TxSecretKey+streamId+txTime);
+	//MD5 (KEY + stream_id + txTime).
+	//System.out.println(MessageDigestUtils.md5Hex(key+streamId+txTime));
+	return baseUrl+"?txSecret="+txSecret+"&txTime="+txTime;
+}
+
+function newStreamURL4StreamId(baseUrl,streamId){
+	var txTime = utils.currentTimeSeconds() .toString(16);
+	//var key = "dnaUxtSkoSkmKO9ARopFxyY7Xu5ZEqXW";
+	var txSecret = utils.md5LowerCaseHex(TxSecretKey+streamId+txTime);
 	//MD5 (KEY + stream_id + txTime).
 	//System.out.println(MessageDigestUtils.md5Hex(key+streamId+txTime));
 	return baseUrl+streamId+".flv?txSecret="+txSecret+"&txTime="+txTime;
@@ -249,6 +290,10 @@ var AppVersion = "1.17.1";// 2025-03-10 =>1.17.1 ; 参考 WsLoginServerRequest
 */
 function loadMenus(url,params){
 	var path = utils.getUrlHostAndPath(url);
+	if( path=="hist" ){
+		return loadListMenus();
+	}
+
   var p = path.indexOf("/");
   var type = p<0 ? path : path.substring(0,p);
   var page = p<0 ? 1 : parseInt(path.substring(p+1));
@@ -304,6 +349,28 @@ function loadMenus(url,params){
 //	print(text);
 }
 
+function loadListMenus(){
+	loadHistValues();
+	var vCh = [];
+	for(var userId in histValues) {
+		var vals = histValues[userId];
+		if(vals.room_id && vals.nickname  ){
+			var title = vals.nickname;
+			var roomId = vals.room_id;
+			if( vals.province ) title += "-"+vals.province;
+			if( vals.city && vals.city!=vals.province ) title += "-"+vals.city;
+			title += "-"+vals.modifydate;
+			vCh.push({title:title,url:"didilive://"+roomId+"/"+userId,msgSocketArgs:[roomId+"/"+userId]});
+		}
+	}
+	vCh.sort((v1,v2)=>{
+		var s1 = v1.title, s2=v2.title;
+		var p1=s1.lastIndexOf('-'), p2 = s2.lastIndexOf('-');
+		s1 = s1.substring(p1+1); s2 =   s2.substring(p2+1);
+		return s2.localeCompare(s1);
+			});
+	return vCh;
+}
 //var  _msgSocketStarted = -1;
 
 function onWebSocketEvent(id,type,msg,code){
@@ -463,4 +530,9 @@ utils.onMessage(null,userId+" startMessage-userId="+userId+",s="+s
 function toStr3(x){
 	s = "00"+x;
 	return s.substring(s.length-3);
+}
+function date2Str(date){
+	if( !date ) date = new Date();
+	var y = date.getFullYear(), m = date.getMonth()+1, d = date.getDate();
+	return y+"-"+(m<10?"0"+m:m)+"-"+(d<10?"0"+d:d);
 }

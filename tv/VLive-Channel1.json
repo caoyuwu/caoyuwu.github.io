@@ -248,7 +248,8 @@ scp -O -r /opt/Third-src/GitHUB/caoyuwu.github.io/tv/VLive-Channel1.json  router
 	   {label:"热门-1",items:"@didilive-list:hot/1"},
 	    {label:"收费-1",items:"@didilive-list:vip/1"},
 	  // {label:"关注",items:"@didilive-list:onlineFriends/1"},
- 		{label:"颜-1",items:"@didilive-list:vegan/1"}
+ 		{label:"颜-1",items:"@didilive-list:vegan/1"},
+    {label:"历史",items:"@didilive-list:hist"}
  	//   ,{label:"热门-2",items:"@didilive-list:hot/2"},
 	  // {label:"热门-3",items:"@didilive-list:hot/3"},
 	  // {label:"热门-4",items:"@didilive-list:hot/4"},
