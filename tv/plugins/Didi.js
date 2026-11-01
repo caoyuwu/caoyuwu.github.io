@@ -188,7 +188,7 @@ function prepareMediaSource(url,params) {
 			utils.showToast("使用历史URL="+histUrl);
 			return histUrl;
 		} */
-	} else {
+	} else if( url.indexOf("/live/")>0 ) {
 		bkMediaSource[userId] = url;
 		// /live/s1310235770_7ab0f5c67c?
 		// m/live/s1310235770_7ab0f5c67c.
@@ -206,27 +206,7 @@ function prepareMediaSource(url,params) {
 		if( city )  vals[userId].city = city;
 		if( province )  vals[userId].province = province;
 		setHistValue(vals);
-		/*
-		var nickname = data.anchor ? data.anchor.nickname : null;
-		var p = url.indexOf("/live/");
-		var baseUrl = p>0 ? url.substring(0,p+6) : null;
-		var p = url.lastIndexOf("?");
-		var url0 = p>=0 ? url.substring(0,p) : url;
-		var stream_id = extractStreamIdFromURL(roomId,url0);
-		//print("url0="+url0+" ; stream_id="+stream_id+"; roomId="+roomId);
-		//print("baseUrl="+baseUrl+"; stream_id="+stream_id);
-		if( baseUrl && stream_id) {
-			//print("newUrl="+newStreamURL(baseUrl,stream_id));
-			var vals = {"baseUrl": baseUrl};
-			vals[userId] = {"nickname": nickname, "stream_id": stream_id,"room_id":roomId};
-			setHistValue(vals);
-		}
 
-		 */
-		//var urlParams  = utils.getUrlParameters(url);
-		//print("url0 = "+url0);
-		//print("stream_id = "+stream_id);
-		//utils.
 	}
 	return url;
 }
@@ -360,13 +340,13 @@ function loadListMenus(){
 			var roomId = vals.room_id;
 			if( vals.province ) title += "-"+vals.province;
 			if( vals.city && vals.city!=vals.province ) title += "-"+vals.city;
-			title += "-"+vals.modifydate;
+			title += "/"+vals.modifydate;
 			vCh.push({title:title,url:"didilive://"+roomId+"/"+userId,msgSocketArgs:[roomId+"/"+userId]});
 		}
 	}
 	vCh.sort((v1,v2)=>{
 		var s1 = v1.title, s2=v2.title;
-		var p1=s1.lastIndexOf('-'), p2 = s2.lastIndexOf('-');
+		var p1=s1.lastIndexOf('/'), p2 = s2.lastIndexOf('/');
 		s1 = s1.substring(p1+1); s2 =   s2.substring(p2+1);
 		return s2.localeCompare(s1);
 			});
