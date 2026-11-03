@@ -300,6 +300,7 @@ function loadMenus(url,params){
 	    var li = list[i];
 	    var userId = li.id;
 		var roomId = li.curroomnum;
+		if( "1981950118"==roomId && vCh.length>0 ) continue; // "押金缴纳房"
 		var userName = li.nickname;
 		var title = li.nickname;//li.roomTitle || "";
 		if( li.roomTitle )
