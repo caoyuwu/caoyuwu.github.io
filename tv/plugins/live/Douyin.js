@@ -2,6 +2,7 @@
   scp -O /opt/Third-src/GitHUB/caoyuwu.github.io/tv/plugins/live/Douyin.js router:/www/tv/plugins/live/
   http://router.lan/tv/plugins/live/Douyin.js
   https://live.douyin.com/208823316033    // CCTV-6
+  browserw-https://live.douyin.com/
     => douyinlive://208823316033
     douyinlive:746495143885 // 嘉佳
   参考：
